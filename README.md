@@ -1,10 +1,10 @@
 # This repository belongs to the Group 6 of CMPE 352 Course
 
-### About Us: 
+### About Us
 
 We are 3rd and 4th year students of Department of Computer Engineering.
 
-### About the Project: 
+### About the Project
 
 We are still in the planning stage.
 
