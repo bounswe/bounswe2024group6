@@ -8,7 +8,7 @@ We are 3rd and 4th year students of Department of Computer Engineering.
 
 We are still in the planning stage.
 
-###  Team Members:
+###  Team Members
 * Oktay Özel
 * [Aras Taşçı](https://github.com/bounswe/bounswe2024group6/wiki/Personal-Wiki-&-Efforts:-Aras-Taşçı)
 * [Yunus Emre Özdemir](https://github.com/bounswe/bounswe2024group6/wiki/Personal-Wiki-&-Effort:-Yunus-Emre-Özdemir)
