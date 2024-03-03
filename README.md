@@ -10,7 +10,7 @@ We are still in the planning stage.
 
 ###  Team Members:
 * [Oktay Özel] ()
-* [Aras Taşçı] (https://github.com/bounswe/bounswe2024group6/wiki/Personal-Wiki-&-Efforts:-Aras-Taşçı)
+* [Aras Taşçı](https://github.com/bounswe/bounswe2024group6/wiki/Personal-Wiki-&-Efforts:-Aras-Taşçı)
 * [Yunus Emre Özdemir] 
 * [Kaan Yolcu] 
 * [Elif Nur Deniz] 
