@@ -16,6 +16,6 @@ We are still in the planning stage.
 * [Elif Nur Deniz](https://github.com/bounswe/bounswe2024group6/wiki/Personal-Wiki-&-Effort:-Elif-Nur-Deniz)
 * [Eymen Çeliktürk](https://github.com/bounswe/bounswe2024group6/wiki/Personal-Wiki-&-Efforts:-Eymen-Çeliktürk)
 * [Anıl Köse](https://github.com/bounswe/bounswe2024group6/wiki/Personal-Wiki-%26-Effort%3A-Anıl-Köse)
-* Battal Hazar
+* [Battal Hazar](https://github.com/bounswe/bounswe2024group6/wiki/Personal-Wiki-&-Effort--Battal-Hazar)
 * [Halil Özkan](https://github.com/bounswe/bounswe2024group6/wiki/Personal-Wiki-&-Effort:-Halil-Özkan) 
 * [Ebru Özçakı](https://github.com/bounswe/bounswe2024group6/wiki/Personal-Wiki-&-Effort:-Ebru-Özçakı)
