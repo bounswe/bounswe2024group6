@@ -3,6 +3,9 @@
 ### About Us
 
 We are 3rd and 4th year students of Department of Computer Engineering.
+![White and Black Corporate Architecture Presentation](https://github.com/bounswe/bounswe2024group6/assets/57640531/cb99734c-7d9e-48c3-bcd8-11472ac2afae)
+
+
 
 ### About the Project
 
