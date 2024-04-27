@@ -3,12 +3,19 @@ from rest_framework.authentication import SessionAuthentication, TokenAuthentica
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 
 from .serializers import UserSerializer
+from django.http import HttpResponse
+
+
+
+def home(request):
+    return HttpResponse("Welcome to our website!")
+
+
 
 @api_view(['POST'])
 def signup(request):
