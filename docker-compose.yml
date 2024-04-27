@@ -1,0 +1,30 @@
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+    healthcheck:
+      test: ["CMD", "mysqladmin", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}", "version"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+  backend:
+    build: ./backend/django-rest-auth
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/django-rest-auth:/app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+       - MYSQL_DATABASE=${MYSQL_DATABASE}
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+
