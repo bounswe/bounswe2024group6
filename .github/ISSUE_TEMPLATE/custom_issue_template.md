@@ -2,6 +2,7 @@
 name: Comprehensive Issue Template
 about: Use this template for creating well-documented issues.
 labels: 'status: new'
+title: "[Issue Title]: Brief Description"
 ---
 
 <!--- Reminder: Add new issues to the RAM (Risk Assessment Matrix) for visibility and tracking. -->
