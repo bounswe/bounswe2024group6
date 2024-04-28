@@ -43,4 +43,4 @@ def search(request):
         architect_response = query_architect(keyword)
         return JsonResponse({"style": style_response,"building": building_response,"architect":architect_response })
        
-    return Response("searched keyword not found",status=status.HTTP_204_NO_CONTENT)
+    return Response("there was an error with the query.",status=status.HTTP_204_NO_CONTENT)
