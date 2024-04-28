@@ -2,7 +2,8 @@ import requests
 
 import requests
 import logging
-
+import json
+import hashlib
 
 
 def choose_architecture_query(keyword):
@@ -54,8 +55,9 @@ def query_architectural_style(query):
         return {"response:": "error: while query the data"}
     elif data['results']['bindings'] == []:
         return None
-    
-    return data
+
+    return calculate_result_list(data)
+
     
 def query_architect(query):
     
@@ -75,7 +77,8 @@ def query_architect(query):
     elif data['results']['bindings'] == []:
         return None
     
-    return data
+    return calculate_result_list(data)
+
     
     
 def query_building(query):
@@ -93,10 +96,39 @@ def query_building(query):
     print(data)
     if response.status_code == 500:
         return {"response:": "error: while query the data"}
+    
     elif data['results']['bindings'] == []:
         return None
+    
+    return calculate_result_list(data)
 
-    return data
 
 
 
+def calculate_result_list(data):
+    result_list = []
+    for entry in data['results']['bindings']:
+        
+        entity_id = entry['item']['value'].split('/')[-1].strip()
+        response = requests.get(f"https://www.wikidata.org/w/api.php?action=wbgetclaims&property=P18&entity={entity_id}", params= {"format": "json"})
+        data = response.json()
+        item_label = entry['itemLabel']['value']
+        response_dict = {"Entity ID": entity_id, "Item Label": item_label}
+        
+        if "P18" in data["claims"]:
+            image_name = data["claims"]["P18"][0]["mainsnak"]["datavalue"]["value"]
+            underscores_str = replace_under_score(image_name)
+            
+            response_dict['Image'] = f''' https://commons.wikimedia.org/w/index.php?title=Special:Redirect/file/{underscores_str}&width=300'''
+        result_list.append(response_dict)
+    return result_list
+
+
+def replace_under_score(string):
+    modified_str = ""
+    for i in range(len(string)):
+        if string[i] == " ":
+            modified_str += "_"
+        else:
+            modified_str += string[i]
+    return modified_str
