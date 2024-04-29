@@ -6,9 +6,11 @@ from rest_framework import status
 
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
+from django.http import JsonResponse, HttpResponse
 from rest_framework.authtoken.models import Token
 
 from .serializers import UserSerializer
+from .utils import query_architect,query_architectural_style,query_building
 
 @api_view(['POST'])
 def signup(request):
@@ -31,3 +33,14 @@ def login(request):
     serializer = UserSerializer(user)
     return Response({'token': token.key, 'user': serializer.data})
 
+@api_view(['GET'])
+def search(request):
+    print(request.data)
+    if request.method == "GET" and "query" in request.data:
+        keyword = request.data['query']
+        style_response = query_architectural_style(keyword)
+        building_response = query_building(keyword)
+        architect_response = query_architect(keyword)
+        return JsonResponse({"style": style_response,"building": building_response,"architect":architect_response })
+       
+    return Response("there was an error with the query.",status=status.HTTP_204_NO_CONTENT)
