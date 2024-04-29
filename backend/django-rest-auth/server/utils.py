@@ -120,6 +120,9 @@ def calculate_result_list(data):
             underscores_str = replace_under_score(image_name)
             
             response_dict['Image'] = f''' https://commons.wikimedia.org/w/index.php?title=Special:Redirect/file/{underscores_str}&width=300'''
+        else:
+            response['Image'] = "No Image"
+
         result_list.append(response_dict)
     return result_list
 
