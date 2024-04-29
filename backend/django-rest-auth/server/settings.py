@@ -81,7 +81,7 @@ DATABASES = {
         'NAME': 'searchitect',
         'USER': 'root',
         'PASSWORD': '1a2w3s4r.kaan',
-        'HOST': 'db',  
+        'HOST': 'localhost',  
         'PORT': '3306',  
     }
 }
