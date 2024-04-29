@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import { RouterProvider } from 'react-router-dom'
 import { typesafeBrowserRouter } from 'react-router-typesafe';
 import { Home, Feed, Profile, Architect, Building, Style } from './pages/index'
+import './index.css'
 
 const { router, href } = typesafeBrowserRouter([
   {
