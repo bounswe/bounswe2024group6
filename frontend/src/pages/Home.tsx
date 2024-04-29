@@ -6,7 +6,6 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 import axios from 'axios';
 
-
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -30,7 +29,7 @@ const loginFormSchema = z.object({
     password: z.string().min(2).max(50),
   })
 
-
+const BASE_URL = ""
 
 export default function Home() {
     const { checkAuth, login } = useAuth()
@@ -62,7 +61,7 @@ export default function Home() {
     function onRegisterSubmit(values: z.infer<typeof registerFormSchema>) {
         // Do something with the form values.
         
-        axios.post('http://127.0.0.1:8000/signup/', values)
+        axios.post(`${BASE_URL}:8000/signup/`, values)
           .then(function (response) {
             registerForm.reset();
             setIsLogin(true);
@@ -77,7 +76,7 @@ export default function Home() {
     function onLoginSubmit(values: z.infer<typeof loginFormSchema>) {
         // Do something with the form values.
         
-        axios.post('http://127.0.0.1:8000/login/', values)
+        axios.post(`${BASE_URL}:8000/login/`, values)
           .then(function (response) {
             loginForm.reset();
             login(response.data);
