@@ -3,7 +3,8 @@ import { Navbar } from '../components'
 import { useAuth } from '../hooks'
 
 export default function Profile() {
-    const { isAuth } = useAuth()
+    const { checkAuth } = useAuth()
+    const isAuth = checkAuth()
 
     return (
         <div>
