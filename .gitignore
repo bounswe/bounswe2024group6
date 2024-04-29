@@ -1,6 +1,5 @@
 # Environment variables
 .env
-venv/
 
 # Editor directories and files
 .vscode/*
@@ -11,4 +10,16 @@ venv/
 *.ntvs*
 *.njsproj
 *.sln
-*.sw?
+*.sw?^
+
+__pycache__/
+venv/
+*.pyc
+staticfiles
+static
+.DS_Store
+.idea
+.coverage
+.dccache
+.vscode/settings.json
+.vscode/tasks.json
