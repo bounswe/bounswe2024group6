@@ -2,10 +2,21 @@ import { useAuth } from '../hooks'
 import { Input } from "@/components/ui/input"
 import BookmarksOutlinedIcon from '@mui/icons-material/BookmarksOutlined';
 import { Avatar, AvatarFallback, AvatarImage, } from "@/components/ui/avatar"
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+  } from "@/components/ui/dropdown-menu"
+  
 
 export default function Navbar() {
-    const { isAuth } = useAuth()
+    const { checkAuth, logout } = useAuth()
+    const isAuth = checkAuth()
+    const navigate = useNavigate()
 
     return (
         <div className="flex bg-zinc-900 text-white w-full items-center justify-between py-3 px-6">
@@ -26,10 +37,19 @@ export default function Navbar() {
                 ?
                     <div className="flex items-center gap-3">
                         <BookmarksOutlinedIcon />
-                        <Avatar className="border-white border-2">
-                            <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-                            <AvatarFallback>CN</AvatarFallback>
-                        </Avatar>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger>
+                                <Avatar className="border-white border-2">
+                                    <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+                                    <AvatarFallback>CN</AvatarFallback>
+                                </Avatar>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                                <DropdownMenuItem><button onClick={() => {navigate("/profile");}}>Profile</button></DropdownMenuItem>
+                                <DropdownMenuItem><button onClick={() => {logout(); navigate("/");}}>Logout</button></DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+
                     </div>
                 :
                     <div className="flex items-center gap-2">
