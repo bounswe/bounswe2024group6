@@ -1,3 +1,5 @@
 django==5.0.4
 djangorestframework==3.15.1
+django-cors-headers
 mysqlclient
+requests
