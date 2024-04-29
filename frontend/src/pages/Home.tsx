@@ -1,4 +1,4 @@
-import { Navigate } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks'
 import { useState } from 'react'
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -19,35 +19,69 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 
-const formSchema = z.object({
+const registerFormSchema = z.object({
     username: z.string().min(2).max(50),
     email: z.string().min(2).max(50),     // validation
     password: z.string().min(2).max(50),   // strong pass
   })
 
+const loginFormSchema = z.object({
+    username: z.string().min(2).max(50),
+    password: z.string().min(2).max(50),
+  })
+
 
 
 export default function Home() {
-    const { isAuth } = useAuth()
+    const { checkAuth, login } = useAuth()
+    const isAuth = checkAuth()
     const [isLogin, setIsLogin] = useState<boolean>(false)
+    const navigate = useNavigate()
 
 
     if (isAuth) return <Navigate to="/Feed" />
 
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
+    const registerForm = useForm<z.infer<typeof registerFormSchema>>({
+        resolver: zodResolver(registerFormSchema),
         defaultValues: {
-          username: "",
+            username: "",
+            email: "",
+            password: "",
+        },
+    })
+
+    const loginForm = useForm<z.infer<typeof loginFormSchema>>({
+        resolver: zodResolver(loginFormSchema),
+        defaultValues: {
+            username: "",
+            password: "",
         },
     })
      
         // 2. Define a submit handler.
-    function onSubmit(values: z.infer<typeof formSchema>) {
+    function onRegisterSubmit(values: z.infer<typeof registerFormSchema>) {
         // Do something with the form values.
         
         axios.post('http://127.0.0.1:8000/signup/', values)
           .then(function (response) {
-            console.log(response);
+            registerForm.reset();
+            setIsLogin(true);
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+        // ✅ This will be type-safe and validated.
+        
+    }
+
+    function onLoginSubmit(values: z.infer<typeof loginFormSchema>) {
+        // Do something with the form values.
+        
+        axios.post('http://127.0.0.1:8000/login/', values)
+          .then(function (response) {
+            loginForm.reset();
+            login(response.data);
+            navigate('/feed');
           })
           .catch(function (error) {
             console.log(error);
@@ -92,11 +126,37 @@ export default function Home() {
                                 Login
                             </div>
                             <div className="flex flex-col gap-2 w-7/12">
-                                <Input placeholder="username" />
-                                <Input placeholder="password" />
-                                <Button className="w-full bg-zinc-900">
-                                    Continue
-                                </Button>
+                            <Form {...loginForm}>
+                                    <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-2">
+                                        <FormField
+                                        control={loginForm.control}
+                                        name="username"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                            <FormControl>
+                                                <Input placeholder="Username" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                            </FormItem>
+                                            
+                                        )}
+                                        />
+                                        <FormField
+                                        control={loginForm.control}
+                                        name="password"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                            <FormControl>
+                                                <Input placeholder="Password" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                            </FormItem>
+                                            
+                                        )}
+                                        />
+                                        <Button className="w-full bg-zinc-900" type="submit">Continue</Button>
+                                    </form>
+                                </Form>
                             </div>
                         </div>
                     :
@@ -108,14 +168,13 @@ export default function Home() {
                                 Enter a username, email, and password to get started
                             </div>
                             <div className="flex flex-col w-7/12 mt-2">
-                                <Form {...form}>
-                                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                                <Form {...registerForm}>
+                                    <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-2">
                                         <FormField
-                                        control={form.control}
+                                        control={registerForm.control}
                                         name="username"
                                         render={({ field }) => (
                                             <FormItem>
-                                            <FormLabel>Username</FormLabel>
                                             <FormControl>
                                                 <Input placeholder="Username" {...field} />
                                             </FormControl>
@@ -125,13 +184,12 @@ export default function Home() {
                                         )}
                                         />
                                         <FormField
-                                        control={form.control}
+                                        control={registerForm.control}
                                         name="email"
                                         render={({ field }) => (
                                             <FormItem>
-                                            <FormLabel>Email</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="Email@email.com" {...field} />
+                                                <Input placeholder="example@email.com" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                             </FormItem>
@@ -139,11 +197,10 @@ export default function Home() {
                                         )}
                                         />
                                         <FormField
-                                        control={form.control}
+                                        control={registerForm.control}
                                         name="password"
                                         render={({ field }) => (
                                             <FormItem>
-                                            <FormLabel>Password</FormLabel>
                                             <FormControl>
                                                 <Input placeholder="Password" {...field} />
                                             </FormControl>
@@ -152,7 +209,7 @@ export default function Home() {
                                             
                                         )}
                                         />
-                                        <Button className="w-full" type="submit">Continue</Button>
+                                        <Button className="w-full bg-zinc-900" type="submit">Continue</Button>
                                     </form>
                                 </Form>
                             </div>
