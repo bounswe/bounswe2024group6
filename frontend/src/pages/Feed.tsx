@@ -1,9 +1,11 @@
+import { Button } from '@/components/ui/button'
 import { Navbar } from '../components'
 
 import { useAuth } from '../hooks'
 
 export default function Feed() {
-    const { isAuth } = useAuth()
+    const { checkAuth } = useAuth()
+    const isAuth = checkAuth()
 
     return (
         <div>
