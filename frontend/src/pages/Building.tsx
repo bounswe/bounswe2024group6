@@ -21,7 +21,7 @@ export default function Building() {
                 <div className="h-screen w-[100vh]">
                     <div className="h-1/2 w-[50vh] pt-6 pl-6 pr-3 pb-3">
                         <div className="h-full w-full bg-lime-500 rounded-2xl">
-
+                            
                         </div>
                     </div>
                     <div className="h-1/2 w-[50vh] pb-6 pl-6 pr-3 pt-3">

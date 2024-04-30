@@ -17,6 +17,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import SearchIcon from '@mui/icons-material/Search';
 
 const registerFormSchema = z.object({
     username: z.string().min(2).max(50),
@@ -29,6 +30,10 @@ const loginFormSchema = z.object({
     password: z.string().min(2).max(50),
   })
 
+  const searchSchema = z.object({
+    query: z.string().min(5).max(50),
+  })
+
 const BASE_URL = ""
 
 export default function Home() {
@@ -36,6 +41,7 @@ export default function Home() {
     const isAuth = checkAuth()
     const [isLogin, setIsLogin] = useState<boolean>(false)
     const navigate = useNavigate()
+    const [query, setQuery] = useState<string>("")
 
 
     if (isAuth) return <Navigate to="/Feed" />
@@ -48,12 +54,19 @@ export default function Home() {
             password: "",
         },
     })
-
+    
     const loginForm = useForm<z.infer<typeof loginFormSchema>>({
         resolver: zodResolver(loginFormSchema),
         defaultValues: {
             username: "",
             password: "",
+        },
+    })
+
+    const searchForm = useForm<z.infer<typeof searchSchema>>({
+        resolver: zodResolver(searchSchema),
+        defaultValues: {
+            query: "",
         },
     })
      
@@ -89,6 +102,10 @@ export default function Home() {
         
     }
 
+    function handleSearch(values: z.infer<typeof searchSchema>) {
+        navigate(`/wiki/browse?q=${values.query}`);
+    }
+
     return (
         <div className="flex h-screen w-screen">
             <div className="flex-1 bg-zinc-900 h-full w-full flex flex-col justify-between p-8 text-white">
@@ -99,7 +116,26 @@ export default function Home() {
                     <div className="text-2xl font-bold">
                         Browse as a guest
                     </div>
-                    <Input placeholder="Search..." className="w-7/12 mt-3 bg-zinc-900" />
+                    <Form {...searchForm}>
+                        <form onSubmit={searchForm.handleSubmit(handleSearch)} className="w-7/12 mt-3 flex flex-row gap-2">
+                            <div className='w-full'>
+                                <FormField
+                                control={searchForm.control}
+                                name="query"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormControl>
+                                        <Input placeholder="Search..." {...field} className='bg-zinc-900 w-full'/>
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                                />
+                            </div>
+                            
+                            <Button variant="outline" type='submit' className='text-zinc-900 w-10'><SearchIcon /></Button>
+                        </form>
+                    </Form>
                     <div className="text-zinc-500">
                         Example: Neoclassical, Taj Mahal, Gaudí
                     </div>

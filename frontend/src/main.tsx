@@ -4,6 +4,7 @@ import { RouterProvider } from 'react-router-dom'
 import { typesafeBrowserRouter } from 'react-router-typesafe';
 import { Home, Feed, Profile, Architect, Building, Style } from './pages/index'
 import './index.css'
+import Browse from './pages/Browse'
 
 const { router, href } = typesafeBrowserRouter([
   {
@@ -29,6 +30,10 @@ const { router, href } = typesafeBrowserRouter([
   {
     path: "/wiki/style",
     Component: Style
+  },
+  {
+    path: "/wiki/browse",
+    Component: Browse
   }
 ]);
 

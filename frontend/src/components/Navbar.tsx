@@ -11,7 +11,8 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
   } from "@/components/ui/dropdown-menu"
-  
+  import { Button } from "@/components/ui/button"  
+  import SearchIcon from '@mui/icons-material/Search';
 
 export default function Navbar() {
     const { checkAuth, logout } = useAuth()
@@ -29,8 +30,9 @@ export default function Navbar() {
                     Feed
                 </Link>
             </div>
-            <div className="flex justify-center w-1/4">
+            <div className="flex justify-center gap-2 w-1/4">
                 <Input placeholder="Search..." className="bg-zinc-900" />
+                <Button variant="outline" className='text-zinc-900 w-10'><SearchIcon /></Button>
             </div>
             {
                 isAuth
