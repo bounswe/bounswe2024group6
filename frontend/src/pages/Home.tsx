@@ -6,6 +6,9 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 import axios from 'axios';
 
+import BASE_URL from '../lib/baseUrl'
+
+
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -30,11 +33,9 @@ const loginFormSchema = z.object({
     password: z.string().min(2).max(50),
   })
 
-  const searchSchema = z.object({
+const searchSchema = z.object({
     query: z.string().min(5).max(50),
-  })
-
-const BASE_URL = ""
+})
 
 export default function Home() {
     const { checkAuth, login } = useAuth()
