@@ -49,3 +49,47 @@ docker compose up
 
 * The front-end server will be avaliable at "http://127.0.0.1:5173/" and the back-end server will be avaliable at "http://127.0.0.1:8000/".
 
+
+### Mobile App
+
+* First, go to the project folder, it is where package.json is located.
+* Use the commands
+```
+npm run start
+npm run android
+npm run ios
+```
+and what they do respectively as follows:
+  - Runs the expo server.
+  - Runs the app in an android device
+  - Runs the app in an ios device
+
+Then you can reach the mobile app and web app via following IP addresses:
+
+- Metro server will be waiting on exp://192.168.1.76:8081
+- Web will be waiting on http://localhost:8081
+
+Once the expo server starts, you can do the following:
+
+› Press s │ switch to development build
+
+› Press a │ open Android
+
+› Press i │ open iOS simulator
+
+› Press w │ open web
+
+› Press j │ open debugger
+
+› Press r │ reload app
+
+› Press m │ toggle menu
+
+› Press o │ open project code in your editor
+
+› Press ? │ show all commands
+
+
+
+
+
