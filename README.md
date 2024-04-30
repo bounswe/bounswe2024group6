@@ -25,24 +25,27 @@ Our project is a semantic information for architectural domain. In the Wiki page
 * [Ebru Özçakı](https://github.com/bounswe/bounswe2024group6/wiki/Personal-Wiki-&-Effort:-Ebru-Özçakı)
 
 
-### Project Build
-Prerequisites: Docker
+### Project Build Steps
+* Prerequisites: Docker
 
-Clone the repository to your local environment:
+* Clone the repository to your local environment:
 
+```
 git clone https://github.com/bounswe/bounswe2024group6.git
 cd bounswe2024group6
+```
 
-Set the env variables as shown in ./.env.example in ./.env
+* Set the env variables as shown in ./.env.example in ./.env.
 
-Update allowed hosts in ./backend\django-rest-auth\server\settings.py. Add the IPs that can send request to your API. For your local environment, add local host.
+* Update allowed hosts in ./backend\django-rest-auth\server\settings.py. Add the IPs that can send request to your API. For your local environment, add local host.
 
-Set base urls in frontend\src\pages\Browse.tsx, frontend\src\pages\Home.tsx pages (ie. local host).
+* Set base urls in frontend\src\pages\Browse.tsx, frontend\src\pages\Home.tsx pages (ie. local host).
 
-After that, run the docker codes below to start the application:
-
+* After that, run the docker codes below to start the application:
+```
 docker compose build
 docker compose up
+```
 
-The front-end server will be avaliable in "http://127.0.0.1:5173/" and the back-end server will be avaliable in "http://127.0.0.1:8000/"
+* The front-end server will be avaliable at "http://127.0.0.1:5173/" and the back-end server will be avaliable at "http://127.0.0.1:8000/".
 
