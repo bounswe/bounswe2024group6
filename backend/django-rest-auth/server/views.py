@@ -33,10 +33,10 @@ def login(request):
     serializer = UserSerializer(user)
     return Response({'token': token.key, 'user': serializer.data})
 
-@api_view(['GET'])
+@api_view(['POST'])
 def search(request):
     print(request.data)
-    if request.method == "GET" and "query" in request.data:
+    if request.method == "POST" and "query" in request.data:
         keyword = request.data['query']
         style_response = query_architectural_style(keyword)
         building_response = query_building(keyword)
