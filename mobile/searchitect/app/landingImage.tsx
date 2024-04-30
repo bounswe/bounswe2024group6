@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import {Image} from 'react-native'
 
-const LandingImage = (imageUri: string ) => {
+const LandingImage = () => {
  
 
   return (
 
       <View>
+        <Text>LANDING QUERY RESULT</Text>
              {/* <Image style={styles.image} source={{ uri: imageUri }} /> */}
 
       </View>
