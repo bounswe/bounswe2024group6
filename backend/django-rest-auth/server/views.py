@@ -9,6 +9,10 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse, HttpResponse
 from rest_framework.authtoken.models import Token
 
+from adrf.decorators import api_view
+
+import asyncio
+
 from .serializers import UserSerializer
 from .utils import query_architect,query_architectural_style,query_building
 
@@ -34,13 +38,26 @@ def login(request):
     return Response({'token': token.key, 'user': serializer.data})
 
 @api_view(['GET'])
-def search(request):
+async def search(request):
     print(request.data)
+
     if request.method == "GET" and "query" in request.data:
         keyword = request.data['query']
-        style_response = query_architectural_style(keyword)
-        building_response = query_building(keyword)
-        architect_response = query_architect(keyword)
-        return JsonResponse({"style": style_response,"building": building_response,"architect":architect_response })
-       
+        
+        # do the three queries asynchronously
+        
+        architect_task = asyncio.create_task(query_architect(keyword))
+
+        style_task = asyncio.create_task(query_architectural_style(keyword))    
+
+        building_task = asyncio.create_task(query_building(keyword))
+        architect_response = await architect_task
+        style_response = await style_task
+        building_response = await building_task
+
+        # return the results
+        response = {"style": style_response, "architect":architect_response, "building":building_response}
+
+        return JsonResponse(response)
+    
     return Response("there was an error with the query.",status=status.HTTP_204_NO_CONTENT)
