@@ -10,7 +10,7 @@ export default function Home() {
   const navigation = useNavigation();
 
   useEffect(() => {
-    navigation.setOptions({ headerShown: true });
+    navigation.setOptions({ headerShown: false });
   }, [navigation]);
 
   return (

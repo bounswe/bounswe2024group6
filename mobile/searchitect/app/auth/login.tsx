@@ -1,17 +1,25 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import { Pressable } from "react-native";
-import { Link, router } from "expo-router";
+import { Link } from "expo-router";
+import { loginUser } from '../api';
+import { useRouter } from 'expo-router';
 
 const LoginScreen = () => {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-
+  const router = useRouter()
+  
   const handleLogin = () => {
-    // Perform login logic, e.g., send request to server
-    // After successful login, navigate to another screen
-    //  navigation.navigate('Home');
-  };
+
+
+      loginUser({username: username,password:password}).then((res)=>{
+        console.log(res.token)
+        router.replace("feed")
+      }).catch((error)=>{
+        console.log(error)
+      });
+  }
 
   return (
     <View style={styles.container}>
@@ -25,15 +33,15 @@ const LoginScreen = () => {
 
 
       <Text style={{ fontWeight: 'bold', fontSize: 20 }}>Login</Text>
-      <Text style={{ fontWeight: '300', fontSize: 12, padding: 12 }}>Enter your email and password to login to your account</Text>
+      <Text style={{ fontWeight: '300', fontSize: 12, padding: 12 }}>Enter your username and password to login to your account</Text>
 
 
 
       <TextInput
         style={styles.input}
-        placeholder="name@example.com"
-        value={email}
-        onChangeText={setEmail}
+        placeholder="Username"
+        value={username}
+        onChangeText={setUsername}
       />
       <TextInput
         style={styles.input}

@@ -17,9 +17,11 @@ export default function Layout() {
       {/* Optionally configure static options outside the route.*/}
 
       <Stack.Screen name="landing" options={{headerShown: false}} />
+      <Stack.Screen name="landingImage" options={{headerShown: false}} />
+
       <Stack.Screen name="auth/login" options={{headerShown: false}} />
       <Stack.Screen name="auth/register" options={{headerShown: false}} />
-
+      <Stack.Screen name="feed" options={{headerShown: false}} />
 
     </Stack>
   );

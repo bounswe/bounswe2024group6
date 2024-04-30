@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Image, SafeAreaView, TextInput, Pressable } from "react-native";
 import LoginScreen from "./auth/login";
 import { useNavigation, useRouter, useLocalSearchParams } from "expo-router";
+import { AntDesign } from '@expo/vector-icons'; // Import AntDesign icon from Expo
+import { searchQuery } from "./api";
 
 const Landing = () => {
     console.log("Landing run");
@@ -15,12 +17,36 @@ const Landing = () => {
 
     const [searchText, setSearchText] = useState("")
 
+    const search = (text: string)=>{
+        router.replace({pathName: "/landingImage",params: {imageUri: "ss"}})
+        router.replace( "/landingImage" )
+
+        // searchQuery(text).then((res)=>{
+        //     console.log(res.building.Image)
+        //     // router.push({ pathname: `/details/${item.id}`, params: item }); // Remove the braces in params
+        //     router.replace({pathName: "/landingImage",params: {imageUri: res.building.Image}})
+        //     console.log(res)
+        // }).catch((err)=>{
+        //     console.log("err", err)
+        // })
+    }
+
     return (
         <SafeAreaView style={styles.safeAreaContainer}>
             <View style={styles.container}>
                 <View style={styles.row}>
                     {/* Logo */}
-                    <Image style={styles.image} source={{ uri: 'https://reactnative.dev/img/tiny_logo.png' }} />
+                    {/* <Image style={styles.image} source={{ uri: 'https://reactnative.dev/img/tiny_logo.png' }} /> */}
+
+                    <Text style={
+                        {
+                            color: 'white',
+                            textAlign: 'center',
+                            fontWeight: 'bold',
+                            padding: 10,
+                            fontSize: 14
+                        }}>
+                        SEARCHITECT</Text>
 
                     {/* Buttons */}
                     <View style={styles.buttonContainer}>
@@ -48,12 +74,13 @@ const Landing = () => {
                         color: 'white',
                         textAlign: 'center',
                         fontWeight: 'bold',
-                        padding:30,
-                        fontSize:25
+                        padding: 30,
+                        fontSize: 25
                     }}>
-                        Browse as a guest
-                    </Text>
+                    Browse as a guest
+                </Text>
 
+                <View style={styles.centerRow}>
                 <TextInput
                     style={styles.input}
                     placeholder="Search..."
@@ -61,9 +88,13 @@ const Landing = () => {
                     value={searchText}
                     onChangeText={setSearchText}
                 />
-                {/* <Pressable style={styles.loginButton} onPress={()=>{}}>
-                    <Text style={styles.loginButtonText}>Login</Text>
-                </Pressable> */}
+
+
+                <TouchableOpacity style={{ marginLeft: 10 }} onPress={()=>{search(searchText)}}>
+                    <AntDesign name="search1" size={24} color="white" /> 
+                </TouchableOpacity>
+                </View>
+
 
             </View>
         </SafeAreaView>
@@ -91,8 +122,16 @@ const styles = StyleSheet.create({
         padding: 10,
         width: "100%",
     },
+    centerRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 10,
+        width: "100%",
+    },
     input: {
         width: 300,
+        color:'white',
         marginBottom: 10,
         padding: 10,
         borderWidth: 1,

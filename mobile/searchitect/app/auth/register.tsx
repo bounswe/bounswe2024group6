@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Pressable, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native'; // assuming '@react-navigation/native' is used for navigation
 import { router } from 'expo-router';
+import { registerUser } from '../api';
 
 const RegisterScreen = () => {
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const navigation = useNavigation();
@@ -18,6 +20,15 @@ const RegisterScreen = () => {
       Alert.alert("Error", "Passwords do not match");
       return;
     }
+
+      registerUser({username: username,email: email,password:password}).then((res)=>{
+        console.log(res.token)
+        router.replace("feed")
+      }).catch((error)=>{
+        console.log(error)
+      });
+      
+   
     // Perform registration logic, e.g., send request to server
     // After successful registration, navigate to another screen
     // navigation.navigate('Login');
@@ -41,6 +52,12 @@ const RegisterScreen = () => {
         placeholder="name@example.com"
         value={email}
         onChangeText={setEmail}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Username"
+        value={username}
+        onChangeText={setUsername}
       />
       <TextInput
         style={styles.input}
