@@ -1,9 +1,7 @@
-import requests
-
+import requests_async
 import requests
 import logging
 import json
-import hashlib
 
 
 def choose_architecture_query(keyword):
@@ -29,16 +27,20 @@ def choose_architect_query(keyword):
     return architect_query
     
 def choose_building(keyword):
-    building_query=f'''SELECT DISTINCT ?item ?itemLabel  WHERE {{
+    building_query=f'''
+    SELECT DISTINCT ?item ?itemLabel  WHERE {{
             ?item rdfs:label ?itemLabel.
             ?item p:P149 ?statement1.
             ?statement1 (ps:P149/(wdt:P279*)) _:anyValueP149.
             FILTER(lang(?itemLabel) = "en" && contains(lcase(?itemLabel), "{keyword.lower()}"))
+
     }}
 '''
+    
+    
     return building_query
 
-def query_architectural_style(query):
+async def query_architectural_style(query):
     
     endpoint_url = "https://query.wikidata.org/sparql"
     headers = {
@@ -46,8 +48,8 @@ def query_architectural_style(query):
         'Accept': 'application/sparql-results+json'
     }
     params = {'query': choose_architecture_query(query), 'format': 'json'}
-    response = requests.get(endpoint_url, headers=headers, params=params)
-
+    response = await requests_async.get(endpoint_url, headers=headers, params=params)
+    
     data = response.json()
     
     print(data)
@@ -56,10 +58,10 @@ def query_architectural_style(query):
     elif data['results']['bindings'] == []:
         return None
 
-    return calculate_result_list(data)
+    return await calculate_result_list(data)
 
     
-def query_architect(query):
+async def query_architect(query):
     
     endpoint_url = "https://query.wikidata.org/sparql"
     headers = {
@@ -67,7 +69,7 @@ def query_architect(query):
         'Accept': 'application/sparql-results+json'
     }
     params = {'query': choose_architect_query(query), 'format': 'json'}
-    response = requests.get(endpoint_url, headers=headers, params=params)
+    response = await requests_async.get(endpoint_url, headers=headers, params=params)
 
     data = response.json()
     
@@ -77,11 +79,11 @@ def query_architect(query):
     elif data['results']['bindings'] == []:
         return None
     
-    return calculate_result_list(data)
+    return await calculate_result_list(data)
 
     
     
-def query_building(query):
+async def query_building(query):
     
     endpoint_url = "https://query.wikidata.org/sparql"
     headers = {
@@ -89,7 +91,7 @@ def query_building(query):
         'Accept': 'application/sparql-results+json'
     }
     params = {'query': choose_building(query), 'format': 'json'}
-    response = requests.get(endpoint_url, headers=headers, params=params)
+    response = await requests_async.get(endpoint_url, headers=headers, params=params)
 
     data = response.json()
     
