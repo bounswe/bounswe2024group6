@@ -40,7 +40,7 @@ def choose_building(keyword):
     
     return building_query
 
-async def query_architectural_style(query):
+def query_architectural_style(query):
     
     endpoint_url = "https://query.wikidata.org/sparql"
     headers = {
@@ -48,7 +48,7 @@ async def query_architectural_style(query):
         'Accept': 'application/sparql-results+json'
     }
     params = {'query': choose_architecture_query(query), 'format': 'json'}
-    response = await requests_async.get(endpoint_url, headers=headers, params=params)
+    response =  requests.get(endpoint_url, headers=headers, params=params)
     
     data = response.json()
     
@@ -58,10 +58,10 @@ async def query_architectural_style(query):
     elif data['results']['bindings'] == []:
         return None
 
-    return await calculate_result_list(data)
+    return calculate_result_list(data)
 
     
-async def query_architect(query):
+def query_architect(query):
     
     endpoint_url = "https://query.wikidata.org/sparql"
     headers = {
@@ -69,7 +69,7 @@ async def query_architect(query):
         'Accept': 'application/sparql-results+json'
     }
     params = {'query': choose_architect_query(query), 'format': 'json'}
-    response = await requests_async.get(endpoint_url, headers=headers, params=params)
+    response = requests.get(endpoint_url, headers=headers, params=params)
 
     data = response.json()
     
@@ -79,11 +79,11 @@ async def query_architect(query):
     elif data['results']['bindings'] == []:
         return None
     
-    return await calculate_result_list(data)
+    return calculate_result_list(data)
 
     
     
-async def query_building(query):
+def query_building(query):
     
     endpoint_url = "https://query.wikidata.org/sparql"
     headers = {
@@ -91,7 +91,7 @@ async def query_building(query):
         'Accept': 'application/sparql-results+json'
     }
     params = {'query': choose_building(query), 'format': 'json'}
-    response = await requests_async.get(endpoint_url, headers=headers, params=params)
+    response = requests.get(endpoint_url, headers=headers, params=params)
 
     data = response.json()
     
@@ -123,7 +123,7 @@ def calculate_result_list(data):
             
             response_dict['Image'] = f''' https://commons.wikimedia.org/w/index.php?title=Special:Redirect/file/{underscores_str}&width=300'''
         else:
-            response['Image'] = "No Image"
+            response_dict['Image'] = "No Image"
 
         result_list.append(response_dict)
     return result_list
