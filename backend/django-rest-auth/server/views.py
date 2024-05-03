@@ -46,8 +46,8 @@ def search(request):
     if request.method == "POST" and "query" in request.data:
         keyword = request.data['query']
         
-        architect_response = query_architectural_style(keyword)
-        style_response = query_architect(keyword)
+        architect_response =query_architect(keyword)
+        style_response =  query_architectural_style(keyword)
         building_response = query_building(keyword)
 
         # return the results
