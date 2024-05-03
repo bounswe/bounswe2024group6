@@ -37,23 +37,16 @@ def login(request):
     serializer = UserSerializer(user)
     return Response({'token': token.key, 'user': serializer.data})
 
-@api_view(['GET'])
-async def search(request):
+@api_view(['POST'])
+def search(request):
     print(request.data)
 
-    if request.method == "GET" and "query" in request.data:
+    if request.method == "POST" and "query" in request.data:
         keyword = request.data['query']
         
-        # do the three queries asynchronously
-        
-        architect_task = asyncio.create_task(query_architect(keyword))
-
-        style_task = asyncio.create_task(query_architectural_style(keyword))    
-
-        building_task = asyncio.create_task(query_building(keyword))
-        architect_response = await architect_task
-        style_response = await style_task
-        building_response = await building_task
+        architect_response = query_architectural_style(keyword)
+        style_response = query_architect(keyword)
+        building_response = query_building(keyword)
 
         # return the results
         response = {"style": style_response, "architect":architect_response, "building":building_response}
