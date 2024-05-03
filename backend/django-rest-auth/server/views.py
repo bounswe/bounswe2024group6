@@ -37,8 +37,10 @@ def login(request):
     serializer = UserSerializer(user)
     return Response({'token': token.key, 'user': serializer.data})
 
+
 @api_view(['POST'])
 def search(request):
+
     print(request.data)
 
     if request.method == "POST" and "query" in request.data:
