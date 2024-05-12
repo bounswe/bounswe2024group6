@@ -3,6 +3,23 @@ import { Navbar } from '../components'
 import { ScrollArea } from "@/components/ui/scroll-area"
 
 export default function Building() {
+    const mockData = {
+        name: "Sagrada Família",
+        description: "monumental Roman Catholic basilica under construction in Barcelona, Catalonia, Spain.",
+        wikiText: "The Sagrada Família is a large unfinished Roman Catholic basilica in Barcelona, Catalonia, Spain. Designed by Catalan architect Antoni Gaudí (1852–1926), his work on the building is part of a UNESCO World Heritage Site. In November 2010, Pope Benedict XVI consecrated the church and proclaimed it a minor basilica. On 7 November 2010, it became a minor basilica, as designated by Pope Benedict XVI.",
+        country: "Spain",
+        architect: [{name: "Antoni Gaudí",
+                    image: "https://commons.wikimedia.org/wiki/File:Gaud%C3%AD_(1878).jpg",
+                    id: "Q25328"    // ?
+                    }],
+        image: "https://commons.wikimedia.org/wiki/File:Sagrada_Familia_8-12-21_(1).jpg",
+        architecturalStyle: [{id:"Q1122677",name:"Catalan modernism",image:"https://www.wikidata.org/wiki/Property:P18"},
+                                {id:"Q186363",name:"Gothic Revival",image:"https://commons.wikimedia.org/wiki/File:Royal_Courts_of_Justice_20130414_065.JPG"}],
+        coordinates: {
+            latitude: 2.17433,
+            longitude: 41.40369
+        }
+    }
     return (
         <div className="h-screen w-screen">
             <Navbar />
