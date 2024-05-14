@@ -14,7 +14,7 @@ from adrf.decorators import api_view
 import asyncio
 
 from .serializers import UserSerializer
-from .utils import query_architect,query_architectural_style,query_building
+from .utils import query_architect,query_architectural_style,query_building, get_description_wikibase, get_content_wikidata
 
 @api_view(['POST'])
 def signup(request):
@@ -56,3 +56,13 @@ def search(request):
         return JsonResponse(response)
     
     return Response("there was an error with the query.",status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['GET'])
+def building_view(request):
+    
+    if request.method == "GET":
+        entity_id = request.data['entity_id']
+        get_description_wikibase(entity_id)
+        get_content_wikidata(entity_id)
+        
+

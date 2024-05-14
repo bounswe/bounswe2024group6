@@ -137,3 +137,37 @@ def replace_under_score(string):
         else:
             modified_str += string[i]
     return modified_str
+
+def get_description_wikibase(entity_id):
+    wikibase_endpoint_url = "https://wikidata.org/w/rest.php/wikibase/v0"
+    response = requests.get(f"{wikibase_endpoint_url}/entities/items/{entity_id}/descriptions")
+    print(response.json())
+    return response.json()
+
+
+
+def get_content_wikidata(entity_id):
+    title = get_title_wikibase(entity_id)
+    page_id = get_page_id_wikibase(title)
+    # endpoint_url = f"https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&explaintext&format=json&pageids={page_id}"
+    endpoint_url = f"https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exlimit=max&explaintext&titles={title}"
+    response = requests.get(endpoint_url)
+    text = response.json()["query"]["pages"][page_id]["extract"]
+    print(text)
+    return text
+
+def get_title_wikibase(entity_id):
+    print(entity_id)
+    endpoint_url = f"https://www.wikidata.org/w/api.php?action=wbgetentities&ids={entity_id}&format=json&props=sitelinks"
+    response = requests.get(endpoint_url)
+
+    resp = response.json()
+    print(resp)
+    title = resp["entities"][entity_id]["sitelinks"]["enwiki"]["title"]
+    return title
+
+def get_page_id_wikibase(entity_title):
+    endpoint_url = f"https://en.wikipedia.org/w/api.php?action=query&titles={entity_title}&format=json"
+    response = requests.get(endpoint_url)
+    page_id = list(response.json()["query"]["pages"].keys())[0]
+    return page_id
