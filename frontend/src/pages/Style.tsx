@@ -7,8 +7,8 @@ export default function Style() {
         name: "Brutalism",
         description: "20th century style of architecture",
         wikiText: "Brutalist architecture is an architectural style that emerged during the 1950s in the United Kingdom, among the reconstruction projects of the post-war era.[1][2][3][4][5] Brutalist buildings are characterised by minimalist constructions that showcase the bare building materials and structural elements over decorative design.[6][7] The style commonly makes use of exposed, unpainted concrete or brick, angular geometric shapes and a predominantly monochrome colour palette;[8][7] other materials, such as steel, timber, and glass, are also featured.",
-        //influenced by
-        discovererOrInventor: [
+        //influenced by     bi yerde architect i bi yerde related sytle ı veriyo
+        discovererOrInventor: [    // architectler sayfada çıkmıyo
             {name: "Reyner Banham",
                 image: "",
                 id: "Q647075"
