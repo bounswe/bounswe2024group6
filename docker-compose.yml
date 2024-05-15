@@ -1,6 +1,8 @@
 services:
   db:
     image: mysql:8.0
+    ports:
+      - "3306:3306"
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - MYSQL_DATABASE=${MYSQL_DATABASE}
@@ -10,11 +12,11 @@ services:
       timeout: 10s
       retries: 5
   backend:
-    build: ./backend/django-rest-auth
+    build: ./new_backend/project
     ports:
       - "8000:8000"
     volumes:
-      - ./backend/django-rest-auth:/app
+      - ./new_backend/project:/app
     depends_on:
       db:
         condition: service_healthy
