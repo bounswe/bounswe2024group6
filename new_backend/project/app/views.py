@@ -11,6 +11,8 @@ from rest_framework.authtoken.models import Token
 
 from adrf.decorators import api_view
 from .models import Post, CustomUser, Tag, Image
+from .models import Post, Like
+from .models import Post, PostComments
 
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
@@ -72,17 +74,28 @@ def search(request):
 def index(request):
     return 
 
-@api_view(['GET'])
+
+@api_view(['POST'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
-def user_profile(request):
+def update_user_profile(request):
     user = request.user
+    serializer = UserSerializer(user, data=request.data, partial=True)  # Allow partial updates
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    return Response(serializer.errors, status=400)
+
+
+@api_view(['GET'])
+def user_profile(request):
+    username = request.data.get('username')  # Retrieve username from request body
+    user = get_object_or_404(CustomUser, username=username)
     user_data = UserSerializer(user).data
     user_posts = Post.objects.filter(author=user)
     posts_data = PostSerializer(user_posts, many=True).data
     user_data['posts'] = posts_data
     return Response(user_data)
-
 
 @api_view(['POST'])
 @authentication_classes([TokenAuthentication])
@@ -115,3 +128,81 @@ def create_post(request):
         return Response({'message': 'Post created successfully'}, status=status.HTTP_201_CREATED)
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def like_post(request):
+    user = request.user
+    post_id = request.data.get('post_id')
+
+    if not post_id:
+        return Response({'error': 'Post ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        post = Post.objects.get(pk=post_id)
+    except Post.DoesNotExist:
+        return Response({'error': 'Post does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+
+    # Check if the user has already liked the post
+    if Like.objects.filter(user=user, post=post).exists():
+        return Response({'error': 'You have already liked this post.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Create a new Like object
+    like = Like.objects.create(user=user, post=post)
+
+    # Increment the likes_count of the post
+    post.likes_count += 1
+    post.save()
+
+    return Response({'message': 'Post liked successfully.'}, status=status.HTTP_201_CREATED)
+
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def comment_post(request):
+    user = request.user
+    post_id = request.data.get('post_id')
+    comment_text = request.data.get('comment_text')
+
+    if not post_id or not comment_text:
+        return Response({'error': 'Post ID and comment text are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        post = Post.objects.get(pk=post_id)
+    except Post.DoesNotExist:
+        return Response({'error': 'Post does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+
+    # Create a new comment
+    PostComments.objects.create(user=user, post=post, comment_text=comment_text)
+
+    return Response({'message': 'Comment added successfully.'}, status=status.HTTP_201_CREATED)
+
+from .models import Post, Bookmark
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def bookmark_post(request):
+    user = request.user
+    post_id = request.data.get('post_id')
+
+    if not post_id:
+        return Response({'error': 'Post ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        post = Post.objects.get(pk=post_id)
+    except Post.DoesNotExist:
+        return Response({'error': 'Post does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+
+    # Check if the user has already bookmarked the post
+    if Bookmark.objects.filter(user=user, post=post).exists():
+        return Response({'error': 'You have already bookmarked this post.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Create a new Bookmark object
+    bookmark = Bookmark.objects.create(user=user, post=post)
+
+    return Response({'message': 'Post bookmarked successfully.'}, status=status.HTTP_201_CREATED)
