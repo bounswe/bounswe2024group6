@@ -13,8 +13,14 @@ class CustomUser(AbstractUser):
 class Image(models.Model):
     image_url = models.URLField()
 
+    def __str__(self):
+        return self.image_url
+
 class Tag(models.Model):
     tag_name = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.tag_name
 
 class Post(models.Model):
     title = models.CharField(max_length=100)
@@ -23,13 +29,18 @@ class Post(models.Model):
     text = models.TextField()
     tags = models.ForeignKey(Tag, on_delete=models.CASCADE, related_name='posts')
     author = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='posts')
-    like_count = models.IntegerField(default=0)
-    dislike_count = models.IntegerField(default=0)
+    likes_count = models.IntegerField(default=0)
+
+    def __str__(self):
+        return self.title
 
 class PostComments(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     comment_text = models.TextField()
+
+    def __str__(self):
+        return f"Comment by {self.user.username} on {self.post.title}"
 
 class Like(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
@@ -42,13 +53,13 @@ class Like(models.Model):
     def __str__(self):
         return f"{self.user.username} likes {self.post.title}"
 
-class Comment(models.Model):
-    text = models.TextField()
-
 class UserProfile(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     bio = models.TextField(blank=True)
     phone_number = models.CharField(max_length=15, blank=True)
+
+    def __str__(self):
+        return f"Profile of {self.user.username}"
 
 class Follow(models.Model):
     follower = models.ForeignKey(CustomUser, related_name='following', on_delete=models.CASCADE)

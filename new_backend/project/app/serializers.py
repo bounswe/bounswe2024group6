@@ -1,18 +1,15 @@
 from rest_framework import serializers
-from django.contrib.auth import get_user_model
-from .models import Post
-
-User = get_user_model()
+from .models import CustomUser, Post
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
     class Meta:
-        model = User
+        model = CustomUser
         fields = ('username', 'password', 'email', 'phone_number', 'bio')
 
     def create(self, validated_data):
-        user = User.objects.create_user(
+        user = CustomUser.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
             phone_number=validated_data.get('phone_number', ''),
@@ -25,4 +22,4 @@ class UserSerializer(serializers.ModelSerializer):
 class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
-        fields = ['post_id', 'title', 'image', 'created_at', 'like_count', 'dislike_count', 'text', 'tags']
+        fields = ['id', 'title', 'image', 'created_at', 'text', 'tags', 'author', 'likes_count']
