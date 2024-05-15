@@ -334,3 +334,19 @@ def auth_feed(request):
         return Response({'post_ids': list(follower_posts)}, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+def get_posts_by_ids(request):
+    if request.method == 'GET':
+        # Get the list of post_ids from the query parameters
+        post_ids = request.GET.getlist('post_ids[]', [])
+
+        # Retrieve the posts from the database using the post_ids
+        posts = Post.objects.filter(id__in=post_ids)
+
+        # Serialize the posts
+        serializer = PostSerializer(posts, many=True)
+
+        # Return the serialized posts in the response
+        return Response(serializer.data)
