@@ -169,3 +169,29 @@ def comment_post(request):
     PostComments.objects.create(user=user, post=post, comment_text=comment_text)
 
     return Response({'message': 'Comment added successfully.'}, status=status.HTTP_201_CREATED)
+
+from .models import Post, Bookmark
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def bookmark_post(request):
+    user = request.user
+    post_id = request.data.get('post_id')
+
+    if not post_id:
+        return Response({'error': 'Post ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        post = Post.objects.get(pk=post_id)
+    except Post.DoesNotExist:
+        return Response({'error': 'Post does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+
+    # Check if the user has already bookmarked the post
+    if Bookmark.objects.filter(user=user, post=post).exists():
+        return Response({'error': 'You have already bookmarked this post.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Create a new Bookmark object
+    bookmark = Bookmark.objects.create(user=user, post=post)
+
+    return Response({'message': 'Post bookmarked successfully.'}, status=status.HTTP_201_CREATED)
