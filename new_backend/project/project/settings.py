@@ -77,7 +77,7 @@ TEMPLATES = [
     },
 ]
 
-AUTH_USER_MODEL = 'your_app_name.CustomUser'
+AUTH_USER_MODEL = 'app.CustomUser'
 WSGI_APPLICATION = 'project.wsgi.application'
 
 
@@ -86,10 +86,15 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'searchitect',
+        'USER': 'root',   # replace with your MySQL username
+        'PASSWORD': '1a2w3s4r.kaan',  # replace with your MySQL password
+        'HOST': 'localhost',  # or your database server IP
+        'PORT': '3306',  # default MySQL port
     }
 }
+
 
 
 # Password validation

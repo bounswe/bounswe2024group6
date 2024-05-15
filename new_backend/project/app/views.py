@@ -66,3 +66,6 @@ def search(request):
         return JsonResponse(response)
     
     return Response("there was an error with the query.",status=status.HTTP_204_NO_CONTENT)
+
+def index(request):
+    return 

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser, Post, PostTags, PostComments, Comment, Tag, Image, UserProfile, Follow
+from .models import CustomUser, Post,PostComments, Comment, Tag, Image, UserProfile, Follow
 
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
@@ -29,10 +29,6 @@ class PostSerializer(serializers.ModelSerializer):
         model = Post
         fields = ['post_id', 'title', 'image_id', 'created_at', 'like_count', 'dislike_count', 'text']
 
-class PostTagsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PostTags
-        fields = '__all__'
 
 class PostCommentsSerializer(serializers.ModelSerializer):
     class Meta:
