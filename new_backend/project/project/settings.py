@@ -89,7 +89,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'searchitect',
         'USER': 'root',   # replace with your MySQL username
-        'PASSWORD': 'topsecret',  # replace with your MySQL password
+        'PASSWORD': '1a2w3s4r.kaan',  # replace with your MySQL password
         'HOST': 'localhost',  # or your database server IP
         'PORT': '3306',  # default MySQL port
     }

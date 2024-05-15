@@ -10,6 +10,7 @@ from django.http import JsonResponse, HttpResponse
 from rest_framework.authtoken.models import Token
 
 from adrf.decorators import api_view
+from .models import Post, CustomUser, Tag, Image
 
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
@@ -72,12 +73,45 @@ def index(request):
     return 
 
 @api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def user_profile(request):
-    # Retrieve the authenticated user
     user = request.user
+    user_data = UserSerializer(user).data
+    user_posts = Post.objects.filter(author=user)
+    posts_data = PostSerializer(user_posts, many=True).data
+    user_data['posts'] = posts_data
+    return Response(user_data)
 
-    # Serialize user profile data
-    serializer = UserProfileSerializer(user)
 
-    # Return the serialized user profile data
-    return Response(serializer.data)
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def create_post(request):
+    user = request.user
+    title = request.data.get('title')
+    text = request.data.get('text')
+    image_url = request.data.get('image_url')
+    tag_name = request.data.get('tag_name')
+
+    if not title or not text:
+        return Response({'error': 'Title and text are required fields.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        image = None
+        if image_url:
+            image, created = Image.objects.get_or_create(image_url=image_url)
+
+        tag, created = Tag.objects.get_or_create(tag_name=tag_name)
+
+        post = Post.objects.create(
+            title=title,
+            text=text,
+            author=user,
+            image=image,
+            tags=tag
+        )
+
+        return Response({'message': 'Post created successfully'}, status=status.HTTP_201_CREATED)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

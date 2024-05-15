@@ -10,18 +10,24 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return self.username
 
+class Image(models.Model):
+    image_url = models.URLField()
+
+class Tag(models.Model):
+    tag_name = models.CharField(max_length=50)
+
 class Post(models.Model):
-    post_id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=100)
-    image_id = models.ForeignKey('Image', on_delete=models.SET_NULL, null=True)
+    image = models.ForeignKey(Image, on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(default=timezone.now)
     text = models.TextField()
-    tag_id = models.ForeignKey('Tag', on_delete=models.CASCADE)
-    likes_count = models.IntegerField(default=0)  # Added field for likes count
+    tags = models.ForeignKey(Tag, on_delete=models.CASCADE, related_name='posts')
+    author = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='posts')
+    like_count = models.IntegerField(default=0)
+    dislike_count = models.IntegerField(default=0)
 
 class PostComments(models.Model):
-    comment_id = models.AutoField(primary_key=True)
-    post_id = models.ForeignKey('Post', on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     comment_text = models.TextField()
 
@@ -37,16 +43,7 @@ class Like(models.Model):
         return f"{self.user.username} likes {self.post.title}"
 
 class Comment(models.Model):
-    comment_id = models.AutoField(primary_key=True)
     text = models.TextField()
-
-class Tag(models.Model):
-    tag_id = models.AutoField(primary_key=True)
-    tag_name = models.CharField(max_length=50)
-
-class Image(models.Model):
-    image_id = models.AutoField(primary_key=True)
-    image_url = models.URLField()
 
 class UserProfile(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
