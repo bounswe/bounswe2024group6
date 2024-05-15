@@ -12,6 +12,7 @@ from rest_framework.authtoken.models import Token
 from adrf.decorators import api_view
 from .models import Post, CustomUser, Tag, Image
 from .models import Post, Like
+from .models import Post, PostComments
 
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
@@ -146,3 +147,25 @@ def like_post(request):
     post.save()
 
     return Response({'message': 'Post liked successfully.'}, status=status.HTTP_201_CREATED)
+
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def comment_post(request):
+    user = request.user
+    post_id = request.data.get('post_id')
+    comment_text = request.data.get('comment_text')
+
+    if not post_id or not comment_text:
+        return Response({'error': 'Post ID and comment text are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        post = Post.objects.get(pk=post_id)
+    except Post.DoesNotExist:
+        return Response({'error': 'Post does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+
+    # Create a new comment
+    PostComments.objects.create(user=user, post=post, comment_text=comment_text)
+
+    return Response({'message': 'Comment added successfully.'}, status=status.HTTP_201_CREATED)
