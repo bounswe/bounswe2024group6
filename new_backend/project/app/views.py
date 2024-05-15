@@ -1,51 +1,68 @@
-from django.http import HttpResponse
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
-from .forms import LoginForm, SignUpForm
-from .models import Post, UserProfile
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.authentication import SessionAuthentication, TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
+
+from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
+from django.http import JsonResponse, HttpResponse
+from rest_framework.authtoken.models import Token
 
+from adrf.decorators import api_view
 
-def index(request):
-    latest_posts = Post.objects.order_by('-created_at')[:5]  # Fetch the 5 most recent posts
+from django.contrib.auth import authenticate
+from rest_framework.authtoken.models import Token
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from rest_framework import status
+from .serializers import UserSerializer
 
-    return render(request, 'index.html', {'latest_posts': latest_posts})
+import asyncio
 
+from .serializers import UserSerializer
+from .utils import query_architect,query_architectural_style,query_building
 
-def user_login(request):
-    if request.method == 'POST':
-        form = LoginForm(request.POST)
-        if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-            user = authenticate(request, username=username, password=password)
-            if user is not None:
-                login(request, user)
-                return redirect('user_homepage', username=user.username)
-            else:
-                return render(request, 'login.html', {'form': form, 'error_message': 'Invalid username or password'})
-    else:
-        form = LoginForm()
-    return render(request, 'login.html', {'form': form})
-
-
+@api_view(['POST'])
 def signup(request):
     if request.method == 'POST':
-        form = SignUpForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            UserProfile.objects.create(user=user)
-            login(request, user)
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-            return redirect('index')
+@api_view(['POST'])
+def login(request):
+    username = request.data.get('username')
+    password = request.data.get('password')
+    user = authenticate(request, username=username, password=password)
+    if user is not None:
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({
+            'token': token.key,
+            'user_id': user.pk,
+            'username': user.username
+        }, status=status.HTTP_200_OK)
     else:
-        form = SignUpForm()
-    return render(request, 'signup.html', {'form': form})
+        return Response({'error': 'Invalid Credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
-def user_homepage(request, username):
-    # Retrieve the user based on the provided username
-    user = User.objects.get(username=username)
-    # Assuming you have a UserProfile model associated with each user
-    profile = UserProfile.objects.get(user=user)
-    # Render the user's homepage
-    return render(request, 'user_homepage.html', {'profile': profile})
+
+@api_view(['POST'])
+def search(request):
+
+    print(request.data)
+
+    if request.method == "POST" and "query" in request.data:
+        keyword = request.data['query']
+        
+        architect_response =query_architect(keyword)
+        style_response =  query_architectural_style(keyword)
+        building_response = query_building(keyword)
+
+        # return the results
+        response = {"style": style_response, "architect":architect_response, "building":building_response}
+
+        return JsonResponse(response)
+    
+    return Response("there was an error with the query.",status=status.HTTP_204_NO_CONTENT)

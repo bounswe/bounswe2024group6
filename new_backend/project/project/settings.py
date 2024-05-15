@@ -39,7 +39,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'app',
     'rest_framework',
+    'rest_framework.authtoken',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -52,6 +59,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'project.urls'
+
 
 TEMPLATES = [
     {
@@ -69,6 +77,7 @@ TEMPLATES = [
     },
 ]
 
+AUTH_USER_MODEL = 'your_app_name.CustomUser'
 WSGI_APPLICATION = 'project.wsgi.application'
 
 
