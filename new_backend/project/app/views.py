@@ -96,14 +96,39 @@ def update_user_profile(request):
 
 
 @api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def user_profile(request):
-    username = request.data.get('username')
+    username = request.data.get('username')  # Retrieve username from request body
     user = get_object_or_404(CustomUser, username=username)
+    other_user = request.user
+    
+
+    # Serialize user data
     user_data = UserSerializer(user).data
+
+    # Get user's own posts
     user_posts = Post.objects.filter(author=user)
     posts_data = PostSerializer(user_posts, many=True).data
     user_data['posts'] = posts_data
+
+    # Get posts the user has bookmarked
+    bookmarked_posts = Bookmark.objects.filter(user=user).select_related('post')
+    bookmarked_posts_data = PostSerializer([bookmark.post for bookmark in bookmarked_posts], many=True).data
+    user_data['bookmarked_posts'] = bookmarked_posts_data
+
+    # Get posts the user has commented on
+    commented_posts = PostComments.objects.filter(user=user).select_related('post').distinct()
+    commented_posts_data = PostSerializer({comment.post for comment in commented_posts}, many=True).data
+    user_data['commented_posts'] = commented_posts_data
+
+    # Get posts the user has liked
+    liked_posts = Like.objects.filter(user=user).select_related('post')
+    liked_posts_data = PostSerializer([like.post for like in liked_posts], many=True).data
+    user_data['liked_posts'] = liked_posts_data
+
     return Response(user_data)
+
 
 @api_view(['POST'])
 @authentication_classes([TokenAuthentication])
