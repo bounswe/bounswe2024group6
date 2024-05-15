@@ -16,7 +16,7 @@ const { router, href } = typesafeBrowserRouter([
     Component: Feed
   },
   {
-    path: "/profile",
+    path: "/profile/:username",
     Component: Profile
   },
   {
@@ -34,7 +34,7 @@ const { router, href } = typesafeBrowserRouter([
   {
     path: "/wiki/browse",
     Component: Browse
-  }
+  },
 ]);
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
