@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -40,6 +41,7 @@ INSTALLED_APPS = [
     'app',
     'rest_framework',
     'rest_framework.authtoken',
+    'corsheaders',
 ]
 
 REST_FRAMEWORK = {
@@ -51,12 +53,15 @@ REST_FRAMEWORK = {
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = 'project.urls'
 
@@ -87,10 +92,10 @@ WSGI_APPLICATION = 'project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'searchitect',
+        'NAME': os.getenv("MYSQL_DATABASE"),
         'USER': 'root',   # replace with your MySQL username
-        'PASSWORD': '1a2w3s4r.kaan',  # replace with your MySQL password
-        'HOST': 'localhost',  # or your database server IP
+        'PASSWORD': os.getenv("MYSQL_ROOT_PASSWORD"),
+        'HOST': 'db',  # or your database server IP
         'PORT': '3306',  # default MySQL port
     }
 }
