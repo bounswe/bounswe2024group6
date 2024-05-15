@@ -27,6 +27,14 @@ import asyncio
 from .serializers import UserSerializer
 from .utils import query_architect,query_architectural_style,query_building
 
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
+from .models import CustomUser, Follow
+
+
 @api_view(['POST'])
 def signup(request):
     if request.method == 'POST':
@@ -89,7 +97,7 @@ def update_user_profile(request):
 
 @api_view(['GET'])
 def user_profile(request):
-    username = request.data.get('username')  # Retrieve username from request body
+    username = request.data.get('username')
     user = get_object_or_404(CustomUser, username=username)
     user_data = UserSerializer(user).data
     user_posts = Post.objects.filter(author=user)
@@ -206,3 +214,98 @@ def bookmark_post(request):
     bookmark = Bookmark.objects.create(user=user, post=post)
 
     return Response({'message': 'Post bookmarked successfully.'}, status=status.HTTP_201_CREATED)
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def follow_user(request):
+    username = request.data.get('username')
+    if not username:
+        return Response({'error': 'Username is missing in the request body.'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        user_to_follow = CustomUser.objects.get(username=username)
+        user = request.user
+        if user == user_to_follow:
+            return Response({'error': 'You cannot follow yourself.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        follow, created = Follow.objects.get_or_create(follower=user, followed=user_to_follow)
+        if created:
+            return Response({'message': f'You are now following {username}.'}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'message': f'You are already following {username}.'}, status=status.HTTP_200_OK)
+    except CustomUser.DoesNotExist:
+        return Response({'error': 'User does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def unfollow_user(request):
+    username = request.data.get('username')
+    if not username:
+        return Response({'error': 'Username is missing in the request body.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        user_to_unfollow = CustomUser.objects.get(username=username)
+        user = request.user
+        follow = Follow.objects.filter(follower=user, followed=user_to_unfollow)
+        if follow.exists():
+            follow.delete()
+            return Response({'message': f'You have unfollowed {username}.'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': f'You are not following {username}.'}, status=status.HTTP_400_BAD_REQUEST)
+    except CustomUser.DoesNotExist:
+        return Response({'error': 'User does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def list_followers(request):
+    username = request.data.get('username')
+    if not username:
+        return Response({'error': 'Username is missing in the request body.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        user = CustomUser.objects.get(username=username)
+        followers = Follow.objects.filter(followed=user).select_related('follower')
+        followers_data = [{'username': follow.follower.username} for follow in followers]
+        return Response({'followers': followers_data}, status=status.HTTP_200_OK)
+    except CustomUser.DoesNotExist:
+        return Response({'error': 'User does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def list_following(request):
+    username = request.data.get('username')
+    if not username:
+        return Response({'error': 'Username is missing in the request body.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        user = CustomUser.objects.get(username=username)
+        following = Follow.objects.filter(follower=user).select_related('followed')
+        following_data = [{'username': follow.followed.username} for follow in following]
+        return Response({'following': following_data}, status=status.HTTP_200_OK)
+    except CustomUser.DoesNotExist:
+        return Response({'error': 'User does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+    
+    
+@api_view(['GET'])
+def guest_feed(request):
+    try:
+        latest_posts = Post.objects.order_by('-created_at').values_list('id', flat=True)
+        return Response({'post_ids': list(latest_posts)}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def auth_feed(request):
+    user = request.user
+    try:
+        following_users = Follow.objects.filter(follower=user).values_list('followed', flat=True)
+        follower_posts = Post.objects.filter(author_id__in=following_users).order_by('-created_at').values_list('id', flat=True)
+        return Response({'post_ids': list(follower_posts)}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

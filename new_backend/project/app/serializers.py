@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser, Post
+from .models import CustomUser, Post, Image, Tag
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -30,8 +30,23 @@ class UserSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
         return user
-    
+
+
+class ImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Image
+        fields = ['image_url']
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = ['tag_name']
+
 class PostSerializer(serializers.ModelSerializer):
+    author = serializers.StringRelatedField()
+    image = ImageSerializer()
+    tags = TagSerializer()
+
     class Meta:
         model = Post
-        fields = ['id', 'title', 'image', 'created_at', 'text', 'tags', 'author', 'likes_count']
+        fields = ['title', 'image', 'created_at', 'text', 'tags', 'author', 'likes_count']
