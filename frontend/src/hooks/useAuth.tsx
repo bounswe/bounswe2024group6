@@ -28,6 +28,16 @@ const actions = {
         return true
     }
   },
+  getToken: () => {
+    const authUser = getAuthUser()
+
+    return authUser.token
+  },
+  getUsername: () => {
+    const authUser = getAuthUser()
+
+    return authUser.username
+  }
 }
 
 function useAuth() {

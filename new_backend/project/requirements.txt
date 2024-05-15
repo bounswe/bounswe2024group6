@@ -1,0 +1,8 @@
+mysqlclient
+requests
+requests_async
+django==5.0.4
+djangorestframework==3.15.1
+adrf
+django-cors-headers
+asyncio

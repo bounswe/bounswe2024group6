@@ -33,8 +33,9 @@ const searchSchema = z.object({
 
 
 export default function Navbar() {
-    const { checkAuth, logout } = useAuth()
+    const { checkAuth, logout, getUsername } = useAuth()
     const isAuth = checkAuth()
+    const authUsername = getUsername()
     const navigate = useNavigate()
     const [query, setQuery] = useState<string>("")
 
@@ -94,8 +95,8 @@ export default function Navbar() {
                                 </Avatar>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent>
-                                <DropdownMenuItem><button onClick={() => {navigate("/profile");}}>Profile</button></DropdownMenuItem>
-                                <DropdownMenuItem><button onClick={() => {logout(); navigate("/");}}>Logout</button></DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => {navigate(`/profile/${authUsername}`);}}>Profile</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => {logout(); navigate("/");}}>Logout</DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
 

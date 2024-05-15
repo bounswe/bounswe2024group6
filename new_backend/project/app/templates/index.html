@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Page</title>
+</head>
+<body>
+    <h1>Welcome to My Blog</h1>
+    
+    <h2>Latest Posts</h2>
+    <ul>
+        {% for post in latest_posts %}
+            <li>
+                <h3>{{ post.title }}</h3>
+                <p>Author: {{ post.author }}</p>
+                <p>{{ post.content }}</p>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <a href="{% url 'user_login' %}"><button>Login</button></a>
+    <a href="{% url 'signup' %}"><button>Signup</button></a> <!-- Add this line for the Signup button -->
+</body>
+</html>
