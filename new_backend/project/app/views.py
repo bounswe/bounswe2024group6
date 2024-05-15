@@ -11,6 +11,7 @@ from rest_framework.authtoken.models import Token
 
 from adrf.decorators import api_view
 from .models import Post, CustomUser, Tag, Image
+from .models import Post, Like
 
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
@@ -115,3 +116,33 @@ def create_post(request):
         return Response({'message': 'Post created successfully'}, status=status.HTTP_201_CREATED)
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def like_post(request):
+    user = request.user
+    post_id = request.data.get('post_id')
+
+    if not post_id:
+        return Response({'error': 'Post ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        post = Post.objects.get(pk=post_id)
+    except Post.DoesNotExist:
+        return Response({'error': 'Post does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+
+    # Check if the user has already liked the post
+    if Like.objects.filter(user=user, post=post).exists():
+        return Response({'error': 'You have already liked this post.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Create a new Like object
+    like = Like.objects.create(user=user, post=post)
+
+    # Increment the likes_count of the post
+    post.likes_count += 1
+    post.save()
+
+    return Response({'message': 'Post liked successfully.'}, status=status.HTTP_201_CREATED)
