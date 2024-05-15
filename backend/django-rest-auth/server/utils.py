@@ -244,9 +244,8 @@ def query_building_info(entity_id):
 def get_building_info(entity_id):
     title = get_title_wikibase(entity_id)
     page_id = get_page_id_wikibase(title)
-    endpoint_url = f"https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&explaintext&format=json&pageids={page_id}"
-    response = requests.get(endpoint_url)
-    text = response.json()["query"]["pages"][page_id]["extract"]
+    
+    text = get_wiki_text(page_id)
 
     building_info = query_building_info(entity_id)
 
@@ -260,9 +259,11 @@ def get_building_info(entity_id):
         style_info = get_architect_or_style_info_for_building(style)
         styles.append(style_info)
 
+    coordinates = building_info["coordinates"].split("(")[1]
+    coordinates = coordinates.split(")")[0].split(" ")
     
 
-    return {"name": building_info["name"], "architect": architects, "country": building_info["country"], "coordinates": building_info["coordinates"], "architecturalStyle": styles, "description": building_info["description"], "wikiText": text}
+    return {"name": building_info["name"], "architect": architects, "country": building_info["country"], "coordinates": {"latitude": coordinates[0], "longitude": coordinates[1]}, "architecturalStyle": styles, "description": building_info["description"], "wikiText": text}
 
 def get_architect_or_style_info_for_building(architect_id):
     print(architect_id)
@@ -297,6 +298,140 @@ SELECT DISTINCT ?architect ?architectLabel WHERE {{
 
     return {"name": architect_label, "image": get_image(architect_id), "id": architect_id}
 
+
+def query_architect_info(entity_id):
+
+    query = f"""
+    PREFIX wd: <http://www.wikidata.org/entity/>
+    PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+    PREFIX schema: <http://schema.org/>
+
+SELECT DISTINCT 
+    ?architect ?architectLabel ?description ?image ?workLocationLabel ?movementLabel ?movementImage ?movement
+    ?notableWork ?notableWorkLabel ?notableWorkImage ?notableWorkCoordinate ?notableWorkStyle ?notableWorkStyleLabel ?notableWorkStyleImage
+WHERE {{
+    VALUES ?architect {{ wd:{entity_id} }}  # Mimar Sinan's Wikidata ID
+
+    # Basic information about the architect
+    OPTIONAL {{ ?architect wdt:P18 ?image . }}  # Image
+    OPTIONAL {{ ?architect wdt:P937 ?workLocation . }}  # Work location
+    OPTIONAL {{ ?architect wdt:P135 ?movement . }}  # Architectural movement
+
+    # Get labels for the results
+    SERVICE wikibase:label {{ 
+        bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". 
+        ?architect rdfs:label ?architectLabel .
+        ?workLocation rdfs:label ?workLocationLabel .
+        ?movement rdfs:label ?movementLabel .
+    }}
+    
+    OPTIONAL {{
+        ?architect wdt:P800 ?notableWork .
+        OPTIONAL {{ ?notableWork wdt:P18 ?notableWorkImage . }}  # Image of the notable work
+        OPTIONAL {{ ?notableWork wdt:P625 ?notableWorkCoordinate . }}  # Coordinates of the notable work
+        OPTIONAL {{ ?notableWork wdt:P149 ?notableWorkStyle . }}  # Architectural style of the notable work
+        OPTIONAL {{ ?notableWorkStyle wdt:P18 ?notableWorkStyleImage . }}  # Image of the architectural style
+
+        # Get labels for the notable works
+        SERVICE wikibase:label {{ 
+            bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". 
+            ?notableWork rdfs:label ?notableWorkLabel .
+            ?notableWorkStyle rdfs:label ?notableWorkStyleLabel .
+        }}
+
+
+    }}
+
+    # Retrieve the English description
+    ?architect schema:description ?description .
+    FILTER(LANG(?description) = "en")
+}}    
+"""
+    
+    endpoint_url = "https://query.wikidata.org/sparql"
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0',
+        'Accept': 'application/sparql-results+json'
+    }
+    params = {'query': query, 'format': 'json'}
+    response = requests.get(endpoint_url, headers=headers, params=params)
+
+    data = response.json()
+    print(data)
+    if response.status_code == 500:
+        return {"response:": "error: while query the data"}
+    elif data['results']['bindings'] == []:
+        return None
+
+    return data
+
+
+
+def get_architect_info(entity_id):
+    title = get_title_wikibase(entity_id)
+    page_id = get_page_id_wikibase(title)
+    text = get_wiki_text(page_id)
+
+    architect_info = query_architect_info(entity_id)
+
+    architect_label = architect_info['results']['bindings'][0]['architectLabel']['value']
+    description = architect_info['results']['bindings'][0]['description']['value']
+    image = architect_info['results']['bindings'][0]['image']['value']
+
+    work_locations = set()
+    notable_works = set()
+    images = set()
+    description = set()
+    movements = set()
+
+
+    for entry in architect_info['results']['bindings']:
+        if 'workLocationLabel' in entry:
+            work_locations.add(entry['workLocationLabel']['value'])
+        if 'notableWork' in entry:
+            notable_works.add(entry["notableWork"]["value"])
+        if 'image' in entry:
+            images.add(entry["image"]["value"])
+        if 'description' in entry:
+            description.add(entry["description"]["value"])
+        if 'movement' in entry:
+            movements.add(entry['movement']['value'])
+        if 'notableWorkStyle' in entry:
+            movements.add(entry["notableWorkStyle"]["value"])
+
+    notable_works_dict = {}
+    for work in notable_works:
+        notable_works_dict[work] = {"id": work.split('/')[-1], "image": "", "coordinateLocation": None}
+        for entry in architect_info['results']['bindings']:
+            if entry["notableWork"]["value"] == work:
+                notable_works_dict[work]["image"] = entry["notableWorkImage"]["value"]
+                coordinates = entry["notableWorkCoordinate"]["value"]
+                coordinates = coordinates.split("(")[1]
+                coordinates = coordinates.split(")")[0].split(" ")[0:2]
+                notable_works_dict[work]["coordinateLocation"] = {"latitude": coordinates[0], "longitude": coordinates[1]}
+    
+    notable_works = [x for x in notable_works_dict.values()]
+
+    movement_dict = {}
+    for movement in movements:
+        movement_dict[movement] = {"id": movement.split('/')[-1], "image": ""}
+        for entry in architect_info['results']['bindings']:
+            if "movement" in entry and entry["movement"]["value"] == movement and "movementImage" in entry:
+                movement_dict[movement]["name"] = entry["movementLabel"]["value"]
+                movement_dict[movement]["image"] = entry["movementImage"]["value"]
+            if "notableWorkStyle" in entry and entry["notableWorkStyle"]["value"] == movement and "notableWorkStyleImage" in entry:
+                movement_dict[movement]["name"] = entry["notableWorkStyleLabel"]["value"]
+                movement_dict[movement]["image"] = entry["notableWorkStyleImage"]["value"]
+
+    movements = [x for x in movement_dict.values()]
+
+    return {"name": architect_label, "description": list(description), "image": image, "workLocations": list(work_locations), "notableWorks": list(notable_works), "movements": list(movements), "wikiText": text}
+
+def get_wiki_text(page_id):
+    endpoint_url = f"https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&explaintext&format=json&pageids={page_id}"
+    response = requests.get(endpoint_url)
+    text = response.json()["query"]["pages"][page_id]["extract"]
+    return text
 
 
 def get_image(entity_id):
