@@ -1,6 +1,10 @@
 import { Separator } from '@/components/ui/separator'
 import { Navbar } from '../components'
 import { ScrollArea } from "@/components/ui/scroll-area"
+import * as React from 'react';
+import Map, {Marker} from 'react-map-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
+
 
 export default function Building() {
     const mockData = {
@@ -16,8 +20,8 @@ export default function Building() {
         architecturalStyle: [{id:"Q1122677",name:"Catalan modernism",image:"https://www.wikidata.org/wiki/Property:P18"},
                                 {id:"Q186363",name:"Gothic Revival",image:"https://commons.wikimedia.org/wiki/File:Royal_Courts_of_Justice_20130414_065.JPG"}],
         coordinates: {
-            latitude: 2.17433,
-            longitude: 41.40369
+            latitude: 41.40369,
+            longitude: 2.17433
         }
     }
     return (
@@ -54,8 +58,18 @@ export default function Building() {
                         </div>
                     </div>
                     <div className="h-1/2 w-[50vh] pb-6 pr-6 pl-3 pt-3">
-                        <div className="h-full w-full bg-yellow-500 rounded-2xl">
-
+                        <div className="h-full w-full rounded-2xl">
+                            <Map
+                                mapboxAccessToken={import.meta.env.VITE_MAPBOX_ACCESS_TOKEN}
+                                initialViewState={{
+                                longitude:  mockData.coordinates.longitude,
+                                latitude: mockData.coordinates.latitude,
+                                zoom: 10
+                                }}
+                                mapStyle="mapbox://styles/mapbox/streets-v9"
+                            >
+                                <Marker longitude={mockData.coordinates.longitude} latitude={mockData.coordinates.latitude} color="red" />
+                            </Map>
                         </div>
                     </div>
                 </div>
