@@ -12,7 +12,7 @@ export default function Building() {
                     image: "https://commons.wikimedia.org/wiki/File:Gaud%C3%AD_(1878).jpg",
                     id: "Q25328"    // ?
                     }],
-        image: "https://commons.wikimedia.org/wiki/File:Sagrada_Familia_8-12-21_(1).jpg",
+        image: ["https://upload.wikimedia.org/wikipedia/commons/5/57/Sagrada_Familia_8-12-21_%281%29.jpg"],
         architecturalStyle: [{id:"Q1122677",name:"Catalan modernism",image:"https://www.wikidata.org/wiki/Property:P18"},
                                 {id:"Q186363",name:"Gothic Revival",image:"https://commons.wikimedia.org/wiki/File:Royal_Courts_of_Justice_20130414_065.JPG"}],
         coordinates: {
@@ -38,19 +38,19 @@ export default function Building() {
                 <div className="h-screen w-[100vh]">
                     <div className="h-1/2 w-[50vh] pt-6 pl-6 pr-3 pb-3">
                         <div className="h-full w-full bg-lime-500 rounded-2xl">
+
                             
                         </div>
                     </div>
                     <div className="h-1/2 w-[50vh] pb-6 pl-6 pr-3 pt-3">
                         <div className="h-full w-full bg-red-500 rounded-2xl">
-
                         </div>
                     </div>
                 </div>
                 <div className="h-screen w-[100vh]">
                     <div className="h-1/2 w-[50vh] pt-6 pr-6 pl-3 pb-3">
                         <div className="h-full w-full bg-zinc-500 rounded-2xl">
-
+                        <img src={mockData.image[0]} alt="Sagrada Família" className="h-full w-full object-cover rounded-2xl" />
                         </div>
                     </div>
                     <div className="h-1/2 w-[50vh] pb-6 pr-6 pl-3 pt-3">

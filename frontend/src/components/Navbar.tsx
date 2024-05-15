@@ -102,12 +102,12 @@ export default function Navbar() {
                     </div>
                 :
                     <div className="flex items-center gap-2">
-                        <div>
+                        <Link to="/">
                             Login
-                        </div>
-                        <div>
+                        </Link>
+                        <Link to="/">
                             Register
-                        </div>
+                        </Link>
                     </div>
             }
         </div>
