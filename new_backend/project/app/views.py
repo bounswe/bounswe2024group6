@@ -16,7 +16,8 @@ from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
-from .serializers import UserSerializer
+from .serializers import *
+
 
 import asyncio
 
@@ -69,3 +70,14 @@ def search(request):
 
 def index(request):
     return 
+
+@api_view(['GET'])
+def user_profile(request):
+    # Retrieve the authenticated user
+    user = request.user
+
+    # Serialize user profile data
+    serializer = UserProfileSerializer(user)
+
+    # Return the serialized user profile data
+    return Response(serializer.data)

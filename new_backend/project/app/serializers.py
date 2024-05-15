@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser, Post,PostComments, Comment, Tag, Image, UserProfile, Follow
+from .models import CustomUser, Post,PostComments, Comment, Tag, Image, UserProfile, Follow, Like
 
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
@@ -35,6 +35,11 @@ class PostCommentsSerializer(serializers.ModelSerializer):
         model = PostComments
         fields = '__all__'
 
+class LikeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Like
+        fields = '__all__'
+
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
@@ -50,12 +55,43 @@ class ImageSerializer(serializers.ModelSerializer):
         model = Image
         fields = ['image_id', 'image_url']
 
-class UserProfileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserProfile
-        fields = '__all__'
-
 class FollowSerializer(serializers.ModelSerializer):
     class Meta:
         model = Follow
         fields = ['follower', 'followed', 'created_at']
+
+from rest_framework import serializers
+from .models import CustomUser, Post, Like, Follow
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(source='customuser.email')
+    phone_number = serializers.CharField(source='customuser.phone_number')
+    bio = serializers.CharField(source='customuser.bio')
+    posts = serializers.SerializerMethodField()
+    likes = serializers.SerializerMethodField()
+    followers = serializers.SerializerMethodField()
+    following = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CustomUser
+        fields = ['email', 'phone_number', 'bio', 'posts', 'likes', 'followers', 'following']
+
+    def get_posts(self, obj):
+        # Get posts authored by the user
+        posts = Post.objects.filter(author=obj)
+        return PostSerializer(posts, many=True).data
+
+    def get_likes(self, obj):
+        # Get likes by the user
+        likes = Like.objects.filter(user=obj)
+        return LikeSerializer(likes, many=True).data
+
+    def get_followers(self, obj):
+        # Get followers of the user
+        followers = Follow.objects.filter(followed=obj)
+        return FollowSerializer(followers, many=True).data
+
+    def get_following(self, obj):
+        # Get users followed by the user
+        following = Follow.objects.filter(follower=obj)
+        return FollowSerializer(following, many=True).data
