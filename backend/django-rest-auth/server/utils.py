@@ -225,17 +225,17 @@ def query_building_info(entity_id):
     if len(countries):
         country = list(countries)[0]
     else:
-        country = "Unknown"
+        country = "NULL"
 
     if len(coordinates):
         coordinate = list(coordinates)[0]
     else:
-        coordinate = "Unknown"
+        coordinate = "NULL"
 
     if len(description):
         description = list(description)[0]
     else:
-        description = "Unknown"
+        description = "NULL"
     label = data['results']['bindings'][0]['buildingLabel']['value']
     description = data['results']['bindings'][0]['description']['value']
     return {"name": label, "description":description, "architect": list(architects), "country": country, "coordinates": coordinate, "architecturalStyle": list(styles), "description": description}
@@ -310,12 +310,11 @@ SELECT DISTINCT
     ?architect ?architectLabel ?description ?image ?workLocationLabel ?movementLabel ?movementImage ?movement
     ?notableWork ?notableWorkLabel ?notableWorkImage ?notableWorkCoordinate ?notableWorkStyle ?notableWorkStyleLabel ?notableWorkStyleImage
 WHERE {{
-    VALUES ?architect {{ wd:{entity_id} }}  # Mimar Sinan's Wikidata ID
+    VALUES ?architect {{ wd:{entity_id} }} 
 
-    # Basic information about the architect
-    OPTIONAL {{ ?architect wdt:P18 ?image . }}  # Image
-    OPTIONAL {{ ?architect wdt:P937 ?workLocation . }}  # Work location
-    OPTIONAL {{ ?architect wdt:P135 ?movement . }}  # Architectural movement
+    OPTIONAL {{ ?architect wdt:P18 ?image . }} 
+    OPTIONAL {{ ?architect wdt:P937 ?workLocation . }}  
+    OPTIONAL {{ ?architect wdt:P135 ?movement . }} 
 
     # Get labels for the results
     SERVICE wikibase:label {{ 
@@ -327,12 +326,11 @@ WHERE {{
     
     OPTIONAL {{
         ?architect wdt:P800 ?notableWork .
-        OPTIONAL {{ ?notableWork wdt:P18 ?notableWorkImage . }}  # Image of the notable work
-        OPTIONAL {{ ?notableWork wdt:P625 ?notableWorkCoordinate . }}  # Coordinates of the notable work
-        OPTIONAL {{ ?notableWork wdt:P149 ?notableWorkStyle . }}  # Architectural style of the notable work
-        OPTIONAL {{ ?notableWorkStyle wdt:P18 ?notableWorkStyleImage . }}  # Image of the architectural style
+        OPTIONAL {{ ?notableWork wdt:P18 ?notableWorkImage . }} 
+        OPTIONAL {{ ?notableWork wdt:P625 ?notableWorkCoordinate . }}  
+        OPTIONAL {{ ?notableWork wdt:P149 ?notableWorkStyle . }} 
+        OPTIONAL {{ ?notableWorkStyle wdt:P18 ?notableWorkStyleImage . }} 
 
-        # Get labels for the notable works
         SERVICE wikibase:label {{ 
             bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". 
             ?notableWork rdfs:label ?notableWorkLabel .
@@ -432,6 +430,127 @@ def get_wiki_text(page_id):
     response = requests.get(endpoint_url)
     text = response.json()["query"]["pages"][page_id]["extract"]
     return text
+
+def query_style_info(entity_id):
+    query = f"""
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX schema: <http://schema.org/>
+PREFIX wikibase: <http://wikiba.se/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT DISTINCT 
+    ?style ?styleLabel ?description ?wikiText 
+    (COALESCE(?image, "NULL") AS ?image) 
+    ?architect 
+    (COALESCE(?architectLabel, "NULL") AS ?architectLabel) 
+    (COALESCE(?architectImage, "NULL") AS ?architectImage) 
+    ?building
+    (COALESCE(?buildingLabel, "NULL") AS ?buildingLabel) 
+    (COALESCE(?buildingCoordinates, "NULL") AS ?buildingCoordinates) 
+    ?subclass 
+    (COALESCE(?subclassLabel, "NULL") AS ?subclassLabel) 
+    (COALESCE(?subclassImage, "NULL") AS ?subclassImage)
+WHERE {{
+    VALUES ?style {{ wd:{entity_id} }}  
+
+    # Basic information about the style
+    OPTIONAL {{ ?style wdt:P18 ?image . }}  
+    OPTIONAL {{ ?style schema:description ?description . FILTER(LANG(?description) = "en") }}  
+    OPTIONAL {{ ?style schema:articleBody ?wikiText . FILTER(LANG(?wikiText) = "en") }} 
+
+    OPTIONAL {{ 
+        ?style wdt:P61 ?architect .
+        OPTIONAL {{ ?architect wdt:P18 ?architectImage . }}
+    }}
+
+    OPTIONAL {{ 
+        ?style wdt:P84 ?building .
+        OPTIONAL {{ ?building wdt:P625 ?buildingCoordinates . }}
+    }}
+
+    OPTIONAL {{ 
+        ?style wdt:P279 ?subclass .
+        OPTIONAL {{ ?subclass wdt:P18 ?subclassImage . }}
+    }}
+
+    SERVICE wikibase:label {{ 
+        bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en".
+        ?style rdfs:label ?styleLabel .
+        ?architect rdfs:label ?architectLabel .
+        ?building rdfs:label ?buildingLabel .
+        ?subclass rdfs:label ?subclassLabel .
+    }}
+}}
+"""
+    endpoint_url = "https://query.wikidata.org/sparql"
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0',
+        'Accept': 'application/sparql-results+json'
+    }
+    params = {'query': query, 'format': 'json'}
+    response = requests.get(endpoint_url, headers=headers, params=params)
+
+    data = response.json()
+
+    return data
+
+def get_style_info(entity_id):
+    title = get_title_wikibase(entity_id)
+    page_id = get_page_id_wikibase(title)
+    text = get_wiki_text(page_id)
+
+    style_info = query_style_info(entity_id)
+
+    architects = set()
+    buildings = set()   
+    superclasses = set()
+    images = set()
+
+    for entry in style_info['results']['bindings']:
+        if 'architect' in entry:
+            architects.add(entry['architect']['value'])
+        if 'building' in entry:
+            buildings.add(entry['building']['value'])
+        if 'subclass' in entry:
+            superclasses.add(entry['subclass']['value'])
+        if 'image' in entry:
+            images.add(entry['image']['value'])
+
+    architects_dict = {}
+
+    for architect in architects:
+        for entry in style_info['results']['bindings']:
+            if entry['architect']['value'] == architect:
+                architects_dict[architect] = {"id": architect.split('/')[1], "name": entry['architectLabel']['value'], "image": entry['architectImage']['value']}
+    
+    buildings_dict = {}
+
+    for building in buildings:
+        for entry in style_info['results']['bindings']:
+            if entry['building']['value'] == building:
+                buildings_dict[building] = {"name": entry['buildingLabel']['value'], "id": building.split('/')[-1]}
+                coordinates = entry['buildingCoordinates']['value']
+                if(coordinates != "NULL"):
+                    coordinates = coordinates.split("(")[1]
+                    coordinates = coordinates.split(")")[0].split(" ")
+                    buildings_dict[building]["coordinates"] = {"latitude": coordinates[0], "longitude": coordinates[1]}
+                else:
+                    buildings_dict[building]["coordinates"] = "NULL"
+    
+    superclasses_dict = {}
+
+    for superclass in superclasses:
+        for entry in style_info['results']['bindings']:
+            if entry['subclass']['value'] == superclass:
+                superclasses_dict[superclass] = {"id": superclass.split('/')[-1], "name": entry['subclassLabel']['value'], "image": entry['subclassImage']['value']}
+
+    architects = [x for x in architects_dict.values()]
+    buildings = [x for x in buildings_dict.values()]
+    superclasses = [x for x in superclasses_dict.values()]
+
+    return {"name": style_info['results']['bindings'][0]['styleLabel']['value'], "description": style_info['results']['bindings'][0]['description']['value'], "image": style_info['results']['bindings'][0]['image']['value'], "wikiText": text, "architects": architects, "buildings": buildings, "subclassOf": superclasses}
+
 
 
 def get_image(entity_id):
