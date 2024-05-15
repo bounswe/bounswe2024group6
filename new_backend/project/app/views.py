@@ -88,14 +88,37 @@ def update_user_profile(request):
 
 
 @api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def user_profile(request):
     username = request.data.get('username')  # Retrieve username from request body
     user = get_object_or_404(CustomUser, username=username)
+
+    # Serialize user data
     user_data = UserSerializer(user).data
+
+    # Get user's own posts
     user_posts = Post.objects.filter(author=user)
     posts_data = PostSerializer(user_posts, many=True).data
     user_data['posts'] = posts_data
+
+    # Get posts the user has bookmarked
+    bookmarked_posts = Bookmark.objects.filter(user=user).select_related('post')
+    bookmarked_posts_data = PostSerializer([bookmark.post for bookmark in bookmarked_posts], many=True).data
+    user_data['bookmarked_posts'] = bookmarked_posts_data
+
+    # Get posts the user has commented on
+    commented_posts = PostComments.objects.filter(user=user).select_related('post').distinct()
+    commented_posts_data = PostSerializer({comment.post for comment in commented_posts}, many=True).data
+    user_data['commented_posts'] = commented_posts_data
+
+    # Get posts the user has liked
+    liked_posts = Like.objects.filter(user=user).select_related('post')
+    liked_posts_data = PostSerializer([like.post for like in liked_posts], many=True).data
+    user_data['liked_posts'] = liked_posts_data
+
     return Response(user_data)
+
 
 @api_view(['POST'])
 @authentication_classes([TokenAuthentication])
@@ -206,3 +229,17 @@ def bookmark_post(request):
     bookmark = Bookmark.objects.create(user=user, post=post)
 
     return Response({'message': 'Post bookmarked successfully.'}, status=status.HTTP_201_CREATED)
+
+@api_view(['GET'])
+def get_feed(request):
+    try:
+        # Fetch the latest 5 posts, sorted by 'created_at' in descending order
+        latest_posts = Post.objects.all().order_by('-created_at')[:5]
+        # Serialize the data
+        serializer = PostSerializer(latest_posts, many=True)
+        # Return the serialized data
+        return Response(serializer.data)
+    except Exception as e:
+        # If something goes wrong, return an error response
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    

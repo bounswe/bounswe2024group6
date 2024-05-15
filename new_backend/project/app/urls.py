@@ -13,7 +13,7 @@ urlpatterns = [
     path('comment_post/', views.comment_post, name='comment_post'),
     path('bookmark_post/', views.bookmark_post, name='bookmark_post'),
     path('update_user_profile/', update_user_profile, name='update_user_profile'),
-
+    path('feed/', views.get_feed, name='get_feed'),
 
 ]
     
