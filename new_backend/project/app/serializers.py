@@ -6,19 +6,31 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ('username', 'password', 'email', 'phone_number', 'bio')
+        fields = ('username', 'password', 'email', 'phone_number', 'bio', 'profile_image', 'background_image')
 
     def create(self, validated_data):
+        profile_image = validated_data.pop('profile_image', None)
+        background_image = validated_data.pop('background_image', None)
+
+        # Set unspecified fields to None
+        if 'phone_number' not in validated_data:
+            validated_data['phone_number'] = None
+        if 'bio' not in validated_data:
+            validated_data['bio'] = None
+
+        # Create CustomUser instance
         user = CustomUser.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
-            phone_number=validated_data.get('phone_number', ''),
-            bio=validated_data.get('bio', '')
+            phone_number=validated_data['phone_number'],
+            bio=validated_data['bio'],
+            profile_image=profile_image,
+            background_image=background_image
         )
         user.set_password(validated_data['password'])
         user.save()
         return user
-
+    
 class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post

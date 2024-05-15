@@ -74,17 +74,28 @@ def search(request):
 def index(request):
     return 
 
-@api_view(['GET'])
+
+@api_view(['POST'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
-def user_profile(request):
+def update_user_profile(request):
     user = request.user
+    serializer = UserSerializer(user, data=request.data, partial=True)  # Allow partial updates
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    return Response(serializer.errors, status=400)
+
+
+@api_view(['GET'])
+def user_profile(request):
+    username = request.data.get('username')  # Retrieve username from request body
+    user = get_object_or_404(CustomUser, username=username)
     user_data = UserSerializer(user).data
     user_posts = Post.objects.filter(author=user)
     posts_data = PostSerializer(user_posts, many=True).data
     user_data['posts'] = posts_data
     return Response(user_data)
-
 
 @api_view(['POST'])
 @authentication_classes([TokenAuthentication])
