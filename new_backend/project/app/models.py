@@ -21,18 +21,23 @@ class Image(models.Model):
     def __str__(self):
         return self.image_url
 
-class Tag(models.Model):
-    tag_name = models.CharField(max_length=50)
+
+class SearchResult(models.Model):
+    entity_id = models.CharField(max_length=150, default="")
+    name = models.CharField(max_length=150)
+    image = models.TextField()
+    type = models.CharField(max_length=10)
+    
 
     def __str__(self):
-        return self.tag_name
+        return self.name
 
 class Post(models.Model):
     title = models.CharField(max_length=100)
     image = models.ForeignKey(Image, on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(default=timezone.now)
     text = models.TextField()
-    tags = models.ForeignKey(Tag, on_delete=models.CASCADE, related_name='posts')
+    searchresult = models.ForeignKey(SearchResult, on_delete=models.CASCADE, related_name='posts')
     author = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='posts')
     likes_count = models.IntegerField(default=0)
 
@@ -88,12 +93,3 @@ class Bookmark(models.Model):
     def __str__(self):
         return f"{self.user.username} bookmarks {self.post.title}"
     
-class SearchResult(models.Model):
-    entity_id = models.CharField(max_length=150, default="")
-    name = models.CharField(max_length=150)
-    image = models.TextField()
-    type = models.CharField(max_length=10)
-    
-
-    def __str__(self):
-        return self.name
