@@ -92,10 +92,10 @@ WSGI_APPLICATION = 'project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'searchitect',
+        'NAME': os.getenv("MYSQL_DATABASE"),
         'USER': 'root',   # replace with your MySQL username
-        'PASSWORD': '1a2w3s4r.kaan',
-        'HOST': 'localhost',  # or your database server IP
+        'PASSWORD': os.getenv("MYSQL_ROOT_PASSWORD"),
+        'HOST': 'db',  # or your database server IP
         'PORT': '3306',  # default MySQL port
     }
 }
