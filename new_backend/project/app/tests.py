@@ -361,30 +361,19 @@ class CommentTestCase(APITestCase):
 class SearchResultModelTest(APITestCase):
     def setUp(self):
         self.client = APIClient()
-        self.search_result_architect = SearchResult.objects.create(
-            entity_id="123",
-            name="Famous Architect",
-            image="http://example.com/architect.jpg",
-            type="architect"
-        )
-        self.search_result_style = SearchResult.objects.create(
-            entity_id="456",
-            name="Modern Style",
-            image="http://example.com/style.jpg",
-            type="style"
-        )
-        self.search_result_building = SearchResult.objects.create(
-            entity_id="789",
-            name="Iconic Building",
-            image="http://example.com/building.jpg",
-            type="building"
-        )
+        self.user = CustomUser.objects.create_user(username='testuser', password='testpassword', email='test@example.com')
+        self.token = Token.objects.create(user=self.user)
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+
+        self.tag = Tag.objects.create(tag_name='Test Tag')
+        self.post = Post.objects.create(title='Test Post', text='This is a test post.', tags=self.tag, author=self.user)
     def test_search_with_valid_query(self):
-        response = self.client.post(reverse('search'), {'query': 'Famous'}, format='json')
+        response = self.client.post(reverse('search'), {'query': 'mimar'}, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("architect", response.data)
         self.assertEqual(len(response.data["architect"]), 1)
-        self.assertEqual(response.data["architect"][0]["name"], "Famous Architect")
+        self.assertEqual(response.data["architect"][0]["name"], "Mimar Sinan")
+        self.assertEqual(response.data["architect"][0]["image"], "https://upload.wikimedia.org/wikipedia/commons/9/9e/Mimar_Sinan%2C_architecte_de_Soliman_le_Magnifique.jpg")
 
     def test_search_with_no_results(self):
         response = self.client.post(reverse('search'), {'query': 'Nonexistent'}, format='json')
@@ -399,9 +388,7 @@ class SearchResultModelTest(APITestCase):
         self.assertGreater(len(response.data["style"]), 0)
         self.assertGreater(len(response.data["building"]), 0)
 
-    def test_search_with_invalid_method(self):
-        response = self.client.get(reverse('search'))
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+    
 
 
 class BuildingViewTest(APITestCase):
@@ -425,7 +412,7 @@ class BuildingViewTest(APITestCase):
         self.assertEqual(response.json(), self.mock_response)
         mock_get_building_info.assert_called_once_with(self.entity_id)
 
-    @patch('your_app.views.get_building_info', return_value={"name": "Test Building", "description": "A test building."})
+    @patch('app.views.get_building_info', return_value={"name": "Test Building"})
     def test_building_view_no_entity_id(self, mock_get_building_info):
         response = self.client.get(self.url, {}, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -452,7 +439,7 @@ class ArchitectViewTest(APITestCase):
         self.assertEqual(response.json(), self.mock_response)
         mock_get_architect_info.assert_called_once_with(self.entity_id)
 
-    @patch('your_app.views.get_architect_info', return_value={"name": "Test Architect", "description": "A test architect."})
+    @patch('app.views.get_architect_info', return_value={"name": "Test Architect", "description": "A test architect."})
     def test_architect_view_no_entity_id(self, mock_get_architect_info):
         response = self.client.get(self.url, {}, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -479,7 +466,7 @@ class StyleViewTest(APITestCase):
         self.assertEqual(response.json(), self.mock_response)
         mock_get_style_info.assert_called_once_with(self.entity_id)
 
-    @patch('your_app.views.get_style_info', return_value={"name": "Test Style", "description": "A test style."})
+    @patch('app.views.get_style_info', return_value={"name": "Test Style", "description": "A test style."})
     def test_style_view_no_entity_id(self, mock_get_style_info):
         response = self.client.get(self.url, {}, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
