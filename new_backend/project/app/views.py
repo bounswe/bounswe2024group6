@@ -10,7 +10,7 @@ from django.http import JsonResponse, HttpResponse
 from rest_framework.authtoken.models import Token
 
 from adrf.decorators import api_view
-from .models import Post, CustomUser, Tag, Image
+from .models import Post, CustomUser, Image
 from .models import Post, Like
 from .models import Post, PostComments
 
@@ -184,7 +184,7 @@ def create_post(request):
     title = request.data.get('title')
     text = request.data.get('text')
     image_url = request.data.get('image_url')
-    tag_name = request.data.get('tag_name')
+    entity_id = request.data.get('entity_id')
 
     if not title or not text:
         return Response({'error': 'Title and text are required fields.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -194,14 +194,14 @@ def create_post(request):
         if image_url:
             image, created = Image.objects.get_or_create(image_url=image_url)
 
-        tag, created = Tag.objects.get_or_create(tag_name=tag_name)
+        searchresult, created = SearchResult.objects.get_or_create(entity_id=entity_id)
 
         post = Post.objects.create(
             title=title,
             text=text,
             author=user,
             image=image,
-            tags=tag
+            searchresult=searchresult
         )
 
         return Response({'message': 'Post created successfully'}, status=status.HTTP_201_CREATED)
@@ -515,3 +515,24 @@ def delete_comment(request):
     comment.delete()
     return Response({'message': 'Comment deleted successfully.'}, status=status.HTTP_200_OK)
 
+@api_view(['GET'])
+def get_entity_posts(request):
+    entity_id = request.data.get('entity_id')
+    
+    if not entity_id:
+        return Response({'error': 'Entity ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        search_result = SearchResult.objects.get(entity_id=entity_id)
+    except SearchResult.DoesNotExist:
+        return Response({'error': 'Entity does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+    
+    posts = Post.objects.filter(SearchResult=search_result)
+    posts_data = PostSerializer(posts, many=True).data
+    
+    return Response({'posts': posts_data}, status=status.HTTP_200_OK)
+    
+    
+    
+    
+    
