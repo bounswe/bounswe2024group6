@@ -73,14 +73,23 @@ def fill_search_results(**kwargs):
         except json.JSONDecodeError as e:
             print("Failed to decode JSON:", e)
         
+        unique_items = {}
+
         for item in results['results']['bindings']:
+            entity_id = item["item"]["value"].split("/")[-1]
             
+            if entity_id not in unique_items:
+                unique_items[entity_id] = item
+
+        # Create SearchResult objects for unique items
+        for entity_id, item in unique_items.items():
             SearchResult.objects.create(
-                    name=item["itemLabel"]["value"][:150],
-                    image=item["image"]["value"],
-                    type= item["type"]["value"],
-                    entity_id = item["item"]["value"].split("/")[-1]
-                )
+                name=item["itemLabel"]["value"][:150],
+                image=item["image"]["value"],
+                type=item["type"]["value"],
+                entity_id=entity_id
+            )
+
 
 class AppConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
