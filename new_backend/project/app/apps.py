@@ -81,7 +81,6 @@ def fill_search_results(**kwargs):
             if entity_id not in unique_items:
                 unique_items[entity_id] = item
 
-        # Create SearchResult objects for unique items
         for entity_id, item in unique_items.items():
             SearchResult.objects.create(
                 name=item["itemLabel"]["value"][:150],
