@@ -254,14 +254,37 @@ def bookmark_post(request):
     except Post.DoesNotExist:
         return Response({'error': 'Post does not exist.'}, status=status.HTTP_404_NOT_FOUND)
 
-    # Check if the user has already bookmarked the post
     if Bookmark.objects.filter(user=user, post=post).exists():
         return Response({'error': 'You have already bookmarked this post.'}, status=status.HTTP_400_BAD_REQUEST)
 
-    # Create a new Bookmark object
     bookmark = Bookmark.objects.create(user=user, post=post)
 
     return Response({'message': 'Post bookmarked successfully.'}, status=status.HTTP_201_CREATED)
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def unbookmark_post(request):
+    user = request.user
+    post_id = request.data.get('post_id')
+
+    if not post_id:
+        return Response({'error': 'Post ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        post = Post.objects.get(pk=post_id)
+    except Post.DoesNotExist:
+        return Response({'error': 'Post does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+    
+    bookmark = Bookmark.objects.filter(user=user, post=post).first()
+    if not bookmark:
+        return Response({'error': 'You have not bookmarked this post.'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    bookmark.delete()
+    return Response({'message': 'Bookmark removed successfully.'}, status=status.HTTP_200_OK)
+
+
+
 
 @api_view(['POST'])
 @authentication_classes([TokenAuthentication])
@@ -403,3 +426,26 @@ def style_view(request):
         # get_description_wikibase(entity_id)
         # get_content_wikidata(entity_id)
         return JsonResponse(get_style_info(entity_id))
+    
+    
+@api_view(['DELETE'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def delete_post(request):
+    user = request.user
+    post_id = request.data.get('post_id')
+    
+    if not post_id:
+        return Response({'error': 'Post ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        post = Post.objects.get(pk=post_id)
+    except Post.DoesNotExist:
+        return Response({'error': 'Post does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+    
+    if post.author != user:
+        return Response({'error': 'You do not have permission to delete this post.'}, status=status.HTTP_403_FORBIDDEN)
+
+    post.delete()
+    return Response({'message': 'Post deleted successfully.'}, status=status.HTTP_200_OK)
+
