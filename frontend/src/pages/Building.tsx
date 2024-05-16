@@ -14,6 +14,18 @@ import BASE_URL from '../lib/baseUrl'
 import ClipLoader from "react-spinners/ClipLoader";
 import ImageNotSupportedIcon from '@mui/icons-material/ImageNotSupported';
 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 
 export default function Building() {
     let { qid } = useParams();
@@ -79,11 +91,30 @@ export default function Building() {
                     <div className="h-full w-full py-6 pl-6">
                         <ScrollArea className="h-full w-full rounded-2xl shadow-sm border">
                             <div className="p-6 flex flex-col gap-2">
-                                <h1 className="font-bold text-4xl">{buildingData.name}</h1>
+                                <div className="flex flex-row justify-between w-full items-center">
+                                    <h1 className="font-bold text-4xl">{buildingData.name}</h1>
+                                    <Dialog>
+                                        <DialogTrigger asChild>
+                                            <Button>Talk About It!</Button>
+                                        </DialogTrigger>
+                                        <DialogContent className="sm:max-w-[425px]">
+                                        <DialogHeader>
+                                            <DialogTitle>Edit profile</DialogTitle>
+                                            <DialogDescription>
+                                                Make changes to your profile here. Click save when you're done.
+                                            </DialogDescription>
+                                        </DialogHeader>
+                                        <div>
+                                            Test
+                                        </div>
+                                        <DialogFooter>
+                                            <Button>Post</Button>
+                                        </DialogFooter>
+                                        </DialogContent>
+                                    </Dialog>
+                                </div>
                                 <Separator />
                                 <p>{buildingData.wikiText}</p>
-                                <p>The site of the Empire State Building, on the west side of Fifth Avenue between West 33rd and 34th Streets, was developed in 1893 as the Waldorf–Astoria Hotel. In 1929, Empire State Inc. acquired the site and devised plans for a skyscraper there. The design for the Empire State Building was changed fifteen times until it was ensured to be the world's tallest building. Construction started on March 17, 1930, and the building opened thirteen and a half months afterward on May 1, 1931. Despite favorable publicity related to the building's construction, because of the Great Depression and World War II, its owners did not make a profit until the early 1950s.</p>
-                                <p>The building's Art Deco architecture, height, and observation decks have made it a popular attraction. Around four million tourists from around the world annually visit the building's 86th- and 102nd-floor observatories; an additional indoor observatory on the 80th floor opened in 2019. The Empire State Building is an international cultural icon: it has been featured in more than 250 television series and films since the film King Kong was released in 1933. The building's size has become the global standard of reference to describe the height and length of other structures. A symbol of New York City, the building has been named as one of the Seven Wonders of the Modern World by the American Society of Civil Engineers. It was ranked first on the American Institute of Architects' List of America's Favorite Architecture in 2007. Additionally, the Empire State Building and its ground-floor interior were designated city landmarks by the New York City Landmarks Preservation Commission in 1980, and were added to the National Register of Historic Places as a National Historic Landmark in 1986.</p>
                             </div>
                         </ScrollArea>
                     </div>
