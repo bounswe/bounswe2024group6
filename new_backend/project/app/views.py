@@ -95,6 +95,7 @@ def update_user_profile(request):
     return Response(serializer.errors, status=400)
 
 
+
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
@@ -448,4 +449,25 @@ def delete_post(request):
 
     post.delete()
     return Response({'message': 'Post deleted successfully.'}, status=status.HTTP_200_OK)
+
+@api_view(['DELETE'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def delete_comment(request):
+    user = request.user
+    comment_id = request.data.get('comment_id')
+    
+    if not comment_id:
+        return Response({'error': 'Comment ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        comment = PostComments.objects.get(pk=comment_id)
+    except PostComments.DoesNotExist:
+        return Response({'error': 'Comment does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+    
+    if comment.user != user:
+        return Response({'error': 'You do not have permission to delete this comment.'}, status=status.HTTP_403_FORBIDDEN)
+
+    comment.delete()
+    return Response({'message': 'Comment deleted successfully.'}, status=status.HTTP_200_OK)
 

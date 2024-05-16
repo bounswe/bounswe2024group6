@@ -26,7 +26,9 @@ urlpatterns = [
     path('building/', building_view, name='building_view'),
     path('style/', style_view, name='style_view'),
     path('search/', views.search, name='search'),
-    path('delete_post/',delete_post, name='delete_post')
+    path('delete_post/',delete_post, name='delete_post'),
+    path('delete_comment/',delete_comment, name='delete_comment'),
+    
 
 ]
     
