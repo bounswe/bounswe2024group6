@@ -5,6 +5,8 @@ from .models import Post, Tag
 from rest_framework.test import APITestCase
 from django.contrib.auth.models import User
 from rest_framework import status
+from rest_framework.test import APIClient
+
 
 
 class UserTestCase(TestCase):
@@ -47,3 +49,25 @@ class GuestFeedTestCase(APITestCase):
         post_ids = response.data['post_ids']
         self.assertTrue(isinstance(post_ids, list))
         self.assertEqual(len(post_ids), 2)
+
+
+from django.contrib.auth import get_user_model
+User = get_user_model()  
+
+class GetPostsByIdsTestCase(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.tag = Tag.objects.create(tag_name='Test Tag')
+        self.user = User.objects.create(username='test_user')  # Create a user using the custom user model
+        self.post = Post.objects.create(title='Test Post', text='This is a test post.', tags=self.tag, author=self.user)
+
+    def test_get_posts_by_ids(self):
+        url = reverse('get_posts_by_ids')
+        data = {'post_id': self.post.id}
+        response = self.client.post(url, data, format='json')
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['title'], self.post.title)
+        self.assertEqual(response.data['text'], self.post.text)
+
+
