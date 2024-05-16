@@ -197,6 +197,32 @@ def like_post(request):
 @api_view(['POST'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
+def get_like_back(request):
+    user = request.user
+    post_id = request.data.get('post_id')
+
+    if not post_id:
+        return Response({'error': 'Post ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        post = Post.objects.get(pk=post_id)
+    except Post.DoesNotExist:
+        return Response({'error': 'Post does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+
+    like = Like.objects.filter(user=user, post=post).first()
+    if not like:
+        return Response({'error': 'You have not liked this post.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    like.delete()
+    post.likes_count -= 1
+    post.save()
+
+    return Response({'message': 'Like removed successfully.'}, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def comment_post(request):
     user = request.user
     post_id = request.data.get('post_id')
