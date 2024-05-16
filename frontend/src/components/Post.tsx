@@ -8,9 +8,17 @@ import BookmarkIcon from '@mui/icons-material/Bookmark';
 import { Button } from "@/components/ui/button"
 import { useState, useEffect } from "react"
 import axios from "axios"
+import { useNavigate } from "react-router-dom";
+
+import shadcnProfile from '@/pages/shadcnProfile.jpeg'
 
 export default function Post(postID) {
     const [post, setPost] = useState({})
+    const [profileImage, setProfileImage] = useState(null)
+    const [entityID, setEntityID] = useState(null)
+    const [entityName, setEntityName] = useState(null)
+    const [entityCategory, setEntityCategory] = useState(null)
+    const navigate = useNavigate()
 
     useEffect(() => {
         axios.post(`http://localhost:8000/get_posts_by_ids/`,
@@ -18,13 +26,31 @@ export default function Post(postID) {
                 post_id: postID.postID
             },
         )
+        .then(response => {
+            console.log(response.data)
+            setPost(response.data)
+            axios.post('http://localhost:8000/entity_from_searchresult/', {id: response.data.searchresult})
             .then(response => {
                 console.log(response.data)
-                setPost(response.data)
+                setEntityID(response.data.entity_id)
+                setEntityName(response.data.name)
+                setEntityCategory(response.data.category)
             })
             .catch(error => {
                 console.log(error)
             })
+            axios.post('http://localhost:8000/basic_user_info/', {username: response.data.author})
+            .then(response => {
+                console.log(response.data)
+                setProfileImage(response.data.profile_image)
+            })
+            .catch(error => {
+                console.log(error)
+            })
+        })
+        .catch(error => {
+            console.log(error)
+        })
     }, [])
     const [isBookmark, setIsBookmark] = useState(false);
 
@@ -56,15 +82,15 @@ export default function Post(postID) {
             <div className="w-full flex-col rounded-md shadow-sm border p-3 mx-auto relative">
                 <div className="flex flex-row items-center mb-3 gap-2">
                     <img 
-                        src={mockData.user.profileImage} 
+                        src={profileImage ? profileImage : shadcnProfile} 
                         alt="Profile" 
                         className="left-3 w-12 h-12 rounded-full object-cover" 
                         style={{ objectFit: 'cover' }}
                     />
                     {/* User Info */}
                     <div className="flex flex-col">
-                        <h1 className="font-bold text-2xl">{mockData.user.name}</h1>
-                        <p className="text-xl">@{mockData.user.username}</p>
+                        <h1 className="font-bold text-2xl">{post.author_name}</h1>
+                        <p className="text-xl">@{post.author}</p>
                     </div>
                 </div>
                 {/* Second Row */}
@@ -84,11 +110,12 @@ export default function Post(postID) {
                         <p>{mockData.date}</p>
                     </div>
                     <div className="flex right-1 flex-row gap-2">
-                        {mockData.tags.map(tag => (
-                            <div key={tag.id} className=" right-1 bg-black rounded-md p-1 text-white">
-                                <p>#{tag.name}</p>
-                            </div>
-                        ))}
+                        <button onClick={() => {
+                            navigate(`/wiki/${entityCategory}/${entityID}`);
+                            navigate(0);
+                        }} className=" right-1 bg-black rounded-md p-1 text-white">
+                            <p>#{entityName}</p>
+                        </button>
                     </div>
                 </div>
 
@@ -104,16 +131,14 @@ export default function Post(postID) {
                                 {isFavorite ? <FavoriteIcon /> : <FavoriteBorderIcon />}
                             </Button>
                             <div className="w-10 mt-2">
-                                <p>{mockData.likeCount}</p>
+                                <p>{post.likes_count}</p>
                             </div>
                             
                             
                         </div>
                         <div className="flex flex-row gap-1">
                             <Button variant="ghost" className='w-10'><ChatBubbleOutlineIcon /></Button>
-                            <div className="w-10 mt-2">
-                                <p>{mockData.commentCount}</p>
-                            </div>
+
                         </div>
                         <Button variant="ghost" className='w-10' onClick={toggleBookmark}>
                             {isBookmark ? <BookmarkIcon /> : <BookmarkBorderIcon />}
