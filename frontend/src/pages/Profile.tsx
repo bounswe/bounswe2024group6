@@ -1,4 +1,5 @@
 import { Navbar } from '../components'
+import { Post } from '../components'
 
 import { useAuth } from '../hooks'
 import { useParams } from 'react-router-dom';

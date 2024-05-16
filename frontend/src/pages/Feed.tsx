@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Navbar } from '../components'
+import { Post } from '../components'
 
 import { useAuth } from '../hooks'
 
@@ -16,7 +17,9 @@ export default function Feed() {
                     <h1>Auth User Feed</h1>
                 :
                     <h1>Guest User Feed</h1>
+                    
             }
+            <Post />
         </div>
     )
 }

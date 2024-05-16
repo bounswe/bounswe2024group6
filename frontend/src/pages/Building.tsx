@@ -4,6 +4,10 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import * as React from 'react';
 import Map, {Marker} from 'react-map-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
+import { Button } from "@/components/ui/button"
+import { useState } from 'react';
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
 
 export default function Building() {
@@ -13,17 +17,41 @@ export default function Building() {
         wikiText: "The Sagrada Família is a large unfinished Roman Catholic basilica in Barcelona, Catalonia, Spain. Designed by Catalan architect Antoni Gaudí (1852–1926), his work on the building is part of a UNESCO World Heritage Site. In November 2010, Pope Benedict XVI consecrated the church and proclaimed it a minor basilica. On 7 November 2010, it became a minor basilica, as designated by Pope Benedict XVI.",
         country: "Spain",
         architect: [{name: "Antoni Gaudí",
-                    image: "https://commons.wikimedia.org/wiki/File:Gaud%C3%AD_(1878).jpg",
+                    image: "https://upload.wikimedia.org/wikipedia/commons/4/49/Gaud%C3%AD_%281878%29.jpg",
+                    id: "Q25328"},
+                    {name: "X",
+                    image: "https://upload.wikimedia.org/wikipedia/commons/5/57/Sagrada_Familia_8-12-21_%281%29.jpg",
                     id: "Q25328"    // ?
                     }],
-        image: "https://commons.wikimedia.org/wiki/File:Sagrada_Familia_8-12-21_(1).jpg",
-        architecturalStyle: [{id:"Q1122677",name:"Catalan modernism",image:"https://www.wikidata.org/wiki/Property:P18"},
-                                {id:"Q186363",name:"Gothic Revival",image:"https://commons.wikimedia.org/wiki/File:Royal_Courts_of_Justice_20130414_065.JPG"}],
+        image: ["https://upload.wikimedia.org/wikipedia/commons/5/57/Sagrada_Familia_8-12-21_%281%29.jpg","https://upload.wikimedia.org/wikipedia/commons/0/03/Hans_Asplund.jpg?20170113123545"],
+        architecturalStyle: [{id:"Q1122677",name:"Catalan modernism",image:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/15_Museu_d%27Art_de_Cerdanyola%2C_sala_modernista.jpg/800px-15_Museu_d%27Art_de_Cerdanyola%2C_sala_modernista.jpg"},
+                                {id:"Q186363",name:"Gothic Revival",image:"https://upload.wikimedia.org/wikipedia/commons/d/dc/Royal_Courts_of_Justice_20130414_065.JPG?20130907175057"}],
         coordinates: {
             latitude: 41.40369,
             longitude: 2.17433
         }
     }
+    const [galleryIndex, setGalleryIndex] = useState(0);
+    const handleGalleryPrevClick = () => {
+        setGalleryIndex(prevIndex => Math.max(prevIndex - 1, 0)); // Decrease index by 1, but ensure it doesn't go below 0
+    };
+    const handleGalleryNextClick = () => {
+        setGalleryIndex(prevIndex => Math.min(prevIndex + 1, mockData.image.length - 1)); // Increase index by 1, but ensure it doesn't exceed the length of the image array
+    };
+    const [architectIndex, setArchitectIndex] = useState(0);
+    const handleArchitectPrevClick = () => {
+        setArchitectIndex(prevIndex => Math.max(prevIndex - 1, 0)); // Decrease index by 1, but ensure it doesn't go below 0
+    };
+    const handleArchitectNextClick = () => {
+        setArchitectIndex(prevIndex => Math.min(prevIndex + 1, mockData.architect.length - 1)); // Increase index by 1, but ensure it doesn't exceed the length of the image array
+    };
+    const [artIndex, setArtIndex] = useState(0);
+    const handleArtPrevClick = () => {
+        setArtIndex(prevIndex => Math.max(prevIndex - 1, 0)); // Decrease index by 1, but ensure it doesn't go below 0
+    };
+    const handleArtNextClick = () => {
+        setArtIndex(prevIndex => Math.min(prevIndex + 1, mockData.architecturalStyle.length - 1)); // Increase index by 1, but ensure it doesn't exceed the length of the image array
+    };
     return (
         <div className="h-screen w-screen">
             <Navbar />
@@ -41,24 +69,33 @@ export default function Building() {
                 </div>
                 <div className="h-screen w-[100vh]">
                     <div className="h-1/2 w-[50vh] pt-6 pl-6 pr-3 pb-3">
-                        <div className="h-full w-full bg-lime-500 rounded-2xl">
-                            
+                        <div className="h-full w-full bg-lime-500 rounded-2xl relative">
+                            <img src={mockData.architect[architectIndex].image} alt="Sagrada Família" className="h-full w-full object-cover rounded-2xl" />
+                            <div className="absolute top-1 left-2 p-3 text-white rounded-md" style={{ borderBottom: '0.2px solid white left-2', backgroundColor: 'rgba(136, 136, 136, 0.5)'}}>{mockData.architect[architectIndex].name}</div>
+                            <Button className="absolute bottom-1 left-2 p-3 text-white" variant="prev" onClick={handleArchitectPrevClick} style={{backgroundColor: 'rgba(136, 136, 136, 0.5)' }}><ArrowBackIosIcon/></Button>
+                            <Button className="absolute bottom-1 right-2 p-3 text-white" variant="next" onClick={handleArchitectNextClick} style={{backgroundColor: 'rgba(136, 136, 136, 0.5)' }}><ArrowForwardIosIcon/></Button>
                         </div>
                     </div>
                     <div className="h-1/2 w-[50vh] pb-6 pl-6 pr-3 pt-3">
-                        <div className="h-full w-full bg-red-500 rounded-2xl">
-
+                        <div className="h-full w-full bg-red-500 rounded-2xl relative">
+                            <img src={mockData.architecturalStyle[artIndex].image} alt="Sagrada Família" className="h-full w-full object-cover rounded-2xl" />
+                            <div className="absolute top-1 left-2 p-3 text-white rounded-md" style={{ borderBottom: '0.2px solid white left-2', backgroundColor: 'rgba(136, 136, 136, 0.5)'}}>{mockData.architecturalStyle[artIndex].name}</div>
+                            <Button className="absolute bottom-1 left-2 p-3 text-white" variant="prev" onClick={handleArtPrevClick} style={{backgroundColor: 'rgba(136, 136, 136, 0.5)' }}><ArrowBackIosIcon/></Button>
+                            <Button className="absolute bottom-1 right-2 p-3 text-white" variant="next" onClick={handleArtNextClick} style={{backgroundColor: 'rgba(136, 136, 136, 0.5)' }}><ArrowForwardIosIcon/></Button>
                         </div>
                     </div>
                 </div>
                 <div className="h-screen w-[100vh]">
                     <div className="h-1/2 w-[50vh] pt-6 pr-6 pl-3 pb-3">
-                        <div className="h-full w-full bg-zinc-500 rounded-2xl">
-
+                        <div className="h-full w-full bg-zinc-500 rounded-2xl relative">
+                            <img src={mockData.image[galleryIndex]} alt="Sagrada Família" className="h-full w-full object-cover rounded-2xl" />
+                            <div className="absolute top-1 left-2 p-3 text-white rounded-md" style={{ borderBottom: '0.2px solid white left-2', backgroundColor: 'rgba(136, 136, 136, 0.5)'}}>Gallery</div>
+                            <Button className="absolute bottom-1 left-2 p-3 text-white" variant="prev" onClick={handleGalleryPrevClick} style={{backgroundColor: 'rgba(136, 136, 136, 0.5)' }}><ArrowBackIosIcon/></Button>
+                            <Button className="absolute bottom-1 right-2 p-3 text-white" variant="next" onClick={handleGalleryNextClick} style={{backgroundColor: 'rgba(136, 136, 136, 0.5)' }}><ArrowForwardIosIcon/></Button>
                         </div>
                     </div>
                     <div className="h-1/2 w-[50vh] pb-6 pr-6 pl-3 pt-3">
-                        <div className="h-full w-full rounded-2xl">
+                        <div className="h-full w-full rounded-2xl relative">
                             <Map
                                 mapboxAccessToken={import.meta.env.VITE_MAPBOX_ACCESS_TOKEN}
                                 initialViewState={{
@@ -70,6 +107,7 @@ export default function Building() {
                             >
                                 <Marker longitude={mockData.coordinates.longitude} latitude={mockData.coordinates.latitude} color="red" />
                             </Map>
+                            <div className="absolute top-1 left-2 p-3 text-white rounded-md" style={{ borderBottom: '0.2px solid white left-2', backgroundColor: 'rgba(136, 136, 136, 0.5)'}}>{mockData.country}</div>                        
                         </div>
                     </div>
                 </div>
