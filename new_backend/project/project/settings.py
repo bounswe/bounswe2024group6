@@ -103,10 +103,10 @@ DATABASES = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': "searchitect",
+        'NAME': os.getenv("MYSQL_DATABASE"),
         'USER': 'root',   # replace with your MySQL username
-        'PASSWORD': "aras1234",
-        'HOST': 'localhost',  # or your database server IP
+        'PASSWORD': os.getenv("MYSQL_ROOT_PASSWORD"),
+        'HOST': 'db',  # or your database server IP
         'PORT': '3306',  # default MySQL port
     }
 }
