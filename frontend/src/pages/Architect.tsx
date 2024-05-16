@@ -67,7 +67,7 @@ export default function Architect() {
         setArtIndex(prevIndex => Math.max(prevIndex - 1, 0)); // Decrease index by 1, but ensure it doesn't go below 0
     };
     const handleArtNextClick = () => {
-        setArtIndex(prevIndex => Math.min(prevIndex + 1, architectData.architecturalStyle.length - 1)); // Increase index by 1, but ensure it doesn't exceed the length of the image array
+        setArtIndex(prevIndex => Math.min(prevIndex + 1, architectData.movements.length - 1)); // Increase index by 1, but ensure it doesn't exceed the length of the image array
     };
 
     return (

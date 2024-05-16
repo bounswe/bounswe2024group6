@@ -60,7 +60,7 @@ export default function Building() {
         setGalleryIndex(prevIndex => Math.max(prevIndex - 1, 0)); // Decrease index by 1, but ensure it doesn't go below 0
     };
     const handleGalleryNextClick = () => {
-        setGalleryIndex(prevIndex => Math.min(prevIndex + 1, mockData.image.length - 1)); // Increase index by 1, but ensure it doesn't exceed the length of the image array
+        setGalleryIndex(prevIndex => Math.min(prevIndex + 1, buildingData.image.length - 1)); // Increase index by 1, but ensure it doesn't exceed the length of the image array
     };
     const [architectIndex, setArchitectIndex] = useState(0);
     const handleArchitectPrevClick = () => {
@@ -82,17 +82,17 @@ export default function Building() {
             {
             isLoading
             ?
-                    <div className="flex w-full justify-center">
-                        <div className="mt-20">
-                            <ClipLoader
-                                color={"#000000"}
-                                loading={isLoading}
-                                size={150}
-                                aria-label="Loading Spinner"
-                                data-testid="loader"
-                            />
-                        </div>
+                <div className="flex w-full justify-center">
+                    <div className="mt-20">
+                        <ClipLoader
+                            color={"#000000"}
+                            loading={isLoading}
+                            size={150}
+                            aria-label="Loading Spinner"
+                            data-testid="loader"
+                        />
                     </div>
+                </div>
             :
                 <div className="h-screen w-screen flex">
                     <div className="h-full w-full py-6 pl-6">
@@ -127,7 +127,7 @@ export default function Building() {
                     <div className="h-screen w-[100vh]">
                         <div className="h-1/2 w-[50vh] pt-6 pr-6 pl-3 pb-3">
                             <div className="h-full w-full bg-zinc-500 rounded-2xl relative">
-                                <img src={mockData.image[galleryIndex]} alt="Sagrada Família" className="h-full w-full object-cover rounded-2xl" />
+                                <img src={buildingData.image[galleryIndex]} alt="Sagrada Família" className="h-full w-full object-cover rounded-2xl" />
                                 <div className="absolute top-1 left-2 p-3 text-white rounded-md" style={{ borderBottom: '0.2px solid white left-2', backgroundColor: 'rgba(80, 80, 80, 0.5)', padding: '2px 10px', fontSize:18}}>Gallery</div>
                                 <Button className="absolute bottom-1 left-2 p-3 text-white" variant="prev" onClick={handleGalleryPrevClick} style={{ borderBottom: '0.2px solid white left-2', backgroundColor: 'rgba(80, 80, 80, 0.5)', padding: '2px 10px', fontSize:18 }}><ArrowBackIosIcon/></Button>
                                 <Button className="absolute bottom-1 right-2 p-3 text-white" variant="next" onClick={handleGalleryNextClick} style={{ borderBottom: '0.2px solid white left-2', backgroundColor: 'rgba(80, 80, 80, 0.5)', padding: '2px 10px', fontSize:18 }}><ArrowForwardIosIcon/></Button>
