@@ -33,7 +33,7 @@ export default function Browse() {
                     tempResults.push(response.data.building.map((item) => { return {...item, category: "building"} }))
                 }
                 setSearchResults((prev) => { return tempResults; })
-                console.log(tempResults)
+                console.log(tempResults[0])
             }
             setIsLoading(false)
           })
@@ -64,7 +64,7 @@ export default function Browse() {
                     <div className="flex w-full justify-center mt-3">
                         <div className="flex flex-col items-center w-7/12 gap-3">
                             {searchResults[0].map((result) => {
-                                return <SearchItem item={result} key={result["Entity ID"]}/>
+                                return <SearchItem item={result} key={result.entity_id}/>
                                 })}
                         </div>
                     </div>
