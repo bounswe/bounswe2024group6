@@ -141,7 +141,7 @@ def user_profile(request):
     liked_posts_data = PostSerializer([like.post for like in liked_posts], many=True).data
     user_data['liked_posts'] = liked_posts_data
 
-    return Response(user_data)
+    return Response(user_data, status=200)
 
 
 @api_view(['POST'])

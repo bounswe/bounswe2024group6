@@ -284,6 +284,25 @@ class BookmarkPostTestCase(APITestCase):
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+
+
+
+User = get_user_model()
+
+class UserProfileTestCase(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(username='testuser', password='testpassword', email='test@example.com')
+        self.token = Token.objects.create(user=self.user)
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+    
+    
+    def test_user_profile_without_username(self):
+        url = reverse('user_profile')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+    
+
 class CommentTestCase(APITestCase):
     def setUp(self):
         self.client = APIClient()
@@ -339,3 +358,4 @@ class CommentTestCase(APITestCase):
         data = {'comment_id': comment.id}
         response = self.client.delete(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
