@@ -71,17 +71,17 @@ export default function Building() {
                     <div className="h-1/2 w-[50vh] pt-6 pl-6 pr-3 pb-3">
                         <div className="h-full w-full bg-lime-500 rounded-2xl relative">
                             <img src={mockData.architect[architectIndex].image} alt="Sagrada Família" className="h-full w-full object-cover rounded-2xl" />
-                            <div className="absolute top-1 left-2 p-3 text-white rounded-md" style={{ borderBottom: '0.2px solid white left-2', backgroundColor: 'rgba(136, 136, 136, 0.5)'}}>{mockData.architect[architectIndex].name}</div>
-                            <Button className="absolute bottom-1 left-2 p-3 text-white" variant="prev" onClick={handleArchitectPrevClick} style={{backgroundColor: 'rgba(136, 136, 136, 0.5)' }}><ArrowBackIosIcon/></Button>
-                            <Button className="absolute bottom-1 right-2 p-3 text-white" variant="next" onClick={handleArchitectNextClick} style={{backgroundColor: 'rgba(136, 136, 136, 0.5)' }}><ArrowForwardIosIcon/></Button>
+                            <div className="absolute top-1 left-2 p-3 text-white rounded-md" style={{ borderBottom: '0.2px solid white left-2', backgroundColor: 'rgba(80, 80, 80, 0.5)', padding: '2px 10px', fontSize:18}}>{mockData.architect[architectIndex].name}</div>
+                            <Button className="absolute bottom-1 left-2 p-3 text-white" variant="prev" onClick={handleArchitectPrevClick} style={{ borderBottom: '0.2px solid white left-2', backgroundColor: 'rgba(80, 80, 80, 0.5)', padding: '2px 10px', fontSize:18 }}><ArrowBackIosIcon/></Button>
+                            <Button className="absolute bottom-1 right-2 p-3 text-white" variant="next" onClick={handleArchitectNextClick} style={{ borderBottom: '0.2px solid white left-2', backgroundColor: 'rgba(80, 80, 80, 0.5)', padding: '2px 10px', fontSize:18 }}><ArrowForwardIosIcon/></Button>
                         </div>
                     </div>
                     <div className="h-1/2 w-[50vh] pb-6 pl-6 pr-3 pt-3">
                         <div className="h-full w-full bg-red-500 rounded-2xl relative">
                             <img src={mockData.architecturalStyle[artIndex].image} alt="Sagrada Família" className="h-full w-full object-cover rounded-2xl" />
-                            <div className="absolute top-1 left-2 p-3 text-white rounded-md" style={{ borderBottom: '0.2px solid white left-2', backgroundColor: 'rgba(136, 136, 136, 0.5)'}}>{mockData.architecturalStyle[artIndex].name}</div>
-                            <Button className="absolute bottom-1 left-2 p-3 text-white" variant="prev" onClick={handleArtPrevClick} style={{backgroundColor: 'rgba(136, 136, 136, 0.5)' }}><ArrowBackIosIcon/></Button>
-                            <Button className="absolute bottom-1 right-2 p-3 text-white" variant="next" onClick={handleArtNextClick} style={{backgroundColor: 'rgba(136, 136, 136, 0.5)' }}><ArrowForwardIosIcon/></Button>
+                            <div className="absolute top-1 left-2 p-3 text-white rounded-md" style={{ borderBottom: '0.2px solid white left-2', backgroundColor: 'rgba(80, 80, 80, 0.5)', padding: '2px 10px', fontSize:18 }}>{mockData.architecturalStyle[artIndex].name}</div>
+                            <Button className="absolute bottom-1 left-2 p-3 text-white" variant="prev" onClick={handleArtPrevClick} style={{ borderBottom: '0.2px solid white left-2', backgroundColor: 'rgba(80, 80, 80, 0.5), fontSize:18', padding: '2px 10px', fontSize:18 }}><ArrowBackIosIcon/></Button>
+                            <Button className="absolute bottom-1 right-2 p-3 text-white" variant="next" onClick={handleArtNextClick} style={{ borderBottom: '0.2px solid white left-2', backgroundColor: 'rgba(80, 80, 80, 0.5)', padding: '2px 10px', fontSize:18 , fontSize:18}}><ArrowForwardIosIcon/></Button>
                         </div>
                     </div>
                 </div>
@@ -89,9 +89,9 @@ export default function Building() {
                     <div className="h-1/2 w-[50vh] pt-6 pr-6 pl-3 pb-3">
                         <div className="h-full w-full bg-zinc-500 rounded-2xl relative">
                             <img src={mockData.image[galleryIndex]} alt="Sagrada Família" className="h-full w-full object-cover rounded-2xl" />
-                            <div className="absolute top-1 left-2 p-3 text-white rounded-md" style={{ borderBottom: '0.2px solid white left-2', backgroundColor: 'rgba(136, 136, 136, 0.5)'}}>Gallery</div>
-                            <Button className="absolute bottom-1 left-2 p-3 text-white" variant="prev" onClick={handleGalleryPrevClick} style={{backgroundColor: 'rgba(136, 136, 136, 0.5)' }}><ArrowBackIosIcon/></Button>
-                            <Button className="absolute bottom-1 right-2 p-3 text-white" variant="next" onClick={handleGalleryNextClick} style={{backgroundColor: 'rgba(136, 136, 136, 0.5)' }}><ArrowForwardIosIcon/></Button>
+                            <div className="absolute top-1 left-2 p-3 text-white rounded-md" style={{ borderBottom: '0.2px solid white left-2', backgroundColor: 'rgba(80, 80, 80, 0.5)', padding: '2px 10px', fontSize:18}}>Gallery</div>
+                            <Button className="absolute bottom-1 left-2 p-3 text-white" variant="prev" onClick={handleGalleryPrevClick} style={{ borderBottom: '0.2px solid white left-2', backgroundColor: 'rgba(80, 80, 80, 0.5)', padding: '2px 10px', fontSize:18 }}><ArrowBackIosIcon/></Button>
+                            <Button className="absolute bottom-1 right-2 p-3 text-white" variant="next" onClick={handleGalleryNextClick} style={{ borderBottom: '0.2px solid white left-2', backgroundColor: 'rgba(80, 80, 80, 0.5)', padding: '2px 10px', fontSize:18 }}><ArrowForwardIosIcon/></Button>
                         </div>
                     </div>
                     <div className="h-1/2 w-[50vh] pb-6 pr-6 pl-3 pt-3">
@@ -107,7 +107,7 @@ export default function Building() {
                             >
                                 <Marker longitude={mockData.coordinates.longitude} latitude={mockData.coordinates.latitude} color="red" />
                             </Map>
-                            <div className="absolute top-1 left-2 p-3 text-white rounded-md" style={{ borderBottom: '0.2px solid white left-2', backgroundColor: 'rgba(136, 136, 136, 0.5)'}}>{mockData.country}</div>                        
+                            <div className="absolute top-1 left-2 p-3 text-white rounded-md" style={{ borderBottom: '0.2px solid white left-2', backgroundColor: 'rgba(80, 80, 80, 0.5)', padding: '2px 10px', fontSize:18}}>{mockData.country}</div>                        
                         </div>
                     </div>
                 </div>

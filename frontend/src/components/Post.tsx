@@ -6,9 +6,21 @@ import ShareIcon from '@mui/icons-material/Share';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import { Button } from "@/components/ui/button"
-
+import { useState } from "react"
 
 export default function Post() {
+    const [isBookmark, setIsBookmark] = useState(false);
+
+    const toggleBookmark = () => {
+        setIsBookmark(!isBookmark);
+    }
+
+    const [isFavorite, setIsFavorite] = useState(false);
+
+    const toggleFavorite = () => {
+        setIsFavorite(!isFavorite);
+    }
+
     const mockData = {
         user: { 
             name: "Elif Nur Deniz",
@@ -18,63 +30,84 @@ export default function Post() {
         content: "Notre-Dame de Paris (French: [nɔtʁ(ə) dam də paʁi] ; meaning \"Our Lady of Paris\"), referred to simply as Notre-Dame, is a medieval Catholic cathedral on the Île de la Cité (an island in the Seine River), in the 4th arrondissement of Paris, France. The cathedral, dedicated to the Virgin Mary, is considered one of the finest examples of French Gothic architecture. Several attributes set it apart from the earlier Romanesque style, particularly its pioneering use of the rib vault and flying buttress, its enormous and colourful rose windows, and the naturalism and abundance of its sculptural decoration. Notre-Dame also stands out for its three pipe organs (one historic) and its immense church bells.",
         image: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Wien_-_Wotrubakirche_%286%29.JPG/1200px-Wien_-_Wotrubakirche_%286%29.JPG?20200528153424",
         likeCount: 30,
-        commentCount: 10
+        commentCount: 10,
+        tags: [{name: "Paris", id: "123"}],
+        date: "16.05.2022 12:00 PM"
     }
     return (
         <div className="flex justify-center mb-8">
             <div className="w-full md:w-1/2 flex-col rounded-md shadow-sm border p-3 mx-auto relative">
-            <div className="flex flex-row items-center mb-3 gap-2">
-                <img 
-                    src={mockData.user.profileImage} 
-                    alt="Profile" 
-                    className="left-3 w-12 h-12 rounded-full object-cover" 
-                    style={{ objectFit: 'cover' }}
-                />
-                {/* User Info */}
-                <div className="flex flex-col">
-                    <h1 className="font-bold text-2xl">{mockData.user.name}</h1>
-                    <p className="text-xl">@{mockData.user.username}</p>
-                </div>
-            </div>
-            <Separator orientation="horizontal" />
-
-            {/* Second Row */}
-            <div className="flex flex-col items-center justify-center mb-3 mt-3 gap-2">
-                <div className="flex flex-col items-center mb-3">
+                <div className="flex flex-row items-center mb-3 gap-2">
                     <img 
-                        src={mockData.image} 
-                        alt="image" 
-                        className="object-cover" 
-                        style={{ objectFit: 'cover', width: '400px', height: '400px' }}
+                        src={mockData.user.profileImage} 
+                        alt="Profile" 
+                        className="left-3 w-12 h-12 rounded-full object-cover" 
+                        style={{ objectFit: 'cover' }}
                     />
-                    <p style={{ marginTop: '20px' }}>{mockData.content}</p>
+                    {/* User Info */}
+                    <div className="flex flex-col">
+                        <h1 className="font-bold text-2xl">{mockData.user.name}</h1>
+                        <p className="text-xl">@{mockData.user.username}</p>
+                    </div>
                 </div>
-            </div>
-            <Separator orientation="horizontal" />
+                <Separator orientation="horizontal" />
 
-            {/* Third Row */}
-            <div className="flex flex-col items-center mb-3 mt-3">
-                <div className="flex flex-row w-full justify-between gap-3 ml-3 mr-3">
-                    <div className="flex flex-row gap-1">
-                        <Button variant="ghost" className='w-10'><FavoriteBorderIcon /></Button>
-                        <div className="w-10 mt-2">
-                            <p>{mockData.likeCount}</p>
-                        </div>
-                        
-                        
+                {/* Second Row */}
+                <div className="flex flex-col items-center justify-center mb-3 mt-3 gap-2">
+                    <div className="flex flex-col items-center mb-3">
+                        <img 
+                            src={mockData.image} 
+                            alt="image" 
+                            className="object-cover" 
+                            style={{ objectFit: 'cover', width: '400px', height: '400px' }}
+                        />
+                        <p style={{ marginTop: '20px' }}>{mockData.content}</p>
                     </div>
-                    <div className="flex flex-row gap-1">
-                        <Button variant="ghost" className='w-10'><ChatBubbleOutlineIcon /></Button>
-                        <div className="w-10 mt-2">
-                            <p>{mockData.commentCount}</p>
-                        </div>
-                    </div>
-                    <Button variant="ghost" className='w-10'><BookmarkBorderIcon /></Button>
-                    <Button variant="ghost" className='w-10'><ShareIcon /></Button>
-                    
                 </div>
-                {/* Content for the third row */}
-            </div>
+                <div className="w-full flex flex-row justify-between mb-3 mt-3 gap-2 relative">
+                    <div className="flex flex-row justify-between">
+                        <p>{mockData.date}</p>
+                    </div>
+                    <div className="flex right-1 flex-row gap-2">
+                        {mockData.tags.map(tag => (
+                            <div key={tag.id} className=" right-1 bg-gray-200 rounded-md p-1">
+                                <p>#{tag.name}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+
+                <Separator orientation="horizontal" />
+
+
+                {/* Third Row */}
+                <div className="flex flex-col items-center mb-3 mt-3">
+                    <div className="flex flex-row w-full justify-between gap-3 ml-3 mr-3">
+                        <div className="flex flex-row gap-1">
+                            <Button variant="ghost" className='w-10' onClick={toggleFavorite}>
+                                {isFavorite ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                            </Button>
+                            <div className="w-10 mt-2">
+                                <p>{mockData.likeCount}</p>
+                            </div>
+                            
+                            
+                        </div>
+                        <div className="flex flex-row gap-1">
+                            <Button variant="ghost" className='w-10'><ChatBubbleOutlineIcon /></Button>
+                            <div className="w-10 mt-2">
+                                <p>{mockData.commentCount}</p>
+                            </div>
+                        </div>
+                        <Button variant="ghost" className='w-10' onClick={toggleBookmark}>
+                            {isBookmark ? <BookmarkIcon /> : <BookmarkBorderIcon />}
+                        </Button>
+                        <Button variant="ghost" className='w-10'><ShareIcon /></Button>
+                        
+                    </div>
+                    {/* Content for the third row */}
+                </div>
             
             </div>
         </div>
