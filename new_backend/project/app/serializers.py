@@ -40,7 +40,7 @@ class ImageSerializer(serializers.ModelSerializer):
         fields = ['image_url']
 
 class PostSerializer(serializers.ModelSerializer):
-    author_name = serializers.CharField(source='author.username', read_only=True)  # Ensure it fetches the username
+    author_name = serializers.CharField(source='author.name', read_only=True)  # Ensure it fetches the username
     author = serializers.StringRelatedField()  # Include the author's username
     image = ImageSerializer()
 

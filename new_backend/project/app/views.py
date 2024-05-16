@@ -528,7 +528,26 @@ def get_entity_posts(request):
     
     return Response({'posts': posts_data}, status=status.HTTP_200_OK)
     
+
     
+@api_view(['POST'])
+def basic_user_info(request):
+    username = request.data.get('username')  # Retrieve username from request body
+    user = get_object_or_404(CustomUser, username=username)
     
-    
+    # Serialize user data
+    user_data = UserSerializer(user).data
+
+    return Response(user_data, status=200)    
+
+
+@api_view(['POST'])
+def entity_from_searchresult(request):
+    id = request.data.get('id')
+    search_result = get_object_or_404(SearchResult, id=id)
+    entity_id = search_result.entity_id
+    name = search_result.name
+    category = search_result.type
+    return Response({'entity_id': entity_id, 'name': name, 'category': category}, status=200)
+
     
