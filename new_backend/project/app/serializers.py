@@ -45,10 +45,11 @@ class TagSerializer(serializers.ModelSerializer):
         fields = ['tag_name']
 
 class PostSerializer(serializers.ModelSerializer):
-    author = serializers.StringRelatedField()
+    author_name = serializers.CharField(source='author.name', read_only=True)  # This will include the author's name
+    author = serializers.StringRelatedField()  # This will include the author's username
     image = ImageSerializer()
     tags = TagSerializer()
 
     class Meta:
         model = Post
-        fields = ['title', 'image', 'created_at', 'text', 'tags', 'author', 'likes_count']
+        fields = ['title', 'image', 'created_at', 'text', 'tags', 'author', 'author_name', 'likes_count']
