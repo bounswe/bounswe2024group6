@@ -12,6 +12,7 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import BASE_URL from '../lib/baseUrl'
 import ClipLoader from "react-spinners/ClipLoader";
+import ImageNotSupportedIcon from '@mui/icons-material/ImageNotSupported';
 
 
 export default function Building() {
@@ -35,26 +36,6 @@ export default function Building() {
         })
     }, [qid]);
 
-    const mockData = {
-        name: "Sagrada Família",
-        description: "monumental Roman Catholic basilica under construction in Barcelona, Catalonia, Spain.",
-        wikiText: "The Sagrada Família is a large unfinished Roman Catholic basilica in Barcelona, Catalonia, Spain. Designed by Catalan architect Antoni Gaudí (1852–1926), his work on the building is part of a UNESCO World Heritage Site. In November 2010, Pope Benedict XVI consecrated the church and proclaimed it a minor basilica. On 7 November 2010, it became a minor basilica, as designated by Pope Benedict XVI.",
-        country: "Spain",
-        architect: [{name: "Antoni Gaudí",
-                    image: "https://upload.wikimedia.org/wikipedia/commons/4/49/Gaud%C3%AD_%281878%29.jpg",
-                    id: "Q25328"},
-                    {name: "X",
-                    image: "https://upload.wikimedia.org/wikipedia/commons/5/57/Sagrada_Familia_8-12-21_%281%29.jpg",
-                    id: "Q25328"    // ?
-                    }],
-        image: ["https://upload.wikimedia.org/wikipedia/commons/5/57/Sagrada_Familia_8-12-21_%281%29.jpg","https://upload.wikimedia.org/wikipedia/commons/0/03/Hans_Asplund.jpg?20170113123545"],
-        architecturalStyle: [{id:"Q1122677",name:"Catalan modernism",image:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/15_Museu_d%27Art_de_Cerdanyola%2C_sala_modernista.jpg/800px-15_Museu_d%27Art_de_Cerdanyola%2C_sala_modernista.jpg"},
-                                {id:"Q186363",name:"Gothic Revival",image:"https://upload.wikimedia.org/wikipedia/commons/d/dc/Royal_Courts_of_Justice_20130414_065.JPG?20130907175057"}],
-        coordinates: {
-            latitude: 41.40369,
-            longitude: 2.17433
-        }
-    }
     const [galleryIndex, setGalleryIndex] = useState(0);
     const handleGalleryPrevClick = () => {
         setGalleryIndex(prevIndex => Math.max(prevIndex - 1, 0)); // Decrease index by 1, but ensure it doesn't go below 0
