@@ -20,6 +20,9 @@ urlpatterns = [
     path('guest_feed/', guest_feed, name='guest_feed'),
     path('auth_feed/', auth_feed, name='auth_feed'),
     path('get_posts_by_ids/', get_posts_by_ids, name='get_posts_by_ids'),
+    path('architect/', architect_view, name='architect_view'),
+    path('building/', building_view, name='building_view'),
+    path('style/', style_view, name='style_view')
 
 
 

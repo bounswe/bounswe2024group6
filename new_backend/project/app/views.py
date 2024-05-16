@@ -25,7 +25,7 @@ from .serializers import *
 import asyncio
 
 from .serializers import UserSerializer
-from .utils import query_architect,query_architectural_style,query_building
+from .utils import query_architect,query_architectural_style,query_building, get_building_info, get_architect_info, get_style_info
 
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.authentication import TokenAuthentication
@@ -352,3 +352,31 @@ def get_posts_by_ids(request):
         serializer = PostSerializer(post)
 
         return Response(serializer.data)
+    
+
+@api_view(['GET'])
+def building_view(request):
+
+    if request.method == "GET":
+        entity_id = request.data['entity_id']
+        # get_description_wikibase(entity_id)
+        # get_content_wikidata(entity_id)
+        return JsonResponse(get_building_info(entity_id))
+
+@api_view(['GET'])
+def architect_view(request):
+
+    if request.method == "GET":
+        entity_id = request.data['entity_id']
+        # get_description_wikibase(entity_id)
+        # get_content_wikidata(entity_id)
+        return JsonResponse(get_architect_info(entity_id))
+
+@api_view(['GET'])
+def style_view(request):
+
+    if request.method == "GET":
+        entity_id = request.data['entity_id']
+        # get_description_wikibase(entity_id)
+        # get_content_wikidata(entity_id)
+        return JsonResponse(get_style_info(entity_id))
