@@ -336,17 +336,19 @@ def auth_feed(request):
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@api_view(['GET'])
+@api_view(['POST'])
 def get_posts_by_ids(request):
-    if request.method == 'GET':
-        # Get the list of post_ids from the query parameters
-        post_ids = request.GET.getlist('post_ids[]', [])
+    if request.method == 'POST':
+        post_id = request.data.get('post_id')
 
-        # Retrieve the posts from the database using the post_ids
-        posts = Post.objects.filter(id__in=post_ids)
+        if not post_id:
+            return Response({'error': 'Post ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Serialize the posts
-        serializer = PostSerializer(posts, many=True)
+        try:
+            post = Post.objects.get(id=post_id)
+        except Post.DoesNotExist:
+            return Response({'error': 'Post does not exist.'}, status=status.HTTP_404_NOT_FOUND)
 
-        # Return the serialized posts in the response
+        serializer = PostSerializer(post)
+
         return Response(serializer.data)
