@@ -28,10 +28,9 @@ def choose_architect_query(keyword):
     
 def choose_building(keyword):
     building_query=f'''
-    SELECT DISTINCT ?item ?itemLabel ?image  WHERE {{
+    SELECT DISTINCT ?item ?itemLabel  WHERE {{
             ?item rdfs:label ?itemLabel.
             ?item p:P149 ?statement1.
-            ?item p:18 ?image.
             ?statement1 (ps:P149/(wdt:P279*)) _:anyValueP149.
             FILTER(lang(?itemLabel) = "en" && contains(lcase(?itemLabel), "{keyword.lower()}"))
 
