@@ -25,14 +25,15 @@ from .serializers import *
 import asyncio
 
 from .serializers import UserSerializer
-from .utils import query_architect,query_architectural_style,query_building, get_building_info, get_architect_info, get_style_info
+from .utils import  get_building_info, get_architect_info, get_style_info
 
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from .models import CustomUser, Follow
+from .models import CustomUser, Follow, SearchResult
+from django.db.models import Q
 
 
 @api_view(['POST'])
@@ -69,11 +70,22 @@ def search(request):
     if request.method == "POST" and "query" in request.data:
         keyword = request.data['query']
         
-        architect_response =query_architect(keyword)
-        style_response =  query_architectural_style(keyword)
-        building_response = query_building(keyword)
+        results = SearchResult.objects.filter(
+              Q(name__icontains=keyword)
+        )
 
-        # return the results
+        architect_response = []
+        style_response = []
+        building_response = []
+
+        for result in results:
+            if result.type == 'architect':
+                architect_response.append({"name": result.name, "image": result.image,  "entity_id": result.entity_id})
+            elif result.type == 'style':
+                style_response.append({"name": result.name, "image": result.image, "entity_id": result.entity_id})
+            elif result.type == 'building':
+                building_response.append({"name": result.name, "image": result.image,  "entity_id": result.entity_id})
+
         response = {"style": style_response, "architect":architect_response, "building":building_response}
 
         return JsonResponse(response)
@@ -92,8 +104,9 @@ def update_user_profile(request):
     serializer = UserSerializer(user, data=request.data, partial=True)  # Allow partial updates
     if serializer.is_valid():
         serializer.save()
-        return Response(serializer.data)
+        return Response(serializer.data, status = 200)
     return Response(serializer.errors, status=400)
+
 
 
 @api_view(['POST'])
@@ -125,7 +138,7 @@ def user_profile(request):
     liked_posts_data = PostSerializer([like.post for like in liked_posts], many=True).data
     user_data['liked_posts'] = liked_posts_data
 
-    return Response(user_data)
+    return Response(user_data, status=200)
 
 @api_view(['POST'])
 @authentication_classes([TokenAuthentication])
@@ -161,7 +174,7 @@ def auth_user_profile(request):
     liked_posts_data = PostSerializer([like.post for like in liked_posts], many=True).data
     user_data['liked_posts'] = liked_posts_data
 
-    return Response(user_data)
+    return Response(user_data, status=200)
 
 @api_view(['POST'])
 @authentication_classes([TokenAuthentication])
@@ -212,18 +225,40 @@ def like_post(request):
     except Post.DoesNotExist:
         return Response({'error': 'Post does not exist.'}, status=status.HTTP_404_NOT_FOUND)
 
-    # Check if the user has already liked the post
     if Like.objects.filter(user=user, post=post).exists():
         return Response({'error': 'You have already liked this post.'}, status=status.HTTP_400_BAD_REQUEST)
 
-    # Create a new Like object
     like = Like.objects.create(user=user, post=post)
-
-    # Increment the likes_count of the post
     post.likes_count += 1
     post.save()
 
     return Response({'message': 'Post liked successfully.'}, status=status.HTTP_201_CREATED)
+
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def get_like_back(request):
+    user = request.user
+    post_id = request.data.get('post_id')
+
+    if not post_id:
+        return Response({'error': 'Post ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        post = Post.objects.get(pk=post_id)
+    except Post.DoesNotExist:
+        return Response({'error': 'Post does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+
+    like = Like.objects.filter(user=user, post=post).first()
+    if not like:
+        return Response({'error': 'You have not liked this post.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    like.delete()
+    post.likes_count = max(post.likes_count - 1, 0) 
+    post.save()
+
+    return Response({'message': 'Like removed successfully.'}, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
@@ -264,14 +299,37 @@ def bookmark_post(request):
     except Post.DoesNotExist:
         return Response({'error': 'Post does not exist.'}, status=status.HTTP_404_NOT_FOUND)
 
-    # Check if the user has already bookmarked the post
     if Bookmark.objects.filter(user=user, post=post).exists():
         return Response({'error': 'You have already bookmarked this post.'}, status=status.HTTP_400_BAD_REQUEST)
 
-    # Create a new Bookmark object
     bookmark = Bookmark.objects.create(user=user, post=post)
 
     return Response({'message': 'Post bookmarked successfully.'}, status=status.HTTP_201_CREATED)
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def unbookmark_post(request):
+    user = request.user
+    post_id = request.data.get('post_id')
+
+    if not post_id:
+        return Response({'error': 'Post ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        post = Post.objects.get(pk=post_id)
+    except Post.DoesNotExist:
+        return Response({'error': 'Post does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+    
+    bookmark = Bookmark.objects.filter(user=user, post=post).first()
+    if not bookmark:
+        return Response({'error': 'You have not bookmarked this post.'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    bookmark.delete()
+    return Response({'message': 'Bookmark removed successfully.'}, status=status.HTTP_200_OK)
+
+
+
 
 @api_view(['POST'])
 @authentication_classes([TokenAuthentication])
@@ -413,3 +471,47 @@ def style_view(request):
         # get_description_wikibase(entity_id)
         # get_content_wikidata(entity_id)
         return JsonResponse(get_style_info(entity_id))
+    
+    
+@api_view(['DELETE'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def delete_post(request):
+    user = request.user
+    post_id = request.data.get('post_id')
+    
+    if not post_id:
+        return Response({'error': 'Post ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        post = Post.objects.get(pk=post_id)
+    except Post.DoesNotExist:
+        return Response({'error': 'Post does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+    
+    if post.author != user:
+        return Response({'error': 'You do not have permission to delete this post.'}, status=status.HTTP_403_FORBIDDEN)
+
+    post.delete()
+    return Response({'message': 'Post deleted successfully.'}, status=status.HTTP_200_OK)
+
+@api_view(['DELETE'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def delete_comment(request):
+    user = request.user
+    comment_id = request.data.get('comment_id')
+    
+    if not comment_id:
+        return Response({'error': 'Comment ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        comment = PostComments.objects.get(pk=comment_id)
+    except PostComments.DoesNotExist:
+        return Response({'error': 'Comment does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+    
+    if comment.user != user:
+        return Response({'error': 'You do not have permission to delete this comment.'}, status=status.HTTP_403_FORBIDDEN)
+
+    comment.delete()
+    return Response({'message': 'Comment deleted successfully.'}, status=status.HTTP_200_OK)
+
