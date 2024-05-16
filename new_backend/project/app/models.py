@@ -23,7 +23,7 @@ class Image(models.Model):
 
 
 class SearchResult(models.Model):
-    entity_id = models.CharField(max_length=150, default="")
+    entity_id = models.CharField(max_length=150, unique=True, default="")
     name = models.CharField(max_length=150)
     image = models.TextField()
     type = models.CharField(max_length=10)
