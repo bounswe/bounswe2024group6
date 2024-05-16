@@ -27,15 +27,18 @@ import SearchIcon from '@mui/icons-material/Search';
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 
+import shadcnProfile from '@/pages/shadcnProfile.jpeg';
+
 const searchSchema = z.object({
     query: z.string().min(5).max(50),
   })
 
 
 export default function Navbar() {
-    const { checkAuth, logout, getUsername } = useAuth()
+    const { checkAuth, logout, getUsername, getProfileImage } = useAuth()
     const isAuth = checkAuth()
     const authUsername = getUsername()
+    const profileImage = getProfileImage()
     const navigate = useNavigate()
     const [query, setQuery] = useState<string>("")
 
@@ -90,12 +93,12 @@ export default function Navbar() {
                         <DropdownMenu>
                             <DropdownMenuTrigger>
                                 <Avatar className="border-white border-2">
-                                    <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+                                    <AvatarImage src={profileImage ? profileImage : shadcnProfile}  alt="@shadcn" />
                                     <AvatarFallback>CN</AvatarFallback>
                                 </Avatar>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent>
-                                <DropdownMenuItem onClick={() => {navigate(`/profile/${authUsername}`);}}>Profile</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => {navigate(`/profile/${authUsername}`); navigate(0);}}>Profile</DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => {logout(); navigate("/");}}>Logout</DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
