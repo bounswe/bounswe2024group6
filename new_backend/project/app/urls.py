@@ -30,6 +30,8 @@ urlpatterns = [
     path('delete_post/',delete_post, name='delete_post'),
     path('delete_comment/',delete_comment, name='delete_comment'),
     path('get_entity_posts/', get_entity_posts, name='get_entity_posts'),
+    path('basic_user_info/', basic_user_info, name='basic_user_info'),
+    path('entity_from_searchresult/', entity_from_searchresult, name='entity_from_searchresult'),
     
 
 ]
