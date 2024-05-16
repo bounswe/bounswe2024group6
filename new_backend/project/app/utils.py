@@ -3,11 +3,12 @@ import requests
 import logging
 import json
 
+    
 
+    
 def get_description_wikibase(entity_id):
     wikibase_endpoint_url = "https://wikidata.org/w/rest.php/wikibase/v0"
     response = requests.get(f"{wikibase_endpoint_url}/entities/items/{entity_id}/descriptions")
-    print(response.json())
     return response.json()
 
 
@@ -22,12 +23,11 @@ def get_content_wikidata(entity_id):
     return text
 
 def get_title_wikibase(entity_id):
-    print(entity_id)
     endpoint_url = f"https://www.wikidata.org/w/api.php?action=wbgetentities&ids={entity_id}&format=json&props=sitelinks"
     response = requests.get(endpoint_url)
 
     resp = response.json()
-    print(resp)
+
     title = resp["entities"][entity_id]["sitelinks"]["enwiki"]["title"]
     return title
 
@@ -39,71 +39,94 @@ def get_page_id_wikibase(entity_title):
 
 
 def choose_building_info(entity_id):
-    building_info_query = f'''
-        PREFIX schema: <http://schema.org/> 
-        SELECT DISTINCT ?buildingLabel ?architect ?countryLabel ?coordinate ?style ?description WHERE {{
-        VALUES ?building {{ wd:{entity_id} }}
-        ?building wdt:P84 ?architect ;
-                    wdt:P17 ?country ;
-                    wdt:P625 ?coordinate ;
-                    wdt:P149 ?style .
-                    wd:{entity_id} schema:description ?description .
-        FILTER(LANG(?description) = "en")
-
-        # Get labels for the results
-        SERVICE wikibase:label {{ 
-            bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". 
-        }}
-    }}
+    # ARAS: we may choose to use the old query if the new one takes too long, so i'll just put it here.
+    building_info_query_old = f'''
+SELECT DISTINCT ?building ?buildingLabel ?architect ?style ?description ?coordinate ?architectLabel ?architectImage ?image ?styleLabel ?styleImage WHERE {{
+  VALUES ?building {{ wd:{entity_id} }}  # Using the provided building ID
+  
+  ?building
+           rdfs:label ?buildingLabel;
+  OPTIONAL{{?building schema:description ?description;}}         
+           wdt:P625 ?coordinate.
+  OPTIONAL {{         
+    ?building wdt:P18 ?image.
+  }}
+  OPTIONAL {{
+    ?building wdt:P84 ?architect.
+    ?architect rdfs:label ?architectLabel.
+    OPTIONAL {{ ?architect wdt:P18 ?architectImage. }}
+  }}
+  
+  OPTIONAL {{
+    ?building wdt:P149 ?style.
+    ?style rdfs:label ?styleLabel.
+    OPTIONAL {{ ?style wdt:P18 ?styleImage. }}
+  }}
+  
+  # Filtering for English labels and descriptions
+  FILTER(LANG(?buildingLabel) = "en")
+  FILTER(LANG(?description) = "en")
+  FILTER(LANG(?styleLabel) = "en")
+  FILTER(LANG(?architectLabel) = "en")
+  
+  # Get labels for the results
+  SERVICE wikibase:label {{ 
+    bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". 
+  }}
+}}
     '''
+
+    building_info_query = f"""
+SELECT DISTINCT ?building ?buildingLabel ?description ?coordinate ?architect ?architectLabel ?architectImage ?image ?style ?styleLabel ?styleImage WHERE {{
+  VALUES ?building {{ wd:{entity_id} }}  # Using the provided building ID
+  
+  ?building
+           schema:description ?description;
+           wdt:P625 ?coordinate.
+  OPTIONAL {{         
+    ?building wdt:P18 ?image.
+  }}
+  OPTIONAL {{
+    ?building p:P84 ?architectStmt.
+    ?architectStmt ps:P84 ?architect.
+    ?architect rdfs:label ?architectLabel.
+    OPTIONAL {{ ?architect wdt:P18 ?architectImage. }}
+  }}
+  
+  OPTIONAL {{
+    ?building wdt:P149 ?style.
+    ?style rdfs:label ?styleLabel.
+    OPTIONAL {{ ?style wdt:P18 ?styleImage. }}
+  }}
+  
+  # Filtering for English labels and descriptions
+  FILTER(LANG(?description) = "en")
+  FILTER(LANG(?buildingLabel) = "en")
+  FILTER(LANG(?architectLabel) = "en")
+  FILTER(LANG(?styleLabel) = "en")
+  
+  # Get labels for the building
+  SERVICE wikibase:label {{ 
+    bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". 
+    ?building rdfs:label ?buildingLabel.
+  }}
+}}    
+"""
     return building_info_query
 
 def query_building_info(entity_id):
+    query = choose_building_info(entity_id)
     endpoint_url = "https://query.wikidata.org/sparql"
     headers = {
         'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0',
         'Accept': 'application/sparql-results+json'
     }
-    params = {'query': choose_building_info(entity_id), 'format': 'json'}
+    params = {'query': query, 'format': 'json'}
     response = requests.get(endpoint_url, headers=headers, params=params)
 
     data = response.json()
-    print(data)
-    if response.status_code == 500:
-        return {"response:": "error: while query the data"}
-    elif data['results']['bindings'] == []:
-        return None
-
-    architects = set()
-    countries = set()
-    coordinates = set()
-    styles = set()
-    description = set()
-    for entry in data['results']['bindings']:
-        description.add(entry['description']['value'])
-        architects.add(entry['architect']['value'].strip().split('/')[-1])
-        countries.add( entry['countryLabel']['value'])
-        coordinates.add(entry['coordinate']['value'])
-        styles.add(entry['style']['value'].strip().split('/')[-1])
     
-    if len(countries):
-        country = list(countries)[0]
-    else:
-        country = "NULL"
-
-    if len(coordinates):
-        coordinate = list(coordinates)[0]
-    else:
-        coordinate = "NULL"
-
-    if len(description):
-        description = list(description)[0]
-    else:
-        description = "NULL"
-    label = data['results']['bindings'][0]['buildingLabel']['value']
-    description = data['results']['bindings'][0]['description']['value']
-    return {"name": label, "description":description, "architect": list(architects), "country": country, "coordinates": coordinate, "architecturalStyle": list(styles), "description": description}
-
+    return data
 
 def get_building_info(entity_id):
     title = get_title_wikibase(entity_id)
@@ -113,54 +136,57 @@ def get_building_info(entity_id):
 
     building_info = query_building_info(entity_id)
 
-    architects = []
-    for architect_id in building_info["architect"]:
-        architect_info = get_architect_or_style_info_for_building(architect_id)
-        architects.append(architect_info)
+    building_label = building_info['results']['bindings'][0]['buildingLabel']['value']
+    description = building_info['results']['bindings'][0]['description']['value']
+
+    images = set()
+    architects = set()
+    styles = set()
+    coordinates = None
+    for entry in building_info['results']['bindings']:
+        if 'image' in entry:
+            images.add(entry['image']['value'])
+        if 'architect' in entry:
+            architects.add(entry['architect']['value'])
+        if 'style' in entry:
+            styles.add(entry['style']['value'])
+        if 'coordinate' in entry:
+            coordinates = entry['coordinate']['value']
+            coordinates = coordinates.split("(")[1]
+            coordinates = coordinates.split(")")[0].split(" ")
+            latitude = coordinates[0]
+            longitude = coordinates[1]
+            coordinates = {"latitude": latitude, "longitude": longitude}
+
+    images = [x for x in images]
     
-    styles = []
-    for style in building_info["architecturalStyle"]:
-        style_info = get_architect_or_style_info_for_building(style)
-        styles.append(style_info)
+    architects_dict = {}
+    for architect in architects:
+        for entry in building_info['results']['bindings']:
+            if entry['architect']['value'] == architect:
+                architects_dict[architect] = {"id": architect.split('/')[-1], "image": "NULL", "name": "NULL"}
+                if 'architectLabel' in entry:
+                    architects_dict[architect]["name"] = entry['architectLabel']['value']
+                if 'architectImage' in entry:
+                    architects_dict[architect]["image"] = entry['architectImage']['value']
+        
 
-    coordinates = building_info["coordinates"].split("(")[1]
-    coordinates = coordinates.split(")")[0].split(" ")
-    
+    styles_dict = {}
 
-    return {"name": building_info["name"], "architect": architects, "country": building_info["country"], "coordinates": {"latitude": coordinates[0], "longitude": coordinates[1]}, "architecturalStyle": styles, "description": building_info["description"], "wikiText": text}
+    for style in styles:
+        for entry in building_info['results']['bindings']:
 
-def get_architect_or_style_info_for_building(architect_id):
-    print(architect_id)
-    architect_info_query = f'''
-SELECT DISTINCT ?architect ?architectLabel WHERE {{
-    VALUES ?architect {{ wd:{architect_id} }}
-    
-    # Get labels for the results
-    SERVICE wikibase:label {{
-        bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en".
-        ?architect rdfs:label ?architectLabel.
-    }}
-}}
+            if entry['style']['value'] == style:
+                styles_dict[style] = {"id": style.split('/')[-1], "image": "NULL", "name": "NULL"}
+                if 'styleLabel' in entry:
+                    styles_dict[style]["name"] = entry['styleLabel']['value']
+                if 'styleImage' in entry:
+                    styles_dict[style]["image"] = entry['styleImage']['value']
 
-    '''
-    endpoint_url = "https://query.wikidata.org/sparql"
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0',
-        'Accept': 'application/sparql-results+json'
-    }
-    params = {'query': architect_info_query, 'format': 'json'}
-    response = requests.get(endpoint_url, headers=headers, params=params)
+    architects = [x for x in architects_dict.values()]
+    styles = [x for x in styles_dict.values()]
 
-    data = response.json()
-    if response.status_code == 500:
-        return {"response:": "error: while query the data"}
-    elif data['results']['bindings'] == []:
-        return None
-
-    architect_label = data['results']['bindings'][0]['architectLabel']['value']
-    
-
-    return {"name": architect_label, "image": get_image(architect_id), "id": architect_id}
+    return {"name": building_label, "description": description, "image": images, "architect": architects, "architecturalStyle": styles, "coordinates": coordinates, "wikiText": text}
 
 
 def query_architect_info(entity_id):
@@ -217,7 +243,6 @@ WHERE {{
     response = requests.get(endpoint_url, headers=headers, params=params)
 
     data = response.json()
-    print(data)
     if response.status_code == 500:
         return {"response:": "error: while query the data"}
     elif data['results']['bindings'] == []:
