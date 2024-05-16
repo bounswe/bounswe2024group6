@@ -52,7 +52,7 @@ def fill_search_results(**kwargs):
         endpoint = "https://query.wikidata.org/sparql"
         response = requests.get(endpoint, params={'query': query, 'format': 'json'})
 
-        print("fucking fetched")
+        print(" fetched")
         import re
         
         # cleaned_content = re.sub(r'[\x00-\x1F\x7F-\x9F]', '', response.text)
@@ -68,23 +68,17 @@ def fill_search_results(**kwargs):
         try:
             results = json.loads(cleaned_content)
             # Print the results
-            print("somehow fucking loaded")
+            print("somehow  loaded")
 
         except json.JSONDecodeError as e:
             print("Failed to decode JSON:", e)
         
         for item in results['results']['bindings']:
-            t = None
-            if item["type"]["value"] == "building":
-                t = "building"
-            elif item["type"]["value"] == "architect":
-                t = "architect"
-            elif item["type"]["value"] == "style":
-                t = "style"
+            
             SearchResult.objects.create(
                     name=item["itemLabel"]["value"][:150],
                     image=item["image"]["value"],
-                    type= t,
+                    type= item["type"]["value"],
                     entity_id = item["item"]["value"].split("/")[-1]
                 )
 
