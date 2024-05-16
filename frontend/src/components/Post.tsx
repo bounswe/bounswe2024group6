@@ -6,9 +6,26 @@ import ShareIcon from '@mui/icons-material/Share';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import { Button } from "@/components/ui/button"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import axios from "axios"
 
-export default function Post() {
+export default function Post(postID) {
+    const [post, setPost] = useState({})
+
+    useEffect(() => {
+        axios.post(`http://localhost:8000/get_posts_by_ids/`,
+            {
+                post_id: postID.postID
+            },
+        )
+            .then(response => {
+                console.log(response.data)
+                setPost(response.data)
+            })
+            .catch(error => {
+                console.log(error)
+            })
+    }, [])
     const [isBookmark, setIsBookmark] = useState(false);
 
     const toggleBookmark = () => {
@@ -59,7 +76,7 @@ export default function Post() {
                             className="object-cover rounded-md" 
                             style={{ objectFit: 'cover'}}
                         />
-                        <p style={{ marginTop: '20px' }}>{mockData.content}</p>
+                        <p style={{ marginTop: '20px' }}>{post.text}</p>
                     </div>
                 </div>
                 <div className="w-full flex flex-row justify-between mb-3 mt-3 gap-2 relative">
