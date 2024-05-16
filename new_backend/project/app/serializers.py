@@ -6,11 +6,12 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ('username', 'password', 'email', 'phone_number', 'bio', 'profile_image', 'background_image')
+        fields = ('username', 'password', 'email', 'phone_number', 'bio', 'profile_image', 'background_image', 'name')
 
     def create(self, validated_data):
         profile_image = validated_data.pop('profile_image', None)
         background_image = validated_data.pop('background_image', None)
+        name = validated_data.pop('name', None)
 
         # Set unspecified fields to None
         if 'phone_number' not in validated_data:
@@ -25,7 +26,8 @@ class UserSerializer(serializers.ModelSerializer):
             phone_number=validated_data['phone_number'],
             bio=validated_data['bio'],
             profile_image=profile_image,
-            background_image=background_image
+            background_image=background_image,
+            name=name
         )
         user.set_password(validated_data['password'])
         user.save()
