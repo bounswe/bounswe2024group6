@@ -1,7 +1,7 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 from .models import CustomUser
-from .models import Post, Tag, Follow
+from .models import Post, Tag, Follow, Like
 from rest_framework.test import APITestCase
 from django.contrib.auth.models import User
 from rest_framework import status
@@ -115,3 +115,77 @@ class FollowUnfollowTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['following']), 1)
         self.assertEqual(response.data['following'][0]['username'], 'user2')
+        
+
+class LikePostTestCase(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = CustomUser.objects.create_user(username='testuser', password='testpassword', email='test@example.com')
+        self.token = Token.objects.create(user=self.user)
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+        self.tag = Tag.objects.create(tag_name='Test Tag')
+        self.post = Post.objects.create(title='Test Post', text='This is a test post.', author=self.user, tags=self.tag)
+
+    def test_like_post(self):
+        url = reverse('like_post')
+        data = {'post_id': self.post.id}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(Like.objects.filter(user=self.user, post=self.post).exists())
+        self.post.refresh_from_db()
+        self.assertEqual(self.post.likes_count, 1)
+
+    def test_like_post_without_post_id(self):
+        url = reverse('like_post')
+        response = self.client.post(url, {}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_like_post_nonexistent_post(self):
+        url = reverse('like_post')
+        data = {'post_id': 999}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_like_post_already_liked(self):
+        Like.objects.create(user=self.user, post=self.post)
+        url = reverse('like_post')
+        data = {'post_id': self.post.id}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+class GetLikeBackTestCase(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = CustomUser.objects.create_user(username='testuser', password='testpassword', email='test@example.com')
+        self.token = Token.objects.create(user=self.user)
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+        self.tag = Tag.objects.create(tag_name='Test Tag')
+        self.post = Post.objects.create(title='Test Post', text='This is a test post.', author=self.user, tags=self.tag)
+        self.like = Like.objects.create(user=self.user, post=self.post)
+
+    def test_get_like_back(self):
+        url = reverse('get_like_back')
+        data = {'post_id': self.post.id}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(Like.objects.filter(user=self.user, post=self.post).exists())
+        self.post.refresh_from_db()
+        self.assertEqual(self.post.likes_count, 0)
+
+    def test_get_like_back_without_post_id(self):
+        url = reverse('get_like_back')
+        response = self.client.post(url, {}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_get_like_back_nonexistent_post(self):
+        url = reverse('get_like_back')
+        data = {'post_id': 999}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_get_like_back_not_liked_post(self):
+        self.like.delete()
+        url = reverse('get_like_back')
+        data = {'post_id': self.post.id}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

@@ -180,14 +180,10 @@ def like_post(request):
     except Post.DoesNotExist:
         return Response({'error': 'Post does not exist.'}, status=status.HTTP_404_NOT_FOUND)
 
-    # Check if the user has already liked the post
     if Like.objects.filter(user=user, post=post).exists():
         return Response({'error': 'You have already liked this post.'}, status=status.HTTP_400_BAD_REQUEST)
 
-    # Create a new Like object
     like = Like.objects.create(user=user, post=post)
-
-    # Increment the likes_count of the post
     post.likes_count += 1
     post.save()
 
@@ -214,7 +210,7 @@ def get_like_back(request):
         return Response({'error': 'You have not liked this post.'}, status=status.HTTP_400_BAD_REQUEST)
 
     like.delete()
-    post.likes_count -= 1
+    post.likes_count = max(post.likes_count - 1, 0) 
     post.save()
 
     return Response({'message': 'Like removed successfully.'}, status=status.HTTP_200_OK)
