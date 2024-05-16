@@ -463,7 +463,6 @@ def architect_view(request):
 
 @api_view(['POST'])
 def style_view(request):
-
     entity_id = request.data['entity_id']
     # get_description_wikibase(entity_id)
     # get_content_wikidata(entity_id)

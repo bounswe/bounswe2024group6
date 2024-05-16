@@ -410,7 +410,7 @@ def get_style_info(entity_id):
     for architect in architects:
         for entry in style_info['results']['bindings']:
             if entry['architect']['value'] == architect:
-                architects_dict[architect] = {"id": architect.split('/')[1], "name": entry['architectLabel']['value'], "image": entry['architectImage']['value']}
+                architects_dict[architect] = {"id": architect.split('/')[-1], "name": entry['architectLabel']['value'], "image": entry['architectImage']['value']}
     
     buildings_dict = {}
 

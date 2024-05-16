@@ -52,7 +52,7 @@ def fill_search_results(**kwargs):
         endpoint = "https://query.wikidata.org/sparql"
         response = requests.get(endpoint, params={'query': query, 'format': 'json'})
 
-        print(" fetched")
+        print("fetched")
         import re
         
         # cleaned_content = re.sub(r'[\x00-\x1F\x7F-\x9F]', '', response.text)
@@ -68,7 +68,7 @@ def fill_search_results(**kwargs):
         try:
             results = json.loads(cleaned_content)
             # Print the results
-            print("somehow  loaded")
+            print("somehow loaded")
 
         except json.JSONDecodeError as e:
             print("Failed to decode JSON:", e)
@@ -80,14 +80,13 @@ def fill_search_results(**kwargs):
             
             if entity_id not in unique_items:
                 unique_items[entity_id] = item
-
+        items = []
         for entity_id, item in unique_items.items():
-            SearchResult.objects.create(
-                name=item["itemLabel"]["value"][:150],
-                image=item["image"]["value"],
-                type=item["type"]["value"],
-                entity_id=entity_id
-            )
+            items.append({"entity_id": entity_id, "name": item["itemLabel"]["value"][:150], "image": item["image"]["value"], "type": item["type"]["value"]})
+
+        SearchResult.objects.bulk_create([SearchResult(**item) for item in items])
+        
+        print("search results filled.")
 
 
 class AppConfig(AppConfig):
