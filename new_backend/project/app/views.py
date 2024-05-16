@@ -445,32 +445,29 @@ def get_posts_by_ids(request):
         return Response(serializer.data)
     
 
-@api_view(['GET'])
+@api_view(['POST'])
 def building_view(request):
 
-    if request.method == "GET":
-        entity_id = request.data['entity_id']
-        # get_description_wikibase(entity_id)
-        # get_content_wikidata(entity_id)
-        return JsonResponse(get_building_info(entity_id))
+    entity_id = request.data['entity_id']
+    # get_description_wikibase(entity_id)
+    # get_content_wikidata(entity_id)
+    return JsonResponse(get_building_info(entity_id))
 
-@api_view(['GET'])
+@api_view(['POST'])
 def architect_view(request):
 
-    if request.method == "GET":
-        entity_id = request.data['entity_id']
-        # get_description_wikibase(entity_id)
-        # get_content_wikidata(entity_id)
-        return JsonResponse(get_architect_info(entity_id))
+    entity_id = request.data['entity_id']
+    # get_description_wikibase(entity_id)
+    # get_content_wikidata(entity_id)
+    return JsonResponse(get_architect_info(entity_id))
 
-@api_view(['GET'])
+@api_view(['POST'])
 def style_view(request):
 
-    if request.method == "GET":
-        entity_id = request.data['entity_id']
-        # get_description_wikibase(entity_id)
-        # get_content_wikidata(entity_id)
-        return JsonResponse(get_style_info(entity_id))
+    entity_id = request.data['entity_id']
+    # get_description_wikibase(entity_id)
+    # get_content_wikidata(entity_id)
+    return JsonResponse(get_style_info(entity_id))
     
     
 @api_view(['DELETE'])

@@ -32,8 +32,12 @@ export default function Browse() {
                 if (response.data.hasOwnProperty("building") && response.data.building && response.data.building.length > 0) {
                     tempResults.push(response.data.building.map((item) => { return {...item, category: "building"} }))
                 }
-                setSearchResults((prev) => { return tempResults; })
-                console.log(tempResults[0])
+                let uniqueResults = tempResults[0].filter(
+                    (obj, index, self) =>
+                      index === self.findIndex((t) => t.entity_id === obj.entity_id)
+                  );
+                console.log(uniqueResults)
+                setSearchResults((prev) => { return uniqueResults; })
             }
             setIsLoading(false)
           })
@@ -63,7 +67,7 @@ export default function Browse() {
                 :
                     <div className="flex w-full justify-center mt-3">
                         <div className="flex flex-col items-center w-7/12 gap-3">
-                            {searchResults[0].map((result) => {
+                            {searchResults.map((result) => {
                                 return <SearchItem item={result} key={result.entity_id}/>
                                 })}
                         </div>
