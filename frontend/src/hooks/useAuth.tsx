@@ -37,6 +37,17 @@ const actions = {
     const authUser = getAuthUser()
 
     return authUser.username
+  },
+  getProfileImage: () => {
+    const authUser = getAuthUser()
+
+    return authUser.profile_image
+  },
+  setProfileImage: (image) => {
+    const authUser = getAuthUser()
+    authUser.profile_image = image
+
+    window.localStorage.setItem('jwtToken', btoa(JSON.stringify(authUser)))
   }
 }
 

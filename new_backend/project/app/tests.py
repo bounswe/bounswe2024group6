@@ -6,7 +6,7 @@ from rest_framework.test import APITestCase
 from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.test import APIClient
-
+from .models import CustomUser, Post, Tag, Like, PostComments, Bookmark
 from rest_framework.authtoken.models import Token
 
 
@@ -189,3 +189,173 @@ class GetLikeBackTestCase(APITestCase):
         data = {'post_id': self.post.id}
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        
+class DeletePostTestCase(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = CustomUser.objects.create_user(username='testuser', password='testpassword', email='test@example.com')
+        self.token = Token.objects.create(user=self.user)
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+        self.tag = Tag.objects.create(tag_name='Test Tag')
+        self.post = Post.objects.create(title='Test Post', text='This is a test post.', author=self.user, tags=self.tag)
+        self.comment = PostComments.objects.create(post=self.post, user=self.user, comment_text='This is a comment.')
+        self.like = Like.objects.create(user=self.user, post=self.post)
+        self.bookmark = Bookmark.objects.create(user=self.user, post=self.post)
+
+    def test_delete_post(self):
+        url = reverse('delete_post')
+        data = {'post_id': self.post.id}
+        response = self.client.delete(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(Post.objects.filter(id=self.post.id).exists())
+        self.assertFalse(PostComments.objects.filter(post=self.post).exists())
+        self.assertFalse(Like.objects.filter(post=self.post).exists())
+        self.assertFalse(Bookmark.objects.filter(post=self.post).exists())
+
+    def test_delete_nonexistent_post(self):
+        url = reverse('delete_post')
+        data = {'post_id': 999}
+        response = self.client.delete(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_delete_post_without_permission(self):
+        other_user = CustomUser.objects.create_user(username='otheruser', password='otherpassword', email='other@example.com')
+        other_token = Token.objects.create(user=other_user)
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + other_token.key)
+
+        url = reverse('delete_post')
+        data = {'post_id': self.post.id}
+        response = self.client.delete(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertTrue(Post.objects.filter(id=self.post.id).exists())
+        self.assertTrue(PostComments.objects.filter(post=self.post).exists())
+        self.assertTrue(Like.objects.filter(post=self.post).exists())
+        self.assertTrue(Bookmark.objects.filter(post=self.post).exists())
+        
+class BookmarkPostTestCase(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = CustomUser.objects.create_user(username='testuser', password='testpassword', email='test@example.com')
+        self.token = Token.objects.create(user=self.user)
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+        self.tag = Tag.objects.create(tag_name='Test Tag')
+        self.post = Post.objects.create(title='Test Post', text='This is a test post.', author=self.user, tags=self.tag)
+
+    def test_bookmark_post(self):
+        url = reverse('bookmark_post')
+        data = {'post_id': self.post.id}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(Bookmark.objects.filter(user=self.user, post=self.post).exists())
+
+    def test_bookmark_post_without_post_id(self):
+        url = reverse('bookmark_post')
+        response = self.client.post(url, {}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_bookmark_nonexistent_post(self):
+        url = reverse('bookmark_post')
+        data = {'post_id': 999}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_unbookmark_post(self):
+        Bookmark.objects.create(user=self.user, post=self.post)
+        url = reverse('unbookmark_post')
+        data = {'post_id': self.post.id}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(Bookmark.objects.filter(user=self.user, post=self.post).exists())
+
+    def test_unbookmark_post_without_post_id(self):
+        url = reverse('unbookmark_post')
+        response = self.client.post(url, {}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_unbookmark_nonexistent_post(self):
+        url = reverse('unbookmark_post')
+        data = {'post_id': 999}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_unbookmark_not_bookmarked_post(self):
+        url = reverse('unbookmark_post')
+        data = {'post_id': self.post.id}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+
+
+User = get_user_model()
+
+class UserProfileTestCase(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(username='testuser', password='testpassword', email='test@example.com')
+        self.token = Token.objects.create(user=self.user)
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+    
+    
+    def test_user_profile_without_username(self):
+        url = reverse('user_profile')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+    
+
+class CommentTestCase(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = CustomUser.objects.create_user(username='testuser', password='testpassword', email='test@example.com')
+        self.token = Token.objects.create(user=self.user)
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+
+        self.tag = Tag.objects.create(tag_name='Test Tag')
+        self.post = Post.objects.create(title='Test Post', text='This is a test post.', tags=self.tag, author=self.user)
+
+    def test_add_comment(self):
+        url = reverse('comment_post')
+        data = {'post_id': self.post.id, 'comment_text': 'This is a test comment.'}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(PostComments.objects.filter(user=self.user, post=self.post, comment_text='This is a test comment.').exists())
+
+    def test_add_comment_without_post_id(self):
+        url = reverse('comment_post')
+        data = {'comment_text': 'This is a test comment.'}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_add_comment_without_comment_text(self):
+        url = reverse('comment_post')
+        data = {'post_id': self.post.id}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_delete_comment(self):
+        comment = PostComments.objects.create(user=self.user, post=self.post, comment_text='This is a test comment.')
+        url = reverse('delete_comment')
+        data = {'comment_id': comment.id}
+        response = self.client.delete(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(PostComments.objects.filter(id=comment.id).exists())
+
+    def test_delete_comment_without_comment_id(self):
+        url = reverse('delete_comment')
+        response = self.client.delete(url, {}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_delete_nonexistent_comment(self):
+        url = reverse('delete_comment')
+        data = {'comment_id': 999}
+        response = self.client.delete(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_delete_comment_not_owned(self):
+        other_user = CustomUser.objects.create_user(username='otheruser', password='otherpassword', email='other@example.com')
+        comment = PostComments.objects.create(user=other_user, post=self.post, comment_text='This is a test comment.')
+        url = reverse('delete_comment')
+        data = {'comment_id': comment.id}
+        response = self.client.delete(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+

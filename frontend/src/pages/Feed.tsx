@@ -9,17 +9,20 @@ export default function Feed() {
     const isAuth = checkAuth()
 
     return (
-        <div>
+        <div className="flex flex-col">
             <Navbar />
-            {
-                isAuth
-                ?
-                    <h1>Auth User Feed</h1>
-                :
-                    <h1>Guest User Feed</h1>
-                    
-            }
-            <Post />
+            <div className="flex flex-row justify-center w-full">
+                <div className="w-5/12 bg-red-700">
+                    {
+                        isAuth
+                        ?
+                            <h1>Auth User Feed</h1>
+                        :
+                            null
+                            
+                    }
+                </div>
+            </div>
         </div>
     )
 }
