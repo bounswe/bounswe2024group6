@@ -88,38 +88,42 @@ SELECT DISTINCT ?building ?buildingLabel ?architect ?style ?description ?coordin
     building_info_query = f"""
 SELECT DISTINCT ?building ?buildingLabel ?description ?coordinate ?architect ?architectLabel ?architectImage ?image ?style ?styleLabel ?styleImage WHERE {{
   VALUES ?building {{ wd:{entity_id} }}  # Using the provided building ID
-  
+
   ?building
-           schema:description ?description;
-           wdt:P625 ?coordinate.
+    schema:description ?description;
+    wdt:P625 ?coordinate.
+
   OPTIONAL {{         
     ?building wdt:P18 ?image.
   }}
+
   OPTIONAL {{
     ?building p:P84 ?architectStmt.
     ?architectStmt ps:P84 ?architect.
     ?architect rdfs:label ?architectLabel.
+      FILTER(LANG(?architectLabel) = "en")
+
     OPTIONAL {{ ?architect wdt:P18 ?architectImage. }}
   }}
   
   OPTIONAL {{
     ?building wdt:P149 ?style.
     ?style rdfs:label ?styleLabel.
+      FILTER(LANG(?styleLabel) = "en")
+
     OPTIONAL {{ ?style wdt:P18 ?styleImage. }}
   }}
   
   # Filtering for English labels and descriptions
   FILTER(LANG(?description) = "en")
   FILTER(LANG(?buildingLabel) = "en")
-  FILTER(LANG(?architectLabel) = "en")
-  FILTER(LANG(?styleLabel) = "en")
   
   # Get labels for the building
   SERVICE wikibase:label {{ 
     bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". 
     ?building rdfs:label ?buildingLabel.
   }}
-}}    
+}}
 """
     return building_info_query
 
