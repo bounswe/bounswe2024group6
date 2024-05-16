@@ -8,9 +8,11 @@ import { Button } from "@/components/ui/button"
 import { useState } from 'react';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import { useParams } from 'react-router-dom';
 
 
 export default function Building() {
+    let { qid } = useParams();
     const mockData = {
         name: "Sagrada Família",
         description: "monumental Roman Catholic basilica under construction in Barcelona, Catalonia, Spain.",
