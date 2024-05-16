@@ -60,7 +60,7 @@ class GetPostsByIdsTestCase(APITestCase):
     def setUp(self):
         self.client = APIClient()
         self.tag = Tag.objects.create(tag_name='Test Tag')
-        self.user = User.objects.create(username='test_user')  # Create a user using the custom user model
+        self.user = User.objects.create(username='test_user')  
         self.post = Post.objects.create(title='Test Post', text='This is a test post.', tags=self.tag, author=self.user)
 
     def test_get_posts_by_ids(self):
@@ -404,13 +404,19 @@ class SearchResultModelTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
 
-class BuildingViewTest(TestCase):
-
+class BuildingViewTest(APITestCase):
     def setUp(self):
         self.client = APIClient()
-        self.url = reverse('building_view')  
+        self.url = reverse('building_view')  # Adjust according to your URL pattern name
         self.entity_id = "building_123"
         self.mock_response = {"name": "Test Building", "description": "A test building."}
+
+        self.search_result = SearchResult.objects.create(
+            entity_id=self.entity_id,
+            name="Test Building",
+            image="http://example.com/building.jpg",
+            type="building"
+        )
 
     @patch('your_app.views.get_building_info', return_value={"name": "Test Building", "description": "A test building."})
     def test_building_view_get(self, mock_get_building_info):
@@ -425,13 +431,19 @@ class BuildingViewTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         mock_get_building_info.assert_not_called()
 
-class ArchitectViewTest(TestCase):
-
+class ArchitectViewTest(APITestCase):
     def setUp(self):
         self.client = APIClient()
-        self.url = reverse('architect_view')  
+        self.url = reverse('architect_view')  # Adjust according to your URL pattern name
         self.entity_id = "architect_123"
         self.mock_response = {"name": "Test Architect", "description": "A test architect."}
+
+        self.search_result = SearchResult.objects.create(
+            entity_id=self.entity_id,
+            name="Test Architect",
+            image="http://example.com/architect.jpg",
+            type="architect"
+        )
 
     @patch('your_app.views.get_architect_info', return_value={"name": "Test Architect", "description": "A test architect."})
     def test_architect_view_get(self, mock_get_architect_info):
@@ -446,13 +458,19 @@ class ArchitectViewTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         mock_get_architect_info.assert_not_called()
 
-class StyleViewTest(TestCase):
-
+class StyleViewTest(APITestCase):
     def setUp(self):
         self.client = APIClient()
-        self.url = reverse('style_view')  
+        self.url = reverse('style_view') 
         self.entity_id = "style_123"
         self.mock_response = {"name": "Test Style", "description": "A test style."}
+
+        self.search_result = SearchResult.objects.create(
+            entity_id=self.entity_id,
+            name="Test Style",
+            image="http://example.com/style.jpg",
+            type="style"
+        )
 
     @patch('your_app.views.get_style_info', return_value={"name": "Test Style", "description": "A test style."})
     def test_style_view_get(self, mock_get_style_info):
