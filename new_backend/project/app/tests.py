@@ -8,7 +8,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 from .models import CustomUser, Post, Tag, Like, PostComments, Bookmark, SearchResult
 from rest_framework.authtoken.models import Token
-
+from unittest.mock import patch
 
 
 class UserTestCase(TestCase):
@@ -405,12 +405,6 @@ class SearchResultModelTest(APITestCase):
         response = self.client.get(reverse('search'))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-
-from django.test import TestCase
-from django.urls import reverse
-from rest_framework.test import APIClient
-from rest_framework import status
-from unittest.mock import patch
 
 class BuildingViewTest(TestCase):
 
