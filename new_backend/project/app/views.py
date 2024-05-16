@@ -87,9 +87,10 @@ def update_user_profile(request):
     return Response(serializer.errors, status=400)
 
 
-@api_view(['GET'])
+@api_view(['POST'])
 def user_profile(request):
     username = request.data.get('username')  # Retrieve username from request body
+    print(username)
     user = get_object_or_404(CustomUser, username=username)
     user_data = UserSerializer(user).data
     user_posts = Post.objects.filter(author=user)
