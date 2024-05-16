@@ -291,10 +291,10 @@ def get_architect_info(entity_id):
             if entry["notableWork"]["value"] == work:
                 notable_works_dict[work]["image"] = entry["notableWorkImage"]["value"]
                 coordinates = entry["notableWorkCoordinate"]["value"]
-                name = entry["notableWorkLabel"]["value"]
+                notable_works_dict[work]["name"] = entry["notableWorkLabel"]["value"]
                 coordinates = coordinates.split("(")[1]
                 coordinates = coordinates.split(")")[0].split(" ")[0:2]
-                notable_works_dict[work]["coordinateLocation"] = {"name": name, "latitude": coordinates[0], "longitude": coordinates[1]}
+                notable_works_dict[work]["coordinateLocation"] = {"latitude": coordinates[0], "longitude": coordinates[1]}
     
     notable_works = [x for x in notable_works_dict.values()]
 

@@ -29,6 +29,7 @@ urlpatterns = [
     path('search/', views.search, name='search'),
     path('delete_post/',delete_post, name='delete_post'),
     path('delete_comment/',delete_comment, name='delete_comment'),
+    path('get_entity_posts/', get_entity_posts, name='get_entity_posts'),
     
 
 ]

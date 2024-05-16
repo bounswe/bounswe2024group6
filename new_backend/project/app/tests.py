@@ -1,12 +1,12 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 from .models import CustomUser
-from .models import Post, Tag, Follow, Like
+from .models import Post, SearchResult, Follow, Like
 from rest_framework.test import APITestCase
 from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.test import APIClient
-from .models import CustomUser, Post, Tag, Like, PostComments, Bookmark
+from .models import CustomUser, Post, SearchResult, Like, PostComments, Bookmark
 from rest_framework.authtoken.models import Token
 
 
@@ -38,10 +38,11 @@ class UserTestCase(TestCase):
 
 class GuestFeedTestCase(APITestCase):
     def setUp(self):
-        tag = Tag.objects.create(tag_name='Test Tag')
+        searchresult1 = SearchResult.objects.create(entity_id='1', name= 'name' , image='image', type='type')
+        searchresult2 = SearchResult.objects.create(entity_id='2', name= 'name' , image='image', type='type')
         user = CustomUser.objects.create(username='test_user')
-        Post.objects.create(title='Post 1', text='Text for post 1', tags=tag, author=user)
-        Post.objects.create(title='Post 2', text='Text for post 2', tags=tag, author=user)
+        Post.objects.create(title='Post 1', text='Text for post 1', searchresult=searchresult1, author=user)
+        Post.objects.create(title='Post 2', text='Text for post 2', searchresult=searchresult2, author=user)
 
     def test_guest_feed(self):
         url = reverse('guest_feed')
@@ -59,18 +60,18 @@ User = get_user_model()
 class GetPostsByIdsTestCase(APITestCase):
     def setUp(self):
         self.client = APIClient()
-        self.tag = Tag.objects.create(tag_name='Test Tag')
-        self.user = User.objects.create(username='test_user')  # Create a user using the custom user model
-        self.post = Post.objects.create(title='Test Post', text='This is a test post.', tags=self.tag, author=self.user)
+        self.searchresult = SearchResult.objects.create(entity_id='1')
+        self.user = CustomUser.objects.create(username='test_user')
+        self.post = Post.objects.create(title='Test Post', text='This is a test post.', searchresult=self.searchresult, author=self.user)
 
     def test_get_posts_by_ids(self):
         url = reverse('get_posts_by_ids')
         data = {'post_id': self.post.id}
         response = self.client.post(url, data, format='json')
-        
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['title'], self.post.title)
         self.assertEqual(response.data['text'], self.post.text)
+
         
 
 
@@ -123,8 +124,8 @@ class LikePostTestCase(APITestCase):
         self.user = CustomUser.objects.create_user(username='testuser', password='testpassword', email='test@example.com')
         self.token = Token.objects.create(user=self.user)
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
-        self.tag = Tag.objects.create(tag_name='Test Tag')
-        self.post = Post.objects.create(title='Test Post', text='This is a test post.', author=self.user, tags=self.tag)
+        self.searchresult = SearchResult.objects.create(entity_id='1', name= 'name' , image='image', type='type')
+        self.post = Post.objects.create(title='Test Post', text='This is a test post.', author=self.user, searchresult=self.searchresult)
 
     def test_like_post(self):
         url = reverse('like_post')
@@ -159,8 +160,8 @@ class GetLikeBackTestCase(APITestCase):
         self.user = CustomUser.objects.create_user(username='testuser', password='testpassword', email='test@example.com')
         self.token = Token.objects.create(user=self.user)
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
-        self.tag = Tag.objects.create(tag_name='Test Tag')
-        self.post = Post.objects.create(title='Test Post', text='This is a test post.', author=self.user, tags=self.tag)
+        self.searchresult= SearchResult.objects.create(entity_id='1', name= 'name' , image='image', type='type')
+        self.post = Post.objects.create(title='Test Post', text='This is a test post.', author=self.user, searchresult=self.searchresult)
         self.like = Like.objects.create(user=self.user, post=self.post)
 
     def test_get_like_back(self):
@@ -196,8 +197,8 @@ class DeletePostTestCase(APITestCase):
         self.user = CustomUser.objects.create_user(username='testuser', password='testpassword', email='test@example.com')
         self.token = Token.objects.create(user=self.user)
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
-        self.tag = Tag.objects.create(tag_name='Test Tag')
-        self.post = Post.objects.create(title='Test Post', text='This is a test post.', author=self.user, tags=self.tag)
+        self.searchresult = SearchResult.objects.create(entity_id='1', name= 'name' , image='image', type='type')
+        self.post = Post.objects.create(title='Test Post', text='This is a test post.', author=self.user, searchresult=self.searchresult)
         self.comment = PostComments.objects.create(post=self.post, user=self.user, comment_text='This is a comment.')
         self.like = Like.objects.create(user=self.user, post=self.post)
         self.bookmark = Bookmark.objects.create(user=self.user, post=self.post)
@@ -238,8 +239,8 @@ class BookmarkPostTestCase(APITestCase):
         self.user = CustomUser.objects.create_user(username='testuser', password='testpassword', email='test@example.com')
         self.token = Token.objects.create(user=self.user)
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
-        self.tag = Tag.objects.create(tag_name='Test Tag')
-        self.post = Post.objects.create(title='Test Post', text='This is a test post.', author=self.user, tags=self.tag)
+        self.searchresult = SearchResult.objects.create(entity_id='1', name= 'name' , image='image', type='type')
+        self.post = Post.objects.create(title='Test Post', text='This is a test post.', author=self.user, searchresult=self.searchresult)
 
     def test_bookmark_post(self):
         url = reverse('bookmark_post')
@@ -292,15 +293,15 @@ User = get_user_model()
 class UserProfileTestCase(APITestCase):
     def setUp(self):
         self.client = APIClient()
-        self.user = User.objects.create_user(username='testuser', password='testpassword', email='test@example.com')
+        self.user = CustomUser.objects.create_user(username='testuser', password='testpassword', email='test@example.com')
         self.token = Token.objects.create(user=self.user)
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
-    
-    
+
     def test_user_profile_without_username(self):
         url = reverse('user_profile')
         response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
     
 
 class CommentTestCase(APITestCase):
@@ -310,8 +311,8 @@ class CommentTestCase(APITestCase):
         self.token = Token.objects.create(user=self.user)
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
 
-        self.tag = Tag.objects.create(tag_name='Test Tag')
-        self.post = Post.objects.create(title='Test Post', text='This is a test post.', tags=self.tag, author=self.user)
+        self.searchresult = SearchResult.objects.create(entity_id='1', name= 'name' , image='image', type='type')
+        self.post = Post.objects.create(title='Test Post', text='This is a test post.', searchresult=self.searchresult, author=self.user)
 
     def test_add_comment(self):
         url = reverse('comment_post')

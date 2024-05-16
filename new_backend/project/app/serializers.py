@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser, Post, Image, Tag
+from .models import CustomUser, Post, Image
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -39,17 +39,11 @@ class ImageSerializer(serializers.ModelSerializer):
         model = Image
         fields = ['image_url']
 
-class TagSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Tag
-        fields = ['tag_name']
-
 class PostSerializer(serializers.ModelSerializer):
-    author_name = serializers.CharField(source='author.name', read_only=True)  # This will include the author's name
-    author = serializers.StringRelatedField()  # This will include the author's username
+    author_name = serializers.CharField(source='author.username', read_only=True)  # Ensure it fetches the username
+    author = serializers.StringRelatedField()  # Include the author's username
     image = ImageSerializer()
-    tags = TagSerializer()
 
     class Meta:
         model = Post
-        fields = ['title', 'image', 'created_at', 'text', 'tags', 'author', 'author_name', 'likes_count']
+        fields = ['id', 'title', 'text', 'author', 'author_name', 'created_at', 'image', 'likes_count', 'searchresult']
