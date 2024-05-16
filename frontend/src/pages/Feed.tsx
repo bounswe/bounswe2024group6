@@ -12,11 +12,11 @@ export default function Feed() {
         <div className="flex flex-col">
             <Navbar />
             <div className="flex flex-row justify-center w-full">
-                <div className="w-5/12 bg-red-700">
+                <div className="w-5/12">
                     {
                         isAuth
                         ?
-                            <h1>Auth User Feed</h1>
+                            <Post />
                         :
                             null
                             

@@ -36,7 +36,7 @@ export default function Post() {
     }
     return (
         <div className="flex justify-center mb-8">
-            <div className="w-full md:w-1/2 flex-col rounded-md shadow-sm border p-3 mx-auto relative">
+            <div className="w-full flex-col rounded-md shadow-sm border p-3 mx-auto relative">
                 <div className="flex flex-row items-center mb-3 gap-2">
                     <img 
                         src={mockData.user.profileImage} 
@@ -50,27 +50,25 @@ export default function Post() {
                         <p className="text-xl">@{mockData.user.username}</p>
                     </div>
                 </div>
-                <Separator orientation="horizontal" />
-
                 {/* Second Row */}
                 <div className="flex flex-col items-center justify-center mb-3 mt-3 gap-2">
                     <div className="flex flex-col items-center mb-3">
                         <img 
                             src={mockData.image} 
                             alt="image" 
-                            className="object-cover" 
-                            style={{ objectFit: 'cover', width: '400px', height: '400px' }}
+                            className="object-cover rounded-md" 
+                            style={{ objectFit: 'cover'}}
                         />
                         <p style={{ marginTop: '20px' }}>{mockData.content}</p>
                     </div>
                 </div>
                 <div className="w-full flex flex-row justify-between mb-3 mt-3 gap-2 relative">
-                    <div className="flex flex-row justify-between">
+                    <div className="flex flex-row justify-between text-zinc-400">
                         <p>{mockData.date}</p>
                     </div>
                     <div className="flex right-1 flex-row gap-2">
                         {mockData.tags.map(tag => (
-                            <div key={tag.id} className=" right-1 bg-gray-200 rounded-md p-1">
+                            <div key={tag.id} className=" right-1 bg-black rounded-md p-1 text-white">
                                 <p>#{tag.name}</p>
                             </div>
                         ))}
