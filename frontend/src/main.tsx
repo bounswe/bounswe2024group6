@@ -20,15 +20,15 @@ const { router, href } = typesafeBrowserRouter([
     Component: Profile
   },
   {
-    path: "/wiki/architect",
+    path: "/wiki/architect/:qid",
     Component: Architect
   },
   {
-    path: "/wiki/building",
+    path: "/wiki/building/:qid",
     Component: Building
   },
   {
-    path: "/wiki/style",
+    path: "/wiki/style/:qid",
     Component: Style
   },
   {
