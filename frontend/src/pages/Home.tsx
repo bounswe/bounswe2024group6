@@ -23,6 +23,7 @@ import { Input } from "@/components/ui/input"
 import SearchIcon from '@mui/icons-material/Search';
 
 const registerFormSchema = z.object({
+    name: z.string().min(2).max(50),
     username: z.string().min(2).max(50),
     email: z.string().min(2).max(50),     // validation
     password: z.string().min(2).max(50),   // strong pass
@@ -50,6 +51,7 @@ export default function Home() {
     const registerForm = useForm<z.infer<typeof registerFormSchema>>({
         resolver: zodResolver(registerFormSchema),
         defaultValues: {
+            name: "",
             username: "",
             email: "",
             password: "",
@@ -201,11 +203,24 @@ export default function Home() {
                                 Create an account
                             </div>
                             <div className="text-zinc-500">
-                                Enter a username, email, and password to get started
+                                Enter the information below to get started
                             </div>
                             <div className="flex flex-col w-7/12 mt-2">
                                 <Form {...registerForm}>
                                     <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-2">
+                                        <FormField
+                                        control={registerForm.control}
+                                        name="name"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                            <FormControl>
+                                                <Input placeholder="Name" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                            </FormItem>
+                                            
+                                        )}
+                                        />
                                         <FormField
                                         control={registerForm.control}
                                         name="username"

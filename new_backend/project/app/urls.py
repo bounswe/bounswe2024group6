@@ -7,7 +7,6 @@ urlpatterns = [
     path('login/', login, name='user_login'),
     path('signup/', signup, name='signup'),
     path('user_profile/', views.user_profile, name='user_profile'),
-    path('user_profile/<str:username>/', views.user_profile, name='user_profile_by_username'),
     path('create_post/', views.create_post, name='create_post'),
     path('like_post/', views.like_post, name='like_post'), 
     path('comment_post/', views.comment_post, name='comment_post'),

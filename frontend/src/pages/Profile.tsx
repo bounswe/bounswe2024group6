@@ -1,9 +1,26 @@
 import { Navbar } from '../components'
+import { Post } from '../components'
 
 import { useAuth } from '../hooks'
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import axios from 'axios'
+
+import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+
+import shadcnProfile from './shadcnProfile.jpeg';
 
 
 export default function Profile() {
@@ -12,28 +29,22 @@ export default function Profile() {
     const authUsername = getUsername()
     const token = getToken()
 
+    const mockName = "Emre Özdemir"
+    const mockBio = "Architecture Enthusiast, Computer Engineering Student at Boğaziçi University"
+
     let { username } = useParams();
+
+    const visitType = isAuth ? (username === authUsername ? "own" : "other") : "guest"
 
     const [profile, setProfile] = useState({})
 
-    const mockProfile = {
-        username: "oktayozel",
-        description: "Architecture Enthusiast, Computer Engineering Student @BoğaziçiUniversity",
-        profileImage: "https://private-user-images.githubusercontent.com/57640531/310137517-cbe7aa9f-3457-4f64-b37b-c3e46d4e448b.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MTU3ODUwOTYsIm5iZiI6MTcxNTc4NDc5NiwicGF0aCI6Ii81NzY0MDUzMS8zMTAxMzc1MTctY2JlN2FhOWYtMzQ1Ny00ZjY0LWIzN2ItYzNlNDZkNGU0NDhiLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDA1MTUlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwNTE1VDE0NTMxNlomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTE3N2Q2Njg1ZTlkYmE3OTkwNzBjYjdlYzM2ZGJiMjA4N2EyNTIxZmNhMGRmYzE5NTdlOGE4YWY2MzhlMDdiNmMmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.Fu2t4osvCKK1l6AEwjfuHdCULHqeZvmegV5ELEhRNeY",
-        backgroundImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Colosseo_2020.jpg/1200px-Colosseo_2020.jpg",
-    }
-
     useEffect(() => {
-        axios.get(`http://localhost:8000/user_profile/`,
-        {
-            headers: {
-                "Authorization": `Token ${token}`
-            }
-        }
+        axios.post(`http://localhost:8000/user_profile/`,
+        { username: username },
         )
         .then((response) => {
             console.log(response.data)
-            setProfile(mockProfile)
+            setProfile(response.data)
         })
         .catch((error) => {
             console.log(error)
@@ -42,18 +53,82 @@ export default function Profile() {
     return (
         <div>
             <Navbar />
-            {
-                isAuth
-                ?
-                    <div>
-                        <h1>{profile.username}</h1>
-                        <h1>{profile.description}</h1>
-                        <img src={profile.profileImage} alt="profile image" />
-                        <img src={profile.backgroundImage} alt="background image" />
+                <div className="flex flex-row justify-center pt-5">
+                    <div className="flex flex-row p-2 rounded-md shadow-sm border w-5/12 gap-2">
+                        <div className="flex-initial">
+                            <img src={profile.profileImage ? profile.profileImage : shadcnProfile} alt="Profile Image" style={{ width: "8rem", height: "8rem", objectFit: 'cover', borderRadius: '0.375rem'}}/>
+                        </div>
+                        <div className="flex-auto flex flex-col px-2 justify-between h-full">
+                            <div className="flex flex-col pt-2">
+                                <div className="flex flex-row justify-between w-full">
+                                    <div className="flex flex-col">
+                                        <h1 className="font-bold text-2xl">{mockName}</h1>
+                                        <h1 className="font-bold text-xl text-zinc-600">{"@" + profile.username}</h1>
+                                    </div>
+                                    <div>
+                                        {
+                                            visitType === "own"
+                                            ?
+                                                <Dialog>
+                                                    <DialogTrigger asChild>
+                                                    <Button variant="outline">Edit Profile</Button>
+                                                    </DialogTrigger>
+                                                    <DialogContent className="sm:max-w-[425px]">
+                                                    <DialogHeader>
+                                                        <DialogTitle>Edit profile</DialogTitle>
+                                                        <DialogDescription>
+                                                        Make changes to your profile here. Click save when you're done.
+                                                        </DialogDescription>
+                                                    </DialogHeader>
+                                                    <div className="grid gap-4 py-4">
+                                                        <div className="grid grid-cols-4 items-center gap-4">
+                                                            <Label htmlFor="name" className="text-right">
+                                                                Name
+                                                            </Label>
+                                                            <Input
+                                                                id="name"
+                                                                defaultValue="Pedro Duarte"
+                                                                className="col-span-3"
+                                                            />
+                                                        </div>
+                                                        <div className="grid grid-cols-4 items-center gap-4">
+                                                            <Label htmlFor="imageURL" className="text-right">
+                                                                Image URL
+                                                            </Label>
+                                                            <Input
+                                                                id="imageURL"
+                                                                defaultValue="@peduarte"
+                                                                className="col-span-3"
+                                                            />
+                                                        </div>
+                                                        <div className="grid grid-cols-4 items-center gap-4">
+                                                            <Label htmlFor="imageURL" className="text-right">
+                                                                Bio
+                                                            </Label>
+                                                            <Textarea
+                                                                id="bio"    
+                                                                defaultValue="I'm a designer and developer from Portugal."
+                                                                className="col-span-3"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <DialogFooter>
+                                                        <Button type="submit">Save changes</Button>
+                                                    </DialogFooter>
+                                                    </DialogContent>
+                                                </Dialog>
+                                            :
+                                                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                                    Follow
+                                                </button>
+                                        }
+                                    </div>
+                                </div>
+                                <p className="text-large text-sm flex-wrap">{mockBio}</p>
+                            </div>
+                        </div>
                     </div>
-                :
-                    <h1>Guest User Profile</h1>
-            }
+                </div>
         </div>
     )
 }

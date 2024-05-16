@@ -100,6 +100,7 @@ def update_user_profile(request):
 @permission_classes([IsAuthenticated])
 def user_profile(request):
     username = request.data.get('username')  # Retrieve username from request body
+    print(username)
     user = get_object_or_404(CustomUser, username=username)
     other_user = request.user
     
