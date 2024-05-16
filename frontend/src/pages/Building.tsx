@@ -27,10 +27,20 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 
+import { useAuth } from '../hooks'
+
+
 export default function Building() {
+    const { checkAuth, getUsername, getToken } = useAuth()
+    const isAuth = checkAuth()
+    const token = getToken()
+
     let { qid } = useParams();
     const [buildingData, setBuildingData] = useState(null); 
     const [isLoading, setIsLoading] = useState(true)
+
+    const [postText, setPostText] = useState("");
+    const [postImage, setPostImage] = useState(null);
 
 
     useEffect(() => {
@@ -99,16 +109,40 @@ export default function Building() {
                                         </DialogTrigger>
                                         <DialogContent className="sm:max-w-[425px]">
                                         <DialogHeader>
-                                            <DialogTitle>Edit profile</DialogTitle>
-                                            <DialogDescription>
-                                                Make changes to your profile here. Click save when you're done.
-                                            </DialogDescription>
+                                            <DialogTitle>Create a post</DialogTitle>
                                         </DialogHeader>
-                                        <div>
-                                            Test
+                                        <div className="flex flex-col gap-2">
+                                            <Input
+                                                name="image"
+                                                id="image"
+                                                placeholder="Image URL"
+                                                onChange={(e) => setPostImage(e.target.value)}
+                                            />
+                                            <Textarea
+                                                name="text"
+                                                id="text"
+                                                placeholder="Write your post here"
+                                                onChange={(e) => setPostText(e.target.value)}
+                                            />
                                         </div>
                                         <DialogFooter>
-                                            <Button>Post</Button>
+                                            <Button onClick={() => {
+                                                axios.post(`${BASE_URL}:8000/create_post/`,
+                                                {
+                                                    title: "X",
+                                                    entity_id: qid,
+                                                    text: postText,
+                                                    image_url: postImage
+                                                },
+                                                { headers: { Authorization: `Token ${token}` } }
+                                                )
+                                                .then(function (response) {
+                                                    console.log(response)
+                                                })
+                                                .catch(function (error) {
+                                                    console.log(error);
+                                                })
+                                            }}>Post</Button>
                                         </DialogFooter>
                                         </DialogContent>
                                     </Dialog>
