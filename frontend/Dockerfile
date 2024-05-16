@@ -4,6 +4,7 @@ RUN addgroup app && adduser -S -G app app
 USER app
 WORKDIR /app
 COPY --chown=app:node package*.json .
+RUN npm install
 
 
-CMD npm install & npm run dev -- --host
+CMD npm run dev -- --host
