@@ -325,7 +325,6 @@ class CommentTestCase(APITestCase):
         data = {'comment_text': 'This is a test comment.'}
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
     def test_add_comment_without_comment_text(self):
         url = reverse('comment_post')
         data = {'post_id': self.post.id}
@@ -382,7 +381,6 @@ class SearchResultModelTest(APITestCase):
         self.assertEqual(len(response.data["architect"]), 0)
         self.assertEqual(len(response.data["style"]), 0)
         self.assertEqual(len(response.data["building"]), 0)
-
     def test_search_with_empty_query(self):
         response = self.client.post(reverse('search'), {'query': ''}, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
