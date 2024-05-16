@@ -24,13 +24,10 @@ import shadcnProfile from './shadcnProfile.jpeg';
 
 
 export default function Profile() {
-    const { checkAuth, getUsername, getToken } = useAuth()
+    const { checkAuth, getUsername, getToken, setProfileImage } = useAuth()
     const isAuth = checkAuth()
     const authUsername = getUsername()
     const token = getToken()
-
-    const mockName = "Emre Özdemir"
-    const mockBio = "Architecture Enthusiast, Computer Engineering Student at Boğaziçi University"
 
     let { username } = useParams();
 
@@ -38,17 +35,44 @@ export default function Profile() {
 
     const [profile, setProfile] = useState({})
 
+    const [updateName, setUpdateName] = useState("")
+    const [updateBio, setUpdateBio] = useState("")
+    const [updateImage, setUpdateImage] = useState("")
+
+    const [isFollowing, setIsFollowing] = useState(false)
+
     useEffect(() => {
-        axios.post(`http://localhost:8000/user_profile/`,
-        { username: username },
-        )
-        .then((response) => {
-            console.log(response.data)
-            setProfile(response.data)
-        })
-        .catch((error) => {
-            console.log(error)
-        })
+        if (isAuth) {
+            axios.post(`http://localhost:8000/auth_user_profile/`,
+            { username: username },
+            { headers: { Authorization: `Token ${token}` } }
+            )
+            .then((response) => {
+                console.log(response.data)
+                setProfile(response.data)
+                setUpdateName(response.data.name)
+                setUpdateImage(response.data.profile_image)
+                setUpdateBio(response.data.bio)
+                setIsFollowing(response.data.is_following)
+            })
+            .catch((error) => {
+                console.log(error)
+            })
+        } else {
+            axios.post(`http://localhost:8000/user_profile/`,
+            { username: username },
+            )
+            .then((response) => {
+                console.log(response.data)
+                setProfile(response.data)
+                setUpdateName(response.data.name)
+                setUpdateImage(response.data.profile_image)
+                setUpdateBio(response.data.bio)
+            })
+            .catch((error) => {
+                console.log(error)
+            })
+        }
     }, [])
     return (
         <div>
@@ -56,13 +80,13 @@ export default function Profile() {
                 <div className="flex flex-row justify-center pt-5">
                     <div className="flex flex-row p-2 rounded-md shadow-sm border w-5/12 gap-2">
                         <div className="flex-initial">
-                            <img src={profile.profileImage ? profile.profileImage : shadcnProfile} alt="Profile Image" style={{ width: "8rem", height: "8rem", objectFit: 'cover', borderRadius: '0.375rem'}}/>
+                            <img src={profile.profile_image ? profile.profile_image : shadcnProfile} alt="Profile Image" style={{ width: "8rem", height: "8rem", objectFit: 'cover', borderRadius: '0.375rem'}}/>
                         </div>
                         <div className="flex-auto flex flex-col px-2 justify-between h-full">
                             <div className="flex flex-col pt-2">
                                 <div className="flex flex-row justify-between w-full">
                                     <div className="flex flex-col">
-                                        <h1 className="font-bold text-2xl">{mockName}</h1>
+                                        <h1 className="font-bold text-2xl">{profile.name}</h1>
                                         <h1 className="font-bold text-xl text-zinc-600">{"@" + profile.username}</h1>
                                     </div>
                                     <div>
@@ -87,8 +111,9 @@ export default function Profile() {
                                                             </Label>
                                                             <Input
                                                                 id="name"
-                                                                defaultValue="Pedro Duarte"
+                                                                defaultValue={updateName}
                                                                 className="col-span-3"
+                                                                onChange={(e) => setUpdateName(e.target.value)}
                                                             />
                                                         </div>
                                                         <div className="grid grid-cols-4 items-center gap-4">
@@ -97,8 +122,9 @@ export default function Profile() {
                                                             </Label>
                                                             <Input
                                                                 id="imageURL"
-                                                                defaultValue="@peduarte"
+                                                                defaultValue={updateImage}
                                                                 className="col-span-3"
+                                                                onChange={(e) => setUpdateImage(e.target.value)}
                                                             />
                                                         </div>
                                                         <div className="grid grid-cols-4 items-center gap-4">
@@ -107,24 +133,76 @@ export default function Profile() {
                                                             </Label>
                                                             <Textarea
                                                                 id="bio"    
-                                                                defaultValue="I'm a designer and developer from Portugal."
+                                                                defaultValue={updateBio}
                                                                 className="col-span-3"
+                                                                onChange={(e) => setUpdateBio(e.target.value)}
                                                             />
                                                         </div>
                                                     </div>
                                                     <DialogFooter>
-                                                        <Button type="submit">Save changes</Button>
+                                                        <Button onClick={() => {
+                                                            axios.post(`http://localhost:8000/update_user_profile/`,
+                                                                { name: updateName, profile_image: updateImage, bio: updateBio },
+                                                                { headers: { Authorization: `Token ${token}` } }
+                                                            )
+                                                            .then((response) => {
+                                                                console.log(response.data)
+                                                                setProfile(response.data)
+                                                                setProfileImage(response.data.profile_image)
+                                                            })
+                                                            .catch((error) => {
+                                                                console.log(error)
+                                                            })
+                                                        }}>Save changes</Button>
                                                     </DialogFooter>
                                                     </DialogContent>
                                                 </Dialog>
                                             :
-                                                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                                    Follow
-                                                </button>
+                                                visitType === "other"
+                                                ?
+                                                (
+                                                    isFollowing
+                                                    ?
+                                                        <Button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" onClick={() => {
+                                                                axios.post(`http://localhost:8000/unfollow/`,
+                                                                    { username: profile.username },
+                                                                    { headers: { Authorization: `Token ${token}` } }
+                                                                )
+                                                                .then((response) => {
+                                                                    console.log(response.data)
+                                                                    setIsFollowing(false)
+                                                                })
+                                                                .catch((error) => {
+                                                                    console.log(error)
+                                                                })
+                                                            }
+                                                        }>
+                                                            Unfollow
+                                                        </Button>
+                                                    :
+                                                        <Button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => {
+                                                                axios.post(`http://localhost:8000/follow/`,
+                                                                    { username: profile.username },
+                                                                    { headers: { Authorization: `Token ${token}` } }
+                                                                )
+                                                                .then((response) => {
+                                                                    console.log(response.data)
+                                                                    setIsFollowing(true)
+                                                                })
+                                                                .catch((error) => {
+                                                                    console.log(error)
+                                                                })
+                                                            }
+                                                        }>
+                                                            Follow
+                                                        </Button>
+                                                )
+                                                :
+                                                null
                                         }
                                     </div>
                                 </div>
-                                <p className="text-large text-sm flex-wrap">{mockBio}</p>
+                                <p className="text-large text-sm flex-wrap">{profile.bio}</p>
                             </div>
                         </div>
                     </div>
