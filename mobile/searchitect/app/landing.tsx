@@ -17,20 +17,28 @@ const Landing = () => {
 
     const [searchText, setSearchText] = useState("")
 
-    const search = (text: string)=>{
-        router.replace({pathName: "/landingImage",params: {imageUri: "ss"}})
-        router.replace( "/landingImage" )
+    // const search = (text: string) => {
+    //     searchQuery(text)
+    //         .then((res) => {
+    //             if (res && ((Array.isArray(res.style) && res.style.length > 0) || 
+    //                         (Array.isArray(res.architect) && res.architect.length > 0) || 
+    //                         (Array.isArray(res.building) && res.building.length > 0))) {
+    //                 console.log(res);
+    //                 router.replace({ pathname: "/landingImage", params: { response: res } });
+    //             } else {
+    //                 console.log("Response does not contain the expected structure");
+    //             }
+    //         })
+    //         .catch((err) => {
+    //             console.log("err", err);
+    //         });
+    // };
 
-        // searchQuery(text).then((res)=>{
-        //     console.log(res.building.Image)
-        //     // router.push({ pathname: `/details/${item.id}`, params: item }); // Remove the braces in params
-        //     router.replace({pathName: "/landingImage",params: {imageUri: res.building.Image}})
-        //     console.log(res)
-        // }).catch((err)=>{
-        //     console.log("err", err)
-        // })
-    }
-
+    const search = (text: string) => {    
+                       router.push(`/landingSearch?queryText=${text}`);
+   
+    };
+    
     return (
         <SafeAreaView style={styles.safeAreaContainer}>
             <View style={styles.container}>

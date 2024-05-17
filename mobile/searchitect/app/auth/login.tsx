@@ -15,7 +15,7 @@ const LoginScreen = () => {
 
       loginUser({username: username,password:password}).then((res)=>{
         console.log(res.token)
-        router.replace("feed")
+        router.replace("guestFeedPage")
       }).catch((error)=>{
         console.log(error)
       });

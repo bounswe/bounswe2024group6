@@ -23,7 +23,7 @@ const RegisterScreen = () => {
 
       registerUser({username: username,email: email,password:password}).then((res)=>{
         console.log(res.token)
-        router.replace("feed")
+        router.replace("guestFeedPage")
       }).catch((error)=>{
         console.log(error)
       });
