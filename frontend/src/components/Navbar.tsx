@@ -92,10 +92,12 @@ export default function Navbar() {
                         <BookmarksOutlinedIcon />
                         <DropdownMenu>
                             <DropdownMenuTrigger>
-                                <Avatar className="border-white border-2">
-                                    <AvatarImage src={profileImage ? profileImage : shadcnProfile}  alt="@shadcn" />
-                                    <AvatarFallback>CN</AvatarFallback>
-                                </Avatar>
+                                <img 
+                                    src={profileImage ? profileImage : shadcnProfile} 
+                                    alt="Profile" 
+                                    className="w-10 h-10 rounded-full object-cover border-2" 
+                                    style={{ objectFit: 'cover' }}
+                                />
                             </DropdownMenuTrigger>
                             <DropdownMenuContent>
                                 <DropdownMenuItem onClick={() => {navigate(`/profile/${authUsername}`); navigate(0);}}>Profile</DropdownMenuItem>
