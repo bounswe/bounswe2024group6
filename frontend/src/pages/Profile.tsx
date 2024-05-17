@@ -22,6 +22,7 @@ import { Textarea } from "@/components/ui/textarea"
 
 import shadcnProfile from './shadcnProfile.jpeg';
 
+import BASE_URL from '../lib/baseUrl'
 
 export default function Profile() {
     const { checkAuth, getUsername, getToken, setProfileImage } = useAuth()
@@ -43,7 +44,7 @@ export default function Profile() {
 
     useEffect(() => {
         if (isAuth) {
-            axios.post(`http://localhost:8000/auth_user_profile/`,
+            axios.post(`${BASE_URL}:8000/auth_user_profile/`,
             { username: username },
             { headers: { Authorization: `Token ${token}` } }
             )
@@ -59,7 +60,7 @@ export default function Profile() {
                 console.log(error)
             })
         } else {
-            axios.post(`http://localhost:8000/user_profile/`,
+            axios.post(`${BASE_URL}:8000/user_profile/`,
             { username: username },
             )
             .then((response) => {
@@ -141,7 +142,7 @@ export default function Profile() {
                                                     </div>
                                                     <DialogFooter>
                                                         <Button onClick={() => {
-                                                            axios.post(`http://localhost:8000/update_user_profile/`,
+                                                            axios.post(`${BASE_URL}:8000/update_user_profile/`,
                                                                 { name: updateName, profile_image: updateImage, bio: updateBio },
                                                                 { headers: { Authorization: `Token ${token}` } }
                                                             )
@@ -164,7 +165,7 @@ export default function Profile() {
                                                     isFollowing
                                                     ?
                                                         <Button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" onClick={() => {
-                                                                axios.post(`http://localhost:8000/unfollow/`,
+                                                                axios.post(`${BASE_URL}:8000/unfollow/`,
                                                                     { username: profile.username },
                                                                     { headers: { Authorization: `Token ${token}` } }
                                                                 )
@@ -181,7 +182,7 @@ export default function Profile() {
                                                         </Button>
                                                     :
                                                         <Button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => {
-                                                                axios.post(`http://localhost:8000/follow/`,
+                                                                axios.post(`${BASE_URL}:8000/follow/`,
                                                                     { username: profile.username },
                                                                     { headers: { Authorization: `Token ${token}` } }
                                                                 )

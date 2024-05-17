@@ -32,7 +32,7 @@ export default function Post(postID) {
     const navigate = useNavigate()
 
     useEffect(() => {
-        axios.post(`http://localhost:8000/get_posts_by_ids/`,
+        axios.post(`${BASE_URL}:8000/get_posts_by_ids/`,
             {
                 post_id: postID.postID
             },
@@ -40,7 +40,7 @@ export default function Post(postID) {
         .then(response => {
             console.log(response.data)
             setPost(response.data)
-            axios.post('http://localhost:8000/entity_from_searchresult/', {id: response.data.searchresult})
+            axios.post(`${BASE_URL}:8000/entity_from_searchresult/`, {id: response.data.searchresult})
             .then(response => {
                 console.log(response.data)
                 setEntityID(response.data.entity_id)
@@ -50,7 +50,7 @@ export default function Post(postID) {
             .catch(error => {
                 console.log(error)
             })
-            axios.post('http://localhost:8000/basic_user_info/', {username: response.data.author})
+            axios.post(`${BASE_URL}:8000/basic_user_info/`, {username: response.data.author})
             .then(response => {
                 console.log(response.data)
                 setProfileImage(response.data.profile_image)
