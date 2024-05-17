@@ -12,6 +12,13 @@ def get_description_wikibase(entity_id):
     return response.json()
 
 
+def get_text(entity_id):
+    title = get_title_wikibase(entity_id)
+    if title is None:
+        return "No information available about this entry."
+    page_id = get_page_id_wikibase(title)
+    text = get_wiki_text(page_id)
+    return text
 
 def get_content_wikidata(entity_id):
     title = get_title_wikibase(entity_id)
@@ -28,6 +35,8 @@ def get_title_wikibase(entity_id):
 
     resp = response.json()
 
+    if "enwiki" not in resp["entities"][entity_id]["sitelinks"]:
+        return None
     title = resp["entities"][entity_id]["sitelinks"]["enwiki"]["title"]
     return title
 
@@ -129,10 +138,7 @@ def query_building_info(entity_id):
     return data
 
 def get_building_info(entity_id):
-    title = get_title_wikibase(entity_id)
-    page_id = get_page_id_wikibase(title)
-    
-    text = get_wiki_text(page_id)
+    text = get_text(entity_id)
 
     building_info = query_building_info(entity_id)
 
@@ -253,9 +259,8 @@ WHERE {{
 
 
 def get_architect_info(entity_id):
-    title = get_title_wikibase(entity_id)
-    page_id = get_page_id_wikibase(title)
-    text = get_wiki_text(page_id)
+
+    text = get_text(entity_id)
 
     architect_info = query_architect_info(entity_id)
 
@@ -384,9 +389,8 @@ WHERE {{
     return data
 
 def get_style_info(entity_id):
-    title = get_title_wikibase(entity_id)
-    page_id = get_page_id_wikibase(title)
-    text = get_wiki_text(page_id)
+    
+    text = get_text(entity_id)
 
     style_info = query_style_info(entity_id)
 
@@ -441,17 +445,3 @@ def get_style_info(entity_id):
 
 
 
-def get_image(entity_id):
-    response = requests.get(f"https://www.wikidata.org/w/api.php?action=wbgetclaims&property=P18&entity={entity_id}", params= {"format": "json"})
-    data = response.json()
-
-    
-    if "P18" in data["claims"]:
-        image_name = data["claims"]["P18"][0]["mainsnak"]["datavalue"]["value"]
-        underscores_str = replace_under_score(image_name)
-        
-        image = f''' https://commons.wikimedia.org/w/index.php?title=Special:Redirect/file/{underscores_str}&width=300'''
-    else:
-        image = "No Image"
-
-    return image
