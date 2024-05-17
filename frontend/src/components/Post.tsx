@@ -12,6 +12,17 @@ import { useNavigate } from "react-router-dom";
 
 import shadcnProfile from '@/pages/shadcnProfile.jpeg'
 
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+  } from "@/components/ui/dropdown-menu"
+import BASE_URL from "@/lib/baseUrl";
+  
+
 export default function Post(postID) {
     const [post, setPost] = useState({})
     const [profileImage, setProfileImage] = useState(null)
@@ -143,7 +154,13 @@ export default function Post(postID) {
                         <Button variant="ghost" className='w-10' onClick={toggleBookmark}>
                             {isBookmark ? <BookmarkIcon /> : <BookmarkBorderIcon />}
                         </Button>
-                        <Button variant="ghost" className='w-10'><ShareIcon /></Button>
+                        <DropdownMenu>
+                        <DropdownMenuTrigger><Button variant="ghost" className='w-10'><ShareIcon /></Button></DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                            <div className="px-2">{`${BASE_URL}:5173/post/${postID.postID}`}</div>
+                        </DropdownMenuContent>
+                        </DropdownMenu>
+
                         
                     </div>
                     {/* Content for the third row */}

@@ -24,7 +24,7 @@ export default function Feed() {
     return (
         <div className="flex flex-col">
             <Navbar />
-            <div className="flex flex-row justify-center w-full">
+            <div className="flex flex-row justify-center w-full pt-3">
                 <div className="w-5/12">
                     {
                         postIDs.map((postID) => {
