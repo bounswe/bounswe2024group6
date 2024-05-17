@@ -42,6 +42,33 @@ export default function Style() {
     const [postText, setPostText] = useState("");
     const [postImage, setPostImage] = useState(null);
 
+    const [errorMessage, setErrorMessage] = useState(null);
+    const [successMessage, setSuccessMessage] = useState(null);
+
+    const handlePostClick = () => {
+        axios.post(
+            `${BASE_URL}:8000/create_post/`,
+            {
+                title: "X",
+                entity_id: qid,
+                text: postText,
+                image_url: postImage
+            },
+            { headers: { Authorization: `Token ${token}` } }
+        )
+        .then(function (response) {
+            console.log(response);
+            setSuccessMessage("Post created successfully.");
+            setErrorMessage(null);
+        })
+        .catch(function (error) {
+            console.log(error);
+            setErrorMessage(error.response.data.error || "An error occurred. Please try again.");
+            setSuccessMessage(null);
+        });
+    };
+
+
 
     useEffect(() => {
         axios.post(`${BASE_URL}:8000/style/`, {entity_id: qid})
@@ -118,25 +145,14 @@ export default function Style() {
                                                 onChange={(e) => setPostText(e.target.value)}
                                             />
                                         </div>
-                                        <DialogFooter>
-                                            <Button onClick={() => {
-                                                axios.post(`${BASE_URL}:8000/create_post/`,
-                                                {
-                                                    title: "X",
-                                                    entity_id: qid,
-                                                    text: postText,
-                                                    image_url: postImage
-                                                },
-                                                { headers: { Authorization: `Token ${token}` } }
-                                                )
-                                                .then(function (response) {
-                                                    console.log(response)
-                                                })
-                                                .catch(function (error) {
-                                                    console.log(error);
-                                                })
-                                            }}>Post</Button>
-                                        </DialogFooter>
+                                        <div className="flex flex-row justify-between w-full">
+                                            {errorMessage && <p className="text-red-500">{errorMessage}</p>}
+                                            {successMessage && <p className="text-green-500">{successMessage}</p>}
+                                            <DialogFooter>
+                                                <Button onClick={handlePostClick}>Post</Button>
+                                            </DialogFooter>
+                                            
+                                        </div>
                                         </DialogContent>
                                     </Dialog>
                                 </div>
