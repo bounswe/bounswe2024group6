@@ -14,12 +14,33 @@ import ClipLoader from "react-spinners/ClipLoader";
 import ImageNotSupportedIcon from '@mui/icons-material/ImageNotSupported';
 import { useNavigate } from "react-router-dom";
 
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+
+import { useAuth } from '../hooks'
 
 export default function Architect() {
+    const { checkAuth, getUsername, getToken } = useAuth()
+    const isAuth = checkAuth()
+    const token = getToken()
+
     let { qid } = useParams();
     const [architectData, setArhitectData] = useState(null); 
     const [isLoading, setIsLoading] = useState(true)
     const navigate = useNavigate()
+
+    const [postText, setPostText] = useState("");
+    const [postImage, setPostImage] = useState(null);
 
     useEffect(() => {
         axios.post(`${BASE_URL}:8000/architect/`, {entity_id: qid})
@@ -73,10 +94,56 @@ export default function Architect() {
                     <div className="h-full w-full py-6 pl-6">
                         <ScrollArea className="h-full w-full rounded-2xl shadow-sm border">
                             <div className="p-6 flex flex-col gap-2">
-                                <h1 className="font-bold text-4xl">{architectData.name}</h1>
+                                <div className="flex flex-row justify-between w-full items-center">
+                                    <h1 className="font-bold text-4xl">{architectData.name}</h1>
+                                    <Dialog>
+                                        <DialogTrigger asChild>
+                                            <Button>Talk About It!</Button>
+                                        </DialogTrigger>
+                                        <DialogContent className="sm:max-w-[425px]">
+                                        <DialogHeader>
+                                            <DialogTitle>Create a post</DialogTitle>
+                                        </DialogHeader>
+                                        <div className="flex flex-col gap-2">
+                                            <Input
+                                                name="image"
+                                                id="image"
+                                                placeholder="Image URL"
+                                                onChange={(e) => setPostImage(e.target.value)}
+                                            />
+                                            <Textarea
+                                                name="text"
+                                                id="text"
+                                                placeholder="Write your post here"
+                                                onChange={(e) => setPostText(e.target.value)}
+                                            />
+                                        </div>
+                                        <DialogFooter>
+                                            <Button onClick={() => {
+                                                axios.post(`${BASE_URL}:8000/create_post/`,
+                                                {
+                                                    title: "X",
+                                                    entity_id: qid,
+                                                    text: postText,
+                                                    image_url: postImage
+                                                },
+                                                { headers: { Authorization: `Token ${token}` } }
+                                                )
+                                                .then(function (response) {
+                                                    console.log(response)
+                                                })
+                                                .catch(function (error) {
+                                                    console.log(error);
+                                                })
+                                            }}>Post</Button>
+                                        </DialogFooter>
+                                        </DialogContent>
+                                    </Dialog>
+                                </div>
                                 <Separator />
                                 <p>{architectData.wikiText}</p>
                             </div>
+                        
                         </ScrollArea>
                     </div>
 
