@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-^34dk7&6i&e+#x)wfkr)#ww-*vuf0*qv3c%#rfyd)r!(_f_9d+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["127.0.0.1", "localhost", "165.232.66.11"]
 
 
 # Application definition
@@ -92,10 +92,10 @@ WSGI_APPLICATION = 'project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': "searchitect",
+        'NAME': os.getenv('MYSQL_DATABASE'),
         'USER': 'root',   # replace with your MySQL username
-        'PASSWORD': "aras1234",
-        'HOST': 'localhost',  # or your database server IP
+        'PASSWORD': os.getenv('MYSQL_ROOT_PASSWORD'),
+        'HOST': 'db',  # or your database server IP
         'PORT': '3306',  # default MySQL port
     }
 }

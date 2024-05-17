@@ -5,13 +5,15 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '../hooks'
 import axios from 'axios'
 
+import BASE_URL from '../lib/baseUrl'
+
 export default function Feed() {
     const { checkAuth } = useAuth()
     const isAuth = checkAuth()
     const [postIDs, setPostIDs] = useState([])
 
     useEffect(() => {
-        axios.get('http://localhost:8000/guest_feed/')
+        axios.get(`${BASE_URL}:8000/guest_feed/`)
             .then(response => {
                 console.log(response.data.post_ids)
                 setPostIDs(response.data.post_ids)
@@ -24,7 +26,7 @@ export default function Feed() {
     return (
         <div className="flex flex-col">
             <Navbar />
-            <div className="flex flex-row justify-center w-full">
+            <div className="flex flex-row justify-center w-full pt-3">
                 <div className="w-5/12">
                     {
                         postIDs.map((postID) => {

@@ -2,7 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { RouterProvider } from 'react-router-dom'
 import { typesafeBrowserRouter } from 'react-router-typesafe';
-import { Home, Feed, Profile, Architect, Building, Style } from './pages/index'
+import { Home, Feed, Profile, Architect, Building, Style, PostPage } from './pages/index'
 import './index.css'
 import Browse from './pages/Browse'
 
@@ -35,6 +35,10 @@ const { router, href } = typesafeBrowserRouter([
     path: "/wiki/browse",
     Component: Browse
   },
+  {
+    path: "/post/:postID",
+    Component: PostPage
+  }
 ]);
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
