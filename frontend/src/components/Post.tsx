@@ -22,7 +22,6 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
   } from "@/components/ui/dropdown-menu"
-import BASE_URL from "@/lib/baseUrl";
   
 
 export default function Post(postID) {
@@ -34,7 +33,6 @@ export default function Post(postID) {
     const navigate = useNavigate()
 
     useEffect(() => {
-        axios.post(`${BASE_URL}:8000/get_posts_by_ids/`,
         axios.post(`${BASE_URL}:8000/get_posts_by_ids/`,
             {
                 post_id: postID.postID
