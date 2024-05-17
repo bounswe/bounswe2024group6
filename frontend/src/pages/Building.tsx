@@ -45,6 +45,7 @@ export default function Building() {
     const [postImage, setPostImage] = useState(null);
 
 
+
     useEffect(() => {
         axios.post(`${BASE_URL}:8000/building/`, {entity_id: qid})
         .then(function (response) {
