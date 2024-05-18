@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, TextInput, StyleSheet, Image } from 'react-native';
 import { getGuestFeed, getPostsByIds, searchQuery } from './api'; // Assuming you have the API functions in a file called 'api'
 import { useRoute } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
@@ -7,23 +7,14 @@ import { AntDesign } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const GuestFeedPage = () => {
+  const [posts, setPosts] = useState([]);
+  const [searchText, setSearchText] = useState("");
 
-  const [response, setResponse] = useState(null);
   const router = useRouter();
 
-  const [posts, setPosts] = useState([]);
-  const [searchText, setSearchText] = useState("")
-
-
-  const search = (text: string) => {    
+  const search = (text) => {
     router.push(`/landingSearch?queryText=${text}`);
-
-};
-
-
-
-
-
+  };
 
   useEffect(() => {
     // Fetch guest feed when component mounts
@@ -44,36 +35,29 @@ const GuestFeedPage = () => {
   };
 
   const renderPost = ({ item }) => (
-    <View style={{ borderBottomWidth: 1, borderBottomColor: '#ccc', padding: 10 }}>
-      <Text>Title: {item.title}</Text>
-      <Text>Text: {item.text}</Text>
-      <Text>Author: {item.author_name}</Text>
-      <Text>Likes Count: {item.likes_count}</Text>
-      {/* Add more fields as needed */}
-    </View>
+    <TouchableOpacity style={styles.postContainer}>
+      <Image source={item.image ? { uri: item.image } : require('../assets/images/default.png')} style={styles.image} />
+      <View style={styles.textContainer}>
+        <Text style={styles.title}>{item.title}</Text>
+        <Text style={styles.text}>{item.text}</Text>
+        <Text style={styles.author}>Author: {item.author_name}</Text>
+        <Text style={styles.likes}>Likes Count: {item.likes_count}</Text>
+      </View>
+    </TouchableOpacity>
   );
 
   return (
     <SafeAreaView style={styles.safeAreaContainer}>
       <View style={styles.container}>
-
-        <View style={{    
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: 20,
-        width: "100%",
-    }}>
+        <View style={styles.searchContainer}>
           <TextInput
             style={styles.input}
             placeholder="Search..."
-            placeholderTextColor={'white'}
+            placeholderTextColor="white"
             value={searchText}
             onChangeText={setSearchText}
           />
-
-
-          <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => { search(searchText) }}>
+          <TouchableOpacity style={styles.searchButton} onPress={() => search(searchText)}>
             <AntDesign name="search1" size={24} color="white" />
           </TouchableOpacity>
         </View>
@@ -87,7 +71,6 @@ const GuestFeedPage = () => {
   );
 };
 
-
 const styles = StyleSheet.create({
   safeAreaContainer: {
     flex: 1,
@@ -98,22 +81,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: 'black',
   },
-  row: {
-    position: 'absolute',
-    top: 20,
-    // right: 20,
-    // left:20,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: 10,
-    width: "100%",
-  },
-  centerRow: {
+  searchContainer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    padding: 10,
+    padding: 20,
     width: "100%",
   },
   input: {
@@ -125,24 +97,44 @@ const styles = StyleSheet.create({
     borderColor: 'white',
     borderRadius: 5,
   },
-  button: {
-    // backgroundColor: "pink",
-    padding: 10,
-    borderRadius: 5,
+  searchButton: {
+    marginLeft: 10,
   },
-  buttonText: {
-    color: "white",
-    fontWeight: "bold",
-  },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
+  postContainer: {
+    borderBottomWidth: 1,
     flex: 1,
+    borderBottomColor: '#ccc',
+    padding: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+
+  },
+  textContainer: {
+    marginLeft: 10,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: 'white',
+  },
+  text: {
+    fontSize: 16,
+    color: 'white',
+  },
+  author: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: 'white',
+  },
+  likes: {
+    fontSize: 14,
+    color: 'gray',
   },
   image: {
     width: 50,
     height: 50,
-  }
+    borderRadius: 5,
+  },
 });
 
 export default GuestFeedPage;

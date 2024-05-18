@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://10.0.2.2:8000/';
+const BASE_URL = 'http://165.232.66.11:8000/';
 
 export const registerUser = (userData: { username: string; email: string; password: string }): Promise<RegisterResponse> => {
   return new Promise((resolve, reject) => {

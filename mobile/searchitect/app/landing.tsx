@@ -35,7 +35,7 @@ const Landing = () => {
     // };
 
     const search = (text: string) => {    
-                       router.push(`/landingSearch?queryText=${text}`);
+        router.push(`/landingSearch?queryText=${text}`);
    
     };
     
