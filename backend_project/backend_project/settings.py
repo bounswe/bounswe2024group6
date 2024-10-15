@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-x_25ay3g)a*i3i3pzvoc&6@+n)o)69r$x^lerv9!iy$tjgq&&u
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -79,10 +79,15 @@ WSGI_APPLICATION = 'backend_project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'bulingo_db',  # Use the same name you defined in docker-compose.yml
+        'USER': 'oktayozel',  # Use the same user you defined in docker-compose.yml
+        'PASSWORD': 'topsecret',  # Use the same password you defined
+        'HOST': 'db',  # This should be 'db', since it's the name of the service in docker-compose
+        'PORT': '3306',  # MySQL default port
     }
 }
+
 
 
 # Password validation
