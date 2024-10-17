@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
+import Navbar from './navbar';
 
 const QuizDetails = () => {
   const { params } = useRoute();
@@ -26,7 +27,7 @@ const QuizDetails = () => {
   return (
     <View style={styles.container}>
       {/* Header with buttons aligned horizontally */}
-      <View style={styles.headerContainer}>
+      {/* <View style={styles.headerContainer}>
         <TouchableOpacity style={styles.headerButton}>
           <Image source={require('../home-icon.png')} style={styles.icon} />
         </TouchableOpacity>
@@ -39,7 +40,8 @@ const QuizDetails = () => {
         <TouchableOpacity style={styles.headerButton}>
           <Image source={require('../assets/images/profile-icon.png')} style={styles.icon} />
         </TouchableOpacity>
-      </View>
+      </View> */}
+      <Navbar/>
 
       {/* Quiz name and description box */}
       <View style={styles.quizDetailsBox}>

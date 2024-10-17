@@ -70,6 +70,7 @@ export default function Layout() {
 
       <Stack.Screen name="landing" options={{headerShown: false}} />
       <Stack.Screen name="quizDetails" options={{headerShown: false}} />
+      <Stack.Screen name="home" options={{headerShown: false}}/>
 
       <Stack.Screen name="auth/login" options={{headerShown: false}} />
       <Stack.Screen name="auth/register" options={{headerShown: false}} />
