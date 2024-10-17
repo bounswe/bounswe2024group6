@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -39,9 +40,28 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'app',
     'rest_framework',   
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
 
 
 ]
+
+from datetime import timedelta
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -77,18 +97,22 @@ WSGI_APPLICATION = 'backend_project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+import os
+
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'fallback-secret-key')
+
+DEBUG = os.getenv('DJANGO_DEBUG', 'False').lower() in ['true', '1']
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'bulingo_db',  # Use the same name you defined in docker-compose.yml
-        'USER': 'oktayozel',  # Use the same user you defined in docker-compose.yml
-        'PASSWORD': 'topsecret',  # Use the same password you defined
-        'HOST': 'db',  # This should be 'db', since it's the name of the service in docker-compose
-        'PORT': '3306',  # MySQL default port
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', '3306'),
     }
 }
-
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators

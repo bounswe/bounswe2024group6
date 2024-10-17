@@ -1,6 +1,8 @@
 from django.urls import path
-from .views import ExampleView
+from .views import *
 
 urlpatterns = [
-    path('example/', ExampleView.as_view(), name='example'),  # Define the 'example/' URL
+    path('signup/', RegisterView.as_view(), name='auth_register'),
+    path('login/', LoginView.as_view(), name='auth_login'),
+    path('logout/', LogoutView.as_view(), name='auth_logout'),
 ]
