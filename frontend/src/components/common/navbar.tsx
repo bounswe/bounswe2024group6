@@ -27,7 +27,7 @@ export default function Navbar() {
   const navigate = useNavigate();
   const currentPage = window.location.pathname;
   return (
-    <div className="p-5">
+    <div className="w-screen p-5">
       <div className="flex flex-row w-full border-blue-700 bg-blue-200 border rounded-3xl px-5 py-3">
         <div className="flex-1 flex flex-row gap-6 items-center">
           <div
