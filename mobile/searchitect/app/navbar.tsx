@@ -8,6 +8,7 @@ const Navbar = () => {
     <View style={styles.navbar}>
         <Pressable 
           style={[styles.bordered, styles.circularButton, {left: "3%"}]}
+          onPress={() => {router.push("/home")}}
           >
             <Image
                 source={require('@/assets/images/home-icon.png')}
