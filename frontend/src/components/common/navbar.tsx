@@ -1,4 +1,4 @@
-import { Avatar } from "antd";
+import { Avatar } from "@nextui-org/avatar";
 import { IconQuestionMark, IconMessages } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 
