@@ -30,7 +30,10 @@ export default function Navbar() {
     <div className="p-5">
       <div className="flex flex-row w-full border-blue-700 bg-blue-200 border rounded-3xl px-5 py-3">
         <div className="flex-1 flex flex-row gap-6 items-center">
-          <div className="text-blue-900 text-3xl font-semibold" onClick={() => navigate("/")}>
+          <div
+            className="text-blue-900 text-3xl font-semibold"
+            onClick={() => navigate("/")}
+          >
             bu<span className="text-blue-700">lingo</span>
           </div>
           <input
