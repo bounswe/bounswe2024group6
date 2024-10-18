@@ -1,67 +1,60 @@
-import { Avatar } from "@nextui-org/avatar";
-import { IconQuestionMark, IconMessages } from "@tabler/icons-react";
-import { useNavigate } from "react-router-dom";
-
-interface TabsProps {
-  active: boolean;
-  onClick: () => void;
-  icon: JSX.Element;
-  text: string;
-}
-
-function Tab({ active, onClick, icon, text }: TabsProps) {
-  return (
-    <div
-      className={`flex flex-row py-1 px-4 gap-1 items-center rounded-lg font-bold ${
-        active ? "bg-blue-800 text-blue-200" : "text-blue-800"
-      }`}
-      onClick={onClick}
-    >
-      {icon}
-      {text}
-    </div>
-  );
-}
+import { Avatar, Card, Input, Button } from "@nextui-org/react";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export default function Navbar() {
   const navigate = useNavigate();
-  const currentPage = window.location.pathname;
+  const { pathname } = useLocation();
   return (
     <div className="w-screen p-5">
-      <div className="flex flex-row w-full border-blue-700 bg-blue-200 border rounded-3xl px-5 py-3">
+      <Card className="flex flex-row w-full px-5 py-3 rounded-full">
         <div className="flex-1 flex flex-row gap-6 items-center">
           <div
-            className="text-blue-900 text-3xl font-semibold"
+            className="text-blue-800 text-3xl font-semibold"
             onClick={() => navigate("/")}
           >
-            bu<span className="text-blue-700">lingo</span>
+            bu<span className="text-blue-600">lingo</span>
           </div>
-          <input
+          <Input
             type="text"
-            className="w-72 h-8 rounded-lg px-4 bg-blue-100 text-blue-800 placeholder-gray-500"
             placeholder="Browse..."
+            variant="flat"
+            size="sm"
+            className="w-64"
+            radius="full"
           />
         </div>
         <div className="flex-1 flex justify-center items-center">
-          <div className="flex flex-row">
-            <Tab
-              active={currentPage === "/quizzes"}
+          <div className="flex flex-row gap-2">
+            <Button
+              variant={pathname === "/quizzes" ? "solid" : "light"}
               onClick={() => navigate("/quizzes")}
-              icon={<IconQuestionMark size={20} strokeWidth={3} />}
-              text="Quizzes"
-            />
-            <Tab
-              active={currentPage === "/forum"}
+              color={pathname === "/quizzes" ? "primary" : "default"}
+              radius="full"
+              size="md"
+              className="h-8"
+            >
+              Quizzes
+            </Button>
+            <Button
+              variant={pathname === "/forum" ? "solid" : "light"}
               onClick={() => navigate("/forum")}
-              icon={<IconMessages size={20} strokeWidth={3} />}
-              text="Forum"
-            />
+              color={pathname === "/forum" ? "primary" : "default"}
+              radius="full"
+              size="md"
+              className="h-8"
+            >
+              Forum
+            </Button>
           </div>
         </div>
         <div className="flex-1 flex justify-end items-center">
-          <Avatar onClick={() => navigate("/profile/anon")} />
+          <Avatar
+            isBordered
+            onClick={() => navigate("/profile/anon")}
+            src="https://nextui.org/avatars/avatar-1.png"
+          />
         </div>
-      </div>
+      </Card>
     </div>
   );
 }
