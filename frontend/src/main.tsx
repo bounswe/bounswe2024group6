@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { NextUIProvider } from "@nextui-org/react";
-import { RouterProvider } from "react-router-dom";
+import { Navigate, RouterProvider } from "react-router-dom";
 import { typesafeBrowserRouter } from "react-router-typesafe";
 import { Quizzes, Quiz, Forum, Post, Profile, Browse } from "./pages";
 import "./index.css";
@@ -9,7 +9,7 @@ import "./index.css";
 const { router } = typesafeBrowserRouter([
   {
     path: "/",
-    Component: Quizzes,
+    element: <Navigate to="/forum" replace />,
   },
   {
     path: "/quizzes",
