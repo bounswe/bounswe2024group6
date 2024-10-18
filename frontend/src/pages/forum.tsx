@@ -1,12 +1,30 @@
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { Navbar } from "../components/common";
-import PostCard from "../components/post/post-card";
-import PostCardSkeleton from "../components/post/post-card-skeleton";
+import { PostCard } from "../components/post";
+import { PostCardSkeleton } from "../components/post";
 
 export default function Forum() {
+  const [test, setTest] = useState(true);
+
+  setTimeout(() => {
+    setTest(false);
+  }
+  , 1000);
+
+  if (test) return     <div className="flex flex-col items-center">
+  <Navbar />
+  <div className="flex flex-col gap-6">
+    <PostCardSkeleton />
+    <PostCardSkeleton />
+    <PostCardSkeleton />
+
+
+  </div>;
+
+</div>
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center overflow-hidden">
       <Navbar />
       <div className="flex flex-col gap-6">
         <Suspense fallback={<PostCardSkeleton />}>
