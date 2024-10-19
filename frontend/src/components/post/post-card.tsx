@@ -55,12 +55,12 @@ export default function PostCard() {
       <CardBody className="px-3 py-0 text-small text-default-400 text-justify leading-relaxed overflow-hidden">
         <p>
           {displayedText}
-          {!isExpanded && text.length > maxLength && (
+          {text.length > maxLength && (
             <span
               onClick={toggleExpand}
               style={{ color: "#186df5", cursor: "pointer" }}
             >
-              Read more
+              {isExpanded ? " Read less" : " Read more"}
             </span>
           )}
         </p>
