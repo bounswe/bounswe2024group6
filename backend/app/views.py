@@ -45,14 +45,34 @@ def post_view_page(request):
       },
       "comments":[
              {
-                "id": 1,
+                "id": 31,
                 "author": {
                     "username": "oktay_ozel",
                     "profile_image": "https://private-user-images.githubusercontent.com/57640531/310137517-cbe7aa9f-3457-4f64-b37b-c3e46d4e448b.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjkzMzA3MTAsIm5iZiI6MTcyOTMzMDQxMCwicGF0aCI6Ii81NzY0MDUzMS8zMTAxMzc1MTctY2JlN2FhOWYtMzQ1Ny00ZjY0LWIzN2ItYzNlNDZkNGU0NDhiLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDEwMTklMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQxMDE5VDA5MzMzMFomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWU2MDU4M2EwMWE5MjJiZmU4MDc3OWQzODBlOTIyYTdjNjZjMTZjNDlmYTQ4ZmEwMGJhZjg1YjIwYjE4NjMzNGEmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.GMPWCh1PJN6IJnbaJ8y1D2cidA-jvFqmZszGDFeTYVc"
                 },
                 "comment": "What a nice information!",
                 "timestamp": "49 minutes ago",
-                "likes": 6
+                "likes": 11
+            },
+            {
+                "id": 32,
+                "author": {
+                    "username": "kaan_yolcu",
+                    "profile_image": ""
+                },
+                "comment": "Good word!",
+                "timestamp": "6 hours ago",
+                "likes": 3
+            },
+             {
+                "id": 4,
+                "author": {
+                    "username": "yunus_emre_ozdemir",
+                    "profile_image": "https://private-user-images.githubusercontent.com/47982397/376757594-a0c5112d-b1c6-4486-8dcf-413cd320de95.jpg?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjkzMzA2MTAsIm5iZiI6MTcyOTMzMDMxMCwicGF0aCI6Ii80Nzk4MjM5Ny8zNzY3NTc1OTQtYTBjNTExMmQtYjFjNi00NDg2LThkY2YtNDEzY2QzMjBkZTk1LmpwZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDEwMTklMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQxMDE5VDA5MzE1MFomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWVlMzFhMGU3NGY3YmQwNTNjYzI1ZTMyNDQzNDVlMjZlOGE2ZTAxMDU3MmFkOWUzNTVlZDYwZjNkNjFkYjhkYjcmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.zh3Q0LrRlH3GpEeESxf01P5JENuyetxwlMLILPBCRkk"
+                },
+                "comment": "Epheremal has a striking meaning!",
+                "timestamp": "53 minutes ago",
+                "likes": 12
             }
         ]
     },
@@ -75,7 +95,7 @@ def post_view_page(request):
         },
         "comments":[
              {
-                "id": 1,
+                "id": 4,
                 "author": {
                     "username": "yunus_emre_ozdemir",
                     "profile_image": "https://private-user-images.githubusercontent.com/47982397/376757594-a0c5112d-b1c6-4486-8dcf-413cd320de95.jpg?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjkzMzA2MTAsIm5iZiI6MTcyOTMzMDMxMCwicGF0aCI6Ii80Nzk4MjM5Ny8zNzY3NTc1OTQtYTBjNTExMmQtYjFjNi00NDg2LThkY2YtNDEzY2QzMjBkZTk1LmpwZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDEwMTklMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQxMDE5VDA5MzE1MFomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWVlMzFhMGU3NGY3YmQwNTNjYzI1ZTMyNDQzNDVlMjZlOGE2ZTAxMDU3MmFkOWUzNTVlZDYwZjNkNjFkYjhkYjcmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.zh3Q0LrRlH3GpEeESxf01P5JENuyetxwlMLILPBCRkk"
@@ -83,6 +103,26 @@ def post_view_page(request):
                 "comment": "Nice Post!",
                 "timestamp": "15 minutes ago",
                 "likes": 2
+            },
+             {
+                "id": 17,
+                "author": {
+                    "username": "elif_nur_deniz",
+                    "profile_image": "https://private-user-images.githubusercontent.com/70893987/307748909-5ce6b412-2201-40e6-9351-38372e83b3f1.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjkzMzA0ODcsIm5iZiI6MTcyOTMzMDE4NywicGF0aCI6Ii83MDg5Mzk4Ny8zMDc3NDg5MDktNWNlNmI0MTItMjIwMS00MGU2LTkzNTEtMzgzNzJlODNiM2YxLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDEwMTklMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQxMDE5VDA5Mjk0N1omWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWMwZjg1ZDVlZjU1NTk0YjIwMmZlMjRhZTY5ZGEyYmQ2YTY2ODMyYzVkZmY1ZTAxNTUwZDlmN2RjOGUyMjI1N2YmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.vv1mThwpjfwpKgQrBUMuaDzDDMApXPMC58ZKDOwZ320"
+                },
+                "comment": "Petrichor, interesting word!",
+                "timestamp": "2 hours ago",
+                "likes": 7
+            },
+            {
+                "id": 29,
+                "author": {
+                    "username": "kaan_yolcu",
+                    "profile_image": ""
+                },
+                "comment": "Fascinating!",
+                "timestamp": "1 hours ago",
+                "likes": 3
             }
         ]
     },
@@ -105,7 +145,7 @@ def post_view_page(request):
       },
       "comments":[
             {
-                "id": 1,
+                "id": 89,
                 "author": {
                     "username": "elif_nur_deniz",
                     "profile_image": "https://private-user-images.githubusercontent.com/70893987/307748909-5ce6b412-2201-40e6-9351-38372e83b3f1.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjkzMzA0ODcsIm5iZiI6MTcyOTMzMDE4NywicGF0aCI6Ii83MDg5Mzk4Ny8zMDc3NDg5MDktNWNlNmI0MTItMjIwMS00MGU2LTkzNTEtMzgzNzJlODNiM2YxLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDEwMTklMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQxMDE5VDA5Mjk0N1omWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWMwZjg1ZDVlZjU1NTk0YjIwMmZlMjRhZTY5ZGEyYmQ2YTY2ODMyYzVkZmY1ZTAxNTUwZDlmN2RjOGUyMjI1N2YmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.vv1mThwpjfwpKgQrBUMuaDzDDMApXPMC58ZKDOwZ320"
@@ -115,7 +155,7 @@ def post_view_page(request):
                 "likes": 10
             },
             {
-                "id": 2,
+                "id": 21,
                 "author": {
                     "username": "aras_tasci",
                     "profile_image": "https://private-user-images.githubusercontent.com/24993956/309188090-69afd5bb-8258-4995-939c-4600b6ecce12.jpg?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjkzMjk2MzQsIm5iZiI6MTcyOTMyOTMzNCwicGF0aCI6Ii8yNDk5Mzk1Ni8zMDkxODgwOTAtNjlhZmQ1YmItODI1OC00OTk1LTkzOWMtNDYwMGI2ZWNjZTEyLmpwZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDEwMTklMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQxMDE5VDA5MTUzM1omWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTBhODJlMDJlYmEwZWU5OWNmMzZlYmYxNDU2MDYxYzgxNTlhMjgxZWUyMzI0NjcyM2Y0YWNmZmFkN2NiNmI4ZjEmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.05RprWnhY5xEluCg9VWOMBn50-atNZuTpHavIXBq9cc"
@@ -123,6 +163,16 @@ def post_view_page(request):
                 "comment": "What a beautiful word for such a feeling.",
                 "timestamp": "2 hours ago", 
                 "likes": 5
+            },
+            {
+                "id": 16,
+                "author": {
+                    "username": "yunus_emre_ozdemir",
+                    "profile_image": "https://private-user-images.githubusercontent.com/47982397/376757594-a0c5112d-b1c6-4486-8dcf-413cd320de95.jpg?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjkzMzA2MTAsIm5iZiI6MTcyOTMzMDMxMCwicGF0aCI6Ii80Nzk4MjM5Ny8zNzY3NTc1OTQtYTBjNTExMmQtYjFjNi00NDg2LThkY2YtNDEzY2QzMjBkZTk1LmpwZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDEwMTklMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQxMDE5VDA5MzE1MFomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWVlMzFhMGU3NGY3YmQwNTNjYzI1ZTMyNDQzNDVlMjZlOGE2ZTAxMDU3MmFkOWUzNTVlZDYwZjNkNjFkYjhkYjcmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.zh3Q0LrRlH3GpEeESxf01P5JENuyetxwlMLILPBCRkk"
+                },
+                "comment": "I couldn't understand it...",
+                "timestamp": "10 seconds ago",
+                "likes": 0
             }
         ]
 
