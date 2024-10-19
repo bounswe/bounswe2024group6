@@ -48,7 +48,7 @@ export default function PostCard() {
       : `${text.slice(0, maxLength)}... `;
 
   return (
-    <Card isPressable className="w-[740px] px-2 pb-2 bg-white">
+    <Card className="w-[740px] px-2 pb-2 bg-white">
       <CardHeader className="flex flex-col items-start gap-2">
         <div className="flex w-full justify-between">
           <div className="flex gap-3">
