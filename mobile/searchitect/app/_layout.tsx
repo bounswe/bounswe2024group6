@@ -66,7 +66,7 @@ export default function Layout() {
       <Stack.Screen name="wikiPages/architectWiki" options={{headerShown: false}} />
 
       <Stack.Screen name="guestFeedPage" options={{headerShown: false}} />
-
+      <Stack.Screen name="quizFeed" options={{headerShown: false}} />
 
       <Stack.Screen name="landing" options={{headerShown: false}} />
       <Stack.Screen name="quizDetails" options={{headerShown: false}} />
