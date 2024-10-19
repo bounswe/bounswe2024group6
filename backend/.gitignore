@@ -23,3 +23,5 @@ static
 .dccache
 .vscode/settings.json
 .vscode/tasks.json
+dbdata
+env
