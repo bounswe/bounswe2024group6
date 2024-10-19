@@ -16,7 +16,6 @@ const Register = () => {
 
   const updateFormValidity = () => {
     const hasErrors = Object.values(errors).some((error) => error !== '');
-    console.log('hasErrors', hasErrors);
     const emtpyInput = username.trim() === '' || email.trim() === '' || password.trim() === '' || confirmPassword.trim() === '';
     setIsFormValid(!hasErrors && !emtpyInput);
   };
@@ -93,7 +92,6 @@ const Register = () => {
     } else {
       setErrors((prev) => ({ ...prev, confirmPassword: '' }));
     }
-    console.log(errors.confirmPassword);
     updateFormValidity();
   };
 
