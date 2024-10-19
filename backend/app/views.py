@@ -40,7 +40,7 @@ def post_view_page(request):
       },
       "engagement": {
         "likes": 50,
-        "comments": 8,
+        "comments": 3,
         "bookmark": 2
       },
       "comments":[
@@ -90,7 +90,7 @@ def post_view_page(request):
       },
       "engagement": {
         "likes": 90,
-        "comments": 20,
+        "comments": 3,
         "bookmark": 3
         },
         "comments":[
@@ -140,7 +140,7 @@ def post_view_page(request):
       },
       "engagement": {
         "likes": 80,
-        "comments": 18,
+        "comments": 3,
         "bookmark": 1
       },
       "comments":[
