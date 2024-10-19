@@ -186,8 +186,7 @@ def post_view_page(request):
 
 @api_view(['GET'])
 def quiz_view(request):
-    # return all quizzes\
-    print("getting quizzes")
-    quizzes = Quiz.objects.all()
+    # get first 100 quizzes
+    quizzes = Quiz.objects.all()[:100]
     serializer = QuizSerializer(quizzes, many=True)
     return Response(serializer.data)

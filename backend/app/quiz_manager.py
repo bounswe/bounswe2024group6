@@ -1,6 +1,5 @@
 from .models import Quiz, Question 
 def CreateQuiz(title, description, author, text, level, time_limit, i = 0):
-    print("creating quiz")
     Quiz.objects.create(
         title= title,
         description= description,
