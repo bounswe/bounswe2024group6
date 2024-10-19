@@ -1,5 +1,8 @@
-Django>=3.2,<4.0
-djangorestframework>=3.12,<3.13
-mysqlclient
+Django
+djangorestframework
 djangorestframework-simplejwt
+psycopg2>=2.9
+adrf
+django-cors-headers
+requests
 
