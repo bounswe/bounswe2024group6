@@ -22,7 +22,7 @@ export default function Home() {
             <View style={styles.namedUserInput}>
               <Text style={styles.userInputText}>Password:</Text>
               <View style={styles.inputBox}>
-                <TextInput style={styles.input}></TextInput>
+                <TextInput style={styles.input} secureTextEntry={true}></TextInput>
               </View>
             </View>
             <View style={styles.buttonContainer}>
