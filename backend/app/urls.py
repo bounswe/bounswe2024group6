@@ -3,4 +3,5 @@ from .views import *
 
 urlpatterns = [
     path('', index , name='index_page'),
+    path('posts/', post_view_page, name='posts')
 ]

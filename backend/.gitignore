@@ -24,4 +24,4 @@ static
 .vscode/settings.json
 .vscode/tasks.json
 dbdata
-*.env
+env
