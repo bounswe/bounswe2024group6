@@ -18,6 +18,8 @@ from rest_framework import status
 from .serializers import *
 from django.shortcuts import render
 
+from .models import Quiz
+
 @api_view(['GET'])
 def index(request):
     return Response({'message': 'Index Page'})
@@ -181,3 +183,11 @@ def post_view_page(request):
   ]
     
     return Response({'posts': mock_posts})
+
+@api_view(['GET'])
+def quiz_view(request):
+    # return all quizzes\
+    print("getting quizzes")
+    quizzes = Quiz.objects.all()
+    serializer = QuizSerializer(quizzes, many=True)
+    return Response(serializer.data)
