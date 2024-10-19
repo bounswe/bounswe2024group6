@@ -21,6 +21,16 @@ import {
 
 const maxLength = 250; // Maximum length of the content to be displayed
 
+type Props = {
+  id: number;
+  username: string;
+  title?: string;
+  content: string;
+  timePassed: string;
+  likeCount: number;
+  tags?: string[];
+};
+
 export default function PostCard({
   id,
   username,
@@ -29,15 +39,7 @@ export default function PostCard({
   timePassed,
   likeCount,
   tags,
-}: {
-  id: number;
-  username: string;
-  title: string;
-  content: string;
-  timePassed: string;
-  likeCount: number;
-  tags: string[];
-}) {
+}: Props) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [likes, setLikes] = useState(likeCount);
@@ -62,7 +64,7 @@ export default function PostCard({
       : `${content.slice(0, maxLength)}... `;
 
   return (
-    <Card className="w-[740px] px-2 pb-2 bg-white">
+    <Card className="w-[740px] px-2 pt-2 bg-white">
       <CardHeader className="flex flex-col items-start gap-2">
         <div className="flex w-full justify-between">
           <div className="flex gap-3">
@@ -80,12 +82,12 @@ export default function PostCard({
           </div>
           <p className="text-default-400 text-small">{timePassed}</p>
         </div>
-        <Divider className="mt-1.5 bg-zinc-400" />
+        <Divider className="mt-1.5 bg-zinc-200" />
         <h4 className="text-lg font-semibold leading-none text-black">
           {title}
         </h4>
       </CardHeader>
-      <CardBody className="px-3 py-0 text-small text-default-400 text-justify leading-relaxed overflow-hidden">
+      <CardBody className="px-3 py-0 text-small text-default-600 text-justify leading-relaxed overflow-hidden">
         <p>
           {displayedText}
           {content.length > maxLength && (
@@ -109,7 +111,6 @@ export default function PostCard({
             >
               {likes}
             </p>
-
             <Button
               isIconOnly
               color="danger"
@@ -125,7 +126,6 @@ export default function PostCard({
               )}
             </Button>
           </div>
-
           <Button
             isIconOnly
             color="secondary"
@@ -151,16 +151,19 @@ export default function PostCard({
           </Link>
         </div>
         <div className="flex gap-2">
-          {tags.map((tag) => (
-            <Button
-              key={tag}
-              color="primary"
-              variant="flat"
-              className="text-default-500 text-sm"
-            >
-              {tag}
-            </Button>
-          ))}
+          {tags &&
+            tags.map((tag) => (
+              <Button
+                key={tag}
+                color="primary"
+                variant="flat"
+                className="text-sm h-8"
+                size="sm"
+                radius="full"
+              >
+                {tag}
+              </Button>
+            ))}
         </div>
       </CardFooter>
     </Card>
