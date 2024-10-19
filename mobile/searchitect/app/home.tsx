@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {Image, Pressable, StyleSheet, Text, View} from 'react-native';
-import { Link } from "expo-router";
+import { router } from "expo-router";
 import Navbar from "./navbar";
 
 export default function Home() {
@@ -21,7 +21,7 @@ export default function Home() {
       <Pressable style={styles.rectangularButton}>
         <Text style={styles.buttonText}>Register</Text>
       </Pressable>
-      <Pressable style={styles.rectangularButton}>
+      <Pressable style={styles.rectangularButton} onPress={() => { router.navigate("/login") }}>
         <Text style={styles.buttonText}>Log In</Text>
       </Pressable>
       </View>
