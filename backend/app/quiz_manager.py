@@ -1,5 +1,5 @@
 from .models import Quiz, Question 
-def CreateQuiz(title, description, author, text, level, time_limit, i = 0):
+def CreateQuiz(title, description, author, level, time_limit):
     Quiz.objects.create(
         title= title,
         description= description,

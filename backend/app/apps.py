@@ -6,7 +6,7 @@ import json
 
 
 def create_mockdata(**kwargs):
-    from mock_data_manager import create_quiz_mockdata
+    from .mock_data_manager import create_quiz_mockdata
     create_quiz_mockdata()
 
 
