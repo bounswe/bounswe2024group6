@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
+import Navbar from "./navbar";
 
 const Register = () => {
   const [email, setEmail] = useState('');
@@ -98,28 +99,7 @@ const Register = () => {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
     <View style={styles.container}>
-        <View style={styles.navBar}>
-            <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-            <Image source={require('../assets/images/home-icon.png')} style={styles.navIcon} />
-            </TouchableOpacity>
-
-            <View style={styles.quizContainer}>
-            <TouchableOpacity onPress={() => navigation.navigate('Quizzes')}>
-                <Text style={styles.navItem}>Quizzes</Text>
-            </TouchableOpacity>
-            </View>
-
-            <View style={styles.forumContainer}>
-            <TouchableOpacity onPress={() => navigation.navigate('Forum')}>
-                <Text style={styles.navItem}>Forum</Text>
-            </TouchableOpacity>
-            </View>
-
-            <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-            <Image source={require('../assets/images/profile-icon.png')} style={styles.navIcon} />
-            </TouchableOpacity>
-        </View>
-
+      <View style={styles.navbarContainer}><Navbar/></View>
 
       <Text style={styles.header}>Register</Text>
 
@@ -210,14 +190,8 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: '#fff',
   },
-  navBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#f0f0f0',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+  navbarContainer: {
+    flex: 0,
   },
   icon: {
     width: 24,
@@ -236,7 +210,7 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   input: {
-    backgroundColor: '#FFEB3B',
+    backgroundColor: '#ffec99',
     padding: 10,
     borderRadius: 8,
     fontSize: 16,
@@ -285,7 +259,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   button: {
-    backgroundColor: '#6200EE',
+    backgroundColor: '#9775fa',
     paddingVertical: 10,
     borderRadius: 5,
   },
