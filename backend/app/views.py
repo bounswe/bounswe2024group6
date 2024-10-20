@@ -191,7 +191,7 @@ def post_view_page(request):
     return Response({'posts': mock_posts})
 
 @api_view(['GET'])
-def view_profile(request):
+def view_profile_mock(request):
     mock_profile=  {
         "username": "oktay_ozel", 
         "level": "B2",

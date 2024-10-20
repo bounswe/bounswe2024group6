@@ -15,6 +15,9 @@ class AppConfig(AppConfig):
     name = 'app'
     
     def ready(self):
+        import app.signals
         post_migrate.connect(create_mockdata, sender=self)
+
+
 
         
