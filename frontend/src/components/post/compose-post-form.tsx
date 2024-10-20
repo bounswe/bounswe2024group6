@@ -1,7 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { Input, Textarea, Button, Card, Divider } from "@nextui-org/react";
+import {
+  Input,
+  Textarea,
+  Button,
+  Card,
+  Divider,
+  Modal,
+  ModalContent,
+  useDisclosure,
+} from "@nextui-org/react";
+
+import PostCard from "./post-card";
 
 const Tags = [
   "@Vocabulary",
@@ -15,6 +26,7 @@ export default function ComposePostForm() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const handleTagClick = (tag: string) => {
     if (selectedTags.includes(tag)) {
@@ -74,13 +86,40 @@ export default function ComposePostForm() {
           </div>
         </div>
 
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-4">
           <Button
+            onPress={onOpen}
             color="default"
-            onPress={handleSubmit}
-            disabled={!title || !content}
+            isDisabled={!title || !content}
+            variant="flat"
           >
-            Submit
+            Preview
+          </Button>
+          <Modal
+            isOpen={isOpen}
+            onOpenChange={onOpenChange}
+            placement="top-center"
+            className="max-w-[740px]"
+            backdrop="blur"
+          >
+            <ModalContent>
+              <PostCard
+                id={0}
+                username="@alitariksahin"
+                title={title}
+                content={content}
+                tags={selectedTags}
+                likeCount={0}
+                timePassed="Just now"
+              />
+            </ModalContent>
+          </Modal>
+          <Button
+            color="primary"
+            onPress={handleSubmit}
+            isDisabled={!title || !content}
+          >
+            Post
           </Button>
         </div>
       </Card>
