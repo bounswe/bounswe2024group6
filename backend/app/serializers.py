@@ -12,27 +12,21 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = ['bio', 'location', 'birth_date']
 
 class UserSerializer(serializers.ModelSerializer):
-    profile = ProfileSerializer()
-
     class Meta:
         model = User
-        fields = ('username', 'password', 'email', 'profile')
+        fields = ('username', 'password', 'email')
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
-        profile_data = validated_data.pop('profile')
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
             password=validated_data['password']
         )
-        Profile.objects.create(
-            user=user,
-            bio=profile_data.get('bio', ''),
-            location=profile_data.get('location', ''),
-            birth_date=profile_data.get('birth_date', None)
-        )
+        # Optionally, create a Profile here if you want it created automatically
+        profile, created = Profile.objects.get_or_create(user=user)
         return user
+
 
     def update(self, instance, validated_data):
         profile_data = validated_data.pop('profile', {})
