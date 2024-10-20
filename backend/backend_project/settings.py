@@ -103,7 +103,7 @@ import os
 
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'fallback-secret-key')
 
-DEBUG = os.getenv('DJANGO_DEBUG', 'False').lower() in ['true', '1']
+DEBUG = True
 
 
 

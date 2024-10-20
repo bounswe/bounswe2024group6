@@ -191,7 +191,7 @@ def post_view_page(request):
     return Response({'posts': mock_posts})
 
 @api_view(['GET'])
-def view_profile(request):
+def view_profile_mock(request):
     mock_profile=  {
         "username": "oktay_ozel", 
         "level": "B2",
@@ -290,7 +290,7 @@ class LogoutView(generics.GenericAPIView):
         try:
             refresh_token = request.data["refresh"]
             token = RefreshToken(refresh_token)
-            token.blacklist()  # This should now work
+            token.blacklist() 
             return Response({"detail": "Successfully logged out."}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
