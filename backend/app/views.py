@@ -206,39 +206,25 @@ def view_profile(request):
           "likes": 90,
           "comments": 3,
           "bookmark": 3
-          },
-          "comments":[
-              {
-                  "id": 4,
-                  "author": {
-                      "username": "yunus_emre_ozdemir",
-                      "profile_image": "https://private-user-images.githubusercontent.com/47982397/376757594-a0c5112d-b1c6-4486-8dcf-413cd320de95.jpg?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjkzMzA2MTAsIm5iZiI6MTcyOTMzMDMxMCwicGF0aCI6Ii80Nzk4MjM5Ny8zNzY3NTc1OTQtYTBjNTExMmQtYjFjNi00NDg2LThkY2YtNDEzY2QzMjBkZTk1LmpwZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDEwMTklMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQxMDE5VDA5MzE1MFomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWVlMzFhMGU3NGY3YmQwNTNjYzI1ZTMyNDQzNDVlMjZlOGE2ZTAxMDU3MmFkOWUzNTVlZDYwZjNkNjFkYjhkYjcmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.zh3Q0LrRlH3GpEeESxf01P5JENuyetxwlMLILPBCRkk"
-                  },
-                  "comment": "Nice Post!",
-                  "timestamp": "15 minutes ago",
-                  "likes": 2
-              },
-              {
-                  "id": 17,
-                  "author": {
-                      "username": "elif_nur_deniz",
-                      "profile_image": "https://private-user-images.githubusercontent.com/70893987/307748909-5ce6b412-2201-40e6-9351-38372e83b3f1.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjkzMzA0ODcsIm5iZiI6MTcyOTMzMDE4NywicGF0aCI6Ii83MDg5Mzk4Ny8zMDc3NDg5MDktNWNlNmI0MTItMjIwMS00MGU2LTkzNTEtMzgzNzJlODNiM2YxLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDEwMTklMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQxMDE5VDA5Mjk0N1omWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWMwZjg1ZDVlZjU1NTk0YjIwMmZlMjRhZTY5ZGEyYmQ2YTY2ODMyYzVkZmY1ZTAxNTUwZDlmN2RjOGUyMjI1N2YmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.vv1mThwpjfwpKgQrBUMuaDzDDMApXPMC58ZKDOwZ320"
-                  },
-                  "comment": "Petrichor, interesting word!",
-                  "timestamp": "2 hours ago",
-                  "likes": 7
-              },
-              {
-                  "id": 29,
-                  "author": {
-                      "username": "kaan_yolcu",
-                      "profile_image": ""
-                  },
-                  "comment": "Fascinating!",
-                  "timestamp": "1 hours ago",
-                  "likes": 3
-              }
-          ]
+          }
+      },
+      {
+        "id": 3,
+        "author": {
+          "username": "oktay_ozel",
+          "profile_image": "https://private-user-images.githubusercontent.com/57640531/310137517-cbe7aa9f-3457-4f64-b37b-c3e46d4e448b.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjkzMjk2NzUsIm5iZiI6MTcyOTMyOTM3NSwicGF0aCI6Ii81NzY0MDUzMS8zMTAxMzc1MTctY2JlN2FhOWYtMzQ1Ny00ZjY0LWIzN2ItYzNlNDZkNGU0NDhiLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDEwMTklMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQxMDE5VDA5MTYxNVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWY1YTNiM2MxZDY0ZTdjYmNlZTU2NmU5NTUyZDZjMjI4NGZmZjNmNGI2OWI2ZjljODg1MzFmOThhOTEwYjFmYzgmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.GctR1cVt7p3T5MUGBCWRNT_9kdB5SRXamcQVh5pLMOc"
+        },
+        "post": {
+          "title": "Serendipity: A Fortunate Discovery",
+          "content": "Serendipity is the occurrence of events by chance in a happy or beneficial way. Example: 'They met by serendipity and became lifelong friends.'",
+          "category": "Vocabulary",
+          "timestamp": "2 hours ago"
+        },
+        "engagement": {
+          "likes": 75,
+          "comments": 5,
+          "bookmark": 4
+        }
       }],
       "quizzes": [
             {
