@@ -1,5 +1,5 @@
 import { Button } from "@nextui-org/react";
-import { FaPencilAlt } from "react-icons/fa";
+import { IconPencil } from "@tabler/icons-react";
 
 const ComposePostButton = () => {
   return (
@@ -11,7 +11,7 @@ const ComposePostButton = () => {
         aria-label="Post"
         className="w-24 h-24 mb-5 rounded-full flex items-center justify-center shadow-xl"
       >
-        <FaPencilAlt className="text-default-600 text-2xl" />
+        <IconPencil className="text-default-600 text-2xl" />
       </Button>
     </a>
   );
