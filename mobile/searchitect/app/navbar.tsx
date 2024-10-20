@@ -7,6 +7,10 @@ type NavbarProps = {
   quizOnPress?: () => void,
   forumOnPress?: () => void,
   profileOnPress?: () => void,
+  homeOnPressOverride?: () => void,
+  quizOnPressOverride?: () => void,
+  forumOnPressOverride?: () => void,
+  profileOnPressOverride?: () => void,
 }
 
 const Navbar = (props: NavbarProps) => {
@@ -20,10 +24,15 @@ const Navbar = (props: NavbarProps) => {
           { opacity: pressed ? 0.7 : 1 },
         ]}
         onPress={() => {
-          if (props.homeOnPress) {
-            props.homeOnPress();
-          };
-          router.navigate("/home");
+          if (props.homeOnPressOverride){
+            props.homeOnPressOverride();
+          }
+          else {
+            if (props.homeOnPress) {
+              props.homeOnPress();
+            };
+            router.navigate("/home");
+          }
         }}
       >
         <Image
@@ -39,9 +48,14 @@ const Navbar = (props: NavbarProps) => {
           { opacity: pressed ? 0.7 : 1 },
         ]}
         onPress = {() => {
-          if (props.quizOnPress) {
-            props.quizOnPress();
-          };
+          if (props.quizOnPressOverride){
+            props.quizOnPressOverride();
+          }
+          else {
+            if (props.quizOnPress) {
+              props.quizOnPress();
+            };
+          }
         }}
       >
         <Text style={styles.buttonText}>Quizzes</Text>
@@ -54,9 +68,14 @@ const Navbar = (props: NavbarProps) => {
           { opacity: pressed ? 0.7 : 1 },
         ]}
         onPress = {() => {
-          if (props.forumOnPress) {
-            props.forumOnPress();
-          };
+          if (props.forumOnPressOverride){
+            props.forumOnPressOverride();
+          }
+          else {
+            if (props.forumOnPress) {
+              props.forumOnPress();
+            };
+          }
         }}
       >
         <Text style={styles.buttonText}>Forums</Text>
@@ -69,9 +88,14 @@ const Navbar = (props: NavbarProps) => {
           { opacity: pressed ? 0.7 : 1 },
         ]}
         onPress = {() => {
-          if (props.forumOnPress) {
-            props.forumOnPress();
-          };
+          if (props.profileOnPressOverride){
+            props.profileOnPressOverride();
+          }
+          else {
+            if (props.profileOnPress) {
+              props.profileOnPress();
+            };
+          }
         }}
       >
         <Image
