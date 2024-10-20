@@ -2,7 +2,14 @@ import React from "react";
 import { Pressable, StyleSheet, Text, View, Image } from "react-native";
 import { router } from "expo-router";
 
-const Navbar = () => {
+type NavbarProps = {
+  homeOnPress?: () => void,
+  quizOnPress?: () => void,
+  forumOnPress?: () => void,
+  profileOnPress?: () => void,
+}
+
+const Navbar = (props: NavbarProps) => {
   return (
     <View style={styles.navbar}>
       <Pressable
@@ -13,6 +20,9 @@ const Navbar = () => {
           { opacity: pressed ? 0.7 : 1 },
         ]}
         onPress={() => {
+          if (props.homeOnPress) {
+            props.homeOnPress();
+          };
           router.navigate("/home");
         }}
       >
@@ -28,6 +38,11 @@ const Navbar = () => {
           { left: "23%" },
           { opacity: pressed ? 0.7 : 1 },
         ]}
+        onPress = {() => {
+          if (props.quizOnPress) {
+            props.quizOnPress();
+          };
+        }}
       >
         <Text style={styles.buttonText}>Quizzes</Text>
       </Pressable>
@@ -38,6 +53,11 @@ const Navbar = () => {
           { right: "23%" },
           { opacity: pressed ? 0.7 : 1 },
         ]}
+        onPress = {() => {
+          if (props.forumOnPress) {
+            props.forumOnPress();
+          };
+        }}
       >
         <Text style={styles.buttonText}>Forums</Text>
       </Pressable>
@@ -48,6 +68,11 @@ const Navbar = () => {
           { right: "3%" },
           { opacity: pressed ? 0.7 : 1 },
         ]}
+        onPress = {() => {
+          if (props.forumOnPress) {
+            props.forumOnPress();
+          };
+        }}
       >
         <Image
           source={require("@/assets/images/profile-icon.png")}
