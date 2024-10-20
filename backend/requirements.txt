@@ -1,0 +1,8 @@
+Django
+djangorestframework
+djangorestframework-simplejwt
+psycopg2>=2.9
+adrf
+django-cors-headers
+requests
+
