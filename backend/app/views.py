@@ -231,7 +231,7 @@ def view_profile(request):
                 "id": 1,
                 "title": "Basic Vocabulary Quiz",
                 "description": "Test your knowledge on basic vocabulary words!",
-                "author": "aras_tasci",
+                "author": "oktay_ozel",
                 "upvote": 5,
                 "level": "Beginner"
             },
