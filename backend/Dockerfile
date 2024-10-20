@@ -5,7 +5,7 @@ FROM python:3.9
 WORKDIR /app
 
 # Copy the current directory contents into the container at /app
-COPY . /app
+COPY requirements.txt ./
 
 # Install Python dependencies
 RUN pip install --upgrade pip
@@ -19,4 +19,4 @@ ENV PYTHONUNBUFFERED 1
 EXPOSE 8000
 
 # Run the Django development server
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD python manage.py makemigrations && python manage.py makemigrations app && python manage.py migrate && python manage.py runserver 0.0.0.0:8000

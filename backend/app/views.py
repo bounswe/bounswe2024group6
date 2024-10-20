@@ -18,6 +18,9 @@ from rest_framework import status
 from .serializers import *
 from django.shortcuts import render
 
+from .models import Quiz
+from .quiz_manager import CreateQuiz
+
 @api_view(['GET'])
 def index(request):
     return Response({'message': 'Index Page'})
@@ -181,3 +184,24 @@ def post_view_page(request):
   ]
     
     return Response({'posts': mock_posts})
+
+@api_view(['GET'])
+def quiz_view(request):
+    # get first 100 quizzes
+    quizzes = Quiz.objects.all()[:100]
+    serializer = QuizSerializer(quizzes, many=True)
+    return Response(serializer.data)
+
+@api_view(['POST']) 
+def create_quiz_view(request):
+    quiz_data = request.data
+    CreateQuiz(
+        title= quiz_data['title'],
+        description= quiz_data['description'],
+        author= quiz_data['author'],
+        level= quiz_data['level'],
+        time_limit= quiz_data['time_limit']
+    )
+    return Response({'message': 'Quiz created successfully.'}, status=status.HTTP_201_CREATED)
+
+    
