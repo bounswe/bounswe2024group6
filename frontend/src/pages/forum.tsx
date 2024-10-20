@@ -1,10 +1,13 @@
-import { Suspense, useState } from "react";
+import { Suspense, useState, useEffect } from "react";
+import axios from 'axios'
+
 import { Navbar } from "../components/common";
 import {
   ComposePostButton,
   PostCard,
   PostCardSkeleton,
 } from "../components/post";
+import { BASE_URL } from "../lib/baseURL";
 
 export default function Forum() {
   const [test, setTest] = useState(true);
@@ -12,6 +15,16 @@ export default function Forum() {
   setTimeout(() => {
     setTest(false);
   }, 1000);
+
+  useEffect(() => {
+    axios.get(`${BASE_URL}/`)
+        .then(response => {
+            console.log(response)
+        })
+        .catch(error => {
+            console.log(error)
+        })
+}, [])
 
   if (test)
     return (
