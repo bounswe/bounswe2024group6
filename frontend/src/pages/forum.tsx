@@ -1,6 +1,10 @@
 import { Suspense, useState } from "react";
 import { Navbar } from "../components/common";
-import { PostCard, PostCardSkeleton } from "../components/post";
+import {
+  ComposePostButton,
+  PostCard,
+  PostCardSkeleton,
+} from "../components/post";
 
 export default function Forum() {
   const [test, setTest] = useState(true);
@@ -13,6 +17,7 @@ export default function Forum() {
     return (
       <div className="flex flex-col items-center">
         <Navbar />
+        <ComposePostButton />
         <div className="flex flex-col gap-6">
           <PostCardSkeleton />
           <PostCardSkeleton />
@@ -24,6 +29,7 @@ export default function Forum() {
   return (
     <div className="flex flex-col items-center overflow-hidden">
       <Navbar />
+      <ComposePostButton />
       <div className="flex flex-col gap-6">
         {mockData.map((post) => (
           <Suspense key={post.id} fallback={<PostCardSkeleton />}>
@@ -75,3 +81,4 @@ const mockData = [
     tags: ["@Flashcards", "@Memorization"],
   },
 ];
+

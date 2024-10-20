@@ -3,7 +3,15 @@ import ReactDOM from "react-dom/client";
 import { NextUIProvider } from "@nextui-org/react";
 import { Navigate, RouterProvider } from "react-router-dom";
 import { typesafeBrowserRouter } from "react-router-typesafe";
-import { Quizzes, Quiz, Forum, Post, Profile, Browse } from "./pages";
+import {
+  Quizzes,
+  Quiz,
+  Forum,
+  Post,
+  Profile,
+  Browse,
+  ComposePost,
+} from "./pages";
 import "./index.css";
 
 const { router } = typesafeBrowserRouter([
@@ -28,6 +36,10 @@ const { router } = typesafeBrowserRouter([
     Component: Post,
   },
   {
+    path: "/compose-post",
+    Component: ComposePost,
+  },
+  {
     path: "/profile/:username",
     Component: Profile,
   },
@@ -44,3 +56,4 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     </NextUIProvider>
   </React.StrictMode>
 );
+
