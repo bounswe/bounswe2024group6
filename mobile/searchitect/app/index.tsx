@@ -1,13 +1,8 @@
 import { Stack, useNavigation } from 'expo-router';
 import { Text, View } from 'react-native';
 import { useEffect } from 'react';
-import Landing from './landing';
-import BuildingWiki from './wikiPages/buildingWiki';
-import StyleWiki from './wikiPages/styleWiki';
-import ArchitectWiki from './wikiPages/architectWiki';
-import GuestFeedPage from './guestFeedPage';
-import Feed from './feed';
 import QuizDetails from './quizDetails';
+import QuizFeed from './quizFeed';
 // import Authentication from './auth';
 
 export default function Home() {
@@ -21,7 +16,7 @@ export default function Home() {
 
   return (
     <>
-      <QuizDetails/>
+      <QuizFeed/>
 </>
   );
 }

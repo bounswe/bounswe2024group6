@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, TextInput, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-
+import Navbar from './navbar';
 const QuizFeed = () => {
   const [quizzes, setQuizzes] = useState<any>([]);
   const [page, setPage] = useState(1);
@@ -112,25 +112,7 @@ const QuizFeed = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.navBar}>
-        <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-          <Image source={require('../assets/images/home-icon.png')} style={styles.navIcon} />
-        </TouchableOpacity>
-        <View style={styles.quizContainer}>
-          <TouchableOpacity onPress={() => scrollToTop()}>
-            <Text style={styles.navItem}>Quizzes</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.forumContainer}>
-          <TouchableOpacity onPress={() => navigation.navigate('Forum')}>
-            <Text style={styles.navItem}>Forum</Text>
-          </TouchableOpacity>
-        </View>
-        <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-          <Image source={require('../assets/images/profile-icon.png')} style={styles.navIcon} />
-        </TouchableOpacity>
-      </View>
-
+      <View style={styles.navbarContainer}><Navbar/></View>
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchBar}
@@ -206,7 +188,7 @@ const styles = StyleSheet.create({
   searchBar: {
     flex: 1,
     padding: 8,
-    backgroundColor: '#FFEB3B',
+    backgroundColor: '#ffec99',
     borderRadius: 8,
   },
   addButton: {
@@ -270,6 +252,9 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     resizeMode: 'contain',
+  },
+  navbarContainer: {
+    flex: 0,
   },
 });
 
