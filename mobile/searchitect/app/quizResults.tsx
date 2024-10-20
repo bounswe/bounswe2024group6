@@ -72,7 +72,7 @@ export const QuizResultsCard = (props: QuizResultsCardProps) => {
       <View style={styles.resultsBottomContainer}>
         <View style={styles.bottomButtonContainer}>
           <Pressable>
-            <Image style={styles.bottomButton} source={require('@/assets/images/up-arrow.png')}/>
+            <Image style={styles.bottomButton} source={require('@/assets/images/like-1.png')}/>
           </Pressable>
         </View>
         <View style={styles.bottomMessageContainer}>
