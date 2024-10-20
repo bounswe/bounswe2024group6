@@ -181,3 +181,83 @@ def post_view_page(request):
   ]
     
     return Response({'posts': mock_posts})
+
+@api_view(['GET'])
+def view_profile(request):
+    mock_profile=  {
+        "username": "oktay_ozel", 
+        "level": "B2",
+        "followers": 100,
+        "following": 50,
+        "image":"https://private-user-images.githubusercontent.com/24993956/309188090-69afd5bb-8258-4995-939c-4600b6ecce12.jpg?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjkzMjk2MzQsIm5iZiI6MTcyOTMyOTMzNCwicGF0aCI6Ii8yNDk5Mzk1Ni8zMDkxODgwOTAtNjlhZmQ1YmItODI1OC00OTk1LTkzOWMtNDYwMGI2ZWNjZTEyLmpwZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDEwMTklMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQxMDE5VDA5MTUzM1omWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTBhODJlMDJlYmEwZWU5OWNmMzZlYmYxNDU2MDYxYzgxNTlhMjgxZWUyMzI0NjcyM2Y0YWNmZmFkN2NiNmI4ZjEmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.05RprWnhY5xEluCg9VWOMBn50-atNZuTpHavIXBq9cc",
+        "posts": [{
+        "id": 2,
+        "author": {
+          "username": "oktay_ozel",
+          "profile_image": "https://private-user-images.githubusercontent.com/57640531/310137517-cbe7aa9f-3457-4f64-b37b-c3e46d4e448b.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjkzMjk2NzUsIm5iZiI6MTcyOTMyOTM3NSwicGF0aCI6Ii81NzY0MDUzMS8zMTAxMzc1MTctY2JlN2FhOWYtMzQ1Ny00ZjY0LWIzN2ItYzNlNDZkNGU0NDhiLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDEwMTklMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQxMDE5VDA5MTYxNVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWY1YTNiM2MxZDY0ZTdjYmNlZTU2NmU5NTUyZDZjMjI4NGZmZjNmNGI2OWI2ZjljODg1MzFmOThhOTEwYjFmYzgmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.GctR1cVt7p3T5MUGBCWRNT_9kdB5SRXamcQVh5pLMOc"
+        },
+        "post": {
+          "title": "Petrichor: The Smell of Rain",
+          "content": "Petrichor is the pleasant, earthy smell that comes after rain. Example: 'She loved the petrichor that filled the air after the storm.'",
+          "category": "Vocabulary",
+          "timestamp": "5 hours ago"
+        },
+        "engagement": {
+          "likes": 90,
+          "comments": 3,
+          "bookmark": 3
+          },
+          "comments":[
+              {
+                  "id": 4,
+                  "author": {
+                      "username": "yunus_emre_ozdemir",
+                      "profile_image": "https://private-user-images.githubusercontent.com/47982397/376757594-a0c5112d-b1c6-4486-8dcf-413cd320de95.jpg?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjkzMzA2MTAsIm5iZiI6MTcyOTMzMDMxMCwicGF0aCI6Ii80Nzk4MjM5Ny8zNzY3NTc1OTQtYTBjNTExMmQtYjFjNi00NDg2LThkY2YtNDEzY2QzMjBkZTk1LmpwZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDEwMTklMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQxMDE5VDA5MzE1MFomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWVlMzFhMGU3NGY3YmQwNTNjYzI1ZTMyNDQzNDVlMjZlOGE2ZTAxMDU3MmFkOWUzNTVlZDYwZjNkNjFkYjhkYjcmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.zh3Q0LrRlH3GpEeESxf01P5JENuyetxwlMLILPBCRkk"
+                  },
+                  "comment": "Nice Post!",
+                  "timestamp": "15 minutes ago",
+                  "likes": 2
+              },
+              {
+                  "id": 17,
+                  "author": {
+                      "username": "elif_nur_deniz",
+                      "profile_image": "https://private-user-images.githubusercontent.com/70893987/307748909-5ce6b412-2201-40e6-9351-38372e83b3f1.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjkzMzA0ODcsIm5iZiI6MTcyOTMzMDE4NywicGF0aCI6Ii83MDg5Mzk4Ny8zMDc3NDg5MDktNWNlNmI0MTItMjIwMS00MGU2LTkzNTEtMzgzNzJlODNiM2YxLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDEwMTklMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQxMDE5VDA5Mjk0N1omWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWMwZjg1ZDVlZjU1NTk0YjIwMmZlMjRhZTY5ZGEyYmQ2YTY2ODMyYzVkZmY1ZTAxNTUwZDlmN2RjOGUyMjI1N2YmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.vv1mThwpjfwpKgQrBUMuaDzDDMApXPMC58ZKDOwZ320"
+                  },
+                  "comment": "Petrichor, interesting word!",
+                  "timestamp": "2 hours ago",
+                  "likes": 7
+              },
+              {
+                  "id": 29,
+                  "author": {
+                      "username": "kaan_yolcu",
+                      "profile_image": ""
+                  },
+                  "comment": "Fascinating!",
+                  "timestamp": "1 hours ago",
+                  "likes": 3
+              }
+          ]
+      }],
+      "quizzes": [
+            {
+                "id": 1,
+                "title": "Basic Vocabulary Quiz",
+                "description": "Test your knowledge on basic vocabulary words!",
+                "author": "aras_tasci",
+                "upvote": 5,
+                "level": "Beginner"
+            },
+            {
+                "id": 2,
+                "title": "Advanced Vocabulary Quiz",
+                "description": "Challenge yourself with advanced vocabulary words.",
+                "author": "oktay_ozel",
+                "upvote": 9,
+                "level": "Advanced"
+            }
+        ]
+          
+    }
+    return Response({'profile': mock_profile})
