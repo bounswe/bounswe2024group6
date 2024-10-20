@@ -64,7 +64,7 @@ const QuizDetails = () => {
       <TouchableOpacity style={styles.quizButton} onPress={() => console.log('Take Quiz Pressed')}>
         <Text style={styles.buttonText}>Take Quiz</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.goBackButton} onPress={() => router.goBack()}>
+      <TouchableOpacity style={styles.goBackButton} onPress={() => router.back()}>
         <Text style={styles.buttonText}>Go Back</Text>
       </TouchableOpacity>
     </View>
