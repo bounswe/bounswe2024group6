@@ -1,5 +1,27 @@
-# Ignore the .env file
+
 .env
 
-# Ignore the database data directory
-dbdata/
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?^
+
+__pycache__/
+venv/
+*.pyc
+staticfiles
+static
+.DS_Store
+.idea
+.coverage
+.dccache
+.vscode/settings.json
+.vscode/tasks.json
+dbdata
+env

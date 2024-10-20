@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 
+from .models import Quiz
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -14,3 +16,8 @@ class UserSerializer(serializers.ModelSerializer):
             password=validated_data['password']
         )
         return user
+
+class QuizSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Quiz
+        fields = ['id', 'title', 'description', 'author', 'level', 'created_at', 'times_taken', 'total_score', 'time_limit', 'like_count']
