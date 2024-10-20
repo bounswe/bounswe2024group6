@@ -28,6 +28,10 @@ const { router } = typesafeBrowserRouter([
     Component: Post,
   },
   {
+    path: "/profile",
+    Component: Profile,
+  },
+  {
     path: "/profile/:username",
     Component: Profile,
   },
