@@ -3,6 +3,7 @@ import { Text, View } from 'react-native';
 import { useEffect } from 'react';
 import QuizDetails from './quizDetails';
 import QuizFeed from './quizFeed';
+import QuizQuestion from './quizQuestion';
 // import Authentication from './auth';
 
 export default function Home() {
@@ -16,7 +17,7 @@ export default function Home() {
 
   return (
     <>
-      <QuizFeed/>
+      <QuizQuestion question={'QUESTIONNNN'} options={["aaa","bbb","ccc","ddd"]} currentQuestion={0} totalQuestions={0}/>
 </>
   );
 }
