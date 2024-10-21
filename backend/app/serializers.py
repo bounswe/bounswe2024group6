@@ -1,7 +1,15 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
+from .models import Profile
 
 from .models import Quiz
+
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ['bio', 'location', 'birth_date']
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -15,7 +23,25 @@ class UserSerializer(serializers.ModelSerializer):
             email=validated_data['email'],
             password=validated_data['password']
         )
+        # Optionally, create a Profile here if you want it created automatically
+        profile, created = Profile.objects.get_or_create(user=user)
         return user
+
+
+    def update(self, instance, validated_data):
+        profile_data = validated_data.pop('profile', {})
+        instance.username = validated_data.get('username', instance.username)
+        instance.email = validated_data.get('email', instance.email)
+
+        instance.save()
+
+        profile = instance.profile
+        profile.bio = profile_data.get('bio', profile.bio)
+        profile.location = profile_data.get('location', profile.location)
+        profile.birth_date = profile_data.get('birth_date', profile.birth_date)
+        profile.save()
+
+        return instance
 
 class QuizSerializer(serializers.ModelSerializer):
     class Meta:

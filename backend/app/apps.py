@@ -17,4 +17,7 @@ class AppConfig(AppConfig):
     def ready(self):
         post_migrate.connect(create_mockdata, sender=self)
 
+
+
+
         
