@@ -1,14 +1,12 @@
-import { Suspense, useState, useEffect } from "react";
+import { Suspense, useEffect } from "react";
+import { Select, SelectItem } from "@nextui-org/react";
 import axios from "axios";
 
-import { Navbar } from "../components/common";
-import {
-  ComposePostButton,
-  PostCard,
-  PostCardSkeleton,
-} from "../components/post";
+import Navbar from "../components/common/navbar.tsx";
+import ComposePostButton from "../components/post/compose-post-button.tsx";
+import PostCard from "../components/post/post-card.tsx";
+import PostCardSkeleton from "../components/post/post-card-skeleton.tsx";
 import { BASE_URL } from "../lib/baseURL";
-import { Select, SelectItem } from "@nextui-org/react";
 
 const Tags = [
   "@Vocabulary",
@@ -20,12 +18,6 @@ const Tags = [
 const SortFilters = ["Most Recent", "Most Liked", "Most Commented"];
 
 export default function Forum() {
-  const [test, setTest] = useState(true);
-
-  setTimeout(() => {
-    setTest(false);
-  }, 1000);
-
   useEffect(() => {
     axios
       .get(`${BASE_URL}/`)
@@ -36,19 +28,6 @@ export default function Forum() {
         console.log(error);
       });
   }, []);
-
-  if (test)
-    return (
-      <div className="flex flex-col items-center">
-        <Navbar />
-        <ComposePostButton />
-        <div className="flex flex-col gap-6">
-          <PostCardSkeleton />
-          <PostCardSkeleton />
-          <PostCardSkeleton />
-        </div>
-      </div>
-    );
 
   return (
     <div className="flex flex-col items-center overflow-hidden">
@@ -124,4 +103,3 @@ const mockData = [
     tags: ["@Flashcards", "@Memorization"],
   },
 ];
-

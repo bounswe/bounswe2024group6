@@ -55,7 +55,6 @@ export default function Navbar() {
               src="https://nextui.org/avatars/avatar-1.png"
             />
           </Link>
-
         </div>
       </Card>
     </div>

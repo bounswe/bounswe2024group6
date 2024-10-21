@@ -1,6 +1,7 @@
-import { Navbar } from "../components/common";
+import Navbar from "../components/common/navbar.tsx";
 import { Suspense } from "react";
-import { PostCard, PostCardSkeleton } from "../components/post";
+import PostCard from "../components/post/post-card.tsx";
+import PostCardSkeleton from "../components/post/post-card-skeleton.tsx";
 import { Card } from "@nextui-org/react";
 import { IconChevronDown } from "@tabler/icons-react";
 

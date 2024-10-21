@@ -1,5 +1,5 @@
-import { Navbar } from "../components/common";
-import { ComposePostForm } from "../components/post";
+import Navbar from "../components/common/navbar.tsx";
+import ComposePostForm from "../components/post/compose-post-form.tsx";
 
 export default function ComposePost() {
   return (
