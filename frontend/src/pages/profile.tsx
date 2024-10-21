@@ -8,7 +8,7 @@ import { BASE_URL } from "../lib/baseURL";
 import type { Profile } from "../types.ts";
 
 export default function Profile() {
-  const [activeSection, setActiveSection] = useState("quizzes");
+  const [activeSection, setActiveSection] = useState("posts");
   const [profile, setProfile] = useState<Profile | null>(null);
 
   useEffect(() => {
@@ -87,10 +87,6 @@ export default function Profile() {
         <div className="flex flex-col p-5 items-center">
           {activeSection === "quizzes" ? (
             <div className="p-5">
-              <p className="p-3 mb-3">Not implemented yet</p>
-              <div className="border p-3 mb-3 rounded-md">Quiz 1</div>
-              <div className="border p-3 mb-3 rounded-md">Quiz 2</div>
-              <div className="border p-3 mb-3 rounded-md">Quiz 3</div>
             </div>
           ) : (
             <div className="flex flex-col gap-4 items-center">
