@@ -31,7 +31,7 @@ const Navbar = (props: NavbarProps) => {
             if (props.homeOnPress) {
               props.homeOnPress();
             };
-            router.navigate("/home");
+            router.navigate("/");
           }
         }}
       >
