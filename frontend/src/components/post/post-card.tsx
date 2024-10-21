@@ -9,7 +9,6 @@ import {
   Divider,
   Button,
   cn,
-  Link,
 } from "@nextui-org/react";
 import {
   IconBookmark,
@@ -18,6 +17,7 @@ import {
   IconThumbUpFilled,
   IconMessageCircle,
 } from "@tabler/icons-react";
+import { useNavigate } from "react-router-dom";
 
 const maxLength = 250; // Maximum length of the content to be displayed
 
@@ -44,6 +44,7 @@ export default function PostCard({
   const [isLiked, setIsLiked] = useState(false);
   const [likes, setLikes] = useState(likeCount);
   const [isBookmarked, setIsBookmarked] = useState(false); // Example state for bookmark
+  const navigate = useNavigate();
 
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
@@ -139,16 +140,15 @@ export default function PostCard({
               <IconBookmark size={20} stroke={1.5} />
             )}
           </Button>
-          <Link href={`/post/${id}`}>
-            <Button
-              isIconOnly
-              color="warning"
-              aria-label="Message"
-              variant="light"
-            >
-              <IconMessageCircle size={20} stroke={1.5} />
-            </Button>
-          </Link>
+          <Button
+            isIconOnly
+            onClick={() => navigate(`/post/${id}`)}
+            color="warning"
+            aria-label="Message"
+            variant="light"
+          >
+            <IconMessageCircle size={20} stroke={1.5} />
+          </Button>
         </div>
         <div className="flex gap-2">
           {tags &&
