@@ -48,13 +48,13 @@ export default function Navbar() {
           </div>
         </div>
         <div className="flex-1 flex justify-end items-center">
-          <Button onClick={() => navigate("/profile/oktay_ozel")}>
+          <button onClick={() => navigate("/profile/oktay_ozel")}>
             <Avatar
               isBordered
               color="success"
               src="https://nextui.org/avatars/avatar-1.png"
             />
-          </Button>
+          </button>
         </div>
       </Card>
     </div>
