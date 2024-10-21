@@ -32,7 +32,7 @@ const mockQuiz = {questions: [
     choice4: 'lessen the strength or effect of',
     correctChoice: 4,
   },
-], quizName: "Example Quiz", tags: ['B1']};
+], quizName: "Example Quiz", tags: ['#B1']};
 
 export type QuizQuestion = {
   question: string,
@@ -62,8 +62,6 @@ const QuizQuestion = () => {
     const newChoices = [...selectedChoices];
     newChoices[currentQuestionIndex] = option;
     setSelectedChoices(newChoices);
-    console.log(selectedChoices);
-    console.log(option);
   };
 
   const handleNext = () => {
@@ -90,7 +88,7 @@ const QuizQuestion = () => {
         score: getScore(),
       },
       recommendationProps: {
-        tags: ['A2'],
+        tags: ['#A2'],
         name: 'Foods',
         author: 'Kaan',
         desc: "A simple quiz about foods."

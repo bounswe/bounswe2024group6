@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import {Image, Pressable, StyleSheet, Text, View} from 'react-native';
 import { useLocalSearchParams } from "expo-router";
 import Navbar from "./navbar";
+import {router} from "expo-router";
 
 export type QuizResultsProps = {
   quizResultsProps: QuizResultsCardProps,
@@ -34,7 +35,7 @@ const QuizResults = () => {
           />
         </View>
         <View style={styles.actionButtonsContainer}>
-          <Pressable style={styles.retakeQuizButton}>
+          <Pressable style={styles.retakeQuizButton} onPress={() => {router.push("/quizQuestion")}}>
             <Text style={styles.retakeQuizText}>Retake Quiz</Text>
           </Pressable>
           <Pressable style={styles.mainMenuButton}>
@@ -75,7 +76,9 @@ export const QuizResultsCard = (props: QuizResultsCardProps) => {
       <View style={styles.resultsBottomContainer}>
         <View style={styles.bottomButtonContainer}>
           <Pressable>
-            <Image style={styles.bottomButton} source={require('@/assets/images/like-1.png')}/>
+            <View style={styles.bottomButton}>
+              <Image style={{width: 30, height: 30, marginTop: 5}} source={require('@/assets/images/like-1.png')}/>
+            </View>
           </Pressable>
         </View>
         <View style={styles.bottomMessageContainer}>
@@ -121,7 +124,9 @@ export const QuizCard = (props: QuizCardProps) => {
         </View>
         <View style={styles.quizCardBottomRight}>
           <Pressable>
-            <Image style={styles.quizCardBookmarkButton} source={require('@/assets/images/bookmark-icon.png')}/>
+            <View style={styles.quizCardBookmarkButton}>
+              <Image style={styles.quizCardBookmarkButton} source={require('@/assets/images/bookmark-icon.png')}/>
+            </View>
           </Pressable>
         </View>
       </View>
@@ -237,6 +242,7 @@ const styles = StyleSheet.create({
     fontSize: 24
   }, 
   bottomButton: {
+    alignItems: 'center',
     borderWidth: 3,
     borderColor: "#000",
     width: 50,
