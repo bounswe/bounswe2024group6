@@ -14,7 +14,7 @@ const QuizCreationInfo = () => {
   const isButtonDisabled = () => {
     const nonEmptyAnswers = answers.filter(answer => answer.trim() !== "");
     const uniqueAnswers = new Set(nonEmptyAnswers);
-    return nonEmptyAnswers.length < answers.length || uniqueAnswers.size !== nonEmptyAnswers.length;
+    return nonEmptyAnswers.length < answers.length || uniqueAnswers.size !== nonEmptyAnswers.length || correctAnswerIndex === null || !question.trim() || !selectedType?.trim();
   };
 
   const selectCorrectAnswer = (index: any) => {
