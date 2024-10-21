@@ -2,11 +2,30 @@ import { Navbar } from "../components/common";
 import { Avatar, Button, Divider, Card } from "@nextui-org/react";
 import { Suspense, useState, useEffect } from "react";
 import { PostCard, PostCardSkeleton } from "../components/post";
+import { BASE_URL } from "../lib/baseURL";
+import axios from "axios";
+import { useParams } from 'react-router-dom';
+
 
 export default function Profile() {
   const [activeSection, setActiveSection] = useState("quizzes");
-
+  const [isLoading, setIsLoading] = useState(true)
   const [data, setData] = useState(null); 
+  let { username } = useParams();
+
+  useEffect(() => {
+    axios
+      .post(`${BASE_URL}/profile_mock`, { username: username },
+      )
+      .then((response) => {
+        setIsLoading(true);
+        setData(response.data.posts);
+        console.log(response.data.posts);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
 
   const mockData = {
     "id": 1,
@@ -75,10 +94,6 @@ export default function Profile() {
 
   const quizCards = (
     <div className="p-5">
-      <p className="p-3 mb-3">Not implemented yet</p>
-      <div className="border p-3 mb-3 rounded-md">Quiz 1</div>
-      <div className="border p-3 mb-3 rounded-md">Quiz 2</div>
-      <div className="border p-3 mb-3 rounded-md">Quiz 3</div>
     </div>
   );
 
