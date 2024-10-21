@@ -18,6 +18,9 @@ const QuizCreationSettings = () => {
     console.log('Proceed to add questions...');
   };
 
+  // Check if any field is empty
+  const isButtonDisabled = !quizTitle || !quizDescription || !selectedLevel;
+
   return (
     <View style={styles.container}>
       <Navbar />
@@ -60,7 +63,11 @@ const QuizCreationSettings = () => {
         </View>
 
         {/* Add Questions button */}
-        <Pressable style={styles.addButton} onPress={handleAddQuestions}>
+        <Pressable
+          style={[styles.addButton, isButtonDisabled && styles.disabledButton]} 
+          onPress={handleAddQuestions}
+          disabled={isButtonDisabled} 
+        >
           <Text style={styles.addButtonText}>Add Questions</Text>
         </Pressable>
       </View>
