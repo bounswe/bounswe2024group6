@@ -5,15 +5,26 @@ import Navbar from './navbar';
 const QuizCreationInfo = () => {
   const [question, setQuestion] = useState('Pasta');
   const [answers, setAnswers] = useState(['pasta', '', '', '']);
+  const [showButtonIndex, setShowButtonIndex] = useState(null); // Track which tile should show the button
   const [newAnswer, setNewAnswer] = useState('');
   const [selectedAnswerIndex, setSelectedAnswerIndex] = useState<number | null>(null);
   const [selectedType, setSelectedType] = useState<string | null>(null);
-
+  const [correctAnswerIndex, setCorrectAnswerIndex] = useState(null)
 
   const isButtonDisabled = () => {
     const nonEmptyAnswers = answers.filter(answer => answer.trim() !== "");
     const uniqueAnswers = new Set(nonEmptyAnswers);
     return nonEmptyAnswers.length < answers.length || uniqueAnswers.size !== nonEmptyAnswers.length;
+  };
+
+  const selectCorrectAnswer = (index: any) => {
+    setCorrectAnswerIndex(index);
+    console.log(index);
+    setShowButtonIndex(null); // 
+  };
+
+  const handleLongPress = (index: any) => {
+    setShowButtonIndex(index);
   };
 
   const answerGrid = [
@@ -38,8 +49,14 @@ const QuizCreationInfo = () => {
     setSelectedType(type);
   };
 
+  const resetSelections = () => {
+    Keyboard.dismiss();
+    setSelectedAnswerIndex(null);
+    setShowButtonIndex(null);
+  };
+
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+    <TouchableWithoutFeedback onPress={resetSelections} accessible={false}>
     <View style={styles.container}>
       <Navbar />
 
@@ -81,15 +98,34 @@ const QuizCreationInfo = () => {
                       key={colIndex}
                       style={[
                         styles.answerBox,
+                        correctAnswerIndex === answerIndex
+                          ? styles.correctAnswer
+                          : null, // Highlight correct answer
                         selectedAnswerIndex === answerIndex
-                          ? styles.selectedAnswer
-                          : null,
+                        ? styles.selectedAnswer
+                        : null,
                       ]}
                       onPress={() => handleAnswerClick(answerIndex)}
+                      onLongPress={() => handleLongPress(answerIndex)}
                     >
                       <Text style={styles.answerText}>{answer}</Text>
+
+                                      {/* Show the button if the user long-pressed this tile */}
+                    {showButtonIndex === answerIndex && (
+                      <TouchableOpacity
+                        style={styles.selectButton}
+                        onPress={() => selectCorrectAnswer(answerIndex)}
+                      >
+                        <Text style={styles.selectButtonText}>
+                          {correctAnswerIndex === answerIndex
+                            ? 'Correct Answer Selected'
+                            : 'Select as Correct'}
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+
                     </TouchableOpacity>
-                  );
+                    );
                 })}
               </View>
             ))}
@@ -282,6 +318,23 @@ const styles = StyleSheet.create({
   },
   disabledButton: {
     backgroundColor: '#ccc',
+  },
+  selectButton: {
+    position: 'absolute', 
+    top: '50%',           
+    left: '50%',          
+    transform: [{ translateX: -50 }, { translateY: -50 }], 
+    backgroundColor: '#ff9800',
+    padding: 5,
+    borderRadius: 5,
+    zIndex: 1,
+  },
+  selectButtonText: {
+    color: '#fff',
+    fontSize: 14,
+  },
+  correctAnswer: {
+    backgroundColor: '#4caf50',
   },
 });
 
