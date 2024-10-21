@@ -46,4 +46,4 @@ class UserSerializer(serializers.ModelSerializer):
 class QuizSerializer(serializers.ModelSerializer):
     class Meta:
         model = Quiz
-        fields = ['id', 'title', 'description', 'author', 'level', 'created_at', 'times_taken', 'total_score', 'time_limit', 'like_count']
+        fields = ['id', 'title', 'description', 'author', 'tags', 'created_at', 'times_taken', 'total_score', 'time_limit', 'like_count']
