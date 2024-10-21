@@ -1,5 +1,5 @@
 import { Suspense, useState, useEffect } from "react";
-import axios from 'axios'
+import axios from "axios";
 
 import { Navbar } from "../components/common";
 import {
@@ -8,6 +8,16 @@ import {
   PostCardSkeleton,
 } from "../components/post";
 import { BASE_URL } from "../lib/baseURL";
+import { Select, SelectItem } from "@nextui-org/react";
+
+const Tags = [
+  "@Vocabulary",
+  "@Daily Words",
+  "@Vocabulary Tips",
+  "@Flashcards",
+  "@Memorization",
+];
+const SortFilters = ["Most Recent", "Most Liked", "Most Commented"];
 
 export default function Forum() {
   const [test, setTest] = useState(true);
@@ -17,14 +27,15 @@ export default function Forum() {
   }, 1000);
 
   useEffect(() => {
-    axios.get(`${BASE_URL}/`)
-        .then(response => {
-            console.log(response)
-        })
-        .catch(error => {
-            console.log(error)
-        })
-}, [])
+    axios
+      .get(`${BASE_URL}/`)
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
 
   if (test)
     return (
@@ -43,6 +54,25 @@ export default function Forum() {
     <div className="flex flex-col items-center overflow-hidden">
       <Navbar />
       <ComposePostButton />
+      <div className="absolute top-[7.5rem] w-32 right-[25rem]">
+        <Select
+          placeholder="Select Tags"
+          selectionMode="multiple"
+          className="max-w-xs text-black"
+        >
+          {Tags.map((tag) => (
+            <SelectItem key={tag}>{tag}</SelectItem>
+          ))}
+        </Select>
+      </div>
+      <div className="absolute top-[7.5rem] w-32 left-[25rem]">
+        <Select placeholder="Sort By" className="max-w-xs text-black">
+          {SortFilters.map((sortFilter) => (
+            <SelectItem key={sortFilter}>{sortFilter}</SelectItem>
+          ))}
+        </Select>
+      </div>
+
       <div className="flex flex-col gap-6">
         {mockData.map((post) => (
           <Suspense key={post.id} fallback={<PostCardSkeleton />}>

@@ -9,7 +9,7 @@ const ComposePostButton = () => {
         color="primary"
         variant="flat"
         aria-label="Post"
-        className="w-24 h-24 mb-5 rounded-full flex items-center justify-center shadow-xl"
+        className="w-24 h-12 mb-5 flex items-center justify-center shadow-xl"
       >
         <IconPencil className="text-default-600 text-2xl" />
       </Button>
