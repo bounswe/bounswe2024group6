@@ -12,7 +12,7 @@ import {
   useDisclosure,
 } from "@nextui-org/react";
 
-import PostCard from "./post-card";
+import PostCard from "./post-card.tsx";
 
 const Tags = [
   "@Vocabulary",
