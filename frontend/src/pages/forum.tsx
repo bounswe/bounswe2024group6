@@ -54,21 +54,19 @@ export default function Forum() {
     <div className="flex flex-col items-center overflow-hidden">
       <Navbar />
       <ComposePostButton />
-      <div className="absolute top-[7.5rem] w-32 right-[25rem]">
+      <div className="flex w-[740px] justify-between items-center mb-4">
+        <Select placeholder="Sort By" className="w-32 text-black">
+          {SortFilters.map((sortFilter) => (
+            <SelectItem key={sortFilter}>{sortFilter}</SelectItem>
+          ))}
+        </Select>
         <Select
           placeholder="Select Tags"
           selectionMode="multiple"
-          className="max-w-xs text-black"
+          className="w-32 text-black"
         >
           {Tags.map((tag) => (
             <SelectItem key={tag}>{tag}</SelectItem>
-          ))}
-        </Select>
-      </div>
-      <div className="absolute top-[7.5rem] w-32 left-[25rem]">
-        <Select placeholder="Sort By" className="max-w-xs text-black">
-          {SortFilters.map((sortFilter) => (
-            <SelectItem key={sortFilter}>{sortFilter}</SelectItem>
           ))}
         </Select>
       </div>
