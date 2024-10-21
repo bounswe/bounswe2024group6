@@ -8,7 +8,10 @@ export type QuizResultsProps = {
   recommendationProps: QuizCardProps,
 };
 
-const QuizResults = (props: QuizResultsProps) => {
+const QuizResults = () => {
+  const rawProps = useLocalSearchParams<{'props': string}>();
+  const props: QuizResultsProps = JSON.parse(rawProps.props);
+
   return (
     <View style={styles.container}>
       <View style={styles.navbarContainer}><Navbar/></View>

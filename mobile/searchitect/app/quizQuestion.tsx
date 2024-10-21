@@ -1,28 +1,114 @@
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { useLocalSearchParams } from "expo-router";
 import Navbar from "./navbar";
+import {router} from "expo-router"
+import { QuizResultsCardProps, QuizResultsProps } from './quizResults';
 
-export type QuizQuestionProps = {
+const mockQuiz = {questions: [
+  {
+    question: 'kuzu',
+    type: 1,
+    choice1: 'lamp',
+    choice2: 'cow',
+    choice3: 'chimp',
+    choice4: 'lamb',
+    correctChoice: 4,
+  },
+  {
+    question: 'hail',
+    type: 2,
+    choice1: 'halı',
+    choice2: 'yağmur',
+    choice3: 'dolu',
+    choice4: 'balık',
+    correctChoice: 3,
+  },
+  {
+    question: 'extenuate',
+    type: 3,
+    choice1: 'point, extend, or project in a specified line or course',
+    choice2: 'correct by removing errors',
+    choice3: 'collect or gather into a mass or whole',
+    choice4: 'lessen the strength or effect of',
+    correctChoice: 4,
+  },
+], quizName: "Example Quiz", tags: ['B1']};
+
+export type QuizQuestion = {
   question: string,
-  options: string[],
-  currentQuestion: number,
-  totalQuestions: number,
+  type: number,
+  choice1: string,
+  choice2: string,
+  choice3: string,
+  choice4: string,
+  correctChoice: number,
+
 };
 
-const QuizQuestion = (props: QuizQuestionProps) => {
-  const [selectedOption, setSelectedOption] = useState<string | null>(null);
+export type QuizQuestionProps = {
+  questions: QuizQuestion[];
+  quizName: string,
+  tags: string[],
+}
 
-  const handleOptionSelect = (option: string) => {
-    setSelectedOption(option);
+const QuizQuestion = () => {
+  const props: QuizQuestionProps = mockQuiz;
+  const questionCount = props.questions.length
+  const [selectedChoices, setSelectedChoices] = useState<number[]>(Array(questionCount).fill(0));
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  
+
+  const handleOptionSelect = (option: number) => {
+    const newChoices = [...selectedChoices];
+    newChoices[currentQuestionIndex] = option;
+    setSelectedChoices(newChoices);
+    console.log(selectedChoices);
+    console.log(option);
   };
 
   const handleNext = () => {
-    // Logic to go to the next question (e.g., update the currentQuestion index)
+    setCurrentQuestionIndex(prev => prev + 1);
+  };
+
+  const getScore = () => {
+    let score = 0
+    for(let i=0; i<props.questions.length; i++){
+      if(props.questions[i].correctChoice == selectedChoices[i]){
+        score++;
+      }
+    }
+    return score;
+  };
+
+  const handleFinish = () => {
+    router.dismissAll();
+    const resultsProps: QuizResultsProps = {
+      quizResultsProps: {
+        quizName: props.quizName,
+        tags: props.tags,
+        maxScore: props.questions.length,
+        score: getScore(),
+      },
+      recommendationProps: {
+        tags: ['A2'],
+        name: 'Foods',
+        author: 'Kaan',
+        desc: "A simple quiz about foods."
+      }
+    }
+    router.push({
+      pathname: '/quizResults', 
+      params: {'props': JSON.stringify(resultsProps)}
+    });
   };
 
   const handlePrevious = () => {
-    // Logic to go to the previous question (e.g., update the currentQuestion index)
+    setCurrentQuestionIndex(prev => prev - 1);
+  };
+
+  const handleCancel = () => {
+    router.dismissAll();
+    router.push('/quizFeed');
   };
 
   return (
@@ -33,44 +119,72 @@ const QuizQuestion = (props: QuizQuestionProps) => {
 
       <View style={styles.page}>
         <View style={styles.topContainer}>
-          <Pressable style={styles.cancelQuizButton}>
+          <Pressable style={styles.cancelQuizButton} onPress={handleCancel}>
             <Text style={styles.cancelQuizText}>Cancel Quiz</Text>
           </Pressable>
 
           <View style={styles.progressContainer}>
             <Text style={styles.progressText}>
-              {props.currentQuestion}/{props.totalQuestions}
+              {currentQuestionIndex + 1}/{questionCount}
             </Text>
           </View>
         </View>
 
         <View style={styles.questionContainer}>
-          <Text style={styles.questionText}>{props.question}</Text>
+          <Text style={styles.questionText}>{props.questions[currentQuestionIndex].question}</Text>
         </View>
 
         <View style={styles.optionsContainer}>
-          {props.options.map((option, index) => (
-            <Pressable
-              key={index}
-              style={[
-                styles.optionButton,
-                selectedOption === option ? styles.selectedOption : null,
-              ]}
-              onPress={() => handleOptionSelect(option)}
-            >
-              <Text style={styles.optionText}>{option}</Text>
-            </Pressable>
-          ))}
+          <Pressable
+            style={[
+              styles.optionButton,
+              selectedChoices[currentQuestionIndex] == 1 ? styles.selectedOption : null,
+            ]}
+            onPress={() => handleOptionSelect(1)}
+          >
+            <Text style={styles.optionText}>{props.questions[currentQuestionIndex].choice1}</Text>
+          </Pressable>
+          <Pressable
+            style={[
+              styles.optionButton,
+              selectedChoices[currentQuestionIndex] == 2 ? styles.selectedOption : null,
+            ]}
+            onPress={() => handleOptionSelect(2)}
+          >
+            <Text style={styles.optionText}>{props.questions[currentQuestionIndex].choice2}</Text>
+          </Pressable>
+          <Pressable
+            style={[
+              styles.optionButton,
+              selectedChoices[currentQuestionIndex] == 3 ? styles.selectedOption : null,
+            ]}
+            onPress={() => handleOptionSelect(3)}
+          >
+            <Text style={styles.optionText}>{props.questions[currentQuestionIndex].choice3}</Text>
+          </Pressable>
+          <Pressable
+            style={[
+              styles.optionButton,
+              selectedChoices[currentQuestionIndex] == 4 ? styles.selectedOption : null,
+            ]}
+            onPress={() => handleOptionSelect(4)}
+          >
+            <Text style={styles.optionText}>{props.questions[currentQuestionIndex].choice4}</Text>
+          </Pressable>
         </View>
 
         <View style={styles.navigationContainer}>
-          <Pressable style={styles.navigationButton} onPress={handlePrevious}>
+          <Pressable style={currentQuestionIndex==0 ? styles.disabledNavigationButton : styles.navigationButton} onPress={handlePrevious} disabled={currentQuestionIndex==0}>
             <Text style={styles.navigationText}>Previous</Text>
           </Pressable>
-
-          <Pressable style={styles.navigationButton} onPress={handleNext}>
-            <Text style={styles.navigationText}>Next</Text>
-          </Pressable>
+          { currentQuestionIndex == questionCount-1 ?
+              <Pressable style={styles.navigationButton} onPress={handleFinish}>
+                <Text style={styles.navigationText}>Finish</Text>
+              </Pressable> :
+              <Pressable style={styles.navigationButton} onPress={handleNext}>
+                <Text style={styles.navigationText}>Next</Text>
+              </Pressable>
+          }
         </View>
       </View>
     </View>
@@ -174,6 +288,15 @@ const styles = StyleSheet.create({
   },
   navigationButton: {
     backgroundColor: '#d3f8d3',
+    borderRadius: 10,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#000',
+    width: '45%',
+    alignItems: 'center',
+  },
+  disabledNavigationButton: {
+    backgroundColor: 'gray',
     borderRadius: 10,
     padding: 10,
     borderWidth: 1,
