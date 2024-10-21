@@ -1,17 +1,66 @@
-import React from 'react';
-import {Pressable, StyleSheet, Text, View, TextInput} from 'react-native';
+import React, {useState, createContext, useContext} from 'react';
+import {Pressable, StyleSheet, Text, View, TextInput, TouchableWithoutFeedback, ActivityIndicator} from 'react-native';
 import Navbar from "./navbar";
 import {router} from 'expo-router'
+import TokenManager from './TokenManager'; // Import the TokenManager
 
 
+const LOGIN_URL = "http://161.35.208.249:8000/login/";
 
 export default function Home() {
+  const [email, setEmail] = useState('');    // State for email
+  const [password, setPassword] = useState('');  // State for password
+  const [isLoading, setIsLoading] = useState(false);
+  const [isErrorVisible, setIsErrorVisible] = useState(false);
+  const username = "1";
+
   const handleRegister = () => {
     router.navigate('/register')
   };
+  
+
+  const handleLogin = async () => {
+    setIsLoading(true);
+   const params = {
+    'username': username,
+    'password': password,
+    'email': email,
+   };
+    try {
+      const response = await fetch(LOGIN_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(params),
+      });
+      const json = await response.json();
+      if ("access" in json){
+        const { accessToken, refreshToken } = json;
+        TokenManager.setTokens({ accessToken, refreshToken });
+        console.log(TokenManager.getTokens())
+        router.navigate('/');
+      } else {
+        setIsErrorVisible(true);
+      };
+      console.log(json)
+    } catch (error) {
+      console.error(error);
+    }
+    setIsLoading(false);
+  };
+
 
   return (
     <View style={styles.container}>
+      {isLoading && (
+        <TouchableWithoutFeedback>
+          <View style={styles.overlay}>
+            <ActivityIndicator size="large" color="#fff" />
+          </View>
+        </TouchableWithoutFeedback>
+      )}
+
       <View style={styles.navbarContainer}><Navbar/></View>
         <View style={styles.page}>
 
@@ -23,17 +72,30 @@ export default function Home() {
             <View style={styles.namedUserInput}>
               <Text style={styles.userInputText}>E-mail:</Text>
               <View style={styles.inputBox}>
-                <TextInput style={styles.input}></TextInput>
+                <TextInput 
+                  style={styles.input}
+                  value={email} 
+                  onChangeText={text => setEmail(text)} 
+                  keyboardType="email-address">
+                </TextInput>
               </View>
             </View>
             <View style={styles.namedUserInput}>
               <Text style={styles.userInputText}>Password:</Text>
               <View style={styles.inputBox}>
-                <TextInput style={styles.input} secureTextEntry={true}></TextInput>
+                <TextInput 
+                  style={styles.input} 
+                  secureTextEntry={true}
+                  value={password}
+                  onChangeText={text => setPassword(text)}>
+                </TextInput>
               </View>
             </View>
             <View style={styles.buttonContainer}>
-              <Pressable style={styles.rectangularButton}>
+                {isErrorVisible && (
+                  <Text style={styles.errorMessage}>Wrong Login information</Text>
+                )}
+              <Pressable style={styles.rectangularButton} onPress={handleLogin}>
                 <Text style={styles.buttonText}>Log In</Text>
               </Pressable>
             </View>
@@ -138,5 +200,31 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 22,
+  },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)', // Semi-transparent background
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 2,
+  },
+  errorOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorMessage: {
+    color: 'red',
+    fontSize: 12,
+    padding: 3,
   },
 });
