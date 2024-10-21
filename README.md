@@ -15,5 +15,5 @@ Deployment:
 2. Edit `/frontend/src/lib/baseURL.ts` with your public backend URL and port.
 3. Run `docker compose build` at the root directory.
 4. Run `docker compose up` at the root directory.
-5. You can view the website at port 5173 at you public URL.
+5. You can view the website at port 5173 at your public URL.
 
