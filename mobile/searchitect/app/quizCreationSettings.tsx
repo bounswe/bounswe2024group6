@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { TouchableOpacity, StyleSheet, Text, TextInput, View } from 'react-native';
 import Navbar from './navbar';
 
 const QuizCreationSettings = () => {
@@ -38,18 +38,17 @@ const QuizCreationSettings = () => {
         {/* Description input */}
         <Text style={styles.label}>Description:</Text>
         <TextInput
-          style={[styles.input, styles.descriptionInput]} // Adding custom width for description input
+          style={[styles.input, styles.descriptionInput]}
           placeholder="Enter quiz description"
           value={quizDescription}
           onChangeText={setQuizDescription}
-          multiline={true} // To allow multi-line text for description
+          multiline={true}
         />
 
-        {/* Quiz Level selection */}
         <Text style={styles.label}>Quiz Level:</Text>
         <View style={styles.optionsContainer}>
           {quizLevels.map((level, index) => (
-            <Pressable
+            <TouchableOpacity
               key={index}
               style={[
                 styles.optionButton,
@@ -58,18 +57,17 @@ const QuizCreationSettings = () => {
               onPress={() => handleLevelSelect(level)}
             >
               <Text style={styles.optionText}>{level}</Text>
-            </Pressable>
+            </TouchableOpacity>
           ))}
         </View>
 
-        {/* Add Questions button */}
-        <Pressable
+        <TouchableOpacity
           style={[styles.addButton, isButtonDisabled && styles.disabledButton]} 
           onPress={handleAddQuestions}
           disabled={isButtonDisabled} 
         >
           <Text style={styles.addButtonText}>Add Questions</Text>
-        </Pressable>
+        </TouchableOpacity>
       </View>
     </View>
   );
