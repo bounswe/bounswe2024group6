@@ -12,14 +12,20 @@ class Profile(models.Model):
     def __str__(self):
         return self.user.username
 
+class Tags(models.Model):
+    name = models.CharField(max_length=30, unique=True)
+
+    def __str__(self):
+        return self.name
+
 class Quiz(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=100)
     description = models.TextField()
     # TODO: switch the below line to the following when we have a working user model
     # author = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='posts')
-    level = models.CharField(max_length=10)
     author = models.CharField(max_length=100)
+    tags = models.ManyToManyField(Tags, related_name='quizzes')
     created_at = models.DateTimeField(default=timezone.now)
     times_taken = models.IntegerField(default=0)
     total_score = models.FloatField(default=0)
@@ -28,6 +34,7 @@ class Quiz(models.Model):
 
     def __str__(self):
         return self.title
+    
 
 class Question(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='questions')
