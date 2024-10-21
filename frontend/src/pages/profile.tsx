@@ -1,10 +1,12 @@
 import { Navbar } from "../components/common";
 import { Avatar, Button, Divider, Card } from "@nextui-org/react";
-import { Suspense, useState } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { PostCard, PostCardSkeleton } from "../components/post";
 
 export default function Profile() {
   const [activeSection, setActiveSection] = useState("quizzes");
+
+  const [data, setData] = useState(null); 
 
   const mockData = {
     "id": 1,
@@ -69,6 +71,8 @@ export default function Profile() {
     ]
   }
 
+  // useEffect(() => {}
+
   const quizCards = (
     <div className="p-5">
       <p className="p-3 mb-3">Not implemented yet</p>
@@ -79,7 +83,7 @@ export default function Profile() {
   );
 
   const postCards = (
-    <div className="flex flex-col my-5 items-center">
+    <div className="flex flex-col gap-4 items-center">
       {mockData.posts.map((post) => (
         <Suspense key={post.id} fallback={<PostCardSkeleton />}>
           <PostCard
@@ -97,36 +101,38 @@ export default function Profile() {
   );
 
   return (
-    <div className="h-screen w-screen flex flex-col">
+    <div className="h-full w-full items-center overflow-hidden flex flex-col">
       <Navbar />
-      <div className="flex justify-between items-center w-full px-32 py-5">
+      <div className="flex justify-center gap-6 items-center w-full px-32 py-5">
         <div className="flex items-center px-5 bg-white rounded-lg">
           <Avatar
-            src="{mockData.image}"
+            src={mockData.image}
             className="mr-3 w-24 h-24"
           />
-          <div className="ml-4">
+          <div className="mx-4">
             <h3 className="text-xl font-semibold">{mockData.username}</h3>
             <p className="text-gray-500">@{mockData.level}</p>
           </div>
         </div>
-        <Button className="border-2 border-blue-900 text-blue-900 font-bold bg-white px-8 py-6 rounded-md">{mockData.following} Following</Button>
-        <Button className="border-2 border-blue-900 text-blue-900 font-bold bg-white px-8 py-6 rounded-md">{mockData.followers} Followers</Button>
-        <Button className="border-2 border-blue-900 text-blue-900 font-bold bg-white px-8 py-6 rounded-md">Solved Quizzes</Button>
+        <Button  variant="light" className="border-2 rounded-lg font-bold text-blue-900 px-8 py-6 ">{mockData.following} Following</Button>
+        <Button  variant="light" className="border-2 rounded-lg font-bold text-blue-900 px-8 py-6 ">{mockData.followers} Followers</Button>
+        <Button  variant="light" className="border-2 rounded-lg font-bold text-blue-900 px-8 py-6 ">Solved Quizzes</Button>
       </div>
-      <Divider className="my-4 border-t-2 border-gray-400 border-dashed" />
-      <Card className="border-1 border-blue-900 items-center pt-5 pb-10 mx-auto my-3">
+      <Divider className="my-4 w-1/2 border-t-4 p-[0.75px] rounded-2xl border-gray-400" />
+      <Card className="border-1 border-blue-900 items-center py-2 shadow-small mx-auto my-3">
         <div className="flex flex-row w-full justify-between items-center">
           <Button
-            className={`text-blue-900 font-bold text-lg bg-white px-6 h-full rounded-md ${activeSection === "quizzes" ? "font-extrabold border-b-2 border-zinc-300" : ""
+            variant="light"
+            className={`text-blue-900 opacity-90 font-semibold text-lg bg-white mx-4 h-full  ${activeSection === "quizzes" ? "font-bold opacity-100" : ""
               }`}
             onClick={() => setActiveSection("quizzes")}
           >
             Quizzes
           </Button>
-          <p className="text-blue-900 font-bold bg-white rounded-md mx-2">/</p>
+          <p className="text-blue-900 font-bold bg-white rounded-md mx-2">|</p>
           <Button
-            className={`text-blue-900 font-bold text-lg bg-white px-6 h-full rounded-md ${activeSection === "posts" ? "font-extrabold border-b-2 border-zinc-300" : ""
+            variant="light"
+            className={`text-blue-900 opacity-90 font-semibold text-lg bg-white mx-4 h-full ${activeSection === "posts" ? "font-bold opacity-100" : ""
               }`}
             onClick={() => setActiveSection("posts")}
           >
