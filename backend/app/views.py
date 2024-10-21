@@ -20,6 +20,7 @@ from rest_framework import generics, status
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
+from .models import Tags
 
 
 
@@ -257,16 +258,21 @@ def quiz_view(request):
     serializer = QuizSerializer(quizzes, many=True)
     return JsonResponse(serializer.data)
 
-@api_view(['POST']) 
+@api_view(['POST'])
 def create_quiz_view(request):
     quiz_data = request.data
-    CreateQuiz(
-        title= quiz_data['title'],
-        description= quiz_data['description'],
-        author= quiz_data['author'],
-        level= quiz_data['level'],
-        time_limit= quiz_data['time_limit']
+
+    quiz = CreateQuiz(
+        title=quiz_data['title'],
+        description=quiz_data['description'],
+        author=quiz_data['author'],
+        time_limit=quiz_data['time_limit']
     )
+
+    if 'tags' in quiz_data:
+        tags = quiz_data['tags']
+        quiz.tags.add(*[Tags.objects.get_or_create(name=tag)[0] for tag in tags])
+
     return Response({'message': 'Quiz created successfully.'}, status=status.HTTP_201_CREATED)
 
     

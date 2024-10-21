@@ -1,82 +1,83 @@
 from .quiz_manager import CreateQuiz
+from .models import Tags
 
 def create_quiz_mockdata():
-    CreateQuiz(
+    quiz1 = CreateQuiz(
         title="Food",
         description="Learn about foods",
         author="Oguz",
-        level="A2",
         time_limit=10
     )
+    quiz1.tags.add(*[Tags.objects.get_or_create(name=tag)[0] for tag in ["A1", "vocabulary"]])
 
-    CreateQuiz(
+    quiz2 = CreateQuiz(
         title="Animals",
         description="Our furry friends!",
         author="Aras",
-        level="A2",
         time_limit=10
     )
+    quiz2.tags.add(*[Tags.objects.get_or_create(name=tag)[0] for tag in ["A2", "vocabulary"]])
 
-    CreateQuiz(
+    quiz3 = CreateQuiz(
         title="Furniture",
         description="Essential furniture",
         author="Kaan",
-        level="A2",
         time_limit=10
     )
+    quiz3.tags.add(*[Tags.objects.get_or_create(name=tag)[0] for tag in ["B1", "vocabulary"]])
 
-    CreateQuiz(
+    quiz4 = CreateQuiz(
         title="Plants",
         description="Test your plant knowledge",
         author="Halil",
-        level="A2",
         time_limit=10
     )
+    quiz4.tags.add(*[Tags.objects.get_or_create(name=tag)[0] for tag in ["B2", "vocabulary"]])
 
-    CreateQuiz(
+    quiz5 = CreateQuiz(
         title="Transport",
         description="Types of transport",
         author="Alex",
-        level="B1",
         time_limit=10
     )
+    quiz5.tags.add(*[Tags.objects.get_or_create(name=tag)[0] for tag in ["C1", "vocabulary"]])
 
-    CreateQuiz(
+    quiz6 = CreateQuiz(
         title="Food",
         description="Learn about foods",
         author="Oguz",
-        level="A2",
         time_limit=10
     )
+    quiz6.tags.add(*[Tags.objects.get_or_create(name=tag)[0] for tag in ["C2", "vocabulary", "grammar"]])
 
-    CreateQuiz(
+    quiz7 = CreateQuiz(
         title="Animals",
         description="Our furry friends!",
         author="Aras",
-        level="A2",
         time_limit=10
     )
+    quiz7.tags.add(*[Tags.objects.get_or_create(name=tag)[0] for tag in ["B2", "grammar"]])
 
-    CreateQuiz(
+    quiz8 = CreateQuiz(
         title="Furniture",
         description="Essential furniture",
         author="Kaan",
-        level="A2",
         time_limit=10
     )
+    quiz8.tags.add(*[Tags.objects.get_or_create(name=tag)[0] for tag in ["B1", "grammar"]])
 
-    CreateQuiz(
+    quiz9 = CreateQuiz(
         title="Plants",
         description="Test your plant knowledge",
         author="Halil",
-        level="A2",
         time_limit=10
     )
+    quiz9.tags.add(*[Tags.objects.get_or_create(name=tag)[0] for tag in ["A2", "grammar"]])
 
-    CreateQuiz(
+    quiz10 = CreateQuiz(
         title="Transport",
         description="Types of transport",
         author="Alex",
-        level="B1",
         time_limit=10
     )
+    quiz10.tags.add(*[Tags.objects.get_or_create(name=tag)[0] for tag in ["A1", "grammar"]])
