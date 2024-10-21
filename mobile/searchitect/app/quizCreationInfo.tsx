@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Keyboard, Pressable, StyleSheet, Text, TextInput, View, TouchableWithoutFeedback } from 'react-native';
+import { Keyboard, StyleSheet, Text, TextInput, View, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
 import Navbar from './navbar';
 
 const QuizCreationInfo = () => {
@@ -8,6 +8,13 @@ const QuizCreationInfo = () => {
   const [newAnswer, setNewAnswer] = useState('');
   const [selectedAnswerIndex, setSelectedAnswerIndex] = useState<number | null>(null);
   const [selectedType, setSelectedType] = useState<string | null>(null);
+
+
+  const isButtonDisabled = () => {
+    const nonEmptyAnswers = answers.filter(answer => answer.trim() !== "");
+    const uniqueAnswers = new Set(nonEmptyAnswers);
+    return nonEmptyAnswers.length < answers.length || uniqueAnswers.size !== nonEmptyAnswers.length;
+  };
 
   const answerGrid = [
     [answers[0], answers[1]],
@@ -40,7 +47,7 @@ const QuizCreationInfo = () => {
         {/* Type Selection Buttons */}
         <View style={styles.typeContainer}>
           {['Type I', 'Type II', 'Type III'].map((type, index) => (
-            <Pressable
+            <TouchableOpacity
               key={index}
               style={[
                 styles.typeButton,
@@ -49,7 +56,7 @@ const QuizCreationInfo = () => {
               onPress={() => handleTypeSelect(type)}
             >
               <Text style={styles.typeText}>{type}</Text>
-            </Pressable>
+            </TouchableOpacity>
           ))}
         </View>
 
@@ -70,7 +77,7 @@ const QuizCreationInfo = () => {
                 {row.map((answer, colIndex) => {
                   const answerIndex = rowIndex * 2 + colIndex;
                   return (
-                    <Pressable
+                    <TouchableOpacity
                       key={colIndex}
                       style={[
                         styles.answerBox,
@@ -81,7 +88,7 @@ const QuizCreationInfo = () => {
                       onPress={() => handleAnswerClick(answerIndex)}
                     >
                       <Text style={styles.answerText}>{answer}</Text>
-                    </Pressable>
+                    </TouchableOpacity>
                   );
                 })}
               </View>
@@ -98,29 +105,32 @@ const QuizCreationInfo = () => {
             value={newAnswer}
             onChangeText={setNewAnswer}
           />
-          <Pressable style={styles.addButton} onPress={handleAddAnswer}>
+          <TouchableOpacity style={styles.addButton} onPress={handleAddAnswer}>
             <Text style={styles.addButtonText}>+</Text>
-          </Pressable>
+          </TouchableOpacity>
         </View>
 
         {/* Suggestions Header */}
         <Text style={styles.label}>Suggestions:</Text>
         <View style={styles.suggestionsContainer}>
           {['makarna', 'pilav', 'kek','yogurt'].map((suggestion, index) => (
-            <Pressable key={index} style={styles.suggestionButton} onPress={() => setNewAnswer(suggestion)}>
+            <TouchableOpacity key={index} style={styles.suggestionButton} onPress={() => setNewAnswer(suggestion)}>
               <Text style={styles.suggestionText}>{suggestion}</Text>
-            </Pressable>
+            </TouchableOpacity>
           ))}
         </View>
 
         {/* Navigation Buttons */}
         <View style={styles.navButtonsContainer}>
-          <Pressable style={styles.navButton}>
+          <TouchableOpacity style={styles.navButton}>
             <Text style={styles.navButtonText}>Go Back</Text>
-          </Pressable>
-          <Pressable style={styles.navButton}>
-            <Text style={styles.navButtonText}>Add Question</Text>
-          </Pressable>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.navButton, isButtonDisabled() && styles.disabledButton]} 
+            disabled={isButtonDisabled()}
+          >
+          <Text style={styles.navButtonText}>Add Question</Text>
+        </TouchableOpacity>
         </View>
       </View>
     </View>
@@ -269,6 +279,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: '#000',
+  },
+  disabledButton: {
+    backgroundColor: '#ccc',
   },
 });
 
