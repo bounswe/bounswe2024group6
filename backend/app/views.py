@@ -255,7 +255,7 @@ def quiz_view(request):
     # get first 100 quizzes
     quizzes = Quiz.objects.all()[:100]
     serializer = QuizSerializer(quizzes, many=True)
-    return Response(serializer.data)
+    return JsonResponse(serializer.data)
 
 @api_view(['POST']) 
 def create_quiz_view(request):

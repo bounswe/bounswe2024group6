@@ -10,12 +10,12 @@ def create_mockdata(**kwargs):
     create_quiz_mockdata()
 
 
-
 class AppConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
     name = 'app'
-
+    
     def ready(self):
-        import app.signals  # Ensure the signals are loaded
+        post_migrate.connect(create_mockdata, sender=self)
 
 
 
