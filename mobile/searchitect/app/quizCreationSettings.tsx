@@ -1,27 +1,25 @@
 import React, { useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { TouchableOpacity, StyleSheet, Text, TextInput, View } from 'react-native';
 import Navbar from './navbar';
 
 const QuizCreationSettings = () => {
   const [quizTitle, setQuizTitle] = useState('');
+  const [quizDescription, setQuizDescription] = useState(''); 
   const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
   const [selectedAudience, setSelectedAudience] = useState<string | null>(null);
 
   const quizLevels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
-  const audiences = ['Kids', 'Teens', 'Adults'];
 
   const handleLevelSelect = (level: string) => {
     setSelectedLevel(level);
   };
 
-  const handleAudienceSelect = (audience: string) => {
-    setSelectedAudience(audience);
-  };
-
   const handleAddQuestions = () => {
-    // Logic to proceed to adding questions
     console.log('Proceed to add questions...');
   };
+
+  // Check if any field is empty
+  const isButtonDisabled = !quizTitle || !quizDescription || !selectedLevel;
 
   return (
     <View style={styles.container}>
@@ -37,11 +35,20 @@ const QuizCreationSettings = () => {
           onChangeText={setQuizTitle}
         />
 
-        {/* Quiz Level selection */}
+        {/* Description input */}
+        <Text style={styles.label}>Description:</Text>
+        <TextInput
+          style={[styles.input, styles.descriptionInput]}
+          placeholder="Enter quiz description"
+          value={quizDescription}
+          onChangeText={setQuizDescription}
+          multiline={true}
+        />
+
         <Text style={styles.label}>Quiz Level:</Text>
         <View style={styles.optionsContainer}>
           {quizLevels.map((level, index) => (
-            <Pressable
+            <TouchableOpacity
               key={index}
               style={[
                 styles.optionButton,
@@ -50,31 +57,17 @@ const QuizCreationSettings = () => {
               onPress={() => handleLevelSelect(level)}
             >
               <Text style={styles.optionText}>{level}</Text>
-            </Pressable>
+            </TouchableOpacity>
           ))}
         </View>
 
-        {/* Audience selection */}
-        <Text style={styles.label}>Audience:</Text>
-        <View style={styles.optionsContainer}>
-          {audiences.map((audience, index) => (
-            <Pressable
-              key={index}
-              style={[
-                styles.optionButton,
-                selectedAudience === audience ? styles.selectedOption : null,
-              ]}
-              onPress={() => handleAudienceSelect(audience)}
-            >
-              <Text style={styles.optionText}>{audience}</Text>
-            </Pressable>
-          ))}
-        </View>
-
-        {/* Add Questions button */}
-        <Pressable style={styles.addButton} onPress={handleAddQuestions}>
+        <TouchableOpacity
+          style={[styles.addButton, isButtonDisabled && styles.disabledButton]} 
+          onPress={handleAddQuestions}
+          disabled={isButtonDisabled} 
+        >
           <Text style={styles.addButtonText}>Add Questions</Text>
-        </Pressable>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -84,6 +77,7 @@ const styles = StyleSheet.create({
   container: {
     padding: 16,
     flex: 1,
+    padding: 16,
     backgroundColor: '#fff',
     justifyContent: 'flex-start',
   },
@@ -107,6 +101,10 @@ const styles = StyleSheet.create({
     padding: 10,
     fontSize: 16,
     marginBottom: 20,
+  },
+  descriptionInput: {
+    height: 100, 
+    textAlignVertical: 'top',
   },
   optionsContainer: {
     flexDirection: 'row',
@@ -138,6 +136,9 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     marginTop: 20,
+  },
+  disabledButton: {
+    backgroundColor: '#ccc', 
   },
   addButtonText: {
     fontSize: 18,
