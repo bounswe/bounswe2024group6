@@ -4,22 +4,17 @@ import Navbar from './navbar';
 
 const QuizCreationSettings = () => {
   const [quizTitle, setQuizTitle] = useState('');
+  const [quizDescription, setQuizDescription] = useState(''); 
   const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
   const [selectedAudience, setSelectedAudience] = useState<string | null>(null);
 
   const quizLevels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
-  const audiences = ['Kids', 'Teens', 'Adults'];
 
   const handleLevelSelect = (level: string) => {
     setSelectedLevel(level);
   };
 
-  const handleAudienceSelect = (audience: string) => {
-    setSelectedAudience(audience);
-  };
-
   const handleAddQuestions = () => {
-    // Logic to proceed to adding questions
     console.log('Proceed to add questions...');
   };
 
@@ -37,6 +32,16 @@ const QuizCreationSettings = () => {
           onChangeText={setQuizTitle}
         />
 
+        {/* Description input */}
+        <Text style={styles.label}>Description:</Text>
+        <TextInput
+          style={[styles.input, styles.descriptionInput]} // Adding custom width for description input
+          placeholder="Enter quiz description"
+          value={quizDescription}
+          onChangeText={setQuizDescription}
+          multiline={true} // To allow multi-line text for description
+        />
+
         {/* Quiz Level selection */}
         <Text style={styles.label}>Quiz Level:</Text>
         <View style={styles.optionsContainer}>
@@ -50,23 +55,6 @@ const QuizCreationSettings = () => {
               onPress={() => handleLevelSelect(level)}
             >
               <Text style={styles.optionText}>{level}</Text>
-            </Pressable>
-          ))}
-        </View>
-
-        {/* Audience selection */}
-        <Text style={styles.label}>Audience:</Text>
-        <View style={styles.optionsContainer}>
-          {audiences.map((audience, index) => (
-            <Pressable
-              key={index}
-              style={[
-                styles.optionButton,
-                selectedAudience === audience ? styles.selectedOption : null,
-              ]}
-              onPress={() => handleAudienceSelect(audience)}
-            >
-              <Text style={styles.optionText}>{audience}</Text>
             </Pressable>
           ))}
         </View>
@@ -107,6 +95,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 20,
   },
+  descriptionInput: {
+    height: 100, 
+    textAlignVertical: 'top',
+  },
   optionsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -137,6 +129,9 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     marginTop: 20,
+  },
+  disabledButton: {
+    backgroundColor: '#ccc', 
   },
   addButtonText: {
     fontSize: 18,
