@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Keyboard, Pressable, StyleSheet, Text, TextInput, View, TouchableWithoutFeedback } from 'react-native';
 import Navbar from './navbar';
 
 const QuizCreationInfo = () => {
@@ -32,6 +32,7 @@ const QuizCreationInfo = () => {
   };
 
   return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
     <View style={styles.container}>
       <Navbar />
 
@@ -54,10 +55,15 @@ const QuizCreationInfo = () => {
 
         {/* Question and Answers Section */}
         <View style={styles.questionAnswersContainer}>
+          {/* Editable question title area */}
           <View style={styles.questionBox}>
-            <Text style={styles.questionText}>{question}</Text>
+            <TextInput
+              style={styles.questionText}
+              value={question}
+              onChangeText={(text) => setQuestion(text)}
+              editable={true} 
+            />
           </View>
-
           <View style={styles.answerGridContainer}>
             {answerGrid.map((row, rowIndex) => (
               <View key={rowIndex} style={styles.answerRow}>
@@ -118,12 +124,14 @@ const QuizCreationInfo = () => {
         </View>
       </View>
     </View>
+    </TouchableWithoutFeedback>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    padding: 16,
     backgroundColor: '#fff',
     justifyContent: 'flex-start',
   },
@@ -172,6 +180,11 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#000',
+    backgroundColor: '#ffec99',
+    borderWidth: 2, 
+    borderColor: '#000', 
+    borderRadius: 8, 
+    padding: 10,
   },
   answerGridContainer: {
     marginBottom: 20,
