@@ -3,6 +3,9 @@ import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, TouchableWi
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
 import Navbar from "./navbar";
+import {router} from 'expo-router';
+
+const SIGNUP_URL = "http://161.35.208.249:8000/signup/";
 
 const Register = () => {
   const [email, setEmail] = useState('');
@@ -12,7 +15,6 @@ const Register = () => {
   const [errors, setErrors] = useState({ email: '', password: '', confirmPassword: '', username: '' });
   const [level, setLevel] = useState('A1');
   const [isFormValid, setIsFormValid] = useState(false);
-  const navigation = useNavigation<any>();
   const [isTyping, setIsTyping] = useState(false);
 
   const updateFormValidity = () => {
@@ -39,6 +41,30 @@ const Register = () => {
   const handleConfirmPasswordChange = (text: string) => {
     setIsTyping(true);
     setConfirmPassword(text);
+  };
+
+  const handleSignUp = async () => {
+    const params = {
+      'username': username,
+      'password': password,
+      'email': email,
+    };
+    try {
+      const response = await fetch(SIGNUP_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(params),
+      });
+      const json = await response.json();
+      if ("username" in json){
+        router.navigate('/');
+      }
+      console.log(json)
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   useEffect (() => {
@@ -175,7 +201,7 @@ const Register = () => {
       <TouchableOpacity 
         style={[styles.button, (!isFormValid || isTyping) ? styles.buttonDisabled : null]} // Disable styling
         disabled={!isFormValid || isTyping} // Disable button if there are errors
-        onPress={() => console.log('email =', email, 'username =', username, 'password =', password, 'confirmPassword =', confirmPassword, 'level =', level)}
+        onPress={handleSignUp}
         >
         <Text style={styles.buttonText}>Sign Up</Text>
       </TouchableOpacity>
