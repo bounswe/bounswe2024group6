@@ -43,13 +43,12 @@ def post_view_page(request):
       "post": {
         "title": "Ephemeral: Short-lived",
         "content": "Ephemeral means lasting for a very short time. Example: 'The beauty of the sunset was ephemeral but unforgettable.'",
-        "category": "Vocabulary",
+        "tags": ["Vocabulary","Daily Words"],
         "timestamp": "30 minutes ago"
       },
       "engagement": {
         "likes": 50,
-        "comments": 3,
-        "bookmark": 2
+        "comments": 3
       },
       "comments":[
              {
@@ -93,13 +92,12 @@ def post_view_page(request):
       "post": {
         "title": "Petrichor: The Smell of Rain",
         "content": "Petrichor is the pleasant, earthy smell that comes after rain. Example: 'She loved the petrichor that filled the air after the storm.'",
-        "category": "Vocabulary",
+        "tags": ["Vocabulary"],
         "timestamp": "5 hours ago"
       },
       "engagement": {
         "likes": 90,
-        "comments": 3,
-        "bookmark": 3
+        "comments": 3
         },
         "comments":[
              {
@@ -143,13 +141,12 @@ def post_view_page(request):
       "post": {
         "title": "Ineffable: Beyond Words",
         "content": "Ineffable means too great or extreme to be expressed in words. Example: 'The beauty of the mountains was ineffable.'",
-        "category": "Vocabulary",
+        "tags": ["Vocabulary","Flashcards"],
         "timestamp": "4 hours ago"
       },
       "engagement": {
         "likes": 80,
-        "comments": 3,
-        "bookmark": 1
+        "comments": 3
       },
       "comments":[
             {
@@ -207,13 +204,12 @@ def view_profile_mock(request):
         "post": {
           "title": "Petrichor: The Smell of Rain",
           "content": "Petrichor is the pleasant, earthy smell that comes after rain. Example: 'She loved the petrichor that filled the air after the storm.'",
-          "category": "Vocabulary",
+          "tags": ["Vocabulary"],
           "timestamp": "5 hours ago"
         },
         "engagement": {
           "likes": 90,
-          "comments": 3,
-          "bookmark": 3
+          "comments": 3
           }
       },
       {
@@ -225,13 +221,12 @@ def view_profile_mock(request):
         "post": {
           "title": "Serendipity: A Fortunate Discovery",
           "content": "Serendipity is the occurrence of events by chance in a happy or beneficial way. Example: 'They met by serendipity and became lifelong friends.'",
-          "category": "Vocabulary",
+          "tags": ["Vocabulary"],
           "timestamp": "2 hours ago"
         },
         "engagement": {
           "likes": 75,
-          "comments": 5,
-          "bookmark": 4
+          "comments": 5
         }
       }],
       "quizzes": [
