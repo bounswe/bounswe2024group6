@@ -4,6 +4,10 @@ import { router } from "expo-router";
 import Navbar from "./navbar";
 
 export default function Home() {
+  const handleRegister = () => {
+    router.navigate("/register")
+  };
+
   return (
     <View style={styles.container}>
       <Navbar/>
@@ -18,7 +22,7 @@ export default function Home() {
         <Text style={styles.bigText}>Welcome!</Text>
         <Text style={styles.text}>You are not logged in. Register or Log In to access all features.</Text>
       </View>
-      <Pressable style={styles.rectangularButton}>
+      <Pressable style={styles.rectangularButton} onPress={handleRegister}>
         <Text style={styles.buttonText}>Register</Text>
       </Pressable>
       <Pressable style={styles.rectangularButton} onPress={() => { router.navigate("/login") }}>

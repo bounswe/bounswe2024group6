@@ -1,8 +1,15 @@
 import React from 'react';
-import {ScrollView, Pressable, StyleSheet, Text, View, TextInput} from 'react-native';
+import {Pressable, StyleSheet, Text, View, TextInput} from 'react-native';
 import Navbar from "./navbar";
+import {router} from 'expo-router'
+
+
 
 export default function Home() {
+  const handleRegister = () => {
+    router.navigate('/register')
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.navbarContainer}><Navbar/></View>
@@ -31,10 +38,10 @@ export default function Home() {
               </Pressable>
             </View>
           </View>
-          <View style={styles.registerContainer}>
+          <View style={styles.registerContainer} >
             <Text style={styles.smallText}>Don't have an account?</Text>
             <View style={styles.buttonContainer}>
-              <Pressable style={styles.rectangularButton}>
+              <Pressable style={styles.rectangularButton} onPress={handleRegister}>
                 <Text style={styles.buttonText}>Register</Text>
               </Pressable>
             </View>
