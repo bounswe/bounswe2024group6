@@ -38,6 +38,7 @@ export default function Home() {
       if ("access" in json){
         const { accessToken, refreshToken } = json;
         TokenManager.setTokens({ accessToken, refreshToken });
+        TokenManager.setUsername(username);
         console.log(TokenManager.getTokens())
         router.navigate('/');
       } else {

@@ -2,11 +2,21 @@ import React, {useState} from 'react';
 import {Image, Pressable, StyleSheet, Text, View} from 'react-native';
 import { router } from "expo-router";
 import Navbar from "./navbar";
+import TokenManager from './TokenManager';
 
 export default function Home() {
   const handleRegister = () => {
     router.navigate("/register")
   };
+  const username = TokenManager.getUsername();
+
+  const handleLogOut = () => {
+    console.log("logout pressed");
+    TokenManager.setUsername(null);
+    TokenManager.clearTokens();
+    router.navigate('/')
+  }
+
 
   return (
     <View style={styles.container}>
@@ -20,14 +30,24 @@ export default function Home() {
       </View>
       <View style={styles.messageContainer}>
         <Text style={styles.bigText}>Welcome!</Text>
-        <Text style={styles.text}>You are not logged in. Register or Log In to access all features.</Text>
+        <Text style={username? styles.username : styles.text}>{username ? username :"You are not logged in. Register or Log In to access all features."}</Text>
       </View>
-      <Pressable style={styles.rectangularButton} onPress={handleRegister}>
-        <Text style={styles.buttonText}>Register</Text>
-      </Pressable>
-      <Pressable style={styles.rectangularButton} onPress={() => { router.navigate("/login") }}>
-        <Text style={styles.buttonText}>Log In</Text>
-      </Pressable>
+      {username ?
+        <View style={styles.buttonsContainer}>
+          <Pressable style={styles.rectangularButton} onPress={handleLogOut}>
+            <Text style={styles.buttonText}>Log Out</Text>
+          </Pressable>
+        </View> :
+        <View style={styles.buttonsContainer}>
+          <Pressable style={styles.rectangularButton} onPress={handleRegister}>
+            <Text style={styles.buttonText}>Register</Text>
+          </Pressable>
+          <Pressable style={styles.rectangularButton} onPress={() => { router.navigate("/login") }}>
+            <Text style={styles.buttonText}>Log In</Text>
+          </Pressable>
+        </View>
+      }
+
       </View>
     </View>
   );
@@ -95,5 +115,15 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 22,
+  },
+  username: {
+    fontSize: 28,
+    textAlign: 'center',
+  },
+  buttonsContainer: {
+    width: '100%',
+    flex:1,
+    justifyContent: 'center',
+    alignItems: 'center'
   },
 });
