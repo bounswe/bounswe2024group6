@@ -1,4 +1,4 @@
-import { Avatar, Card, Input, Button } from "@nextui-org/react";
+import { Avatar, Card, Input, Button, Link } from "@nextui-org/react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 export default function Navbar() {
@@ -48,11 +48,14 @@ export default function Navbar() {
           </div>
         </div>
         <div className="flex-1 flex justify-end items-center">
-          <Avatar
-            isBordered
-            onClick={() => navigate("/profile/anon")}
-            src="https://nextui.org/avatars/avatar-1.png"
-          />
+          <Link href="/profile/oktay_ozel">
+            <Avatar
+              isBordered
+              color="success"
+              src="https://nextui.org/avatars/avatar-1.png"
+            />
+          </Link>
+
         </div>
       </Card>
     </div>
