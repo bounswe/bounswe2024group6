@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, View, FlatList } from 'react-native';
+import Toast from 'react-native-toast-message';
+import { router } from 'expo-router';
 import Navbar from './navbar';
 
 const QuizCreationQuestionList = () => {
@@ -11,12 +13,25 @@ const QuizCreationQuestionList = () => {
   ]);
 
   const handleAddQuestion = () => {
-    const newQuestion = `Question ${questions.length + 1}`;
-    setQuestions([...questions, newQuestion]);
+    router.push('/quizCreationInfo');
+    // setQuestions([...questions, newQuestion]); TODO
+  };
+
+  const handleCreateQuiz = () => {
+    Toast.show({
+      type: 'success',
+      text1: 'Quiz created successfully!',
+    });
+
+    // Navigate after 3 seconds
+    setTimeout(() => {
+      router.navigate('/quizFeed');
+    }, 1500);
   };
 
   const handleDeleteQuestion = (index: number) => {
     const updatedQuestions = questions.filter((_, i) => i !== index);
+    console.log(updatedQuestions)
     setQuestions(updatedQuestions);
   };
 
@@ -33,33 +48,36 @@ const QuizCreationQuestionList = () => {
   );
 
   return (
-    <View style={styles.container}>
-      <Navbar />
-      <View style={styles.headerContainer}>
-        <Text style={styles.headerText}>Food</Text>
-        <Pressable style={styles.addButton} onPress={handleAddQuestion}>
-          <Text style={styles.addButtonText}>+</Text>
-        </Pressable>
-      </View>
+    <>
+      <View style={styles.container}>
+        <Navbar />
+        <View style={styles.headerContainer}>
+          <Text style={styles.headerText}>Food</Text>
+          <Pressable style={styles.addButton} onPress={handleAddQuestion}>
+            <Text style={styles.addButtonText}>+</Text>
+          </Pressable>
+        </View>
 
-      {/* Questions List */}
-      <FlatList
-        data={questions}
-        renderItem={renderQuestionItem}
-        keyExtractor={(item, index) => index.toString()}
-        style={styles.questionList}
-      />
+        {/* Questions List */}
+        <FlatList
+          data={questions}
+          renderItem={renderQuestionItem}
+          keyExtractor={(item, index) => index.toString()}
+          style={styles.questionList}
+        />
 
-      {/* Footer Buttons */}
-      <View style={styles.footer}>
-        <Pressable style={styles.footerButton}>
-          <Text style={styles.footerButtonText}>Cancel</Text>
-        </Pressable>
-        <Pressable style={styles.footerButton}>
-          <Text style={styles.footerButtonText}>Create Quiz</Text>
-        </Pressable>
+        {/* Footer Buttons */}
+        <View style={styles.footer}>
+          <Pressable style={styles.footerButton} onPress={() => {router.navigate('/quizFeed')}}>
+            <Text style={styles.footerButtonText}>Cancel</Text>
+          </Pressable>
+          <Pressable style={styles.footerButton} onPress={handleCreateQuiz}>
+            <Text style={styles.footerButtonText}>Create Quiz</Text>
+          </Pressable>
+        </View>
       </View>
-    </View>
+      <Toast />
+    </>
   );
 };
 
@@ -79,12 +97,15 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 24,
     fontWeight: 'bold',
+    textAlign: 'center',
     color: '#000',
   },
   addButton: {
+    flex: 0,
     backgroundColor: '#d1e7dd',
     borderRadius: 10,
     padding: 10,
+    width: 50,
     justifyContent: 'center',
     alignItems: 'center',
   },

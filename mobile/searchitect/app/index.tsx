@@ -22,8 +22,8 @@ export default function Home() {
 
   return (
     <>
-      <QuizQuestion question={'QUESTIONNNN'} options={["aaa","bbb","ccc","ddd"]} currentQuestion={0} totalQuestions={0}/>
-</>
+      <QuizFeed/>
+    </>
   );
 }
 
