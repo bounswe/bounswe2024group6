@@ -5,8 +5,8 @@ export default function Navbar() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   return (
-    <div className="w-screen p-5">
-      <Card className="flex flex-row w-full px-5 py-3 rounded-full">
+    <div className="w-screen p-2 shadow-none">
+      <Card className="flex flex-row w-full px-5 py-3 rounded-full shadow-md">
         <div className="flex-1 flex flex-row gap-6 items-center">
           <div
             className="text-blue-800 text-3xl font-semibold"
