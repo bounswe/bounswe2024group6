@@ -3,7 +3,12 @@ import { Text, View } from 'react-native';
 import { useEffect } from 'react';
 import QuizDetails from './quizDetails';
 import QuizFeed from './quizFeed';
+
 import QuizQuestion from './quizQuestion';
+import QuizCreationSettings from './quizCreationSettings';
+import QuizCreationInfo from './quizCreationInfo';
+import QuizCreationQuestionList from './quizCreationQuestionList';
+
 // import Authentication from './auth';
 
 export default function Home() {
