@@ -55,6 +55,7 @@ const Navbar = (props: NavbarProps) => {
             if (props.quizOnPress) {
               props.quizOnPress();
             };
+            router.navigate("/quizFeed")
           }
         }}
       >

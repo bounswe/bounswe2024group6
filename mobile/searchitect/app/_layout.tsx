@@ -22,6 +22,9 @@ export default function Layout() {
       <Stack.Screen name="quizResults" options={{headerShown: false}}/>
       <Stack.Screen name="index" options={{headerShown: false}}/>
       <Stack.Screen name="quizQuestion" options={{headerShown: false}}/>
+      <Stack.Screen name="quizCreationQuestionList" options={{headerShown: false}}/>
+      <Stack.Screen name="quizCreationSettings" options={{headerShown: false}}/>
+      <Stack.Screen name="quizCreationInfo" options={{headerShown: false}}/>
     </Stack>
   );
 }
