@@ -19,3 +19,47 @@ Deployment:
 6. Run `docker compose build` at the root directory.
 7. Run `docker compose up` at the root directory.
 8. You can view the website at port 5173 at your public URL.
+
+## Mobile:
+### Prerequisites:
+To build this project, ensure you have the following tools installed on your system:
+
+- *Git*: [Install Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
+- *Node.js* and *npm*: [Download Node.js](https://nodejs.org/) (npm is included)
+- *EAS CLI*: [Set up EAS](https://docs.expo.dev/eas-update/getting-started/)
+
+### Steps to Build the Mobile App:
+
+1. *Clone the Repository:*
+   bash
+   git clone https://github.com/bounswe/bounswe2024group6.git
+   cd bounswe2024group6/mobile/bulingo
+   
+
+2. *Install Dependencies:*
+   Run the following command to install the necessary npm packages:
+   bash
+   npm install
+   
+
+3. *Log In to EAS (if not logged in):*
+   Ensure you are logged in to your EAS account:
+   bash
+   eas login
+   
+   (You will be prompted for your EAS account credentials.)
+
+4. *Build the Project Using EAS:*
+   To build the project for Android, use the following command:
+   bash
+   eas build -p android --profile preview
+   
+   > Note: You may be prompted for your EAS account username and password in this step if not already logged in.
+
+5. *Access the APK:*
+   Once the build completes, you will receive a URL to download the APK. You can find the APK download link:
+   - On the EAS build details page
+   - In the terminal output when the eas build process finishes
+
+6. *Install the APK on Your Device:*
+   After downloading the APK file, you can install it on your Android device. Enable *"Install from Unknown Sources"* in your phone’s settings if needed.
