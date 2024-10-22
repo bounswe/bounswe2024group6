@@ -63,3 +63,7 @@ To build this project, ensure you have the following tools installed on your sys
 
 6. *Install the APK on Your Device:*
    After downloading the APK file, you can install it on your Android device. Enable *"Install from Unknown Sources"* in your phone’s settings if needed.
+
+### Endpoints
+The backend can be accessed through the following URL: http://161.35.208.249:8000 
+The frontend can be accessed through the following URL: http://161.35.208.249:5173
