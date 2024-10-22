@@ -52,6 +52,7 @@ const QuizDetails = () => {
           Number of Questions: 10 {'\n'}
           Average Score: 8 {'\n'}
           Time Limit: No Limit
+          Tags: B1
         </Text>
 
         {/* Bookmark button in the bottom right corner */}
@@ -61,7 +62,7 @@ const QuizDetails = () => {
       </View>
 
       {/* Action buttons */}
-      <TouchableOpacity style={styles.quizButton} onPress={() => console.log('Take Quiz Pressed')}>
+      <TouchableOpacity style={styles.quizButton} onPress={() => {router.navigate('/quizQuestion')}}>
         <Text style={styles.buttonText}>Take Quiz</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.goBackButton} onPress={() => router.back()}>

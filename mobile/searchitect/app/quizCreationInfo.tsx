@@ -5,7 +5,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 
 const QuizCreationInfo = () => {
   const [question, setQuestion] = useState('Pasta');
-  const [answers, setAnswers] = useState(['pasta', '', '', '']);
+  const [answers, setAnswers] = useState(['', '', '', '']);
   const [showButtonIndex, setShowButtonIndex] = useState(null); // Track which tile should show the button
   const [newAnswer, setNewAnswer] = useState('');
   const [selectedAnswerIndex, setSelectedAnswerIndex] = useState<number | null>(null);

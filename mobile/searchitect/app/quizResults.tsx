@@ -38,7 +38,7 @@ const QuizResults = () => {
           <Pressable style={styles.retakeQuizButton} onPress={() => {router.push("/quizQuestion")}}>
             <Text style={styles.retakeQuizText}>Retake Quiz</Text>
           </Pressable>
-          <Pressable style={styles.mainMenuButton}>
+          <Pressable style={styles.mainMenuButton} onPress={() => {router.navigate("/")}}>
             <Text style={styles.mainMenuText}>Main Menu</Text>
           </Pressable>
         </View>

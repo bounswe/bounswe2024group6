@@ -15,24 +15,24 @@ const mockQuiz = {questions: [
     correctChoice: 4,
   },
   {
-    question: 'hail',
+    question: 'dairy',
     type: 2,
-    choice1: 'halı',
-    choice2: 'yağmur',
-    choice3: 'dolu',
-    choice4: 'balık',
-    correctChoice: 3,
+    choice1: 'süt ürünleri',
+    choice2: 'et',
+    choice3: 'mısır',
+    choice4: 'buğday',
+    correctChoice: 1,
   },
   {
-    question: 'extenuate',
-    type: 3,
-    choice1: 'point, extend, or project in a specified line or course',
-    choice2: 'correct by removing errors',
-    choice3: 'collect or gather into a mass or whole',
-    choice4: 'lessen the strength or effect of',
-    correctChoice: 4,
+    question: 'mercimek',
+    type: 1,
+    choice1: 'chickpeas',
+    choice2: 'lentils',
+    choice3: 'beans',
+    choice4: 'legumes',
+    correctChoice: 2,
   },
-], quizName: "Example Quiz", tags: ['#B1']};
+], quizName: "Foods", tags: ['#B1']};
 
 export type QuizQuestion = {
   question: string,
@@ -89,9 +89,9 @@ const QuizQuestion = () => {
       },
       recommendationProps: {
         tags: ['#A2'],
-        name: 'Foods',
+        name: 'Furniture',
         author: 'Kaan',
-        desc: "A simple quiz about foods."
+        desc: "A simple quiz about furniture."
       }
     }
     router.push({
