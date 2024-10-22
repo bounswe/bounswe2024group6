@@ -39,7 +39,7 @@ export default function Home() {
           </Pressable>
         </View> :
         <View style={styles.buttonsContainer}>
-          <Pressable style={styles.rectangularButton} onPress={handleRegister}>
+          <Pressable style={[styles.rectangularButton, {'backgroundColor': 'gray'}]} onPress={handleRegister} disabled={true}>
             <Text style={styles.buttonText}>Register</Text>
           </Pressable>
           <Pressable style={styles.rectangularButton} onPress={() => { router.navigate("/login") }}>
