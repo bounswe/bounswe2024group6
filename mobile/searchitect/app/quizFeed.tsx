@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, TextInput, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Navbar from './navbar';
+import { router } from 'expo-router';
 
 
 const initialQuizData = [
@@ -74,7 +75,7 @@ const QuizFeed = () => {
   };
 
   const handleQuizPress = (quizId: number) => {
-    navigation.navigate('quizDetails', { quizId });
+    router.navigate('./quizDetails');
   };
 
   const handleLikePress = (quizId: string) => {
@@ -135,7 +136,7 @@ const QuizFeed = () => {
           value={searchTerm}
           onChangeText={handleSearch}
         />
-        <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('CreateQuiz')}>
+        <TouchableOpacity style={styles.addButton} onPress={() => router.push('./quizCreationSettings')}>
           <Image source={require('../assets/images/add-icon.png')} style={styles.icon} />
         </TouchableOpacity>
       </View>
