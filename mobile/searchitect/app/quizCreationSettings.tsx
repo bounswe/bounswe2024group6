@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { TouchableOpacity, StyleSheet, Text, TextInput, View } from 'react-native';
 import Navbar from './navbar';
+import { router } from 'expo-router';
 
 const QuizCreationSettings = () => {
   const [quizTitle, setQuizTitle] = useState('');
@@ -14,8 +15,10 @@ const QuizCreationSettings = () => {
     setSelectedLevel(level);
   };
 
+  
+
   const handleAddQuestions = () => {
-    console.log('Proceed to add questions...');
+    router.push('./quizCreationQuestionList');
   };
 
   // Check if any field is empty
@@ -77,7 +80,6 @@ const styles = StyleSheet.create({
   container: {
     padding: 16,
     flex: 1,
-    padding: 16,
     backgroundColor: '#fff',
     justifyContent: 'flex-start',
   },
