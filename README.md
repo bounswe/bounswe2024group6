@@ -66,4 +66,5 @@ To build this project, ensure you have the following tools installed on your sys
 
 ### Endpoints
 The backend can be accessed through the following URL: http://161.35.208.249:8000 
+
 The frontend can be accessed through the following URL: http://161.35.208.249:5173
