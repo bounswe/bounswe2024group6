@@ -21,6 +21,7 @@ export default function Layout() {
       <Stack.Screen name="login" options={{headerShown: false}}/>
       <Stack.Screen name="quizResults" options={{headerShown: false}}/>
       <Stack.Screen name="index" options={{headerShown: false}}/>
+      <Stack.Screen name="quizQuestion" options={{headerShown: false}}/>
     </Stack>
   );
 }
