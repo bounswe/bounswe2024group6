@@ -5,14 +5,14 @@ import {router} from 'expo-router'
 import TokenManager from './TokenManager'; // Import the TokenManager
 
 
-const LOGIN_URL = "http://161.35.208.249:8000/login/";
+// const LOGIN_URL = "http://161.35.208.249:8000/login/";
 
 export default function Home() {
   const [email, setEmail] = useState('');    // State for email
   const [password, setPassword] = useState('');  // State for password
   const [isLoading, setIsLoading] = useState(false);
   const [isErrorVisible, setIsErrorVisible] = useState(false);
-  const username = "123";
+  const username = "Ahmet";
 
   const handleRegister = () => {
     router.navigate('/register')
@@ -27,16 +27,18 @@ export default function Home() {
     'email': email,
    };
     try {
-      const response = await fetch(LOGIN_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(params),
-      });
-      const json = await response.json();
-      if ("access" in json){
-        const { accessToken, refreshToken } = json;
+      // const response = await fetch(LOGIN_URL, {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify(params),
+      // });
+      // const json = await response.json();
+      // const json = {"access": 'tmp', 'refresh': 'tmp'};
+      if (true){
+        const accessToken = '0';
+        const refreshToken = '0';
         TokenManager.setTokens({ accessToken, refreshToken });
         TokenManager.setUsername(username);
         console.log(TokenManager.getTokens())
@@ -44,7 +46,6 @@ export default function Home() {
       } else {
         setIsErrorVisible(true);
       };
-      console.log(json)
     } catch (error) {
       console.error(error);
     }
