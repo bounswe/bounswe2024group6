@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import Navbar from "./navbar";
 import {router} from 'expo-router';
 
-const SIGNUP_URL = "http://161.35.208.249:8000/signup/";
+// const SIGNUP_URL = "http://161.35.208.249:8000/signup/";
 
 const Register = () => {
   const [email, setEmail] = useState('');
@@ -50,18 +50,17 @@ const Register = () => {
       'email': email,
     };
     try {
-      const response = await fetch(SIGNUP_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(params),
-      });
-      const json = await response.json();
-      if ("username" in json){
+      // const response = await fetch(SIGNUP_URL, {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify(params),
+      // });
+      // const json = await response.json();
+      if (true){
         router.navigate('/');
       }
-      console.log(json)
     } catch (error) {
       console.error(error);
     }
