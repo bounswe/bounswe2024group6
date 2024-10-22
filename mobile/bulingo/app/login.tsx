@@ -105,7 +105,7 @@ export default function Home() {
           <View style={styles.registerContainer} >
             <Text style={styles.smallText}>Don't have an account?</Text>
             <View style={styles.buttonContainer}>
-              <Pressable style={styles.rectangularButton} onPress={handleRegister}>
+              <Pressable style={[styles.rectangularButton, {backgroundColor: 'gray'}]} onPress={handleRegister} disabled={true}>
                 <Text style={styles.buttonText}>Register</Text>
               </Pressable>
             </View>
