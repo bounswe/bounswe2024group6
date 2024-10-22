@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect} from 'react';
 import { Keyboard, StyleSheet, Text, TextInput, View, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
 import Navbar from './navbar';
+import { router, useLocalSearchParams } from 'expo-router';
 
 const QuizCreationInfo = () => {
   const [question, setQuestion] = useState('Pasta');
@@ -8,7 +9,7 @@ const QuizCreationInfo = () => {
   const [showButtonIndex, setShowButtonIndex] = useState(null); // Track which tile should show the button
   const [newAnswer, setNewAnswer] = useState('');
   const [selectedAnswerIndex, setSelectedAnswerIndex] = useState<number | null>(null);
-  const [selectedType, setSelectedType] = useState<string | null>(null);
+  const [selectedType, setSelectedType] = useState('Type II');
   const [correctAnswerIndex, setCorrectAnswerIndex] = useState(null)
 
   const isButtonDisabled = () => {
@@ -17,9 +18,25 @@ const QuizCreationInfo = () => {
     return nonEmptyAnswers.length < answers.length || uniqueAnswers.size !== nonEmptyAnswers.length || correctAnswerIndex === null || !question.trim() || !selectedType?.trim();
   };
 
+
+  // get params from the previous screen
+  const { initialQuestion, initialAnswers, initialCorrectAnswer, type, index} = useLocalSearchParams();
+
+  useEffect(() => {
+    if (initialQuestion && initialAnswers && initialCorrectAnswer) {
+      setQuestion(Array.isArray(initialQuestion) ? initialQuestion[0] : initialQuestion);
+      setAnswers(JSON.parse(Array.isArray(initialAnswers) ? initialAnswers[0] : initialAnswers));
+      setCorrectAnswerIndex(JSON.parse(Array.isArray(initialAnswers) ? initialAnswers[0] : initialAnswers).indexOf(initialCorrectAnswer));
+      setSelectedType(type instanceof Array ? type[0] : type);
+    }
+  }, [initialQuestion, initialAnswers, initialCorrectAnswer]);
+
+  const handleGoBack = () => {
+    router.back();
+  }
+
   const selectCorrectAnswer = (index: any) => {
     setCorrectAnswerIndex(index);
-    console.log(index);
     setShowButtonIndex(null); // 
   };
 
@@ -43,6 +60,10 @@ const QuizCreationInfo = () => {
       setAnswers(updatedAnswers);
       setNewAnswer('');
     }
+  };
+
+  const handleAddQuestion = () => {
+    router.navigate({ pathname: './quizCreationQuestionList', params: { question: question, answers: JSON.stringify(answers), correctAnswer: answers[correctAnswerIndex!], selectedType: selectedType, index: index } });
   };
 
   const handleTypeSelect = (type: string) => {
@@ -158,12 +179,14 @@ const QuizCreationInfo = () => {
 
         {/* Navigation Buttons */}
         <View style={styles.navButtonsContainer}>
-          <TouchableOpacity style={styles.navButton}>
+          <TouchableOpacity style={styles.navButton} onPress={() => handleGoBack()}>
+            
             <Text style={styles.navButtonText}>Go Back</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             style={[styles.navButton, isButtonDisabled() && styles.disabledButton]} 
             disabled={isButtonDisabled()}
+            onPress={() => handleAddQuestion()}
           >
           <Text style={styles.navButtonText}>Add Question</Text>
         </TouchableOpacity>

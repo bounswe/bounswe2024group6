@@ -1,29 +1,75 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Pressable, StyleSheet, Text, View, FlatList } from 'react-native';
 import Navbar from './navbar';
+import { router, useLocalSearchParams } from 'expo-router';
 
 const QuizCreationQuestionList = () => {
   const [questions, setQuestions] = useState([
-    'Pasta',
-    'Salt',
-    'Beef',
-    'Lettuce',
+    {id: 1, name: 'Pasta', correctAnswer: 'makarna', answers: ['makarna', 'pizza', 'hamburger', 'sushi'], type: 'Type II'},
+    {id: 2, name: 'Salt', correctAnswer: 'tuz', answers: ['tuz', 'seker', 'un', 'sut'], type: 'Type II'},
+    {id: 3, name: 'Beef', correctAnswer: 'dana eti', answers: ['dana eti', 'kuzu eti', 'tavuk eti', 'balik'], type: 'Type II'},
+    {id: 4, name:'Lettuce', correctAnswer: 'marul', answers: ['marul', 'domates', 'salatalik', 'biber'], type: 'Type II'},
   ]);
+  
+  
+  
+
+  
+  const { question, answers, correctAnswer, selectedType, index } = useLocalSearchParams();
+
+  const parsedAnswers = Array.isArray(answers) ? answers.join(', ') : answers ? JSON.parse(answers) : [];
+
+  useEffect(() => {
+    if (question && answers && correctAnswer && selectedType) {
+      const newQuestion = {
+        id: questions.length + 1,
+        name: Array.isArray(question) ? question[0] : question, // Handle case if question is an array
+        correctAnswer: Array.isArray(correctAnswer) ? correctAnswer[0] : correctAnswer, // Handle case if correctAnswer is an array
+        answers: parsedAnswers, // This should now be an array
+        type: Array.isArray(selectedType) ? selectedType[0] : selectedType // Convert selectedType to a string
+      };
+
+      if (index !== undefined) {
+        setQuestions((prevQuestions) => {
+          const updatedQuestions = [...prevQuestions];
+          updatedQuestions[Number(index)] = newQuestion;
+          return updatedQuestions;
+        });
+        return;
+      }
+
+      // Update the state to add the new question
+      setQuestions((prevQuestions) => [...prevQuestions, newQuestion]);
+    }
+  }, [question, answers, correctAnswer, selectedType]);
 
   const handleAddQuestion = () => {
-    const newQuestion = `Question ${questions.length + 1}`;
-    setQuestions([...questions, newQuestion]);
+    router.navigate('./quizCreationInfo');
   };
+
+  const handleUpdateQuestion = (index: number) => {
+    router.navigate({pathname: './quizCreationInfo', params: { "initialQuestion": questions[index].name , "initialAnswers": JSON.stringify(questions[index].answers), "initialCorrectAnswer": questions[index].correctAnswer, "type": questions[index].type, "index": index}});
+  };
+
+  const handleCreateQuiz = () => {
+    router.navigate('./quizFeed');
+  }
+
+  const handleCancel = () => {
+    router.navigate("./quizFeed");
+  }
+
+
 
   const handleDeleteQuestion = (index: number) => {
     const updatedQuestions = questions.filter((_, i) => i !== index);
     setQuestions(updatedQuestions);
   };
 
-  const renderQuestionItem = ({ item, index }: { item: string; index: number }) => (
+  const renderQuestionItem = ({ item, index }: { item: any; index: number }) => (
     <View style={styles.questionContainer}>
-      <Text style={styles.questionText}>{`Question ${index + 1}: ${item}`}</Text>
-      <Pressable style={styles.iconButton}>
+      <Text style={styles.questionText}>{`Question ${index + 1}: ${item.name}`}</Text>
+      <Pressable style={styles.iconButton} onPress={() => handleUpdateQuestion(index)}>
         <Text style={styles.iconText}>♻️</Text>
       </Pressable>
       <Pressable style={styles.iconButton} onPress={() => handleDeleteQuestion(index)}>
@@ -52,10 +98,10 @@ const QuizCreationQuestionList = () => {
 
       {/* Footer Buttons */}
       <View style={styles.footer}>
-        <Pressable style={styles.footerButton}>
+        <Pressable style={styles.footerButton} onPress={() => handleCancel()}>
           <Text style={styles.footerButtonText}>Cancel</Text>
         </Pressable>
-        <Pressable style={styles.footerButton}>
+        <Pressable style={styles.footerButton} onPress={() => handleCreateQuiz()}>
           <Text style={styles.footerButtonText}>Create Quiz</Text>
         </Pressable>
       </View>
