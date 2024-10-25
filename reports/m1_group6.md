@@ -25,7 +25,7 @@ Regarding our presentation, we realized that our mock data choices weren't the m
 | [Mobile Mockups](https://github.com/bounswe/bounswe2024group6/wiki/Mobile-Mockups) | Completed (UI will be changed) | 
 | [Project Plan](https://github.com/bounswe/bounswe2024group6/wiki/General-Project-Plan) | Completed
 | [Communication Plan](https://github.com/bounswe/bounswe2024group6/wiki/Communication-Plan) | Completed |
-| [RAM](https://github.com/bounswe/bounswe2024group6/wiki/Responsibility-Assignment-Matrix-%E2%80%90-451) | Completed 
+| [RAM](https://github.com/bounswe/bounswe2024group6/wiki/Responsibility-Assignment-Matrix-%E2%80%90-CMPE-451) | Completed 
 | [Prerelease](https://github.com/bounswe/bounswe2024group6/releases/tag/customer-milestone-1) | Completed |
 # Meetings And Reports
 - [Lab Report 1](https://github.com/bounswe/bounswe2024group6/wiki/Lab-Report-1)
@@ -105,85 +105,6 @@ We have utilized Postman to keep track of the endpoints implemented by backend t
 * 1.3.1.2 Guests shall be able to view the comments under a forum post.
 * 1.3.2.4 Logged-in users shall be able to add tags to the post while creating new posts in the forum.
 * 1.3.2.8 Logged-in users shall be able to like/unlike posts and comments.
-
-
-# RAM
-
-- **L (Lead)**: The person who carries out the majority of the work. There can be multiple leads if the task requires collaboration.
-- **C (Contributor)**: The person who is not responsible for the task but contributed in a minor way.
-- **A (Approver)**: The person who approved the item.
-- **R (Reviewer)**: The person who reviewd the item and provided feedback.
-
-Shortened names:
-
-- **Oktay Özel (OÖ)**
-- **Aras Taşçı (AT)**
-- **Yunus Emre Özdemir (YEÖ)**
-- **Kaan Yolcu (KY)**
-- **Elif Nur Deniz (END)**
-- **Anıl Köse (AK)**
-- **Halil Özkan (HÖ)**
-- **Ali Tarık Şahin (ATŞ)**
-- **Ahmet Oğuz Engin (AOE)**
-- **Yağız Güldal (YG)**
-
-| Tasks                                              | OÖ  | AT  | YEÖ | KY  | END | AK  | HÖ  | ATŞ | AOE | YG  |
-|----------------------------------------------------|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|
-| **Mobile Development**                           |     |     |     |     |     |  L  |     |     |  L  |  L  |
-| Create SignUp and Login Pages                      |     |     |     |     |     |  A  |     |     |  L  |  L  |
-| Create Quiz Feed Page                              |     |     |     |     |     |  A  |     |     |  L  |  A  |
-| Create Home Page and Navigation Bar                |     |     |     |     |     |  A  |     |     |  R  |  L  |
-| Upgrade Expo SDK to Version 51                     |     |     |     |     |     |  A  |     |     |     |  L  |
-| Prepare Mobile for Deployment and Prerelease Fixes |     |     |     |     |     |  A  |     |     |  L  |  L  |
-| Refactor Components for Prerelease                 |     |     |     |     |     |  A  |     |     |  L  |  L  |
-| Fix Register Button and Fetch Calls Issues         |     |     |     |     |     |     |     |     |  A  |  L  |
-| Implement Quiz Creation Flow                       |     |     |     |     |     |  L  |     |     |  L  |  A  |
-| Implement Quiz Question and Details Pages          |     |     |     |     |     |  L  |     |     |  A  |  L  |
-| Implement Like/Unlike Functionality and Add New Icons|   |     |     |     |     |  A  |     |     |  L  |     |
-| Mobile Build Instructions and Merge to Main        |     |     |     |     |     |  A  |     |     |  C  |  L  |
-| **Backend Development**                          |  L  |  L  |     |  L  |     |     |  L  |     |     |     |
-| Dockerization and Setup                            |  L  |   L |     |  L  |  R   |     | A   |     |     |     |
-| Implement Post View and Feed Endpoints with Mock Data| C  |   R |     |  L  |     |     | L   |     |     |     |
-| Implement Quiz View and Creation Endpoints         |    A |  L  |     |  C  |     |     |     |     |     |     |
-| Profile Model, Serializer, View & Update Functionality| A |     |     |  L  |     |     | A   |     |     |     |
-| Login, Signup, Logout Functionalities              |   L |     |     |  A  |     |     | C   |     |     |     |
-| Fix Mock Data Creation and Merge Backend Setup Changes| |   L  |     |  A  |  R   |     |     |     |     |     |
-| **Frontend Development**                         |     |     |  L  |     |  L  |     |     |  L  |     |     |
-| Frontend Project Initialization                    |     |     |  L  |     |   A  |     |     |   R  |     |     |
-| Create Navbar and Adjust Design Elements           |     |     |  L  |     |   A  |     |     |   R  |     |     |
-| Switch to NextUI and Redesign Navbar               |     |     |  L  |     |  A   |     |     |  C  |     |     |
-| Create Post Component and Post Creation Template   |     |     |     |     |  L   |     |     |  L  |     |     |
-| Create Forum Page                                  |     |     |  A  |     |   A  |     |     |  L  |     |     |
-| Create Post Page                                   |     |     |  L  |     |   A  |     |     |  R  |     |     |
-| Connect Frontend to Backend and Dockerize Frontend |     |     |  L  |     |   A  |     |     |   R  |     |     |
-| Connect Forum, Post and Profile Pages to Backend   |     |     |  L  |     |   A  |     |     |   R  |     |     |
-| Reduce Frontend Initial Load Time and Fix Performance Issues| | | L  |     |   R  |     |     |  C  |     |     |
-| Design Profile Page                                |     |     |  A  |     |   L  |     |     |  R  |     |     |
-| Implement Filtering View and Adjustments in Forum Page|  |     |     |     |   R  |     |     |  L  |     |     |
-| Fix Profile Page Design and Deployment Issues      |     |     |  L  |     |   L  |     |     |  C  |     |     |
-| Create Preview for Post Creation                   |     |     |  A  |     |   R  |     |     |  L  |     |     |
-| **Meetings and Documentation**                  |  C  |  C  |  C  |  C  |  C   |  C  | C   | C   |  C  |  C  |
-| 1st Customer Presentations (Backend, Mobile, Frontend)| C| C   |  C  |  C  |   C  |  C  | C   |  C   |  C  |C   |
-| Weekly Meeting Notes and Agendas                   |   C |  C   |     |  C  |  C   |  C   | C   |   C  |  C  | C   |
-| Host Lab Meetings and Take Notes                   |     |  C   |     |     |  C   |     | A   |   C  |  C  | C   |
-| Create Lab Reports and Templates                   |  C  |     |     |     |   C  |     | C   |   C  |  C  | C   |
-| Create Project Plan and Readme File                |  C  |  L   |  A  |  L  |  C   |  C  | A   |  A   |  C  |  C  |
-| Create the Outline of RAM                   |  A   |     |     |  A  |     |     | L   |     |     |     |
-| **Requirements and Design**                      |     |     |     |     |     |     | C   |     |     |     |
-| Finalize Requirements and Review User Scenarios    |  A   |     |     |     |  L   |   C  | C   |     |  C  |  C  |
-| Create Mockups and Scenario Mockups                |  A   |     |  L  |     | L    |   C  | C   |  L   |  L  |  L   |
-| Create Class Diagrams and Sequence Diagrams        |  L   |   L  |  L  |  L  |  R   |     | A   |     |  L   |     |
-| Update Requirements and Preliminary Use Case Diagram|  L  |     |     |   C |   R  |  C  | C   |     |   C  |  L  |
-| Research Tasks (W3C Standards, Linked Data)        |  R   |     |  L  |     |   R  |     |     |   L  |     |     |
-| **Wiki and Homepage Updates**                   |     |     |     |     |     |     |  C  |     |  C  |     |
-| Organize Homepage and Wiki Sidebar                 |  L  |  C   |     |  L  |  L   |     |  C  |  C   |  C  |  C  |
-| Update Wiki Pages with Real Data and Redesign      |     |     |     |  L  |     |     |     |   C  |  C   |     |
-| Create Personal Pages for Newcomers                |     |     |     |     |     |     |     |     |  L   |     |
-| Archive Old Project and Repositories               |     |   R  | L   |    |  L   |     |     |     |     |     |
-| **Other Tasks**                                   |     |     |     |     |     |     |     |     |     |     |
-| Clear Obsolete Branches and Close Old Issues       |     |   L  |     |   L |     |     |     |     |     |     |
-
-
 
 # Individual Contributions
 
