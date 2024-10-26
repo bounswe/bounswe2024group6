@@ -1,8 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Profile
-
-from .models import Quiz
+from .models import Profile, Quiz, Post
 
 
 
@@ -47,3 +45,8 @@ class QuizSerializer(serializers.ModelSerializer):
     class Meta:
         model = Quiz
         fields = ['id', 'title', 'description', 'author', 'tags', 'created_at', 'times_taken', 'total_score', 'time_limit', 'like_count']
+
+class PostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post 
+        fields = ['id', 'title', 'description', 'author', 'tags', 'created_at', 'like_count']
