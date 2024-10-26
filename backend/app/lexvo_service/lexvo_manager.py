@@ -4,9 +4,11 @@ from requests.exceptions import ConnectionError, Timeout
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-def get_meanings_from_lexvo(word):
-    base_url = "http://www.lexvo.org/data/term/eng/"
-    response = requests.get(f"{base_url}{word}", headers={'Accept': 'application/rdf+xml'})
+
+LEXVO_BASE_URL = "http://www.lexvo.org/data/term/eng/"
+
+def get_meaning_uris_and_translations(word):
+    response = requests.get(f"{LEXVO_BASE_URL}{word}", headers={'Accept': 'application/rdf+xml'})
 
     if response.status_code != 200:
         print(f"Error fetching data for '{word}': Status code {response.status_code}")
@@ -14,47 +16,68 @@ def get_meanings_from_lexvo(word):
 
     g = Graph()
     meanings_uris = []
+    translations = []
 
-    try:
-        g.parse(data=response.text, format="xml")
+    g.parse(data=response.text, format="xml")
 
-        for subj, pred, obj in g:
-            if 'means' in pred:
-                meanings_uris.append(obj)
+    for subj, pred, obj in g:
+        if 'means' in pred:
+            meanings_uris.append(str(obj))  # Store URI for each meaning
+        elif 'translation' in pred:
+            translations.append(str(obj))  # Store translation URIs
 
-    except Exception as e:
-        print(f"Parsing error: {e}")
-        return []
+    return meanings_uris, translations
+def get_detailed_info(uri):
+    response = requests.get(uri, headers={'Accept': 'application/rdf+xml'})
 
-    return meanings_uris
+    if response.status_code != 200:
+        print(f"Error fetching details for URI '{uri}': Status code {response.status_code}")
+        return None
 
-def fetch_detailed_meaning(uris):
-    meanings = []
-    for uri in uris:
-        if "lexvo.org" not in uri:
-            print(f"Skipping non-Lexvo URI: {uri}")
-            continue
+    g = Graph()
+    details = {
+        "label": None,
+        "comment": None,
+        "broader": [],
+        "narrower": [],
+        "nearlySameAs": []
+    }
 
-        try:
-            response = requests.get(uri, headers={'Accept': 'application/rdf+xml'}, timeout=5)
-            if response.status_code != 200:
-                print(f"Error fetching details for URI '{uri}': Status code {response.status_code}")
-                continue
+    g.parse(data=response.text, format="xml")
 
-            g = Graph()
-            details = {}
-            g.parse(data=response.text, format="xml")
+    # Extract label and comment for description
+    details["label"] = str(g.value(subject=URIRef(uri), predicate=URIRef("http://www.w3.org/2000/01/rdf-schema#label")))
+    details["comment"] = str(g.value(subject=URIRef(uri), predicate=URIRef("http://www.w3.org/2000/01/rdf-schema#comment")))
 
-            label = g.value(subject=URIRef(uri), predicate=URIRef("http://www.w3.org/2000/01/rdf-schema#label"))
-            comment = g.value(subject=URIRef(uri), predicate=URIRef("http://www.w3.org/2000/01/rdf-schema#comment"))
+    # Extract relationships: broader, narrower, nearlySameAs
+    for subj, pred, obj in g:
+        if 'broader' in pred:
+            details["broader"].append(str(obj))
+        elif 'narrower' in pred:
+            details["narrower"].append(str(obj))
+        elif 'nearlySameAs' in pred:
+            details["nearlySameAs"].append(str(obj))
 
-            details["label"] = str(label) if label else "No label found"
-            details["comment"] = str(comment) if comment else "No comment found"
-            meanings.append(details)
+    return details
 
-        except (ConnectionError, Timeout) as e:
-            print(f"Failed to fetch {uri}: {e}")
-            continue
 
-    return meanings
+def search_lexvo(word):
+    meanings_uris, translations = get_meaning_uris_and_translations(word)
+
+    # Collect details for each meaning URI
+    meanings_details = []
+    for uri in meanings_uris:
+        detailed_info = get_detailed_info(uri)
+        if detailed_info:
+            meanings_details.append(detailed_info)
+
+    print(meanings_details)
+    return {
+        "translations": translations,
+        "meanings": meanings_details
+    }
+
+
+
+
 
