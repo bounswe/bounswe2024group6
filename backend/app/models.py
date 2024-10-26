@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 from django.contrib.auth.models import User
 
+
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     bio = models.TextField(blank=True, null=True)
@@ -48,4 +49,18 @@ class Question(models.Model):
 
     def __str__(self):
         return self.question_text
+    
+class Post(models.Model):
+    id = models.AutoField(primary_key=True)
+    tags = models.ManyToManyField(Tags, related_name='posts')
+    title = models.CharField(max_length=100)
+    description = models.TextField()
+    created_at = models.DateTimeField(default=timezone.now)
+    author = models.CharField(max_length=100)
+    like_count = models.IntegerField(default=0)
+    def __str__(self):
+        return self.title
+    
+    
+    
 

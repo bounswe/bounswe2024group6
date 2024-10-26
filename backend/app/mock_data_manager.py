@@ -1,8 +1,8 @@
-from .quiz_manager import CreateQuiz
+from .models import Quiz
 from .models import Tags
 
 def create_quiz_mockdata():
-    quiz1 = CreateQuiz(
+    quiz1 = Quiz.objects.create(
         title="Food",
         description="Learn about foods",
         author="Oguz",
@@ -10,7 +10,7 @@ def create_quiz_mockdata():
     )
     quiz1.tags.add(*[Tags.objects.get_or_create(name=tag)[0] for tag in ["A1", "vocabulary"]])
 
-    quiz2 = CreateQuiz(
+    quiz2 = Quiz.objects.create(
         title="Animals",
         description="Our furry friends!",
         author="Aras",
@@ -18,7 +18,7 @@ def create_quiz_mockdata():
     )
     quiz2.tags.add(*[Tags.objects.get_or_create(name=tag)[0] for tag in ["A2", "vocabulary"]])
 
-    quiz3 = CreateQuiz(
+    quiz3 = Quiz.objects.create(
         title="Furniture",
         description="Essential furniture",
         author="Kaan",
@@ -26,7 +26,7 @@ def create_quiz_mockdata():
     )
     quiz3.tags.add(*[Tags.objects.get_or_create(name=tag)[0] for tag in ["B1", "vocabulary"]])
 
-    quiz4 = CreateQuiz(
+    quiz4 = Quiz.objects.create(
         title="Plants",
         description="Test your plant knowledge",
         author="Halil",
@@ -34,7 +34,7 @@ def create_quiz_mockdata():
     )
     quiz4.tags.add(*[Tags.objects.get_or_create(name=tag)[0] for tag in ["B2", "vocabulary"]])
 
-    quiz5 = CreateQuiz(
+    quiz5 = Quiz.objects.create(
         title="Transport",
         description="Types of transport",
         author="Alex",
@@ -42,7 +42,7 @@ def create_quiz_mockdata():
     )
     quiz5.tags.add(*[Tags.objects.get_or_create(name=tag)[0] for tag in ["C1", "vocabulary"]])
 
-    quiz6 = CreateQuiz(
+    quiz6 = Quiz.objects.create(
         title="Food",
         description="Learn about foods",
         author="Oguz",
@@ -50,7 +50,7 @@ def create_quiz_mockdata():
     )
     quiz6.tags.add(*[Tags.objects.get_or_create(name=tag)[0] for tag in ["C2", "vocabulary", "grammar"]])
 
-    quiz7 = CreateQuiz(
+    quiz7 = Quiz.objects.create(
         title="Animals",
         description="Our furry friends!",
         author="Aras",
@@ -58,7 +58,7 @@ def create_quiz_mockdata():
     )
     quiz7.tags.add(*[Tags.objects.get_or_create(name=tag)[0] for tag in ["B2", "grammar"]])
 
-    quiz8 = CreateQuiz(
+    quiz8 = Quiz.objects.create(
         title="Furniture",
         description="Essential furniture",
         author="Kaan",
@@ -66,7 +66,7 @@ def create_quiz_mockdata():
     )
     quiz8.tags.add(*[Tags.objects.get_or_create(name=tag)[0] for tag in ["B1", "grammar"]])
 
-    quiz9 = CreateQuiz(
+    quiz9 = Quiz.objects.create(
         title="Plants",
         description="Test your plant knowledge",
         author="Halil",
@@ -74,7 +74,7 @@ def create_quiz_mockdata():
     )
     quiz9.tags.add(*[Tags.objects.get_or_create(name=tag)[0] for tag in ["A2", "grammar"]])
 
-    quiz10 = CreateQuiz(
+    quiz10 = Quiz.objects.create(
         title="Transport",
         description="Types of transport",
         author="Alex",
