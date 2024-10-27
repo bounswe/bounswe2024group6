@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableWithoutFeedback, Image, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
-
+import { RFPercentage } from 'react-native-responsive-fontsize';
 
 const debugUserInfo: UserInfo = {
   name: 'Yagiz Guldal',
@@ -256,21 +256,22 @@ const styles = StyleSheet.create({
     flex: 3,
     flexDirection: 'row',
     alignItems: 'flex-start',
-    padding: 10,
+    padding: 5,
+    paddingTop: 10,
   },
   profileInfoTopFollowItemContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 8,
-    margin: 5,
+    margin: 3,
   },
   followItemNumberText: {
-    fontSize: 22,
+    fontSize: RFPercentage(3.2),
     fontWeight: 'bold',
   },
   followItemDescriptionText: {
-    fontSize: 16,
+    fontSize: RFPercentage(2.1),
     color: 'rgba(8, 8, 206, 1)',
   },
   profileInfoAboutContainer: {
