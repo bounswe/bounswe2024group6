@@ -17,8 +17,6 @@ export default function Layout() {
         }}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="quizFeed" options={{headerShown: false}} />
-        <Stack.Screen name="profile" />
-
         <Stack.Screen name="register" options={{headerShown: false}} />
         <Stack.Screen name="quizDetails" options={{headerShown: false}} />
         <Stack.Screen name="login" options={{headerShown: false}}/>

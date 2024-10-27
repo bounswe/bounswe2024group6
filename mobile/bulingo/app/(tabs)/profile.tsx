@@ -1,23 +1,98 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, StyleProp, ViewStyle, Image, TouchableOpacity, FlatList } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableWithoutFeedback, Image, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
 
-export default function Profile() {
-  const [tab, setTab] = useState(1);
-  const createdQuizzes=[{key: 1, desc: 'Created Quiz 1'}]
-  const solvedQuizzes=[
+
+const debugUserInfo: UserInfo = {
+  name: 'Yagiz Guldal',
+  about: "Hello, I am an avid language learner. I am trying my best to learn English.",
+  followerCount: 20,
+  followingCount: 25,
+  createdQuizzes: [{key: 1, desc: 'Created Quiz 1'}],
+  solvedQuizzes: [
     {key: 1, desc: 'Solved Quiz 1'},
     {key: 2, desc: 'Solved Quiz 2'},
     {key: 3, desc: 'Solved Quiz 3'},
     {key: 4, desc: 'Solved Quiz 4'},
     {key: 5, desc: 'Solved Quiz 5'},
     {key: 6, desc: 'Solved Quiz 6'},
-  ]
-  const postsAndComments=[{key: 1, desc: 'Post 1'}, {key: 2, desc: 'Post 2'}]
-  const content = [createdQuizzes, solvedQuizzes, postsAndComments]
+  ],
+  postsAndComments: [{key: 1, desc: 'Post 1'}, {key: 2, desc: 'Post 2'}],
+};
+
+type UserInfo = {
+  name: string,
+  about: string,
+  followerCount: number,
+  followingCount: number,
+  createdQuizzes: {key: number, desc: string}[],  // Placeholder
+  solvedQuizzes: {key: number, desc: string}[],  // Placeholder
+  postsAndComments: {key: number, desc: string}[],  // Placeholder
+
+};
+
+export default function Profile() {
+  /* 
+  Things we need to fetch for this page:
+  Send the access token, refresh token (maybe) and userId for this user. Get:
+   - Name
+   - Follower Count
+   - Following Count
+   - Created Quizzes
+   - Solved Quizzes
+   - Posts and Comments
+  */
+
+  const [userInfo, setUserInfo] = useState<UserInfo>();
+  const [tab, setTab] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const ENDPOINT_URL = "http://161.35.208.249:8000/userInfo";  // Placeholder
+    const fetchProfileInfo = async () => {
+      const params = {
+        // TODO
+       };
+      try {
+        const response = await fetch(ENDPOINT_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(params),
+        });
+
+        if (response.ok){
+          setUserInfo(await response.json());
+        } else {
+          console.log(response.status)
+          setUserInfo(debugUserInfo);
+        };
+        setUserInfo
+      } catch (error) {
+        console.error(error);
+      }
+      setIsLoading(false);
+    };
+
+    fetchProfileInfo();
+  }, []);
+
+
+  const tabData = [userInfo?.createdQuizzes, userInfo?.solvedQuizzes, userInfo?.postsAndComments]
+
+  if(isLoading){
+    return (
+      <TouchableWithoutFeedback>
+        <View style={styles.overlay}>
+          <ActivityIndicator size="large" color="#fff" />
+        </View>
+      </TouchableWithoutFeedback>
+    );
+  };
 
   return (
     <FlatList 
-      data={content[tab-1]}
+      data={tabData[tab-1]}
       renderItem={({item}) => {
         return (
           <View style={{height: 100, borderWidth: 3, borderColor: 'black', borderRadius: 15, justifyContent: 'center', alignItems: 'center', marginHorizontal: 15, marginVertical: 5,}}>
@@ -28,43 +103,61 @@ export default function Profile() {
       style={{backgroundColor: 'white'}}
       ListHeaderComponent={
         <>
-          <ProfileInfo/>
+          <ProfileInfo
+            name={'Yagiz'}
+            about={'Yagiz Guldal is currently creating the profile page. At least he tries to.'}
+            followerCount={20}
+            followingCount={200}
+          />
           <Tabs tab={tab} setTab={setTab}/>
         </>
       }
     />
-
   );
 }
 
 type ProfileInfoProps = {
-  style?: StyleProp<ViewStyle>
+  followerCount: number,
+  followingCount: number,
+  name: string,
+  about: string,
 }
 
-const ProfileInfo = (props?:ProfileInfoProps) => {
+const ProfileInfo = (props:ProfileInfoProps) => {
+
+  const handleFollowersPress = () => {
+    console.log("Followers button pressed.")
+  };
+  const handleFollowingPress = () => {
+    console.log("Following button pressed.")
+  };
+  const handleEditProfilePress = () => {
+    console.log("Edit Profile button pressed.")
+  };
+
   return (
-    <View style={[styles.profileInfoContainer, props?.style]}>
+    <View style={styles.profileInfoContainer}>
       <View style={styles.profileInfoTopContainer}>
         <View style={styles.profileInfoTopPictureContainer}>
           <Image source={require('@/assets/images/profile-icon.png')} style={styles.profileInfoTopPicture}></Image>
         </View>
         <View style={styles.profileInfoTopFollowContainer}>
-          <TouchableOpacity style={styles.profileInfoTopFollowItemContainer}>
-            <Text style={styles.followItemNumberText}>0</Text>
+          <TouchableOpacity style={styles.profileInfoTopFollowItemContainer} onPress={handleFollowersPress}>
+            <Text style={styles.followItemNumberText}>{props.followerCount}</Text>
             <Text style={styles.followItemDescriptionText}>Followers</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.profileInfoTopFollowItemContainer}>
-            <Text style={styles.followItemNumberText}>20</Text>
+          <TouchableOpacity style={styles.profileInfoTopFollowItemContainer} onPress={handleFollowingPress}>
+            <Text style={styles.followItemNumberText}>{props.followingCount}</Text>
             <Text style={styles.followItemDescriptionText}>Following</Text>
           </TouchableOpacity>
         </View>
       </View>
       <View style={styles.profileInfoAboutContainer}>
-        <Text style={styles.profileInfoNameText}>Yagiz Guldal</Text>
-        <Text style={styles.profileInfoAboutText}>Yagiz Guldal is currently creating the profile page. At least he tries to.</Text>
+        <Text style={styles.profileInfoNameText}>{props.name}</Text>
+        <Text style={styles.profileInfoAboutText}>{props.about}</Text>
       </View>
       <View style={styles.profileInfoButtonContainer}>
-        <TouchableOpacity style={styles.profileInfoButton}>
+        <TouchableOpacity style={styles.profileInfoButton} onPress={handleEditProfilePress}>
           <Text style={styles.profileInfoButtonText}>Edit Profile</Text>
         </TouchableOpacity>
       </View>
@@ -234,5 +327,16 @@ const styles = StyleSheet.create({
   },
   tabContentContainer: {
     padding: 10,
+  },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)', // Semi-transparent background
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1,
   },
 });
