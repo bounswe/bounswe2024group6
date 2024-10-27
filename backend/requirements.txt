@@ -5,4 +5,8 @@ psycopg2>=2.9
 adrf
 django-cors-headers
 requests
+python-dotenv
+langchain
+langchain_ollama
+langchain_core
 

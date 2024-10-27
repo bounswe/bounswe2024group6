@@ -23,6 +23,7 @@ services:
       - .env
     depends_on:
       - db
+      - ollama_service  # Add dependency
 
   frontend:
     build: ./frontend
@@ -33,3 +34,12 @@ services:
       - /app/node_modules
     depends_on:
       - web
+
+  ollama_service:
+    image: ollama/ollama:latest  # Replace with actual image if available
+    container_name: ollama_service
+    ports:
+      - "5001:5001"  # Assuming Ollama runs on 5001; adjust if needed
+    restart: always
+    environment:
+      - OLLAMA_API_KEY=${OLLAMA_API_KEY}  # Set in .env if required

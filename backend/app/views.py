@@ -20,6 +20,12 @@ from rest_framework import generics, status
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
+
+from langchain.prompts.prompt import PromptTemplate
+from langchain_ollama import ChatOllama
+from langchain_core.output_parsers import StrOutputParser
+import os
+from .llm_service import ollama_manager
 from .models import Tags
 from .models import Quiz
 
@@ -44,6 +50,34 @@ def create_post(request):
     return Response({'message': 'Post created successfully.'}, status=status.HTTP_201_CREATED)
 
 
+
+@api_view(['POST'])
+def generate_multiple_choice_question_view(request):
+    # Extract input data from request
+    word = request.data.get('word')
+    correct_answer = request.data.get('correct_answer')
+    question_type = request.data.get('question_type')
+    difficulty_level = request.data.get('difficulty_level')
+    print(word, correct_answer,question_type,difficulty_level)
+
+    if not all([word, correct_answer, question_type, difficulty_level]):
+        return Response(
+            {"error": "All fields (word, correct_answer, question_type, difficulty_level) are required."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        generated_question = ollama_manager.generate_multiple_choice(
+            word=word,
+            correct_answer=correct_answer,
+            question_type=question_type,
+            difficulty_level=difficulty_level
+        )
+        
+        return Response({"generated_question": generated_question})
+    
+    except Exception as e:
+        return Response({"error": f"An error occurred: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 @api_view(['GET'])
 def post_view_page(request):
     mock_posts = [

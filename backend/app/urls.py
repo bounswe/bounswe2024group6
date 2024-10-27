@@ -14,4 +14,5 @@ urlpatterns = [
     path('signup/', RegisterView.as_view(), name='auth_register'),
     path('login/', LoginView.as_view(), name='auth_login'),
     path('logout/', LogoutView.as_view(), name='auth_logout'),
+    path('get_choices/', generate_multiple_choice_question_view, name='generate_multiple_choice_question_view'),
 ]
