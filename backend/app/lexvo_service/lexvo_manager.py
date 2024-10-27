@@ -27,13 +27,19 @@ def get_meaning_uris_and_translations(word):
             translations.append(str(obj))  # Store translation URIs
 
     return meanings_uris, translations
-def get_detailed_info(uri):
-    response = requests.get(uri, headers={'Accept': 'application/rdf+xml'})
 
-    if response.status_code != 200:
-        print(f"Error fetching details for URI '{uri}': Status code {response.status_code}")
+def get_detailed_info(uri):
+    try:
+        response = requests.get(uri, headers={'Accept': 'application/rdf+xml'}, timeout=5)
+        response.raise_for_status()  # Raise an error for 4xx/5xx HTTP errors
+    except (requests.ConnectionError, requests.Timeout):
+        print(f"Error fetching details for URI '{uri}': Connection failed or timed out.")
+        return None
+    except requests.HTTPError as e:
+        print(f"Error fetching details for URI '{uri}': {e}")
         return None
 
+    # Proceed if the request is successful
     g = Graph()
     details = {
         "label": None,
@@ -44,12 +50,9 @@ def get_detailed_info(uri):
     }
 
     g.parse(data=response.text, format="xml")
-
-    # Extract label and comment for description
     details["label"] = str(g.value(subject=URIRef(uri), predicate=URIRef("http://www.w3.org/2000/01/rdf-schema#label")))
     details["comment"] = str(g.value(subject=URIRef(uri), predicate=URIRef("http://www.w3.org/2000/01/rdf-schema#comment")))
 
-    # Extract relationships: broader, narrower, nearlySameAs
     for subj, pred, obj in g:
         if 'broader' in pred:
             details["broader"].append(str(obj))
@@ -61,9 +64,10 @@ def get_detailed_info(uri):
     return details
 
 
+
 def search_lexvo(word):
     meanings_uris, translations = get_meaning_uris_and_translations(word)
-
+    turkish_translations = [] 
     # Collect details for each meaning URI
     meanings_details = []
     for uri in meanings_uris:
@@ -71,11 +75,48 @@ def search_lexvo(word):
         if detailed_info:
             meanings_details.append(detailed_info)
 
-    print(meanings_details)
+    for translation_uri in translations:
+        if len(translation_uri.split('/')) > 1:
+            if translation_uri.split('/')[5] == "tur":
+                turkish_translations.append(translation_uri)
+    
+
     return {
-        "translations": translations,
+        "translations": turkish_translations,
         "meanings": meanings_details
     }
+
+
+def get_final_info(word):
+    # Fetch meanings and translations using the search_lexvo function
+    results = search_lexvo(word)
+
+    # Prepare the response
+    final_info = {
+        "word": word,
+        "meanings": [],
+        "turkish_translations": []
+    }
+
+    # Populate meanings with details
+    for meaning in results["meanings"]:
+        meaning_info = {
+            "label": meaning["label"],
+            "comment": meaning["comment"],
+            "broader": meaning["broader"],
+            "narrower": meaning["narrower"],
+            "nearlySameAs": meaning["nearlySameAs"]
+        }
+        final_info["meanings"].append(meaning_info)
+
+    # Populate Turkish translations
+    final_info["turkish_translations"] = results["translations"]
+
+    return final_info
+
+
+
+
 
 
 
