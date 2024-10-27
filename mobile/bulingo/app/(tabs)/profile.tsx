@@ -271,6 +271,7 @@ const styles = StyleSheet.create({
   },
   followItemDescriptionText: {
     fontSize: 16,
+    color: 'rgba(8, 8, 206, 1)',
   },
   profileInfoAboutContainer: {
     flex: 0,
@@ -295,7 +296,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor:'#00000010',
+    backgroundColor:'rgba(106, 156, 255, 0.6)',
     height: 40,
     borderRadius: 8,
     margin: 5,
@@ -303,6 +304,7 @@ const styles = StyleSheet.create({
   profileInfoButtonText: {
     fontSize: 16,
     fontWeight: 'bold',
+    color: 'rgba(8, 8, 206, 1)',
   },
   tabHeaderContainer: {
     flexDirection: 'row',
@@ -321,18 +323,18 @@ const styles = StyleSheet.create({
   tabHeaderItemText: {
     fontSize: 16,
     textAlign: 'center',
-    color: 'gray',
+    color: 'rgba(8, 8, 186, 0.2)',
     margin: -2
   },
   tabHeaderChosenItemText: {
     fontSize: 16,
     textAlign: 'center',
-    color: 'black',
+    color: 'rgba(8, 8, 186, 1)',
     fontWeight: 'bold',
     margin: -2
   },
   tabHeaderItemSelectionIndicator: {
-    backgroundColor: 'black',
+    backgroundColor: 'rgba(8, 8, 186, 1)',
     height: 3,
     marginHorizontal: 8,
   },
