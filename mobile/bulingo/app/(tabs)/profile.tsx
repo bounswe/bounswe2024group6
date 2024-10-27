@@ -5,6 +5,7 @@ import { View, Text, StyleSheet, TouchableWithoutFeedback, Image, TouchableOpaci
 const debugUserInfo: UserInfo = {
   name: 'Yagiz Guldal',
   about: "Hello, I am an avid language learner. I am trying my best to learn English.",
+  level: 'B1',
   followerCount: 20,
   followingCount: 25,
   createdQuizzes: [{key: 1, desc: 'Created Quiz 1'}],
@@ -22,6 +23,7 @@ const debugUserInfo: UserInfo = {
 type UserInfo = {
   name: string,
   about: string,
+  level: string,
   followerCount: number,
   followingCount: number,
   createdQuizzes: {key: number, desc: string}[],  // Placeholder
@@ -42,7 +44,7 @@ export default function Profile() {
    - Posts and Comments
   */
 
-  const [userInfo, setUserInfo] = useState<UserInfo>();
+  const [userInfo, setUserInfo] = useState<UserInfo>(debugUserInfo);
   const [tab, setTab] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -65,7 +67,6 @@ export default function Profile() {
           setUserInfo(await response.json());
         } else {
           console.log(response.status)
-          setUserInfo(debugUserInfo);
         };
         setUserInfo
       } catch (error) {
@@ -78,7 +79,7 @@ export default function Profile() {
   }, []);
 
 
-  const tabData = [userInfo?.createdQuizzes, userInfo?.solvedQuizzes, userInfo?.postsAndComments]
+  const tabData = [userInfo.createdQuizzes, userInfo.solvedQuizzes, userInfo.postsAndComments]
 
   if(isLoading){
     return (
@@ -104,10 +105,11 @@ export default function Profile() {
       ListHeaderComponent={
         <>
           <ProfileInfo
-            name={'Yagiz'}
-            about={'Yagiz Guldal is currently creating the profile page. At least he tries to.'}
-            followerCount={20}
-            followingCount={200}
+            name={userInfo.name}
+            level={userInfo.level}
+            about={userInfo.about}
+            followerCount={userInfo.followerCount}
+            followingCount={userInfo.followingCount}
           />
           <Tabs tab={tab} setTab={setTab}/>
         </>
@@ -121,10 +123,15 @@ type ProfileInfoProps = {
   followingCount: number,
   name: string,
   about: string,
+  level: string,
 }
 
 const ProfileInfo = (props:ProfileInfoProps) => {
 
+
+  const handleLevelPress = () => {
+    console.log("Level button pressed.")
+  };
   const handleFollowersPress = () => {
     console.log("Followers button pressed.")
   };
@@ -142,6 +149,10 @@ const ProfileInfo = (props:ProfileInfoProps) => {
           <Image source={require('@/assets/images/profile-icon.png')} style={styles.profileInfoTopPicture}></Image>
         </View>
         <View style={styles.profileInfoTopFollowContainer}>
+          <TouchableOpacity style={styles.profileInfoTopFollowItemContainer} onPress={handleLevelPress}>
+            <Text style={styles.followItemNumberText}>{props.level}</Text>
+            <Text style={styles.followItemDescriptionText}>Level</Text>
+          </TouchableOpacity>
           <TouchableOpacity style={styles.profileInfoTopFollowItemContainer} onPress={handleFollowersPress}>
             <Text style={styles.followItemNumberText}>{props.followerCount}</Text>
             <Text style={styles.followItemDescriptionText}>Followers</Text>
@@ -255,11 +266,11 @@ const styles = StyleSheet.create({
     margin: 5,
   },
   followItemNumberText: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 'bold',
   },
   followItemDescriptionText: {
-    fontSize: 20,
+    fontSize: 16,
   },
   profileInfoAboutContainer: {
     flex: 0,
