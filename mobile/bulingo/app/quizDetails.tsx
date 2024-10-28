@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   quizButton: {
-    backgroundColor: 'blue',
+    backgroundColor: '#3944FD',
     padding: 15,
     borderRadius: 10,
     width: 300,
