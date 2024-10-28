@@ -14,4 +14,6 @@ urlpatterns = [
     path('signup/', RegisterView.as_view(), name='auth_register'),
     path('login/', LoginView.as_view(), name='auth_login'),
     path('logout/', LogoutView.as_view(), name='auth_logout'),
+    path('add-word/',add_word, name='add_word'),
+    path('get_word_info/', get_word_info, name='get_word_info'),
 ]

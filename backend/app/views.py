@@ -22,7 +22,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import Tags
 from .models import Quiz
-
+from .lexvo_service import lexvo_manager
 @api_view(['GET'])
 def index(request):
     return Response({'message': 'Index Page'})
@@ -43,6 +43,29 @@ def create_post(request):
 
     return Response({'message': 'Post created successfully.'}, status=status.HTTP_201_CREATED)
 
+@api_view(['POST'])
+def add_word(request):
+    word = request.data.get('word')
+
+    if not word:
+        return JsonResponse({'error': 'Word is required.'}, status=400)
+
+    try:
+        lexvo_manager.populate_database_with_lexvo_data(word)
+    except Exception as e:
+        return JsonResponse({'error': f"Failed to add word '{word}': {str(e)}"}, status=500)
+
+    return JsonResponse({'message': f"'{word}' added successfully with Lexvo data with response"}, status=201)
+
+@api_view(['GET'])
+def get_word_info(request):
+    word = request.data.get('word')
+    
+    if not word:
+        return Response({"error": "Word parameter is required"}, status=400)
+
+    final_info = lexvo_manager.get_final_info(word)
+    return Response(final_info)
 
 @api_view(['GET'])
 def post_view_page(request):

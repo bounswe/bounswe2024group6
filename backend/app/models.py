@@ -60,7 +60,31 @@ class Post(models.Model):
     like_count = models.IntegerField(default=0)
     def __str__(self):
         return self.title
+
+class Category(models.Model):
+    name = models.CharField(max_length=100, unique=True)
     
+    def __str__(self):
+        return self.name  
     
+
+class Word(models.Model):
+    word = models.CharField(max_length=255, unique=True)
+    language = models.CharField(max_length=3, default='eng')  # e.g., 'eng' for English
+    level = models.CharField(max_length=20, blank=True, null=True)  # e.g., 'A1', 'B2'
+    part_of_speech = models.CharField(max_length=20, blank=True, null=True)
+
+    categories = models.ManyToManyField(Category, related_name="words")  # Linking Word and Category
+
+    def __str__(self):
+        return self.word
     
+class Relationship(models.Model):
+    word = models.ForeignKey(Word, on_delete=models.CASCADE, related_name="relationships")
+    related_word = models.ForeignKey(Word, on_delete=models.CASCADE, related_name="related_to")
+    relation_type = models.CharField(max_length=50)  # e.g., 'broader', 'narrower', 'synonym'
+
+
+    def __str__(self):
+        return f"{self.word} - {self.relation_type} -> {self.related_word}"
 
