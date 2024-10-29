@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableWithoutFeedback, Image, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
 import { RFPercentage } from 'react-native-responsive-fontsize';
+import {router} from 'expo-router';
 
 const debugUserInfo: UserInfo = {
   name: 'Yagiz Guldal',
@@ -133,6 +134,7 @@ const ProfileInfo = (props:ProfileInfoProps) => {
     console.log("Level button pressed.")
   };
   const handleFollowersPress = () => {
+    router.push('/(tabs)/profile/followers')
     console.log("Followers button pressed.")
   };
   const handleFollowingPress = () => {

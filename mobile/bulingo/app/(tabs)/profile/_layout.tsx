@@ -18,11 +18,18 @@ export default function StackLayout(){
           name='index'
           options={{
             title: 'profile',
+            headerTitleStyle: styles.titleText,
             headerRight: () => (
               <TouchableOpacity onPress={openModal} style={styles.moreOptions}>
                 <FontAwesome size={28} name="ellipsis-v"/>
               </TouchableOpacity>
             ),
+          }}
+        />
+        <Stack.Screen
+          name="followers"
+          options={{
+            title: 'profile', 
           }}
         />
       </Stack>
@@ -39,5 +46,8 @@ const styles =StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 10,
     paddingVertical: 5,
+  },
+  titleText: {
+    fontWeight: 'bold',
   },
 });
