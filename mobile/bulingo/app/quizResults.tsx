@@ -35,12 +35,21 @@ const QuizResults = () => {
             tags={props.recommendationProps.tags}
           />
         </View>
+        <View style={styles.buttonContainer}>
+        <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
           <TouchableOpacity style={styles.retakeQuizButton} onPress={() => {router.push("/quizQuestion")}}>
             <Text style={styles.retakeQuizText}>Retake Quiz</Text>
           </TouchableOpacity>
+          </Shadow>
+          </View>
+
+          <View style={styles.buttonContainer}>
+        <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
           <TouchableOpacity style={styles.mainMenuButton} onPress={() => {router.navigate("/")}}>
             <Text style={styles.mainMenuText}>Main Menu</Text>
           </TouchableOpacity>
+          </Shadow>
+          </View>
       </View>
     </View>
   );
@@ -260,10 +269,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#3944FD',
     padding: 15,
     borderRadius: 10,
-    marginBottom: 20,
     width: 300,
     alignItems: 'center',
-    alignSelf: 'center',
+  },
+  buttonContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 20,
   },
   retakeQuizText: {
     fontSize: 20,
