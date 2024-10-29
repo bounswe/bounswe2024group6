@@ -244,6 +244,7 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     borderRadius: 4,
     fontSize: 12,
+    marginTop : 4,
     color: '#333',
     alignSelf: 'flex-start',
   },
