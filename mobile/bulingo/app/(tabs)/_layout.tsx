@@ -2,15 +2,8 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Tabs } from 'expo-router';
 import React, {useState} from 'react';
 import {TouchableOpacity} from 'react-native';
-import { ModalOverlay } from '../modalOverlay';
 
 export default function TabLayout() {
-  const [isModalVisible, setIsModalVisible] = useState(false);
-
-  const openModal = () => setIsModalVisible(true);
-  const closeModal = () => setIsModalVisible(false);
-
-
   return (
     <>
       <Tabs screenOptions={{ tabBarActiveTintColor: 'red', headerShown: false}}>
@@ -47,17 +40,9 @@ export default function TabLayout() {
           options={{
             title: 'Profile',
             tabBarIcon: ({ color }) => <FontAwesome size={28} name="user" color={color} />,
-            headerRight: () => (
-              <TouchableOpacity onPress={openModal} style={{width: 40}}>
-                <FontAwesome size={28} name="ellipsis-v"/>
-              </TouchableOpacity>
-            ),
           }}
         />
       </Tabs>
-      {isModalVisible && (
-        <ModalOverlay closeModal={closeModal} />
-      )}
     </>
   );
 }

@@ -2,7 +2,7 @@ import { Stack } from 'expo-router';
 import { TouchableOpacity, StyleSheet } from 'react-native';
 import React, {useState} from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { ModalOverlay } from '../../modalOverlay';
+import { ModalOverlay } from './modalOverlay';
 
 export default function StackLayout(){
   const [isModalVisible, setIsModalVisible] = useState(false);
