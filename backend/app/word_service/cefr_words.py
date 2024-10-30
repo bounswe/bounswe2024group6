@@ -7,38 +7,28 @@ from ..models import Word, Category
 from .lexvo_manager import get_final_info
 
 
-def populate_word_with_category(row):
+CREATE_TABLES_SQL = """
+CREATE TABLE Category (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL
+);
 
-    word = row["headword"]
-    part_of_speech = row["pos"]
-    level = row["CEFR"]
+CREATE TABLE Word (
+    id SERIAL PRIMARY KEY,
+    word VARCHAR(255) UNIQUE NOT NULL,
+    language VARCHAR(3) NOT NULL DEFAULT 'eng',
+    level VARCHAR(20),
+    part_of_speech VARCHAR(20),
+    meaning VARCHAR(1000) NOT NULL DEFAULT 'Meaning not available'
+);
 
-    final_info = get_final_info(word)
-
-    word_instance, created = Word.objects.get_or_create(
-        word=word,
-        defaults={
-            "part_of_speech": part_of_speech,
-            "level": level,
-            "language": "eng"
-        }
-    )
-
-    word_instance.save()
-    print(f"{'Created' if created else 'Updated'} word: {word}")
-
-    for meaning in final_info["meanings"]:
-        category_name = meaning["label"]
-        if category_name:
-            category_instance, _ = Category.objects.get_or_create(name=category_name)
-            word_instance.categories.add(category_instance)
-
-
-
-def migrate_words_from_csv(file_path):
-    df = pd.read_csv(file_path)
-    for _, row in df.iterrows():
-        populate_word_with_category(row)
+CREATE TABLE Relationship (
+    id SERIAL PRIMARY KEY,
+    word_id INTEGER NOT NULL REFERENCES Word(id) ON DELETE CASCADE,
+    related_word_id INTEGER NOT NULL REFERENCES Word(id) ON DELETE CASCADE,
+    relation_type VARCHAR(50) NOT NULL
+);
+"""
 
 
 

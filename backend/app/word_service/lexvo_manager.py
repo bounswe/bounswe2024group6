@@ -5,21 +5,42 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from ..models import Category, Relationship, Word
 from urllib.parse import unquote
+import time
+import csv
 
-
-CEFR_LEVELS="https://github.com/openlanguageprofiles/olp-en-cefrj"
+CEFR_LEVELS = "https://github.com/openlanguageprofiles/olp-en-cefrj"
 LEXVO_BASE_URL = "http://www.lexvo.org/data/term/eng/"
+REQUEST_DELAY = 1
+MAX_RETRIES = 3
+CACHE = {}
 
+# Helper function to strip identifier from term
 def strip_identifier(term):
     return term.split('_')[0]
 
+# Retry fetching word info
+def fetch_word_info_with_retries(word):
+    for attempt in range(MAX_RETRIES):
+        try:
+            response = requests.get(f"{LEXVO_BASE_URL}{word}", headers={'Accept': 'application/rdf+xml'})
+            response.raise_for_status()
+            return response
+        except (ConnectionError, Timeout, requests.HTTPError) as e:
+            print(f"Attempt {attempt+1} failed for word '{word}'. Error: {e}")
+            if attempt < MAX_RETRIES - 1:
+                time.sleep(REQUEST_DELAY * (attempt + 1))
+    return None
 
-def get_meaning_uris_and_translations(word):
-    response = requests.get(f"{LEXVO_BASE_URL}{word}", headers={'Accept': 'application/rdf+xml'})
-    if response.status_code != 200:
-        print(f"Error fetching data for '{word}': Status code {response.status_code}")
-        return []
-
+# Fetch meanings and translations with cache
+def get_meanings_uris_and_translations_with_cache(word):
+    if word in CACHE:
+        return CACHE[word]
+    
+    response = fetch_word_info_with_retries(word)
+    if not response:
+        print(f"Error fetching data for '{word}'.")
+        return [], []
+    
     g = Graph()
     meanings_uris = []
     translations = []
@@ -29,55 +50,25 @@ def get_meaning_uris_and_translations(word):
         if 'means' in pred:
             meanings_uris.append(str(obj)) 
         elif 'translation' in pred:
-            translations.append(str(obj)) 
-
+            translations.append(str(obj))
+    
+    CACHE[word] = (meanings_uris, translations)
     return meanings_uris, translations
 
-def get_or_create_word(word_name, language="eng"):
-    word_instance, _ = Word.objects.get_or_create(word=word_name, language=language)
-    return word_instance
+# CSV processing for batch word processing
+def process_words_from_csv(starting_row, ending_row, csv_path):
+    with open(csv_path, 'r', encoding='utf-8') as csvfile:
+        reader = csv.reader(csvfile)
+        for i, row in enumerate(reader):
+            if i < starting_row or i > ending_row:
+                continue
+            word = row[0]
+            final_info = get_final_info(word)
+            # TODO: Save to .sql here or other storage
+            time.sleep(REQUEST_DELAY)
+    print(f"Processed words from rows {starting_row} to {ending_row}")
 
-def get_or_create_category(label):
-    category, _ = Category.objects.get_or_create(name=label)
-    return category
-
-def save_relationship(word_instance, related_word_instance, relation_type):
-    Relationship.objects.get_or_create(
-        word=word_instance,
-        related_word=related_word_instance,
-        relation_type=relation_type
-    )
-
-def populate_database_with_lexvo_data(word):
-    results = decode_data(search_lexvo(word))
-    word_instance = get_or_create_word(word)
-
-    for meaning in results.get("meanings", []): 
-        if meaning.get("label"):
-            category = get_or_create_category(meaning["label"])
-            word_instance.categories.add(category)
-
-        for broader_uri in meaning.get("broader", []): 
-            broader_word = broader_uri.split('/')[-1]
-            broader_word_instance = get_or_create_word(broader_word)
-            save_relationship(word_instance, broader_word_instance, relation_type='broader')
-
-        for narrower_uri in meaning.get("narrower", []):  
-            narrower_word = narrower_uri.split('/')[-1]
-            narrower_word_instance = get_or_create_word(narrower_word)
-            save_relationship(word_instance, narrower_word_instance, relation_type='narrower')
-
-        for nearlySameAs_uri in meaning.get("nearlySameAs", []): 
-            synonym_word = nearlySameAs_uri.split('/')[-1]
-            synonym_word_instance = get_or_create_word(synonym_word)
-            save_relationship(word_instance, synonym_word_instance, relation_type="nearlySameAs")
-
-    for translation_uri in results.get("translations", []):  
-        translated_word = translation_uri.split('/')[-1]
-        translated_word_instance = get_or_create_word(translated_word, language="tur")
-        save_relationship(word_instance, translated_word_instance, relation_type='translation')
-
-
+# Decode data structure for UI use
 def decode_data(data):
     decoded_translations = [unquote(uri.split('/')[-1]) for uri in data.get('translations', [])]
     decoded_meanings = []
@@ -85,9 +76,9 @@ def decode_data(data):
         decoded_meaning = {
             "label": meaning["label"],
             "comment": meaning["comment"],
-            "broader": [unquote(broader.split('/')[-1]) for broader in meaning.get("broader", [])],
-            "narrower": [unquote(narrower.split('/')[-1]) for narrower in meaning.get("narrower", [])],
-            "nearlySameAs": [unquote(synonym.split('/')[-1]) for synonym in meaning.get("nearlySameAs", [])]
+            "broader": [unquote(b.split('/')[-1]) for b in meaning.get("broader", [])],
+            "narrower": [unquote(n.split('/')[-1]) for n in meaning.get("narrower", [])],
+            "nearlySameAs": [unquote(s.split('/')[-1]) for s in meaning.get("nearlySameAs", [])]
         }
         decoded_meanings.append(decoded_meaning)
     return {
@@ -95,14 +86,12 @@ def decode_data(data):
         "meanings": decoded_meanings
     }
 
+# Fetch additional details about each URI
 def get_detailed_info(uri):
     try:
         response = requests.get(uri, headers={'Accept': 'application/rdf+xml'}, timeout=5)
         response.raise_for_status() 
-    except (requests.ConnectionError, requests.Timeout):
-        print(f"Error fetching details for URI '{uri}': Connection failed or timed out.")
-        return None
-    except requests.HTTPError as e:
+    except (requests.ConnectionError, requests.Timeout, requests.HTTPError) as e:
         print(f"Error fetching details for URI '{uri}': {e}")
         return None
 
@@ -129,26 +118,27 @@ def get_detailed_info(uri):
 
     return details
 
-# Gets the turkish translation and the meaning labels displays the uris
+# Search for word info and translations
 def search_lexvo(word):
-    meanings_uris, translations = get_meaning_uris_and_translations(word)
-    turkish_translations = [] 
+    meanings_uris, translations = get_meanings_uris_and_translations_with_cache(word)
+    turkish_translations = []
     meanings_details = []
+    
     for uri in meanings_uris:
         detailed_info = get_detailed_info(uri)
         if detailed_info:
             meanings_details.append(detailed_info)
 
     for translation_uri in translations:
-        if len(translation_uri.split('/')) > 1:
-            if translation_uri.split('/')[5] == "tur":
-                turkish_translations.append(translation_uri)
+        if len(translation_uri.split('/')) > 1 and translation_uri.split('/')[5] == "tur":
+            turkish_translations.append(translation_uri)
     
     return {
         "translations": turkish_translations,
         "meanings": meanings_details
     }
 
+# Final info structure
 def get_final_info(word):
     results = decode_data(search_lexvo(word))
     final_info = {
@@ -173,4 +163,3 @@ def get_final_info(word):
         final_info["meanings"].append(meaning_info)
 
     return final_info
-
