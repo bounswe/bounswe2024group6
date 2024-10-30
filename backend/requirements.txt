@@ -6,4 +6,6 @@ adrf
 django-cors-headers
 requests
 rdflib
+pandas
+
 

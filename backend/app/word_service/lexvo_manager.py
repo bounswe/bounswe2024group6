@@ -173,3 +173,4 @@ def get_final_info(word):
         final_info["meanings"].append(meaning_info)
 
     return final_info
+

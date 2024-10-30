@@ -22,7 +22,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import Tags
 from .models import Quiz
-from .lexvo_service import lexvo_manager
+from .word_service import lexvo_manager
 @api_view(['GET'])
 def index(request):
     return Response({'message': 'Index Page'})
