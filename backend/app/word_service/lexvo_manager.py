@@ -14,11 +14,9 @@ REQUEST_DELAY = 1
 MAX_RETRIES = 3
 CACHE = {}
 
-# Helper function to strip identifier from term
 def strip_identifier(term):
     return term.split('_')[0]
 
-# Retry fetching word info
 def fetch_word_info_with_retries(word):
     for attempt in range(MAX_RETRIES):
         try:
@@ -29,9 +27,8 @@ def fetch_word_info_with_retries(word):
             print(f"Attempt {attempt+1} failed for word '{word}'. Error: {e}")
             if attempt < MAX_RETRIES - 1:
                 time.sleep(REQUEST_DELAY * (attempt + 1))
-    return None
+    return response
 
-# Fetch meanings and translations with cache
 def get_meanings_uris_and_translations_with_cache(word):
     if word in CACHE:
         return CACHE[word]
@@ -55,20 +52,7 @@ def get_meanings_uris_and_translations_with_cache(word):
     CACHE[word] = (meanings_uris, translations)
     return meanings_uris, translations
 
-# CSV processing for batch word processing
-def process_words_from_csv(starting_row, ending_row, csv_path):
-    with open(csv_path, 'r', encoding='utf-8') as csvfile:
-        reader = csv.reader(csvfile)
-        for i, row in enumerate(reader):
-            if i < starting_row or i > ending_row:
-                continue
-            word = row[0]
-            final_info = get_final_info(word)
-            # TODO: Save to .sql here or other storage
-            time.sleep(REQUEST_DELAY)
-    print(f"Processed words from rows {starting_row} to {ending_row}")
 
-# Decode data structure for UI use
 def decode_data(data):
     decoded_translations = [unquote(uri.split('/')[-1]) for uri in data.get('translations', [])]
     decoded_meanings = []
@@ -86,7 +70,6 @@ def decode_data(data):
         "meanings": decoded_meanings
     }
 
-# Fetch additional details about each URI
 def get_detailed_info(uri):
     try:
         response = requests.get(uri, headers={'Accept': 'application/rdf+xml'}, timeout=5)
@@ -118,7 +101,6 @@ def get_detailed_info(uri):
 
     return details
 
-# Search for word info and translations
 def search_lexvo(word):
     meanings_uris, translations = get_meanings_uris_and_translations_with_cache(word)
     turkish_translations = []
@@ -138,7 +120,6 @@ def search_lexvo(word):
         "meanings": meanings_details
     }
 
-# Final info structure
 def get_final_info(word):
     results = decode_data(search_lexvo(word))
     final_info = {

@@ -89,4 +89,11 @@ class Relationship(models.Model):
 
     def __str__(self):
         return f"{self.word} - {self.relation_type} -> {self.related_word}"
+    
+class Translation(models.Model):
+    word = models.ForeignKey(Word, on_delete=models.CASCADE, related_name="translations")
+    translation = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"{self.translation} (Translation of {self.word})"
 
