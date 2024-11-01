@@ -8,10 +8,10 @@ REQUEST_DELAY = 1
 MAX_RETRIES = 3
 
 
-def fetch_and_save_data(words, output_path):
-    with open(f"{output_path}_words.csv", 'w', encoding='utf-8', newline='') as words_file, \
-         open(f"{output_path}_translations.csv", 'w', encoding='utf-8', newline='') as translations_file, \
-         open(f"{output_path}_relationships.csv", 'w', encoding='utf-8', newline='') as relationships_file:
+def fetch_and_save_data(words, output_path, starting_row, ending_row):
+    with open(f"{output_path}/words.csv", 'w', encoding='utf-8', newline='') as words_file, \
+         open(f"{output_path}/translations.csv", 'w', encoding='utf-8', newline='') as translations_file, \
+         open(f"{output_path}/relationships.csv", 'w', encoding='utf-8', newline='') as relationships_file:
 
         word_writer = csv.writer(words_file)
         translation_writer = csv.writer(translations_file)
@@ -21,8 +21,10 @@ def fetch_and_save_data(words, output_path):
         translation_writer.writerow(['word', 'turkish_translation'])
         relationship_writer.writerow(['word', 'related_word', 'relation_type'])
 
-        for word_data in words:
-            word, level, part_of_speech = word_data['word'], word_data['level'], word_data['part_of_speech']
+        for i in range(starting_row,ending_row):
+            word = words[i]['headword']  
+            level = words[i]['CEFR']      
+            part_of_speech = words[i]['pos'] 
             final_info = get_final_info(word)
 
             meanings = ";".join([m['label'] for m in final_info['meanings']])
@@ -40,7 +42,8 @@ def fetch_and_save_data(words, output_path):
                 for narrower in meaning['narrower']:
                     relationship_writer.writerow([word, narrower, 'narrower'])
 
-    print(f"Data saved to {output_path}_words.csv, {output_path}_translations.csv, and {output_path}_relationships.csv")
+    print(f"Data saved to {output_path}/words.csv, {output_path}/translations.csv, and {output_path}/relationships.csv")
+
 
 
 def populate_words(csv_path):
@@ -66,7 +69,11 @@ def populate_translations(csv_path):
         reader = csv.DictReader(file)
         for row in reader:
             
-            english_word = Word.objects.get(word=row['word'])
+            try:
+                english_word = Word.objects.get(word=row['word'])
+            except Word.DoesNotExist:
+                print(f"Word '{row['word']}' not found in the database.")
+                continue
 
             turkish_word, created = Word.objects.get_or_create(
                 word=row['turkish_translation'],
@@ -86,7 +93,11 @@ def populate_relationship(csv_path):
     with open(csv_path, 'r', encoding='utf-8') as file:
         reader = csv.DictReader(file)
         for row in reader:
-            word = Word.objects.get(word=row['word'])
+            try:
+                word = Word.objects.get(word=row['word'])
+            except Word.DoesNotExist:
+                print(f"Word '{row['word']}' not found in the database.")
+                continue
             related_word = Word.objects.get(word=row['related_word'])
             relationship, created = Relationship.objects.get_or_create(
                 word=word,

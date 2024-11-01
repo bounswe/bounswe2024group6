@@ -3,7 +3,7 @@ import requests
 from requests.exceptions import ConnectionError, Timeout
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from ..models import Category, Relationship, Word
+from ..models import Relationship, Word
 from urllib.parse import unquote
 import time
 import csv
