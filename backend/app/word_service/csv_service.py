@@ -1,6 +1,7 @@
 import csv
 from .lexvo_manager import get_final_info
 import time
+from ..models import Word, Translation, Relationship
 
 
 REQUEST_DELAY = 1
@@ -40,4 +41,61 @@ def fetch_and_save_data(words, output_path):
                     relationship_writer.writerow([word, narrower, 'narrower'])
 
     print(f"Data saved to {output_path}_words.csv, {output_path}_translations.csv, and {output_path}_relationships.csv")
+
+
+def populate_words(csv_path):
+
+    with open(csv_path, 'r', encoding='utf-8') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            word, created = Word.objects.get_or_create(
+                word=row['word'],
+                defaults={
+                    'level': row.get('level'),
+                    'part_of_speech': row.get('part_of_speech'),
+                    'meaning': row.get('meaning', "Meaning not available"),
+                    'language': 'eng'
+                }
+            )
+            if created:
+                print(f"Added word: {word.word}")
+
+
+def populate_translations(csv_path):
+    with open(csv_path, 'r', encoding='utf-8') as file :
+        reader = csv.DictReader(file)
+        for row in reader:
+            
+            english_word = Word.objects.get(word=row['word'])
+
+            turkish_word, created = Word.objects.get_or_create(
+                word=row['turkish_translation'],
+                defaults={'language': 'tur'}
+            )
+
+
+            Translation.objects.get_or_create(
+                word=english_word,
+                translation=turkish_word.word  
+            )
+            
+            if created:
+                print(f"Added Turkish word: {turkish_word.word}")
+
+def populate_relationship(csv_path):
+    with open(csv_path, 'r', encoding='utf-8') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            word = Word.objects.get(word=row['word'])
+            related_word = Word.objects.get(word=row['related_word'])
+            relationship, created = Relationship.objects.get_or_create(
+                word=word,
+                related_word=related_word,
+                relation_type=row['relation_type']
+            )
+            if created:
+                print(f"Added {row['relation_type']} relationship: {word.word} -> {related_word.word}")
+
+
+
 

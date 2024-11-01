@@ -61,22 +61,12 @@ class Post(models.Model):
     def __str__(self):
         return self.title
 
-class Category(models.Model):
-    name = models.CharField(max_length=100, unique=True)
-    
-    def __str__(self):
-        return self.name  
-    
-
 class Word(models.Model):
     word = models.CharField(max_length=255, unique=True)
     language = models.CharField(max_length=3, default='eng')  # e.g., 'eng' for English
     level = models.CharField(max_length=20, blank=True, null=True)  # e.g., 'A1', 'B2'
     part_of_speech = models.CharField(max_length=20, blank=True, null=True)
     meaning = models.CharField(max_length=1000, default="Meaning not available")
-
-
-    categories = models.ManyToManyField(Category, related_name="words")  # Linking Word and Category
 
     def __str__(self):
         return self.word
