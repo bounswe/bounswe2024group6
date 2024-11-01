@@ -67,6 +67,7 @@ class Word(models.Model):
     level = models.CharField(max_length=20, blank=True, null=True)  # e.g., 'A1', 'B2'
     part_of_speech = models.CharField(max_length=20, blank=True, null=True)
     meaning = models.CharField(max_length=1000, default="Meaning not available")
+    sentence = models.CharField(max_length=1000, default="Sentence not available")
 
     def __str__(self):
         return self.word

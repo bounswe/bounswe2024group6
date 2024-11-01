@@ -2,7 +2,7 @@ import csv
 from .lexvo_manager import get_final_info
 import time
 from ..models import Word, Translation, Relationship
-
+import re  
 
 REQUEST_DELAY = 1
 MAX_RETRIES = 3
@@ -17,7 +17,7 @@ def fetch_and_save_data(words, output_path, starting_row, ending_row):
         translation_writer = csv.writer(translations_file)
         relationship_writer = csv.writer(relationships_file)
 
-        word_writer.writerow(['word', 'meaning', 'level', 'part_of_speech'])
+        word_writer.writerow(['word', 'explanation','sentence', 'level', 'part_of_speech'])
         translation_writer.writerow(['word', 'turkish_translation'])
         relationship_writer.writerow(['word', 'related_word', 'relation_type'])
 
@@ -27,14 +27,32 @@ def fetch_and_save_data(words, output_path, starting_row, ending_row):
             part_of_speech = words[i]['pos'] 
             final_info = get_final_info(word)
 
-            meanings = ";".join([m['label'] for m in final_info['meanings']])
-            word_writer.writerow([word, meanings, level, part_of_speech])
+        
+        
 
             for translation in final_info['turkish_translations']:
                 translation_writer.writerow([word, translation])
 
 
             for meaning in final_info['meanings']:
+                comment = meaning['comment']
+
+                
+                if '"' in comment:
+                    explanation, sentence = comment.split('"', 1)
+                    explanation = explanation.strip()
+                    sentence = sentence.strip('"') 
+                else:
+                    explanation = comment.strip()
+                    sentence = ""
+
+
+                print(f"Explanation: {explanation}")
+                print(f"Sentence: {sentence}")
+
+                if explanation != "None":
+                    word_writer.writerow([word, explanation, sentence, level, part_of_speech])
+
                 for synonym in meaning['nearlySameAs']:
                     relationship_writer.writerow([word, synonym, 'synonym'])
                 for broader in meaning['broader']:
