@@ -32,6 +32,18 @@ export default function StackLayout(){
             title: 'profile', 
           }}
         />
+        <Stack.Screen
+          name="following"
+          options={{
+            title: 'profile', 
+          }}
+        />
+        <Stack.Screen
+          name="editProfile"
+          options={{
+            title: 'profile', 
+          }}
+        />
       </Stack>
       {isModalVisible && (
         <ModalOverlay closeModal={closeModal} />

@@ -142,6 +142,7 @@ const ProfileInfo = (props:ProfileInfoProps) => {
     console.log("Following button pressed.")
   };
   const handleEditProfilePress = () => {
+    router.push('/(tabs)/profile/editProfile')
     console.log("Edit Profile button pressed.")
   };
 
