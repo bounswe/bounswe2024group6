@@ -12,16 +12,7 @@ type UserInfoCompact = {
 
 export default function Following() {
   const [isLoading, setIsLoading] = useState(true);
-  const [following, setFollowing] = useState<UserInfoCompact[]>([
-    {username: 'yagiz', name: 'Yagiz Guldal', level:'C2', profilePictureUri: "https://reactnative.dev/docs/assets/p_cat2.png", status: 'Following'},
-    {username: 'yagiz1', name: 'Yagiz Guldal', level:'C2', profilePictureUri: "https://reactnative.dev/docs/assets/p_cat2.png", status: 'Not Following'},
-    {username: 'yagiz2', name: 'Yagiz Guldal', level:'C2', profilePictureUri: "https://reactnative.dev/docs/assets/p_cat2.png", status: 'Following'},
-    {username: 'yagiz3', name: 'Yagiz Guldal', level:'C2', profilePictureUri: "https://reactnative.dev/docs/assets/p_cat2.png", status: 'Not Following'},
-    {username: 'yagiz4', name: 'Yagiz Guldal', level:'C2', profilePictureUri: "https://reactnative.dev/docs/assets/p_cat2.png", status: 'Following'},
-    {username: 'yagiz5', name: 'Yagiz Guldal', level:'C2', profilePictureUri: "https://reactnative.dev/docs/assets/p_cat2.png", status: 'Following'},
-    {username: 'yagiz6', name: 'Yagiz Guldal', level:'C2', profilePictureUri: "https://reactnative.dev/docs/assets/p_cat2.png", status: 'Not Following'},
-    {username: 'yagiz7', name: 'Yagiz Guldal', level:'C2', profilePictureUri: "https://reactnative.dev/docs/assets/p_cat2.png", status: 'Not Following'},
-  ])
+  const [following, setFollowing] = useState<UserInfoCompact[]>([])
 
   useEffect(() => {
     const ENDPOINT_URL = "http://161.35.208.249:8000/following";  // Placeholder
