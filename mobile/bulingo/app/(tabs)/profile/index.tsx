@@ -138,6 +138,7 @@ const ProfileInfo = (props:ProfileInfoProps) => {
     console.log("Followers button pressed.")
   };
   const handleFollowingPress = () => {
+    router.push('/(tabs)/profile/following')
     console.log("Following button pressed.")
   };
   const handleEditProfilePress = () => {

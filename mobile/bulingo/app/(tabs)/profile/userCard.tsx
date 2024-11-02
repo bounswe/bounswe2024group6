@@ -1,5 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, View, Image, StyleSheet, Text } from 'react-native';
+import { RFPercentage } from 'react-native-responsive-fontsize';
 
 type UserCardProps = {
   profilePictureUri: string,
@@ -7,7 +8,7 @@ type UserCardProps = {
   name: string,
   level: string,
   buttonText: string,
-  buttonStyleNo: number,
+  buttonStyleNo: number,  // 1: Gray Button 2: Blue button
   onButtonPress?: () => void;
   onCardPress?: () => void;
 };
@@ -58,10 +59,14 @@ const UserCard = (props: UserCardProps) => {
         <Text style={styles.nameText}>{props.name}</Text>
       </View>
       <View style={styles.followerContainerRightCompartment}>
-        <Text style={styles.levelText}>{props.level}</Text>
-        <TouchableOpacity style={[styles.buttonStyle, buttonStyleAddOn]} onPress={handleButtonPress}>
-          <Text style={[styles.buttonText, {color: buttonTextColor}]}>{props.buttonText}</Text>
-        </TouchableOpacity>
+        <View style={styles.levelContainer}>
+          <Text style={styles.levelText}>{props.level}</Text>
+        </View>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={[styles.buttonStyle, buttonStyleAddOn]} onPress={handleButtonPress}>
+            <Text style={[styles.buttonText, {color: buttonTextColor}]}>{props.buttonText}</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -103,16 +108,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: 5,
   },
+  buttonContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'stretch',
+  },
+  levelContainer: {
+    flex: 1,
+    alignItems: 'flex-end',
+  },
   levelText: {
     margin: 5,
-    fontSize: 20,
+    fontSize: RFPercentage(3),
     fontWeight: 'bold',
   },
   buttonStyle: {
     padding: 5,
     borderWidth: 2,
     borderRadius: 10,
-    margin: 5, 
+    margin: 5,
+    alignItems: 'center',
   },
   buttonStyleAddOn1: {
     backgroundColor: 'rgba(154, 154, 154, 0.2)',
@@ -123,15 +138,15 @@ const styles = StyleSheet.create({
     borderColor: "rgba(22, 70, 215, 1)"
   },
   buttonText: {
-    fontSize: 14,
+    fontSize: RFPercentage(2),
     fontWeight: 'bold',
   },
   usernameText: {
-    fontSize: 16,
+    fontSize: RFPercentage(2.5),
     fontWeight: 'bold'
   },
   nameText: {
-    fontSize: 14,
+    fontSize: RFPercentage(2),
   },
 });
 
