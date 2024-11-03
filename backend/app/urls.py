@@ -2,6 +2,7 @@ from django.urls import path
 from app.views import *
 from app.views_directory.profileviews import view_profile, update_profile
 from app.views_directory.follow_unfollow import follow_user, unfollow_user 
+from app.views_directory.authentication_endpoints import RegisterView, LoginView, LogoutView
 
 
 urlpatterns = [
