@@ -86,6 +86,7 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 30,
     fontWeight: 'bold',
+    textAlign: 'center',
   },
   overlay: {
     position: 'absolute',

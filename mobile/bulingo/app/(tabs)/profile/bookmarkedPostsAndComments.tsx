@@ -65,7 +65,7 @@ export default function Followers() {
       }}
       ListHeaderComponent={
         <View style={styles.headerContainer}>
-          <Text style={styles.headerText}>Bookmarked Posts/Comments</Text>
+          <Text style={styles.headerText}>Bookmarked Posts And Comments</Text>
         </View>
       }
       style={styles.list}
@@ -86,6 +86,7 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 30,
     fontWeight: 'bold',
+    textAlign: 'center',
   },
   overlay: {
     position: 'absolute',
