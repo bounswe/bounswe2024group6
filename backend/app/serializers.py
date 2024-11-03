@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Profile, Quiz, Post
+from .models import Profile, Quiz, Post, Comment
 
 
 
@@ -50,3 +50,18 @@ class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post 
         fields = ['id', 'title', 'description', 'author', 'tags', 'created_at', 'like_count']
+
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    replies = serializers.SerializerMethodField()  # To fetch nested replies
+
+    class Meta:
+        model = Comment
+        fields = ['id', 'post', 'author', 'body', 'created_at', 'parent', 'replies']
+
+    def get_replies(self, obj):
+        # If this comment has replies, serialize them recursively
+        if obj.replies.exists():
+            return CommentSerializer(obj.replies.all(), many=True).data
+        return None
