@@ -6,7 +6,7 @@ import {TouchableOpacity} from 'react-native';
 export default function TabLayout() {
   return (
     <>
-      <Tabs screenOptions={{ tabBarActiveTintColor: 'red', headerShown: false}}>
+      <Tabs screenOptions={{ tabBarActiveTintColor: 'red', headerShown: false, tabBarStyle:{paddingBottom:5, paddingTop: 5}}}>
         <Tabs.Screen
           name="index"
           options={{
