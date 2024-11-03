@@ -75,7 +75,7 @@ const QuizFeed = () => {
   };
 
   const handleQuizPress = (quizId: number) => {
-    router.navigate('./quizDetails');
+    router.navigate('../quizDetails');
   };
 
   const handleLikePress = (quizId: string) => {
