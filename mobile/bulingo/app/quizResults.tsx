@@ -1,7 +1,6 @@
 import React, {useState} from 'react';
 import {Image, StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 import { useLocalSearchParams } from "expo-router";
-import Navbar from "./navbar";
 import {router} from "expo-router";
 import { Shadow } from 'react-native-shadow-2';
 
@@ -20,7 +19,6 @@ const QuizResults = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.navbarContainer}><Navbar/></View>
       <View style={styles.page}>
         <View style={styles.resultsCardContainer}>
           <QuizResultsCard 

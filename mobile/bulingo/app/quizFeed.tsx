@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, TextInput, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import Navbar from './navbar';
 import { router } from 'expo-router';
 
 
@@ -128,7 +127,6 @@ const QuizFeed = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.navbarContainer}><Navbar/></View>
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchBar}
@@ -146,7 +144,7 @@ const QuizFeed = () => {
         ref={flatListRef}
         data={filteredQuizzes}
         renderItem={renderQuizItem}
-        keyExtractor={item => item.id.toString()}
+        keyExtractor={item => item.id}
         onEndReached={loadMoreQuizzes}
         onEndReachedThreshold={0.5}
         ListFooterComponent={loading ? <Text>Loading more quizzes...</Text> : null}
@@ -159,6 +157,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+    marginTop: 25,
   },
   navBar: {
     flexDirection: 'row',

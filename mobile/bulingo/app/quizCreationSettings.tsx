@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { TouchableOpacity, StyleSheet, Text, TextInput, View } from 'react-native';
-import Navbar from './navbar';
 import { router } from 'expo-router';
 import { Shadow } from 'react-native-shadow-2';
 
@@ -27,8 +26,6 @@ const QuizCreationSettings = () => {
 
   return (
     <View style={styles.container}>
-      <Navbar />
-
       <View style={styles.page}>
         {/* Title input */}
         <View style={[styles.wrapper, styles.elevation]}>

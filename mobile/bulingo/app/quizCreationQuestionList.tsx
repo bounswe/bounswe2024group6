@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { TouchableOpacity, StyleSheet, Text, View, FlatList, Image } from 'react-native';
-import Navbar from './navbar';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Shadow } from 'react-native-shadow-2';
 const QuizCreationQuestionList = () => {
@@ -80,7 +79,6 @@ const QuizCreationQuestionList = () => {
 
   return (
     <View style={styles.container}>
-      <Navbar />
       <View style={styles.headerContainer}>
         <Text style={styles.headerText}>Food</Text>
         <TouchableOpacity style={styles.addButton} onPress={handleAddQuestion}>

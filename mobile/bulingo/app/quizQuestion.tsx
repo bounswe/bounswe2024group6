@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { TouchableOpacity, StyleSheet, Text, View } from 'react-native';
-import Navbar from "./navbar";
 import {router} from "expo-router"
 import { QuizResultsProps } from './quizResults';
 import { Shadow } from 'react-native-shadow-2';
@@ -116,10 +115,6 @@ const QuizQuestion = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.navbarContainer}>
-        <Navbar />
-      </View>
-
       <View style={styles.page}>
         <View style={styles.topContainer}>
         <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
