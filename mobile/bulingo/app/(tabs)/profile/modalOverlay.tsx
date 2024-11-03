@@ -1,17 +1,22 @@
 import React from 'react';
 import { View, TouchableOpacity, Button, StyleSheet, TouchableWithoutFeedback, Text} from 'react-native';
+import {router} from 'expo-router';
 
 type ModalOverlayProps = {
   closeModal: () => void,
 };
 
 export function ModalOverlay(props:ModalOverlayProps) {
+  const handleLikeQuizzesPress = () => {
+    props.closeModal();
+    router.push("/(tabs)/profile/likedQuizzes");
+  };
 
   return (
     <TouchableWithoutFeedback onPress={props.closeModal}>
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
-          <Option text={'Liked Quizzes'}/>
+          <Option text={'Liked Quizzes'} onPress={handleLikeQuizzesPress}/>
           <Option text={'Bookmarked Quizzes'}/>
           <Option text={'Liked Posts/Comments'}/>   
           <Option text={'Bookmarked Posts/Comments'}/>          
