@@ -91,9 +91,7 @@ export const QuizResultsCard = (props: QuizResultsCardProps) => {
         ))}
       </View>
           <TouchableOpacity>
-            <View style={styles.bottomButtonLike}>
-              <Image style={{width: width * 0.1, height: height * 0.04}} source={require('@/assets/images/like-1.png')}/>
-            </View>
+              <Image style={styles.bottomButtonLike} source={require('@/assets/images/like-1.png')}/>
           </TouchableOpacity>
 
           <TouchableOpacity>
@@ -237,14 +235,14 @@ const styles = StyleSheet.create({
   }, 
   bottomButtonLike: {
     alignItems: 'center',
-    width: width * 0.10,
-    height: height * 0.04,
+    width: width * 0.1,
+    height: height * 0.06,
     borderRadius: 25,
   },
   bottomButtonBookmark: {
     alignItems: 'center',
     width: width * 0.10,
-    height: height * 0.04,
+    height: height * 0.06,
     borderRadius: 25,
   },
   recommendationContainer: {
@@ -339,13 +337,13 @@ const styles = StyleSheet.create({
 },
   likeButton: {
     position: 'absolute',
-    bottom: 20,
-    left: -80,
+    bottom: height * 0.02,
+    left: -width * 0.15,
   },
   bookmarkButton: {
     position: 'absolute',
-    bottom: 20,
-    right: 20, 
+    bottom: height * 0.02,
+    right: width * 0.03, 
   },
   icon: {
     width: width * 0.07,
