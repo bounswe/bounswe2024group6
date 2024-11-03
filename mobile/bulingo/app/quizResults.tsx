@@ -5,6 +5,10 @@ import Navbar from "./navbar";
 import {router} from "expo-router";
 import { Shadow } from 'react-native-shadow-2';
 
+import { Dimensions } from 'react-native';
+
+const { width, height } = Dimensions.get('window');
+
 export type QuizResultsProps = {
   quizResultsProps: QuizResultsCardProps,
   recommendationProps: QuizCardProps,
@@ -88,7 +92,7 @@ export const QuizResultsCard = (props: QuizResultsCardProps) => {
       </View>
           <TouchableOpacity>
             <View style={styles.bottomButtonLike}>
-              <Image style={{width: 40, height: 30, marginTop: 5}} source={require('@/assets/images/like-1.png')}/>
+              <Image style={{width: width * 0.1, height: height * 0.04}} source={require('@/assets/images/like-1.png')}/>
             </View>
           </TouchableOpacity>
 
@@ -202,13 +206,13 @@ const styles = StyleSheet.create({
     fontSize: 24,
   },
   scoreBox: {
-    width: 100,
-    height: 50,
+    width: width * 0.24,
+    height: height * 0.05,
     borderRadius: 15,
     backgroundColor: "blue",
     paddingHorizontal: 5,
     paddingVertical: 10,
-    margin: 5,
+    margin: 15,
   },
   scoreBoxText: {
     textAlign: 'center',
@@ -223,6 +227,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   bottomMessageContainer: {
+    flex: 2,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -232,14 +237,14 @@ const styles = StyleSheet.create({
   }, 
   bottomButtonLike: {
     alignItems: 'center',
-    width: 40,
-    height: 40,
+    width: width * 0.10,
+    height: height * 0.04,
     borderRadius: 25,
   },
   bottomButtonBookmark: {
     alignItems: 'center',
-    width: 40,
-    height: 40,
+    width: width * 0.10,
+    height: height * 0.04,
     borderRadius: 25,
   },
   recommendationContainer: {
@@ -269,7 +274,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#3944FD',
     padding: 15,
     borderRadius: 10,
-    width: 300,
+    width: width * 0.7,
     alignItems: 'center',
   },
   buttonContainer: {
@@ -287,7 +292,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#CCCCCC',
     padding: 15,
     borderRadius: 10,
-    width: 200,
+    width: width * 0.5,
     alignItems: 'center',
     alignSelf: 'center',
   },
@@ -330,7 +335,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     right: 10,
-    height: 50,
     padding: 4,
 },
   likeButton: {
@@ -344,8 +348,8 @@ const styles = StyleSheet.create({
     right: 20, 
   },
   icon: {
-    width: 30,
-    height: 30,
+    width: width * 0.07,
+    height: height * 0.05,
     resizeMode: 'contain',
   },
   
