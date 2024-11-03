@@ -7,18 +7,28 @@ type ModalOverlayProps = {
 };
 
 export function ModalOverlay(props:ModalOverlayProps) {
-  const handleLikeQuizzesPress = () => {
+  const handleLikedQuizzesPress = () => {
     props.closeModal();
     router.push("/(tabs)/profile/likedQuizzes");
+  };
+
+  const handleBookmarkedQuizzesPress = () => {
+    props.closeModal();
+    router.push("/(tabs)/profile/bookmarkedQuizzes");
+  };
+
+  const handleLikedPostsAndCommentsPress = () => {
+    props.closeModal();
+    router.push("/(tabs)/profile/likedPostsAndComments");
   };
 
   return (
     <TouchableWithoutFeedback onPress={props.closeModal}>
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
-          <Option text={'Liked Quizzes'} onPress={handleLikeQuizzesPress}/>
-          <Option text={'Bookmarked Quizzes'}/>
-          <Option text={'Liked Posts/Comments'}/>   
+          <Option text={'Liked Quizzes'} onPress={handleLikedQuizzesPress}/>
+          <Option text={'Bookmarked Quizzes'} onPress={handleBookmarkedQuizzesPress}/>
+          <Option text={'Liked Posts/Comments'} onPress={handleLikedPostsAndCommentsPress}/>   
           <Option text={'Bookmarked Posts/Comments'}/>          
         </View>
       </View>
