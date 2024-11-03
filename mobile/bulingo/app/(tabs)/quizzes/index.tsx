@@ -74,7 +74,7 @@ const QuizFeed = () => {
   };
 
   const handleQuizPress = (quizId: number) => {
-    router.navigate('../quizDetails');
+    router.navigate('/(tabs)/quizzes/quizDetails');
   };
 
   const handleLikePress = (quizId: string) => {
@@ -111,13 +111,13 @@ const QuizFeed = () => {
         {/* Like button when it's clicked it changes to like-2 */}
         <TouchableOpacity style={styles.likeButton} onPress={() => handleLikePress(item.id)}>
           <Text style={styles.quizLikes}>
-          <Image source={item.liked ? require('../assets/images/like-2.png') : require('../assets/images/like-1.png')}style={styles.icon} /> {item.likes}
+          <Image source={item.liked ? require('@/assets/images/like-2.png') : require('@/assets/images/like-1.png')}style={styles.icon} /> {item.likes}
           </Text>
         </TouchableOpacity>
   
         {/* Touchable Bookmark Icon at the bottom right */}
         <TouchableOpacity style={styles.bookmarkButton} onPress={() => handleBookmarkPress(item.id)}>
-          <Image source={require('../assets/images/bookmark-icon.png')} style={styles.icon} />
+          <Image source={require('@/assets/images/bookmark-icon.png')} style={styles.icon} />
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
@@ -134,8 +134,8 @@ const QuizFeed = () => {
           value={searchTerm}
           onChangeText={handleSearch}
         />
-        <TouchableOpacity style={styles.addButton} onPress={() => router.push('./quizCreationSettings')}>
-          <Image source={require('../assets/images/add-icon.png')} style={styles.icon} />
+        <TouchableOpacity style={styles.addButton} onPress={() => router.push('/(tabs)/quizzes/quizCreationSettings')}>
+          <Image source={require('@/assets/images/add-icon.png')} style={styles.icon} />
         </TouchableOpacity>
       </View>
 

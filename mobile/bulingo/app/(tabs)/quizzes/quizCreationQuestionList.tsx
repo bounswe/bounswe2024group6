@@ -43,19 +43,19 @@ const QuizCreationQuestionList = () => {
   }, [question, answers, correctAnswer, selectedType]);
 
   const handleAddQuestion = () => {
-    router.navigate('./quizCreationInfo');
+    router.navigate('/(tabs)/quizzes/quizCreationInfo');
   };
 
   const handleUpdateQuestion = (index: number) => {
-    router.navigate({pathname: './quizCreationInfo', params: { "initialQuestion": questions[index].name , "initialAnswers": JSON.stringify(questions[index].answers), "initialCorrectAnswer": questions[index].correctAnswer, "type": questions[index].type, "index": index}});
+    router.navigate({pathname: '/(tabs)/quizzes/quizCreationInfo', params: { "initialQuestion": questions[index].name , "initialAnswers": JSON.stringify(questions[index].answers), "initialCorrectAnswer": questions[index].correctAnswer, "type": questions[index].type, "index": index}});
   };
 
   const handleCreateQuiz = () => {
-    router.navigate('./quizFeed');
+    router.navigate('/(tabs)/quizzes/');
   }
 
   const handleCancel = () => {
-    router.navigate("./quizFeed");
+    router.navigate("/(tabs)/quizzes/");
   }
 
 
@@ -69,10 +69,10 @@ const QuizCreationQuestionList = () => {
     <View style={[styles.questionContainer, styles.elevation]}>
       <Text style={styles.questionText}>{`Question ${index + 1}: ${item.name}`}</Text>
       <TouchableOpacity style={styles.iconButton} onPress={() => handleUpdateQuestion(index)}>
-      <Image source={require('../assets/images/update-icon.png')} style={styles.icon} />
+      <Image source={require('@/assets/images/update-icon.png')} style={styles.icon} />
       </TouchableOpacity>
       <TouchableOpacity style={styles.iconButton} onPress={() => handleDeleteQuestion(index)}>
-      <Image source={require('../assets/images/bin-icon.png')} style={styles.icon} />
+      <Image source={require('@/assets/images/bin-icon.png')} style={styles.icon} />
       </TouchableOpacity>
     </View>
   );
@@ -82,7 +82,7 @@ const QuizCreationQuestionList = () => {
       <View style={styles.headerContainer}>
         <Text style={styles.headerText}>Food</Text>
         <TouchableOpacity style={styles.addButton} onPress={handleAddQuestion}>
-        <Image source={require('../assets/images/add-icon.png')} style={styles.icon} />
+        <Image source={require('@/assets/images/add-icon.png')} style={styles.icon} />
         </TouchableOpacity>
       </View>
 

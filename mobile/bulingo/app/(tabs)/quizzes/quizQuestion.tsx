@@ -99,7 +99,7 @@ const QuizQuestion = () => {
       }
     }
     router.push({
-      pathname: '/quizResults', 
+      pathname: '/(tabs)/quizzes/quizResults', 
       params: {'props': JSON.stringify(resultsProps)}
     });
   };
@@ -110,7 +110,7 @@ const QuizQuestion = () => {
 
   const handleCancel = () => {
     router.dismissAll();
-    router.push('/quizFeed');
+    router.push('/(tabs)/quizzes/');
   };
 
   return (

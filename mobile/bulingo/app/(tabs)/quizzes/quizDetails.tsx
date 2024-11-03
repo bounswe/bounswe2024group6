@@ -38,13 +38,13 @@ const QuizDetails = () => {
 
         {/* Bookmark button in the bottom right corner */}
         <TouchableOpacity style={styles.bookmarkButton}>
-          <Image source={require('../assets/images/bookmark-icon.png')} style={styles.bookmarkIcon} />
+          <Image source={require('@/assets/images/bookmark-icon.png')} style={styles.bookmarkIcon} />
         </TouchableOpacity>
       </View>
       <View style={styles.buttonContainer}>
       <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
         <TouchableOpacity style={styles.quizButton}
-          onPress={() => router.navigate('/quizQuestion')}
+          onPress={() => router.navigate('/(tabs)/quizzes/quizQuestion')}
         >
           <Text style={styles.buttonText}>Take Quiz</Text>
         </TouchableOpacity>

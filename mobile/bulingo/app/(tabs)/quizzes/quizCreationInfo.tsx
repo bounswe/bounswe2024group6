@@ -63,7 +63,7 @@ const QuizCreationInfo = () => {
   };
 
   const handleAddQuestion = () => {
-    router.navigate({ pathname: './quizCreationQuestionList', params: { question: question, answers: JSON.stringify(answers), correctAnswer: answers[correctAnswerIndex!], selectedType: selectedType, index: index } });
+    router.navigate({ pathname: '/(tabs)/quizzes/quizCreationQuestionList', params: { question: question, answers: JSON.stringify(answers), correctAnswer: answers[correctAnswerIndex!], selectedType: selectedType, index: index } });
   };
 
   const handleTypeSelect = (type: string) => {

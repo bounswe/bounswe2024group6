@@ -18,7 +18,7 @@ const QuizCreationSettings = () => {
   
 
   const handleAddQuestions = () => {
-    router.push('./quizCreationQuestionList');
+    router.push('/(tabs)/quizzes/quizCreationQuestionList');
   };
 
   // Check if any field is empty
