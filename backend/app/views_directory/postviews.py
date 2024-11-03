@@ -6,9 +6,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from app.models import Post
 
+#
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def like_post(request):
+def like_post(request): 
     post_id = request.data.get("post_id")
     if not post_id:
         return Response({"detail": "Post ID is required."}, status=status.HTTP_400_BAD_REQUEST)
