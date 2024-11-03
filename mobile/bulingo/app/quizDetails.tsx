@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import Navbar from './navbar';
-
+import { Shadow } from 'react-native-shadow-2';
 const QuizDetails = () => {
   const { params } = useRoute();
   const [response, setResponse] = useState(null);
@@ -26,32 +26,15 @@ const QuizDetails = () => {
 
   return (
     <View style={styles.container}>
-      {/* Header with buttons aligned horizontally */}
-      {/* <View style={styles.headerContainer}>
-        <TouchableOpacity style={styles.headerButton}>
-          <Image source={require('../home-icon.png')} style={styles.icon} />
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.headerButton, styles.purpleBackground]}>
-          <Text style={styles.headerText}>Quizzes</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.headerButton, styles.purpleBackground]}>
-          <Text style={styles.headerText}>Forum</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.headerButton}>
-          <Image source={require('../assets/images/profile-icon.png')} style={styles.icon} />
-        </TouchableOpacity>
-      </View> */}
-      <Navbar/>
-
-      {/* Quiz name and description box */}
-      <View style={styles.quizDetailsBox}>
+      <Navbar />
+      <View style={[styles.elevation, styles.quizDetailsBox]}>
         <Text style={styles.quizTitle}>Foods</Text>
         <Text style={styles.quizDescription}>
           Stats {'\n'}
           Times Taken: 35 {'\n'}
           Number of Questions: 10 {'\n'}
           Average Score: 8 {'\n'}
-          Time Limit: No Limit
+          Time Limit: No Limit {'\n'}
           Tags: B1
         </Text>
 
@@ -60,19 +43,32 @@ const QuizDetails = () => {
           <Image source={require('../assets/images/bookmark-icon.png')} style={styles.bookmarkIcon} />
         </TouchableOpacity>
       </View>
+      <View style={styles.buttonContainer}>
+      <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
+        <TouchableOpacity style={styles.quizButton}
+          onPress={() => router.navigate('/quizQuestion')}
+        >
+          <Text style={styles.buttonText}>Take Quiz</Text>
+        </TouchableOpacity>
+        </Shadow>
+        </View>
 
-      {/* Action buttons */}
-      <TouchableOpacity style={styles.quizButton} onPress={() => {router.navigate('/quizQuestion')}}>
-        <Text style={styles.buttonText}>Take Quiz</Text>
-      </TouchableOpacity>
+
+      {/* Go Back button */}
       <TouchableOpacity style={styles.goBackButton} onPress={() => router.back()}>
         <Text style={styles.buttonText}>Go Back</Text>
       </TouchableOpacity>
     </View>
   );
+    
 };
 
 const styles = StyleSheet.create({
+  buttonContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 20,
+  },
   container: {
     flex: 1,
     padding: 20,
@@ -86,25 +82,17 @@ const styles = StyleSheet.create({
   headerButton: {
     padding: 10,
   },
-  purpleBackground: {
-    backgroundColor: '#C8C8F0', // Light purple color for Quizzes and Forum buttons
-    borderRadius: 10,
-  },
-  headerText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-  },
   icon: {
     width: 24,
     height: 24,
   },
   quizDetailsBox: {
-    backgroundColor: '#D8EBCF',
-    borderRadius: 10,
+    backgroundColor: 'white',
+    borderRadius: 5,
     padding: 20,
+    marginTop: 20,
     marginBottom: 30,
-    position: 'relative', // Required for absolute positioning of bookmark button
+    position: 'relative',
   },
   quizTitle: {
     fontSize: 28,
@@ -117,24 +105,28 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   quizButton: {
-    backgroundColor: '#5DAB44',
+    backgroundColor: '#3944FD',
     padding: 15,
     borderRadius: 10,
+    width: 300,
     alignItems: 'center',
-    width: '80%', // Take Quiz button smaller than the full width
     alignSelf: 'center',
-    marginBottom: 20,
+  },
+  elevation: {
+    elevation: 50,
+    shadowColor: 'black',
   },
   goBackButton: {
     backgroundColor: '#CCCCCC',
     padding: 12,
     borderRadius: 10,
     alignItems: 'center',
-    width: '70%', // Go Back button smaller than Take Quiz button
+    width: '70%',
     alignSelf: 'center',
   },
   buttonText: {
     fontSize: 18,
+    alignItems: 'center',
     color: 'white',
     fontWeight: 'bold',
   },
@@ -147,6 +139,7 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
   },
+
 });
 
 export default QuizDetails;

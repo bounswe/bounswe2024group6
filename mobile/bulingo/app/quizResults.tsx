@@ -1,8 +1,13 @@
 import React, {useState} from 'react';
-import {Image, Pressable, StyleSheet, Text, View} from 'react-native';
+import {Image, StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 import { useLocalSearchParams } from "expo-router";
 import Navbar from "./navbar";
 import {router} from "expo-router";
+import { Shadow } from 'react-native-shadow-2';
+
+import { Dimensions } from 'react-native';
+
+const { width, height } = Dimensions.get('window');
 
 export type QuizResultsProps = {
   quizResultsProps: QuizResultsCardProps,
@@ -34,14 +39,21 @@ const QuizResults = () => {
             tags={props.recommendationProps.tags}
           />
         </View>
-        <View style={styles.actionButtonsContainer}>
-          <Pressable style={styles.retakeQuizButton} onPress={() => {router.push("/quizQuestion")}}>
+        <View style={styles.buttonContainer}>
+        <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
+          <TouchableOpacity style={styles.retakeQuizButton} onPress={() => {router.push("/quizQuestion")}}>
             <Text style={styles.retakeQuizText}>Retake Quiz</Text>
-          </Pressable>
-          <Pressable style={styles.mainMenuButton} onPress={() => {router.navigate("/")}}>
+          </TouchableOpacity>
+          </Shadow>
+          </View>
+
+          <View style={styles.buttonContainer}>
+        <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
+          <TouchableOpacity style={styles.mainMenuButton} onPress={() => {router.navigate("/")}}>
             <Text style={styles.mainMenuText}>Main Menu</Text>
-          </Pressable>
-        </View>
+          </TouchableOpacity>
+          </Shadow>
+          </View>
       </View>
     </View>
   );
@@ -56,10 +68,21 @@ export type QuizResultsCardProps = {
 
 export const QuizResultsCard = (props: QuizResultsCardProps) => {
   return (
-    <View style={styles.resultsCard}>
+    <View style={[styles.resultsCard, styles.elevation]}>
       <View style={styles.resultsTitleContainer}>
         <Text style={styles.resultsTitle}>{props.quizName}</Text>
       </View>
+      <View style={[styles.resultsScoreContainer, styles.elevation]}>
+        <Text style={styles.scoreText}>Score</Text>
+        <View style={[styles.scoreBox, styles.elevation]}>
+          <Text style={styles.scoreBoxText}>{props.score}/{props.maxScore}</Text>
+        </View>
+      </View>
+      <View style={styles.bottomMessageContainer}>
+          <Text style={styles.bottomMessage}>Congrats!</Text>
+          <Text style={styles.bottomMessage}>Keep it up!</Text>
+        </View>
+      <View style={styles.resultsBottomContainer}>
       <View style={styles.resultsTagsContainer}>
         {props.tags.map((item, index) => (
             <View style={styles.tagBox} key={index}>
@@ -67,30 +90,14 @@ export const QuizResultsCard = (props: QuizResultsCardProps) => {
             </View>
         ))}
       </View>
-      <View style={styles.resultsScoreContainer}>
-        <Text style={styles.scoreText}>Score</Text>
-        <View style={styles.scoreBox}>
-          <Text style={styles.scoreBoxText}>{props.score}/{props.maxScore}</Text>
+          <TouchableOpacity>
+              <Image style={styles.bottomButtonLike} source={require('@/assets/images/like-1.png')}/>
+          </TouchableOpacity>
+
+          <TouchableOpacity>
+            <Image style={[styles.bottomButtonBookmark, {borderWidth: 0}]} source={require('@/assets/images/bookmark-icon.png')}/>
+          </TouchableOpacity>
         </View>
-      </View>
-      <View style={styles.resultsBottomContainer}>
-        <View style={styles.bottomButtonContainer}>
-          <Pressable>
-            <View style={styles.bottomButton}>
-              <Image style={{width: 30, height: 30, marginTop: 5}} source={require('@/assets/images/like-1.png')}/>
-            </View>
-          </Pressable>
-        </View>
-        <View style={styles.bottomMessageContainer}>
-          <Text style={styles.bottomMessage}>Congrats!</Text>
-          <Text style={styles.bottomMessage}>Keep it up!</Text>
-        </View>
-        <View style={styles.bottomButtonContainer}>
-          <Pressable>
-            <Image style={[styles.bottomButton, {borderWidth: 0}]} source={require('@/assets/images/bookmark-icon.png')}/>
-          </Pressable>
-        </View>
-      </View>
     </View>
   );
 };
@@ -104,33 +111,27 @@ export type QuizCardProps = {
 
 export const QuizCard = (props: QuizCardProps) => {
   return (
-    <View style={styles.quizCard}>
-      <View style={styles.quizCardTop}>
-        <Text style={styles.quizCardTitle}>{props.name}</Text>
-      </View>
-      <View style={styles.quizCardMiddle}>
-        <Text style={styles.quizCardDescription}>{props.desc}</Text>
-      </View>
-      <View style={styles.quizCardBottom}>
-        <View style={styles.quizCardBottomLeft}>
-          <Text style={styles.quizCardAuthorText}>by {props.author}</Text>
-          <View style={styles.quizCardTagsContainer}>
-            {props.tags.map((item, index) => (
-                <View style={styles.tagBox} key={index}>
-                  <Text style={styles.tagText}>{item}</Text>
-                </View>
-            ))}
-          </View>
-        </View>
-        <View style={styles.quizCardBottomRight}>
-          <Pressable>
-            <View style={styles.quizCardBookmarkButton}>
-              <Image style={styles.quizCardBookmarkButton} source={require('@/assets/images/bookmark-icon.png')}/>
-            </View>
-          </Pressable>
-        </View>
-      </View>
+    <TouchableOpacity
+    style={[styles.quizItem, styles.elevation]}
+    onPress={() => router.navigate('/quizDetails')}
+  >
+    <View style={styles.quizInfo}>
+      <Text style={styles.quizTitle}>{props.name}</Text>
+      <Text style={styles.quizDescription}>{props.desc}</Text>
+      <Text style={styles.quizAuthor}>by {props.author}</Text>
+      <Text style={styles.quizLevel}>{props.tags}</Text>
     </View>
+    <View style={styles.quizActions}>
+      <TouchableOpacity style={styles.likeButton}>
+        <Image source={require('../assets/images/like-1.png')} style={styles.icon} />
+        
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.bookmarkButton}>
+        <Image source={require('../assets/images/bookmark-icon.png')} style={styles.icon} />
+      </TouchableOpacity>
+    </View>
+  </TouchableOpacity>
   );
 };
 
@@ -160,11 +161,8 @@ const styles = StyleSheet.create({
   },
   resultsCard: {
     flex: 1,
-    borderRadius: 30,
-    borderWidth: 3,
-    borderColor: "#000",
-    backgroundColor: "#b2f2bb",
-    justifyContent: 'space-between',
+    borderRadius: 20,
+    backgroundColor: "white",
     alignItems: 'stretch',
   },
   resultsTitleContainer: {
@@ -178,24 +176,22 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   resultsTagsContainer: {
-    flex: 1,
     flexDirection: "row",
     justifyContent: 'center',
     alignItems: 'center',
   },
   tagBox: {
+    backgroundColor: '#dfe4ea',
+    paddingHorizontal: 8,
     paddingVertical: 2,
-    paddingHorizontal: 5,
-    margin: 2,
-    borderRadius: 15,
-    borderWidth: 2,
-    borderColor: "#000",
-    textAlign: 'center',
-    backgroundColor: "#f40038bb",
+    borderRadius: 4,
+    fontSize: 12,
+    color: '#333',
+    alignSelf: 'flex-start',
   },
   tagText: {
     textAlign: 'center',
-    fontSize: 12,
+    fontSize: 18,
     fontWeight: 'bold',
   },
   resultsScoreContainer: {
@@ -208,15 +204,18 @@ const styles = StyleSheet.create({
     fontSize: 24,
   },
   scoreBox: {
-    borderWidth: 2,
-    borderColor: '#1971c2',
-    backgroundColor: "#a5d8ff",
+    width: width * 0.24,
+    height: height * 0.05,
+    borderRadius: 15,
+    backgroundColor: "blue",
     paddingHorizontal: 5,
-    paddingVertical: 2,
-    margin: 5,
+    paddingVertical: 6,
+    margin: 15,
   },
   scoreBoxText: {
     textAlign: 'center',
+    textAlignVertical: 'center',
+    color: 'white',
     fontSize: 20,
   },
   resultsBottomContainer: {
@@ -226,27 +225,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   bottomMessageContainer: {
-    flex: 4,
+    flex: 2,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  bottomButtonContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: 10,
-    padding: 5,
   },
   bottomMessage: {
     textAlign: 'center',
     fontSize: 24
   }, 
-  bottomButton: {
+  bottomButtonLike: {
     alignItems: 'center',
-    borderWidth: 3,
-    borderColor: "#000",
-    width: 50,
-    height: 50,
+    width: width * 0.1,
+    height: height * 0.06,
+    borderRadius: 25,
+  },
+  bottomButtonBookmark: {
+    alignItems: 'center',
+    width: width * 0.10,
+    height: height * 0.06,
     borderRadius: 25,
   },
   recommendationContainer: {
@@ -258,100 +254,101 @@ const styles = StyleSheet.create({
     padding: 15,
   },
   recommendationText: {
-    fontSize: 20,
+    fontSize: 18,
+    fontFamily: 'sans-serif',
     paddingLeft: 5,
   },
-  quizCard: {
-    flex: 1,
-    borderRadius: 20,
-    borderWidth: 3,
-    borderColor: '#000',
-    backgroundColor: "#b2f2bb",
-    padding: 5,
-  },
-  quizCardTop: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  quizCardTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  quizCardMiddle: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  quizCardDescription: {
-    fontSize: 12,
-  },
-  quizCardBottom: {
-    flex: 2,
+  quizItem: {
     flexDirection: 'row',
-    
-  },
-  quizCardBottomLeft: {
-    flex: 4,
-    justifyContent: 'center'
-  },
-  quizCardAuthorText: {
-    fontSize: 16,
-  },
-  quizCardTagsContainer: {
-    flex: 1,
-    flexDirection: "row",
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-  },
-  quizCardBottomRight: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  quizCardBookmarkButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-  },
-  actionButtonsContainer: {
-    flex: 1,
     justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 5,
+    padding: 16,
+    backgroundColor: 'white',
+    marginBottom: 5,
+    marginTop: 8,
+    borderRadius: 8,
+    position: 'relative',
   },
   retakeQuizButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 2,
-    margin: 5,
+    backgroundColor: '#3944FD',
+    padding: 15,
     borderRadius: 10,
-    flex: 1,
-    borderWidth: 2,
-    backgroundColor: '#b2f2bb',
-    borderColor: '#000',
-    justifyContent: 'center',
+    width: width * 0.7,
     alignItems: 'center',
+  },
+  buttonContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 20,
   },
   retakeQuizText: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#000',
+    color: 'white',
     textAlign: 'center',
   },
   mainMenuButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 2,
+    backgroundColor: '#CCCCCC',
+    padding: 15,
     borderRadius: 10,
-    flex:1,
-    borderWidth: 2,
-    backgroundColor: '#b2f2bb',
-    borderColor: '#000',
-    justifyContent: 'center',
+    width: width * 0.5,
     alignItems: 'center',
+    alignSelf: 'center',
   },
   mainMenuText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#000',
+    color: 'white',
     textAlign: 'center'
+  },
+  elevation: {
+    elevation: 10,
+    shadowColor: 'black',
+  },
+  quizInfo: {
+    flex: 1,
+  },
+  quizTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  quizDescription: {
+    fontSize: 14,
+    color: '#666',
+  },
+  quizAuthor: {
+    fontSize: 12,
+    color: '#999',
+  },
+  quizLevel: {
+    backgroundColor: '#dfe4ea',
+    marginTop : 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+    fontSize: 12,
+    color: '#333',
+    alignSelf: 'flex-start',
+  },
+  quizActions: {
+    position: 'absolute',
+    bottom: 0,
+    right: 10,
+    padding: 4,
+},
+  likeButton: {
+    position: 'absolute',
+    bottom: height * 0.02,
+    left: -width * 0.15,
+  },
+  bookmarkButton: {
+    position: 'absolute',
+    bottom: height * 0.02,
+    right: width * 0.03, 
+  },
+  icon: {
+    width: width * 0.07,
+    height: height * 0.05,
+    resizeMode: 'contain',
   },
   
 });

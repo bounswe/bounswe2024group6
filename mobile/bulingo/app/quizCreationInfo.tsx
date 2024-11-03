@@ -2,6 +2,7 @@ import React, { useState, useEffect} from 'react';
 import { Keyboard, StyleSheet, Text, TextInput, View, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
 import Navbar from './navbar';
 import { router, useLocalSearchParams } from 'expo-router';
+import { Shadow } from 'react-native-shadow-2';
 
 const QuizCreationInfo = () => {
   const [question, setQuestion] = useState('Pasta');
@@ -99,7 +100,7 @@ const QuizCreationInfo = () => {
         </View>
 
         {/* Question and Answers Section */}
-        <View style={styles.questionAnswersContainer}>
+        <View style={[styles.questionAnswersContainer, styles.elevation]}>
           {/* Editable question title area */}
           <View style={styles.questionBox}>
             <TextInput
@@ -115,6 +116,7 @@ const QuizCreationInfo = () => {
                 {row.map((answer, colIndex) => {
                   const answerIndex = rowIndex * 2 + colIndex;
                   return (
+                    <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
                     <TouchableOpacity
                       key={colIndex}
                       style={[
@@ -129,7 +131,10 @@ const QuizCreationInfo = () => {
                       onPress={() => handleAnswerClick(answerIndex)}
                       onLongPress={() => handleLongPress(answerIndex)}
                     >
-                      <Text style={styles.answerText}>{answer}</Text>
+                      <Text style={styles.answerText}
+                        numberOfLines={1} 
+                        ellipsizeMode="tail"
+                      >{answer}</Text>
 
                                       {/* Show the button if the user long-pressed this tile */}
                     {showButtonIndex === answerIndex && (
@@ -146,6 +151,7 @@ const QuizCreationInfo = () => {
                     )}
 
                     </TouchableOpacity>
+                    </Shadow>
                     );
                 })}
               </View>
@@ -179,10 +185,13 @@ const QuizCreationInfo = () => {
 
         {/* Navigation Buttons */}
         <View style={styles.navButtonsContainer}>
-          <TouchableOpacity style={styles.navButton} onPress={() => handleGoBack()}>
+        <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
+          <TouchableOpacity style={styles.backButton} onPress={() => handleGoBack()}>
             
             <Text style={styles.navButtonText}>Go Back</Text>
           </TouchableOpacity>
+        </Shadow>
+          <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
           <TouchableOpacity 
             style={[styles.navButton, isButtonDisabled() && styles.disabledButton]} 
             disabled={isButtonDisabled()}
@@ -190,6 +199,7 @@ const QuizCreationInfo = () => {
           >
           <Text style={styles.navButtonText}>Add Question</Text>
         </TouchableOpacity>
+        </Shadow>
         </View>
       </View>
     </View>
@@ -206,8 +216,9 @@ const styles = StyleSheet.create({
   },
   page: {
     flex: 9,
-    backgroundColor: '#e6ffed',
+    backgroundColor: 'white',
     padding: 20,
+    paddingTop: 50,
     justifyContent: 'flex-start',
   },
   typeContainer: {
@@ -216,7 +227,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   typeButton: {
-    backgroundColor: '#ffec99',
+    backgroundColor: 'white',
     padding: 10,
     borderRadius: 10,
     borderWidth: 2,
@@ -227,7 +238,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   selectedType: {
-    backgroundColor: '#d1e7dd',
+    backgroundColor: 'lightblue',
   },
   typeText: {
     fontSize: 18,
@@ -235,10 +246,8 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   questionAnswersContainer: {
-    backgroundColor: '#e6ffed',
+    backgroundColor: 'white',
     borderRadius: 10,
-    borderColor: '#000',
-    borderWidth: 2,
     padding: 15,
     marginBottom: 20,
   },
@@ -249,9 +258,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#000',
-    backgroundColor: '#ffec99',
-    borderWidth: 2, 
-    borderColor: '#000', 
+    backgroundColor: '#E8E8E8',
     borderRadius: 8, 
     padding: 10,
   },
@@ -264,18 +271,15 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   answerBox: {
-    backgroundColor: '#ffec99',
-    borderColor: '#000',
-    borderWidth: 2,
+    backgroundColor: 'white',
     borderRadius: 10,
-    padding: 10,
-    flex: 1,
-    marginHorizontal: 5,
+    width: 150,
+    padding: 10,  
     justifyContent: 'center',
     alignItems: 'center',
   },
   selectedAnswer: {
-    backgroundColor: '#d1e7dd',
+    backgroundColor: 'lightblue',
   },
   answerText: {
     fontSize: 18,
@@ -293,16 +297,14 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   input: {
-    backgroundColor: '#fff6cc',
-    borderColor: '#000',
-    borderWidth: 2,
+    backgroundColor: '#E8E8E8',
     borderRadius: 10,
     padding: 10,
     flex: 1,
     marginRight: 10,
   },
   addButton: {
-    backgroundColor: '#b0e57c',
+    backgroundColor: 'lightblue',
     padding: 10,
     borderRadius: 10,
   },
@@ -318,8 +320,12 @@ const styles = StyleSheet.create({
   },
   suggestionButton: {
     backgroundColor: '#d1e7dd',
-    padding: 10,
+    padding: 5,
+    width: 80,
+    height: 40,
     borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   suggestionText: {
     fontSize: 16,
@@ -330,14 +336,23 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   navButton: {
-    backgroundColor: '#b0e57c',
+    backgroundColor: '#3944FD',
     padding: 15,
+    width: 150,
+    alignItems: 'center',
+    borderRadius: 10,
+  },
+  backButton: {  
+    backgroundColor: '#CCCCCC',
+    padding: 15,
+    width: 150,
+    alignItems: 'center',
     borderRadius: 10,
   },
   navButtonText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#000',
+    color: 'white',
   },
   disabledButton: {
     backgroundColor: '#ccc',
@@ -347,7 +362,7 @@ const styles = StyleSheet.create({
     top: '50%',           
     left: '50%',          
     transform: [{ translateX: -50 }, { translateY: -50 }], 
-    backgroundColor: '#ff9800',
+    backgroundColor: '#3944FD',
     padding: 5,
     borderRadius: 5,
     zIndex: 1,
@@ -358,6 +373,10 @@ const styles = StyleSheet.create({
   },
   correctAnswer: {
     backgroundColor: '#4caf50',
+  },
+  elevation: {
+    elevation: 30,
+    shadowColor: 'black',
   },
 });
 
