@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, TextInput, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { router } from 'expo-router';
+import QuizCard  from '@/app/components/quizCard';
 
 
 const initialQuizData = [
@@ -97,30 +98,11 @@ const QuizFeed = () => {
   };
 
   const renderQuizItem = ({ item }: { item: any }) => (
-    <TouchableOpacity
-      style={[styles.quizItem, styles.elevation]}
-      onPress={() => handleQuizPress(item.id)}
-    >
-      <View style={styles.quizInfo}>
-        <Text style={styles.quizTitle}>{item.title}</Text>
-        <Text style={styles.quizDescription}>{item.description}</Text>
-        <Text style={styles.quizAuthor}>by {item.author}</Text>
-        <Text style={styles.quizLevel}>{item.level}</Text>
-      </View>
-      <View style={styles.quizActions}>
-        {/* Like button when it's clicked it changes to like-2 */}
-        <TouchableOpacity style={styles.likeButton} onPress={() => handleLikePress(item.id)}>
-          <Text style={styles.quizLikes}>
-          <Image source={item.liked ? require('@/assets/images/like-2.png') : require('@/assets/images/like-1.png')}style={styles.icon} /> {item.likes}
-          </Text>
-        </TouchableOpacity>
-  
-        {/* Touchable Bookmark Icon at the bottom right */}
-        <TouchableOpacity style={styles.bookmarkButton} onPress={() => handleBookmarkPress(item.id)}>
-          <Image source={require('@/assets/images/bookmark-icon.png')} style={styles.icon} />
-        </TouchableOpacity>
-      </View>
-    </TouchableOpacity>
+    <QuizCard {...item} 
+      handleQuizPress={handleQuizPress} 
+      handleLikePress={handleLikePress} 
+      handleBookmarkPress={handleBookmarkPress}
+    />
   );
   
   
