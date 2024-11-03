@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     backgroundColor: "blue",
     paddingHorizontal: 5,
-    paddingVertical: 10,
+    paddingVertical: 6,
     margin: 15,
   },
   scoreBoxText: {

@@ -5,6 +5,10 @@ import {router} from "expo-router"
 import { QuizResultsProps } from './quizResults';
 import { Shadow } from 'react-native-shadow-2';
 
+import { Dimensions } from 'react-native';
+
+const { width, height } = Dimensions.get('window');
+
 const mockQuiz = {questions: [
   {
     question: 'kuzu',
@@ -252,7 +256,7 @@ const styles = StyleSheet.create({
   progressContainer: {
     justifyContent: 'center',
     backgroundColor: "blue",
-    height: 50,
+    height: height * 0.05,
     borderRadius: 10,
     paddingHorizontal: 20,
   },
@@ -272,7 +276,7 @@ const styles = StyleSheet.create({
   questionContainer: {
     justifyContent: 'center',
     backgroundColor: "white",
-    height: 200,
+    height: height * 0.25,
     marginBottom: 40,
     borderRadius: 10,
     borderColor: "#222",
@@ -292,7 +296,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   optionWrapper: {
-    width: 160,
+    width: width * 0.35,
     marginBottom: 12,
   },
 
@@ -300,7 +304,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 10,
     padding: 10,
-    width: 160,
+    width: width * 0.35,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -321,14 +325,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#3944FD',
     borderRadius: 10,
     padding: 10,
-    width: 160,
+    width: width * 0.4,
     alignItems: 'center',
   },
   disabledNavigationButton: {
     backgroundColor: 'gray',
     borderRadius: 10,
     padding: 10,
-    width: 160,
+    width: width * 0.4,
     alignItems: 'center',
   },
   navigationText: {
