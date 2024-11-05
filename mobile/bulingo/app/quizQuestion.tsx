@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { TouchableOpacity, StyleSheet, Text, View } from 'react-native';
 import Navbar from "./navbar";
 import {router} from "expo-router"
-import { QuizResultsCardProps, QuizResultsProps } from './quizResults';
+import { QuizResultsProps } from './quizResults';
+import { Shadow } from 'react-native-shadow-2';
+
+import { Dimensions } from 'react-native';
+
+const { width, height } = Dimensions.get('window');
 
 const mockQuiz = {questions: [
   {
@@ -117,23 +122,26 @@ const QuizQuestion = () => {
 
       <View style={styles.page}>
         <View style={styles.topContainer}>
-          <Pressable style={styles.cancelQuizButton} onPress={handleCancel}>
+        <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
+          <TouchableOpacity style={styles.cancelQuizButton} onPress={handleCancel}>
             <Text style={styles.cancelQuizText}>Cancel Quiz</Text>
-          </Pressable>
-
+          </TouchableOpacity>
+          </Shadow>
           <View style={styles.progressContainer}>
             <Text style={styles.progressText}>
               {currentQuestionIndex + 1}/{questionCount}
             </Text>
           </View>
         </View>
-
-        <View style={styles.questionContainer}>
+        <View style={[styles.questionWrapper, styles.elevation]}>
+        <View style={[styles.questionContainer, styles.questionAnswerElevation]}>
           <Text style={styles.questionText}>{props.questions[currentQuestionIndex].question}</Text>
         </View>
 
         <View style={styles.optionsContainer}>
-          <Pressable
+        <View style={styles.optionWrapper}>
+        <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
+          <TouchableOpacity
             style={[
               styles.optionButton,
               selectedChoices[currentQuestionIndex] == 1 ? styles.selectedOption : null,
@@ -141,8 +149,13 @@ const QuizQuestion = () => {
             onPress={() => handleOptionSelect(1)}
           >
             <Text style={styles.optionText}>{props.questions[currentQuestionIndex].choice1}</Text>
-          </Pressable>
-          <Pressable
+          </TouchableOpacity>
+          </Shadow>
+          </View>
+
+          <View style={styles.optionWrapper}>
+          <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
+          <TouchableOpacity
             style={[
               styles.optionButton,
               selectedChoices[currentQuestionIndex] == 2 ? styles.selectedOption : null,
@@ -150,8 +163,13 @@ const QuizQuestion = () => {
             onPress={() => handleOptionSelect(2)}
           >
             <Text style={styles.optionText}>{props.questions[currentQuestionIndex].choice2}</Text>
-          </Pressable>
-          <Pressable
+          </TouchableOpacity>
+          </Shadow>
+          </View>
+
+          <View style={styles.optionWrapper}>
+          <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
+          <TouchableOpacity
             style={[
               styles.optionButton,
               selectedChoices[currentQuestionIndex] == 3 ? styles.selectedOption : null,
@@ -159,8 +177,12 @@ const QuizQuestion = () => {
             onPress={() => handleOptionSelect(3)}
           >
             <Text style={styles.optionText}>{props.questions[currentQuestionIndex].choice3}</Text>
-          </Pressable>
-          <Pressable
+          </TouchableOpacity>
+          </Shadow>
+          </View>
+          <View style={styles.optionWrapper}>
+          <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
+          <TouchableOpacity
             style={[
               styles.optionButton,
               selectedChoices[currentQuestionIndex] == 4 ? styles.selectedOption : null,
@@ -168,20 +190,29 @@ const QuizQuestion = () => {
             onPress={() => handleOptionSelect(4)}
           >
             <Text style={styles.optionText}>{props.questions[currentQuestionIndex].choice4}</Text>
-          </Pressable>
-        </View>
+          </TouchableOpacity>
+          </Shadow>
+          </View>
 
+        </View>
+        </View>
         <View style={styles.navigationContainer}>
-          <Pressable style={currentQuestionIndex==0 ? styles.disabledNavigationButton : styles.navigationButton} onPress={handlePrevious} disabled={currentQuestionIndex==0}>
+        <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
+          <TouchableOpacity style={currentQuestionIndex==0 ? styles.disabledNavigationButton : styles.navigationButton} onPress={handlePrevious} disabled={currentQuestionIndex==0}>
             <Text style={styles.navigationText}>Previous</Text>
-          </Pressable>
+          </TouchableOpacity>
+          </Shadow>
           { currentQuestionIndex == questionCount-1 ?
-              <Pressable style={styles.navigationButton} onPress={handleFinish}>
+          <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
+              <TouchableOpacity style={styles.navigationButton} onPress={handleFinish}>
                 <Text style={styles.navigationText}>Finish</Text>
-              </Pressable> :
-              <Pressable style={styles.navigationButton} onPress={handleNext}>
+              </TouchableOpacity> 
+              </Shadow> :
+              <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
+              <TouchableOpacity style={styles.navigationButton} onPress={handleNext}>
                 <Text style={styles.navigationText}>Next</Text>
-              </Pressable>
+              </TouchableOpacity>
+              </Shadow>
           }
         </View>
       </View>
@@ -195,7 +226,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     marginTop: 30,
     marginBottom: 20,
-    backgroundColor: '#fff',
+    backgroundColor: 'white',
   },
   navbarContainer: {
     flex: 1,
@@ -204,7 +235,7 @@ const styles = StyleSheet.create({
     flex: 9,
     justifyContent: "space-around",
     alignItems: 'stretch',
-    backgroundColor: '#e6ffed',
+    backgroundColor: 'white',
     padding: 20,
   },
   topContainer: {
@@ -213,38 +244,41 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cancelQuizButton: {
-    backgroundColor: '#d3f8d3',
+    backgroundColor: '#b22222',
     borderRadius: 10,
     padding: 10,
-    borderWidth: 1,
-    borderColor: '#000',
-    marginBottom: 10,
   },
   cancelQuizText: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
-    color: '#000',
+    color: 'white',
   },
   progressContainer: {
     justifyContent: 'center',
-    backgroundColor: "#ffec99",
-    height: 50,
+    backgroundColor: "blue",
+    height: height * 0.05,
     borderRadius: 10,
-    borderWidth: 3,
-    borderColor: "#222",
     paddingHorizontal: 20,
   },
   progressText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#000',
+    color: 'white',
   },
+  questionWrapper: {
+    backgroundColor: "white",
+    borderRadius: 10,
+    justifyContent: "space-around",
+    padding: 20,
+    marginVertical: 10,
+  },
+  
   questionContainer: {
     justifyContent: 'center',
-    backgroundColor: "#ffec99",
-    height: 100,
+    backgroundColor: "white",
+    height: height * 0.25,
+    marginBottom: 40,
     borderRadius: 10,
-    borderWidth: 3,
     borderColor: "#222",
     paddingHorizontal: 20,
     alignItems: 'center',
@@ -252,27 +286,30 @@ const styles = StyleSheet.create({
   questionText: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#000',
+    color: 'black',
     textAlign: 'center',
   },
   optionsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
+    marginTop: 20,
   },
+  optionWrapper: {
+    width: width * 0.35,
+    marginBottom: 12,
+  },
+
   optionButton: {
-    backgroundColor: '#ffec99',
+    backgroundColor: 'white',
     borderRadius: 10,
-    borderWidth: 3,
-    borderColor: '#222',
     padding: 10,
-    margin: 5,
-    flexBasis: '45%',
+    width: width * 0.35,
     justifyContent: 'center',
     alignItems: 'center',
   },
   selectedOption: {
-    backgroundColor: '#d1e7dd',
+    backgroundColor: 'lightblue',
   },
   optionText: {
     fontSize: 18,
@@ -285,27 +322,31 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   navigationButton: {
-    backgroundColor: '#d3f8d3',
+    backgroundColor: '#3944FD',
     borderRadius: 10,
     padding: 10,
-    borderWidth: 1,
-    borderColor: '#000',
-    width: '45%',
+    width: width * 0.4,
     alignItems: 'center',
   },
   disabledNavigationButton: {
     backgroundColor: 'gray',
     borderRadius: 10,
     padding: 10,
-    borderWidth: 1,
-    borderColor: '#000',
-    width: '45%',
+    width: width * 0.4,
     alignItems: 'center',
   },
   navigationText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#000',
+    color: 'white',
+  },
+  elevation: {
+    elevation: 20,
+    shadowColor: 'black',
+  },
+  questionAnswerElevation: {
+    elevation: 3,
+    shadowColor: 'black',
   },
 });
 

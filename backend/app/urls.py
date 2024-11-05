@@ -1,6 +1,8 @@
 from django.urls import path
 from app.views import *
 from app.views_directory.profileviews import view_profile, update_profile
+from app.views_directory.follow_unfollow import follow_user, unfollow_user 
+
 
 urlpatterns = [
     path('', index , name='index_page'),
@@ -14,4 +16,6 @@ urlpatterns = [
     path('signup/', RegisterView.as_view(), name='auth_register'),
     path('login/', LoginView.as_view(), name='auth_login'),
     path('logout/', LogoutView.as_view(), name='auth_logout'),
+    path('profile/follow/', follow_user, name='follow_user'),
+    path('profile/unfollow/', unfollow_user, name='unfollow_user'),
 ]
