@@ -75,7 +75,7 @@ const QuizFeed = () => {
   };
 
   const handleQuizPress = (quizId: number) => {
-    router.navigate('./quizDetails');
+    router.navigate('../quizDetails');
   };
 
   const handleLikePress = (quizId: string) => {
@@ -99,7 +99,7 @@ const QuizFeed = () => {
 
   const renderQuizItem = ({ item }: { item: any }) => (
     <TouchableOpacity
-      style={styles.quizItem}
+      style={[styles.quizItem, styles.elevation]}
       onPress={() => handleQuizPress(item.id)}
     >
       <View style={styles.quizInfo}>
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
   searchBar: {
     flex: 1,
     padding: 8,
-    backgroundColor: '#ffec99',
+    backgroundColor: '#E8E8E8',
     borderRadius: 8,
   },
   addButton: {
@@ -214,10 +214,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     padding: 16,
-    backgroundColor: '#e8f5e9',
+    backgroundColor: 'white',
     marginBottom: 8,
     borderRadius: 8,
     position: 'relative',
+  },
+  elevation: {
+    elevation: 2,
+    shadowColor: 'black',
   },
   quizInfo: {
     flex: 1,
@@ -240,6 +244,7 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     borderRadius: 4,
     fontSize: 12,
+    marginTop : 4,
     color: '#333',
     alignSelf: 'flex-start',
   },
