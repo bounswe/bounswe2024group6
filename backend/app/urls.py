@@ -3,6 +3,9 @@ from app.views import *
 from app.views_directory.profileviews import view_profile, update_profile
 from app.views_directory.follow_unfollow import follow_user, unfollow_user 
 from app.views_directory.authentication_endpoints import RegisterView, LoginView, LogoutView
+from app.views_directory.comments import add_comment, delete_comment, like_comment
+from app.views_directory.postviews import like_post, unlike_post
+from app.views_directory.postviews import add_comment, delete_comment, like_comment, unlike_comment
 
 
 urlpatterns = [
@@ -19,4 +22,10 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(), name='auth_logout'),
     path('profile/follow/', follow_user, name='follow_user'),
     path('profile/unfollow/', unfollow_user, name='unfollow_user'),
+    path('post/like/', like_post, name='like_post'),
+    path('post/unlike/', unlike_post, name='unlike_post'),
+    path('post/comment/add/', add_comment, name='add_comment'),
+    path('post/comment/delete/', delete_comment, name='delete_comment'),
+    path('post/comment/like/', like_comment, name='like_comment'),
+    path('post/comment/unlike/', unlike_comment, name='unlike_comment'),
 ]
