@@ -6,11 +6,12 @@ import {
   Divider,
   Button,
 } from "@nextui-org/react";
-import { useState } from "react";
 
 type Props = {
   ques_count: number;
   cur_question: number;
+  answers: Answer[];
+  setAnswers: (answers: Answer[]) => void;
 };
 enum Answer {
   None,
@@ -20,9 +21,12 @@ enum Answer {
   D,
 }
 
-export default function App({ ques_count, cur_question }: Props) {
-  const [answers, setAnswers] = useState(Array(ques_count).fill(Answer.None));
-
+export default function App({
+  ques_count,
+  cur_question,
+  answers,
+  setAnswers,
+}: Props) {
   function handleClick(answer: Answer) {
     return () => {
       setAnswers((prev) => {
