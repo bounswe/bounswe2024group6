@@ -100,7 +100,7 @@ export default function Home() {
                 </TextInput>
               </View>
             </View>
-            <View style={styles.buttonContainer}>
+            <View style={[styles.buttonContainer, {marginTop:10}]}>
                 {isErrorVisible && (
                   <Text style={styles.errorMessage}>Wrong Login information</Text>
                 )}
