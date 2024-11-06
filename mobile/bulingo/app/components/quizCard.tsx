@@ -32,14 +32,15 @@ export default function QuizCard(props: QuizCardProps){
       style={[styles.quizItem, styles.elevation]}
       onPress={() => handleQuizPress(props.id)}
     >
-      <View style={styles.quizInfo}>
+      <View style={styles.quizTop}>
         <Text style={styles.quizTitle}>{props.title}</Text>
         <Text style={styles.quizDescription}>{props.description}</Text>
-        <Text style={styles.quizAuthor}>by {props.author}</Text>
-        <Text style={styles.quizLevel}>{props.level}</Text>
       </View>
-      <View style={styles.quizActions}>
-        {/* Like button when it's clicked it changes to like-2 */}
+      <View style={styles.quizBottom}>
+        <View style={styles.quizBottomLeft}>
+          <Text style={styles.quizAuthor}>by {props.author}</Text>
+          <Text style={styles.quizLevel}>{props.level}</Text>
+        </View>
         <TouchableOpacity style={styles.likeButton} onPress={() => handleLikePress(props.id)}>
           <Text style={styles.quizLikes}>
           <Image source={props.liked ? require('@/assets/images/like-2.png') : require('@/assets/images/like-1.png')}style={styles.icon} /> {props.likes}
@@ -57,20 +58,26 @@ export default function QuizCard(props: QuizCardProps){
 
 const styles = StyleSheet.create({
   quizItem: {
-    flexDirection: 'row',
+    flex: 1,
     justifyContent: 'space-between',
     padding: 16,
     backgroundColor: 'white',
     marginBottom: 8,
     borderRadius: 8,
-    position: 'relative',
   },
   elevation: {
     elevation: 2,
     shadowColor: 'black',
   },
-  quizInfo: {
+  quizTop: {
+    flex: 1
+  },
+  quizBottom: {
     flex: 1,
+    flexDirection: 'row',
+  },
+  quizBottomLeft: {
+    flex: 3,
   },
   quizTitle: {
     fontSize: 18,
@@ -103,18 +110,14 @@ const styles = StyleSheet.create({
 },
   quizLikes: {
     fontSize: 16,
-    marginBottom: 0,
-    lineHeight: 43,
   },
   likeButton: {
-    position: 'absolute',
-    bottom: 20,
-    left: -150,
+    flex: 2,
   },
   bookmarkButton: {
-    position: 'absolute',
-    bottom: 20,
-    right: 20, 
+    flex: 1,
+    justifyContent: 'flex-end',
+    alignItems: 'flex-end',
   },
   icon: {
     width: 30,

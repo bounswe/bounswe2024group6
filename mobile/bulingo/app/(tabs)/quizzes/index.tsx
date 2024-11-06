@@ -141,39 +141,6 @@ const styles = StyleSheet.create({
     padding: 16,
     marginTop: 25,
   },
-  navBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#f0f0f0',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-  },
-  quizContainer: {
-    backgroundColor: '#800080', 
-    borderRadius: 8,            
-    marginHorizontal: 10, 
-    paddingHorizontal: 30,
-    paddingVertical: 5,
-  },
-  forumContainer: {
-    backgroundColor: '#9932CC', 
-    borderRadius: 8,            
-    marginHorizontal: 10, 
-    paddingHorizontal: 30,
-    paddingVertical: 5,
-  },
-  navItem: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  navIcon: {
-    width: 24,
-    height: 24,
-    resizeMode: 'contain',
-  },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -191,73 +158,10 @@ const styles = StyleSheet.create({
   addButton: {
     marginLeft: 10,
   },
-  quizItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    padding: 16,
-    backgroundColor: 'white',
-    marginBottom: 8,
-    borderRadius: 8,
-    position: 'relative',
-  },
-  elevation: {
-    elevation: 2,
-    shadowColor: 'black',
-  },
-  quizInfo: {
-    flex: 1,
-  },
-  quizTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  quizDescription: {
-    fontSize: 14,
-    color: '#666',
-  },
-  quizAuthor: {
-    fontSize: 12,
-    color: '#999',
-  },
-  quizLevel: {
-    backgroundColor: '#dfe4ea',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 4,
-    fontSize: 12,
-    marginTop : 4,
-    color: '#333',
-    alignSelf: 'flex-start',
-  },
-  quizActions: {
-    position: 'absolute',
-    bottom: 0,
-    right: 10,
-    height: 50,
-    padding: 4,
-},
-  quizLikes: {
-    fontSize: 16,
-    marginBottom: 0,
-    lineHeight: 43,
-  },
-  likeButton: {
-    position: 'absolute',
-    bottom: 20,
-    left: -150,
-  },
-  bookmarkButton: {
-    position: 'absolute',
-    bottom: 20,
-    right: 20, 
-  },
   icon: {
     width: 30,
     height: 30,
     resizeMode: 'contain',
-  },
-  navbarContainer: {
-    flex: 0,
   },
 });
 
