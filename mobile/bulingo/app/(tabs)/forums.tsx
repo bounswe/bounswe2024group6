@@ -1,10 +1,9 @@
 import { View, Text, StyleSheet } from 'react-native';
+import ForumFeed from '../forumFeed';
 
 export default function Tab() {
   return (
-    <View style={styles.container}>
-      <Text>Forums</Text>
-    </View>
+    <ForumFeed></ForumFeed>
   );
 }
 
