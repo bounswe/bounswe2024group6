@@ -86,11 +86,13 @@ export default function EditProfile() {
       <View style={styles.profilePictureContainer}>
         <Image source={image ? { uri: image } : require("@/assets/images/profile-icon.png")} style={styles.profilePicture} />
       </View>
-      <TouchableOpacity onPress={handleChangePicturePress}>
-        <View style={styles.changePictureBox}>
-          <Text style={styles.changePictureText}>Change Profile Picture</Text>
-        </View>
-      </TouchableOpacity>
+      <View style={styles.changePictureBoxContainer}>
+        <TouchableOpacity onPress={handleChangePicturePress}>
+          <View style={styles.changePictureBox}>
+            <Text style={styles.changePictureText}>Change Profile Picture</Text>
+          </View>
+        </TouchableOpacity>
+      </View>
       <View style={styles.editableFieldsContainer}>
         <EditableField ref={inputRefs[0]} name='Name' defaultValue='Yagiz Guldal'/>
         <EditableField ref={inputRefs[1]} name='About Me' defaultValue='Hello, I am Yagiz. I am an avid language learner!'/>
@@ -180,7 +182,7 @@ const DropdownField = (props: DropdownFieldProps) => {
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: 'center',
+    alignItems: 'stretch',
   },
   profilePictureContainer: {
    flex: 0,
@@ -195,6 +197,12 @@ const styles = StyleSheet.create({
     margin: 10,
     borderWidth: 1,
     borderColor: 'black',
+  },
+  changePictureBoxContainer: {
+    flex: 0,
+    alignItems: 'center',
+    margin: 10,
+    padding: 5,
   },
   changePictureBox: {
     flex: 0,
