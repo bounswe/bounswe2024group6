@@ -151,11 +151,6 @@ type ProfileInfoProps = {
 }
 
 const ProfileInfo = (props:ProfileInfoProps) => {
-
-
-  const handleLevelPress = () => {
-    console.log("Level button pressed.")
-  };
   const handleFollowersPress = () => {
     router.push('/(tabs)/profile/followers')
     console.log("Followers button pressed.")
@@ -175,10 +170,10 @@ const ProfileInfo = (props:ProfileInfoProps) => {
           <Image source={require('@/assets/images/profile-icon.png')} style={styles.profileInfoTopPicture}></Image>
         </View>
         <View style={styles.profileInfoTopFollowContainer}>
-          <TouchableOpacity style={styles.profileInfoTopFollowItemContainer} onPress={handleLevelPress}>
+          <View style={styles.profileInfoTopFollowItemContainer}>
             <Text style={styles.followItemNumberText}>{props.level}</Text>
             <Text style={styles.followItemDescriptionText}>Level</Text>
-          </TouchableOpacity>
+          </View>
           <TouchableOpacity style={styles.profileInfoTopFollowItemContainer} onPress={handleFollowersPress}>
             <Text style={styles.followItemNumberText}>{props.followerCount}</Text>
             <Text style={styles.followItemDescriptionText}>Followers</Text>
