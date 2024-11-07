@@ -51,7 +51,7 @@ export type QuizInfo = {
   liked: boolean,
 }
 
-function isQuizInfo(object: any){
+export function isQuizInfo(object: any){
   const asQuizInfo = object as QuizInfo
   return (
     asQuizInfo.author !== undefined && 
@@ -131,9 +131,6 @@ export default function Profile() {
         if (isQuizInfo(item)){
           return (
             <QuizCard {...item}/>
-            // <View style={{height: 100, borderWidth: 3, borderColor: 'black', borderRadius: 15, justifyContent: 'center', alignItems: 'center', marginHorizontal: 15, marginVertical: 5,}}>
-            //   <Text>Placeholder Item {item.id}: {item.description}</Text>
-            // </View>
           );
         }
         else{
