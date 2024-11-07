@@ -87,7 +87,9 @@ export default function EditProfile() {
         <Image source={image ? { uri: image } : require("@/assets/images/profile-icon.png")} style={styles.profilePicture} />
       </View>
       <TouchableOpacity onPress={handleChangePicturePress}>
-        <Text style={styles.changePictureText}>Change Profile Picture</Text>
+        <View style={styles.changePictureBox}>
+          <Text style={styles.changePictureText}>Change Profile Picture</Text>
+        </View>
       </TouchableOpacity>
       <View style={styles.editableFieldsContainer}>
         <EditableField ref={inputRefs[0]} name='Name' defaultValue='Yagiz Guldal'/>
@@ -151,7 +153,7 @@ const DropdownField = (props: DropdownFieldProps) => {
   return (
     <View style={styles.editableField}>
       <Text style={[styles.editableFieldName, isFocus && { color: 'blue' }]}>
-          Dropdown label
+          Level
       </Text>
       <View style={[styles.editableFieldBox, isFocus && { borderColor: 'blue' }]}>
         <Dropdown
@@ -178,7 +180,7 @@ const DropdownField = (props: DropdownFieldProps) => {
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: 'stretch',
+    alignItems: 'center',
   },
   profilePictureContainer: {
    flex: 0,
@@ -194,10 +196,18 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'black',
   },
+  changePictureBox: {
+    flex: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(106, 156, 255, 1)',
+    borderRadius: 8,
+    padding: 10,
+  },
   changePictureText: {
     fontSize: RFPercentage(2.2),
     textAlign: 'center',
-    color: 'blue',
+    color: 'white',
     fontWeight: 'bold',
   },
   editableFieldsContainer: {
@@ -209,21 +219,22 @@ const styles = StyleSheet.create({
     flex: 0,
     justifyContent: 'center',
     alignItems: 'stretch',
+    backgroundColor: 'white',
+    elevation: 2,
+    borderRadius: 8,
     margin: 10,
-    padding: 5,
   },
   editableFieldName: {
     fontSize: RFPercentage(1.8),
-    padding: 3,
+    padding: 5,
   },
   editableFieldBox: {
     padding: 5,
-    borderWidth: 2,
+    borderTopWidth: 2,
     borderColor: 'black',
-    borderRadius: 10,
   },
   editableFieldInput: {
-    fontSize: RFPercentage(2),
+    fontSize: RFPercentage(2.2),
   },
   dropdown: {
     flex: 0,
@@ -236,11 +247,10 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   saveButton: {
-    padding: 5,
+    paddingHorizontal: 20,
     paddingVertical: 10,
-    backgroundColor: 'blue',
+    backgroundColor: 'rgba(106, 156, 255, 1)',
     borderRadius: 15,
-    width: '90%',
     justifyContent: 'center',
     alignItems: 'center',
   },
