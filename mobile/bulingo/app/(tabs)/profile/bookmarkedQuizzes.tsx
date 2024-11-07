@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import {Text, StyleSheet, FlatList, View, TouchableWithoutFeedback, ActivityIndicator } from 'react-native';
+import { QuizInfo } from '.';
+import QuizCard from '@/app/components/quizCard';
 
-type BookmarkedQuizInfoPlaceholder = {  // Placeholder, remove when Quiz Card is ready.
-  name: string,
-};
 
 export default function Followers() {
   const [isLoading, setIsLoading] = useState(true);
-  const [bookmarkedQuizzes, setBoormarkedQuizzes] = useState<BookmarkedQuizInfoPlaceholder[]>([
-    {name: 'Quiz 1'},  // Placeholder
-    {name: 'Quiz 2'},  // Placeholder
-    {name: 'Quiz 3'},  // Placeholder
-    {name: 'Quiz 4'},  // Placeholder
+  const [bookmarkedQuizzes, setBoormarkedQuizzes] = useState<QuizInfo[]>([
+    { id: 4, title: 'Plants', description: 'Test your plant knowledge', author: 'Halil', level: 'A2', likes: 300, liked: true },
+    { id: 5, title: 'Transport', description: 'Types of transport', author: 'Alex', level: 'B1', likes: 4, liked: false },
+    { id: 6, title: 'Food', description: 'Learn about foods', author: 'Oguz', level: 'A2', likes: 135, liked: true },
   ])
 
   useEffect(() => {
@@ -55,12 +53,9 @@ export default function Followers() {
   return (
     <FlatList
       data={bookmarkedQuizzes}
-      keyExtractor={(item) => item.name}  // Placeholder, change with quiz card
       renderItem={({item}) => {  // Placeholder, replace with quiz card
         return (
-          <View style={{height: 100, borderWidth: 3, borderColor: 'black', borderRadius: 15, justifyContent: 'center', alignItems: 'center', marginHorizontal: 15, marginVertical: 5,}}>
-            <Text>Placeholder Item: {item.name}</Text>
-          </View>
+          <QuizCard {...item}/>
         );
       }}
       ListHeaderComponent={

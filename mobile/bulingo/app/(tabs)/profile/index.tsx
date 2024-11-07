@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableWithoutFeedback, Image, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import {router} from 'expo-router';
+import QuizCard from '@/app/components/quizCard';
 
 const debugUserInfo: UserInfo = {
   name: 'Yagiz Guldal',
@@ -9,16 +10,24 @@ const debugUserInfo: UserInfo = {
   level: 'B1',
   followerCount: 20,
   followingCount: 25,
-  createdQuizzes: [{key: 1, desc: 'Created Quiz 1'}],
+  createdQuizzes: [
+    { id: 1, title: 'Food', description: 'Learn about foods', author: 'Oguz', level: 'A2', likes: 135, liked: true },
+    { id: 2, title: 'Animals', description: 'Our furry friends!', author: 'Aras', level: 'A2', likes: 12, liked: false },
+    { id: 3, title: 'Furniture', description: 'Essential furniture', author: 'Kaan', level: 'A2', likes: 3, liked: false },
+    { id: 4, title: 'Plants', description: 'Test your plant knowledge', author: 'Halil', level: 'A2', likes: 300, liked: false },
+    { id: 5, title: 'Transport', description: 'Types of transport', author: 'Alex', level: 'B1', likes: 45, liked: false },
+  ],  
   solvedQuizzes: [
-    {key: 1, desc: 'Solved Quiz 1'},
-    {key: 2, desc: 'Solved Quiz 2'},
-    {key: 3, desc: 'Solved Quiz 3'},
-    {key: 4, desc: 'Solved Quiz 4'},
-    {key: 5, desc: 'Solved Quiz 5'},
-    {key: 6, desc: 'Solved Quiz 6'},
+    { id: 13, title: 'Furniture', description: 'Essential furniture', author: 'Kaan', level: 'A2', likes: 3, liked: false },
+    { id: 14, title: 'Plants', description: 'Test your plant knowledge', author: 'Halil', level: 'A2', likes: 300, liked: false },
+    { id: 15, title: 'Transport', description: 'Types of transport', author: 'Alex', level: 'B1', likes: 45, liked: false },
+    { id: 16, title: 'Food', description: 'Learn about foods', author: 'Oguz', level: 'A2', likes: 135, liked: false },
+    { id: 17, title: 'Animals', description: 'Our furry friends!', author: 'Aras', level: 'A2', likes: 12, liked: false },
+    { id: 18, title: 'Furniture', description: 'Essential furniture', author: 'Kaan', level: 'A2', likes: 3, liked: false },
+    { id: 19, title: 'Plants', description: 'Test your plant knowledge', author: 'Halil', level: 'A2', likes: 300, liked: false },
+    { id: 20, title: 'Transport', description: 'Types of transport', author: 'Alex', level: 'B1', likes: 45, liked: false},
   ],
-  postsAndComments: [{key: 1, desc: 'Post 1'}, {key: 2, desc: 'Post 2'}],
+  postsAndComments: [{id: 1, desc: 'Post 1'}, {id: 2, desc: 'Post 2'}],
 };
 
 type UserInfo = {
@@ -27,10 +36,32 @@ type UserInfo = {
   level: string,
   followerCount: number,
   followingCount: number,
-  createdQuizzes: {key: number, desc: string}[],  // Placeholder
-  solvedQuizzes: {key: number, desc: string}[],  // Placeholder
-  postsAndComments: {key: number, desc: string}[],  // Placeholder
+  createdQuizzes: QuizInfo[],  // Placeholder
+  solvedQuizzes: QuizInfo[],  // Placeholder
+  postsAndComments: {id: number, desc: string}[],  // Placeholder
+};
 
+export type QuizInfo = {
+  id: number,
+  title: string,
+  description: string,
+  author: string,
+  level: string,
+  likes: number,
+  liked: boolean,
+}
+
+function isQuizInfo(object: any){
+  const asQuizInfo = object as QuizInfo
+  return (
+    asQuizInfo.author !== undefined && 
+    asQuizInfo.description !== undefined && 
+    asQuizInfo.id !== undefined &&
+    asQuizInfo.level !== undefined && 
+    asQuizInfo.liked !== undefined && 
+    asQuizInfo.title !== undefined && 
+    asQuizInfo.likes !== undefined
+  );
 };
 
 export default function Profile() {
@@ -80,7 +111,7 @@ export default function Profile() {
   }, []);
 
 
-  const tabData = [userInfo.createdQuizzes, userInfo.solvedQuizzes, userInfo.postsAndComments]
+  const tabData: any = [userInfo.createdQuizzes, userInfo.solvedQuizzes, userInfo.postsAndComments]
 
   if(isLoading){
     return (
@@ -95,12 +126,23 @@ export default function Profile() {
   return (
     <FlatList 
       data={tabData[tab-1]}
+      keyExtractor={(item) => item.id}
       renderItem={({item}) => {
-        return (
-          <View style={{height: 100, borderWidth: 3, borderColor: 'black', borderRadius: 15, justifyContent: 'center', alignItems: 'center', marginHorizontal: 15, marginVertical: 5,}}>
-            <Text>Placeholder Item {item.key}: {item.desc}</Text>
-          </View>
-        );
+        if (isQuizInfo(item)){
+          return (
+            <QuizCard {...item}/>
+            // <View style={{height: 100, borderWidth: 3, borderColor: 'black', borderRadius: 15, justifyContent: 'center', alignItems: 'center', marginHorizontal: 15, marginVertical: 5,}}>
+            //   <Text>Placeholder Item {item.id}: {item.description}</Text>
+            // </View>
+          );
+        }
+        else{
+          return (
+            <View style={{height: 100, borderWidth: 3, borderColor: 'black', borderRadius: 15, justifyContent: 'center', alignItems: 'center', marginHorizontal: 15, marginVertical: 5,}}>
+              <Text>Placeholder Item {item.id}: {item.desc}</Text>
+            </View>
+          );
+        }
       }}
       style={{backgroundColor: 'white'}}
       ListHeaderComponent={

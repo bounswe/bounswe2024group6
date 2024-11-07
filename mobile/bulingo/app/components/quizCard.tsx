@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { TouchableOpacity, Image, Text, View, StyleSheet } from 'react-native';
 
 type QuizCardProps = {
@@ -9,22 +9,36 @@ type QuizCardProps = {
   description: string,
   liked: boolean,
   likes: number,
-  handleQuizPress?: (id: number) => void;
-  handleLikePress?: (id: number) => void;
-  handleBookmarkPress?: (id: number) => void;  
+  onQuizPress?: (id: number) => void;
+  onLikePress?: (id: number) => void;
+  onBookmarkPress?: (id: number) => void;  
 };
 
 
 export default function QuizCard(props: QuizCardProps){
+  const [likes, setLikes] = useState(props.likes);
+  const [liked, setLiked] = useState(props.liked);
+
   const handleQuizPress = (id: number) => {
-    props.handleQuizPress && props.handleQuizPress(id);
+    props.onQuizPress && props.onQuizPress(id);
   };
 
   const handleLikePress = (id: number) => {
-    props.handleLikePress && props.handleLikePress(id);
+    props.onLikePress && props.onLikePress(id);
+    if (!props.onLikePress){
+      if(liked){
+        setLiked(false);
+        setLikes(likes - 1);
+      } 
+      else {
+        setLiked(true);
+        setLikes(likes + 1);
+      };
+    };
   };
+
   const handleBookmarkPress = (id: number) => {
-    props.handleBookmarkPress && props.handleBookmarkPress(id);
+    props.onBookmarkPress && props.onBookmarkPress(id);
   };
 
   return (
@@ -43,7 +57,7 @@ export default function QuizCard(props: QuizCardProps){
         </View>
         <TouchableOpacity style={styles.likeButton} onPress={() => handleLikePress(props.id)}>
           <Text style={styles.quizLikes}>
-          <Image source={props.liked ? require('@/assets/images/like-2.png') : require('@/assets/images/like-1.png')}style={styles.icon} /> {props.likes}
+          <Image source={liked ? require('@/assets/images/like-2.png') : require('@/assets/images/like-1.png')}style={styles.icon} /> {likes}
           </Text>
         </TouchableOpacity>
 
@@ -63,6 +77,7 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: 'white',
     marginBottom: 8,
+    marginHorizontal: 12, 
     borderRadius: 8,
   },
   elevation: {

@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import {Text, StyleSheet, FlatList, View, TouchableWithoutFeedback, ActivityIndicator } from 'react-native';
+import QuizCard from '@/app/components/quizCard';
+import { QuizInfo } from '.';
 
-type LikedQuizInfoPlaceholder = {  // Placeholder, remove when Quiz Card is ready.
-  name: string,
-};
 
 export default function Followers() {
   const [isLoading, setIsLoading] = useState(true);
-  const [likedQuizzes, setLikedQuizzes] = useState<LikedQuizInfoPlaceholder[]>([
-    {name: 'Quiz 1'},  // Placeholder
-    {name: 'Quiz 2'},  // Placeholder
-    {name: 'Quiz 3'},  // Placeholder
-    {name: 'Quiz 4'},  // Placeholder
+  const [likedQuizzes, setLikedQuizzes] = useState<QuizInfo[]>([
+    { id: 4, title: 'Plants', description: 'Test your plant knowledge', author: 'Halil', level: 'A2', likes: 300, liked: true },
+    { id: 5, title: 'Transport', description: 'Types of transport', author: 'Alex', level: 'B1', likes: 45, liked: true },
+    { id: 6, title: 'Food', description: 'Learn about foods', author: 'Oguz', level: 'A2', likes: 135, liked: true },
+    { id: 7, title: 'Animals', description: 'Our furry friends!', author: 'Aras', level: 'A2', likes: 12, liked: true },
+    { id: 8, title: 'Furniture', description: 'Essential furniture', author: 'Kaan', level: 'A2', likes: 3, liked: true },
+    { id: 9, title: 'Plants', description: 'Test your plant knowledge', author: 'Halil', level: 'A2', likes: 300, liked: true },
+    { id: 10, title: 'Transport', description: 'Types of transport', author: 'Alex', level: 'B1', likes: 45, liked: true },
   ])
 
   useEffect(() => {
@@ -52,15 +54,16 @@ export default function Followers() {
     );
   };
 
+  function remove_from_liked(id: number){
+    return () => { setLikedQuizzes(likedQuizzes.filter(item => item.id != id)) };
+  }
+
   return (
     <FlatList
       data={likedQuizzes}
-      keyExtractor={(item) => item.name}  // Placeholder, change with quiz card
-      renderItem={({item}) => {  // Placeholder, replace with quiz card
+      renderItem={({item}) => { 
         return (
-          <View style={{height: 100, borderWidth: 3, borderColor: 'black', borderRadius: 15, justifyContent: 'center', alignItems: 'center', marginHorizontal: 15, marginVertical: 5,}}>
-            <Text>Placeholder Item: {item.name}</Text>
-          </View>
+          <QuizCard {...item} onLikePress={remove_from_liked(item.id)}/>
         );
       }}
       ListHeaderComponent={

@@ -99,9 +99,9 @@ const QuizFeed = () => {
 
   const renderQuizItem = ({ item }: { item: any }) => (
     <QuizCard {...item} 
-      handleQuizPress={handleQuizPress} 
-      handleLikePress={handleLikePress} 
-      handleBookmarkPress={handleBookmarkPress}
+      onQuizPress={handleQuizPress} 
+      onLikePress={handleLikePress} 
+      onBookmarkPress={handleBookmarkPress}
     />
   );
   
