@@ -78,11 +78,14 @@ const styles = StyleSheet.create({
   followerContainer: {
     paddingHorizontal: 10,
     paddingVertical: 5,
-    borderColor: 'gray',
     flex: 0,
     flexDirection: 'row',
     justifyContent: 'flex-start',
-    margin: 2,
+    margin: 5,
+    borderRadius: 8,
+    backgroundColor:'white',
+    elevation: 3,
+    shadowColor: 'black',
   },
   profilePictureContainer: {
     flex: 0,
