@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableWithoutFeedback, Image, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
 import { RFPercentage } from 'react-native-responsive-fontsize';
-import { router, useLocalSearchParams} from 'expo-router';
+import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { QuizInfo, isQuizInfo } from '..';
 import QuizCard from '@/app/components/quizCard';
 
 const debugUserInfo: OtherUserInfo = {
-  name: 'Anil Kose',
+  name: 'ygz2',
   about: "Hello, I am another user.",
   level: 'C2',
   followerCount: 2,
@@ -57,12 +57,14 @@ export default function Profile() {
    - Solved Quizzes
    - Posts and Comments
   */
+  const navigation = useNavigation();
   const { username } = useLocalSearchParams();
   const [userInfo, setUserInfo] = useState<OtherUserInfo>(debugUserInfo);
   const [tab, setTab] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    navigation.setOptions({title: username});
     const ENDPOINT_URL = `http://161.35.208.249:8000/users/${username}`;  // Placeholder
     const fetchProfileInfo = async () => {
       const params = {
