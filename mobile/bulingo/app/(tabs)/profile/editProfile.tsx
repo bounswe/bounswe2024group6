@@ -95,7 +95,7 @@ export default function EditProfile() {
       </View>
       <View style={styles.editableFieldsContainer}>
         <EditableField ref={inputRefs[0]} name='Name' defaultValue='Yagiz Guldal'/>
-        <EditableField ref={inputRefs[1]} name='About Me' defaultValue='Hello, I am Yagiz. I am an avid language learner!'/>
+        <EditableField customHeight={RFPercentage(10)} maxLength={120} ref={inputRefs[1]} name='About Me' defaultValue='Hello, I am Yagiz. I am an avid language learner!'/>
         <DropdownField label='Level' options={levels} defaultValue='B2'/>
       </View>
       <View style={styles.saveButtonContainer}>
@@ -117,6 +117,8 @@ type EditableFieldProps = {
   name: string,
   defaultValue?: string, 
   onChangeText?: (newText: string) => void,
+  customHeight?: number,
+  maxLength?: number 
 };
 
 const EditableField = React.forwardRef((props: EditableFieldProps, ref: any) => {
@@ -125,7 +127,11 @@ const EditableField = React.forwardRef((props: EditableFieldProps, ref: any) => 
   return (
       <View style={styles.editableField}>
         <Text style={[styles.editableFieldName, isFocus && { color: 'blue' }]}>{props.name}</Text>
-        <View style={[styles.editableFieldBox, isFocus && { borderColor: 'blue' }]}>
+        <View style={[
+          styles.editableFieldBox,
+          isFocus && { borderColor: 'blue' }, 
+          {height: props.customHeight},
+        ]}>
           <TextInput 
             ref={ref}
             style={[styles.editableFieldInput]}
@@ -135,6 +141,7 @@ const EditableField = React.forwardRef((props: EditableFieldProps, ref: any) => 
             multiline={true}
             onFocus={() => setIsFocus(true)}
             onEndEditing={() => setIsFocus(false)}
+            maxLength={props.maxLength}
           />
         </View>
       </View>

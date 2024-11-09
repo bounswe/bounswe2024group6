@@ -336,7 +336,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor:'rgba(106, 156, 255, 0.6)',
+    backgroundColor:'rgba(106, 156, 255, 1)',
     height: 40,
     borderRadius: 8,
     margin: 5,
@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
   profileInfoButtonText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: 'rgba(8, 8, 206, 1)',
+    color: 'white',
   },
   tabHeaderContainer: {
     flexDirection: 'row',
