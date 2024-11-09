@@ -94,7 +94,7 @@ export default function EditProfile() {
         </TouchableOpacity>
       </View>
       <View style={styles.editableFieldsContainer}>
-        <EditableField ref={inputRefs[0]} name='Name' defaultValue='Yagiz Guldal'/>
+        <EditableField customHeight={RFPercentage(5)} maxLength={40} ref={inputRefs[0]} name='Name' defaultValue='Yagiz Guldal'/>
         <EditableField customHeight={RFPercentage(10)} maxLength={120} ref={inputRefs[1]} name='About Me' defaultValue='Hello, I am Yagiz. I am an avid language learner!'/>
         <DropdownField label='Level' options={levels} defaultValue='B2'/>
       </View>
