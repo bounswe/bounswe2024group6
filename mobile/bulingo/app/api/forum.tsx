@@ -11,6 +11,7 @@ const fetchForumPostWithId = async (id : any) => {
             likes: data.likes,
             liked: data.liked,
             bookmarked: data.bookmarked,
+            tags: data.tags
         };
     } catch (error) {
         console.error('Error fetching post data:', error);
@@ -47,6 +48,7 @@ const bookmarkPost = async (postId: number) => {
         return null;
     }
 };
+
 
 export { fetchForumPostWithId, likePost, bookmarkPost };
 

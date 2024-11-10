@@ -13,10 +13,9 @@ interface PostCardProps {
   feedOrPost: string;
   onUpvote: () => void;
   onBookmark: () => void;
-  onPress: () => void;
+  onPress?: () => void;
 }
 
-const doNothing = (): void => {}
 
 const PostCard: React.FC<PostCardProps> = ({
     id,
@@ -33,9 +32,8 @@ const PostCard: React.FC<PostCardProps> = ({
 }) => {
 
 
-    console.log(liked)
   return (
-    <TouchableOpacity onPress={feedOrPost == 'feed' ? onPress : doNothing}>
+    <TouchableOpacity onPress={onPress}>
       <View style={styles.cardContainer}>
         <View style={styles.header}>
           <Text style={styles.title}>{title}</Text>

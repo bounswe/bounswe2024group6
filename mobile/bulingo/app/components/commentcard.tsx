@@ -1,25 +1,26 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 
 interface CommentCardProps {
+    id: number;
     isBookmarked: boolean;
-    upvoteCount: number;
+    onUpvote: (id: number) => void;
     username: string;
     comment: string;
+    liked: boolean;
+    likes: number;
+
 }
 
-const CommentCard: React.FC<CommentCardProps> = ({ isBookmarked: initialBookmark, upvoteCount: initialUpvoteCount, username, comment }) => {
+const CommentCard: React.FC<CommentCardProps> = ({ id, isBookmarked: initialBookmark, username, comment, onUpvote, liked, likes }) => {
     const [isBookmarked, setIsBookmarked] = useState(initialBookmark);
-    const [upvoteCount, setUpvoteCount] = useState(initialUpvoteCount);
 
     const toggleBookmark = () => {
         setIsBookmarked(!isBookmarked);
     };
 
-    const handleUpvote = () => {
-        setUpvoteCount(upvoteCount + 1);
-    };
+
 
     return (
         <>
@@ -46,6 +47,15 @@ const CommentCard: React.FC<CommentCardProps> = ({ isBookmarked: initialBookmark
                     </TouchableOpacity>
                     <Text style={styles.upvoteCount}>{upvoteCount}</Text> */}
 
+            <TouchableOpacity style={styles.likeButton} onPress={() => onUpvote(id)}>
+                        <Text style={styles.quizLikes}>
+                        <Image source={liked ? require('../../assets/images/like-2.png') : require('../../assets/images/like-1.png')}style={styles.icon} /> 
+                                          {/* <Image source={ require('../../assets/images/like-2.png')}style={styles.icon} />  */}
+
+                        {likes}
+                        </Text>
+                        </TouchableOpacity>
+
 
 
                 {/* Bookmark Button */}
@@ -62,6 +72,21 @@ const CommentCard: React.FC<CommentCardProps> = ({ isBookmarked: initialBookmark
 };
 
 const styles = StyleSheet.create({
+    icon: {
+        width: 30,
+        height: 30,
+        resizeMode: 'contain',
+      },
+    likeButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginRight: 10,
+      }, 
+      quizLikes: {
+        fontSize: 16,
+        marginBottom: 12,
+        // lineHeight: 43,
+      },
     cardContainer: {
         flexDirection: 'row',
         alignItems: 'center',

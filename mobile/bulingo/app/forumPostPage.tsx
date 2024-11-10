@@ -17,6 +17,7 @@ const ForumPostPage = () => {
     likes: number;
     liked: boolean;
     bookmarked: boolean;
+    tags: string[];
   }>({
     id: null,
     title: '',
@@ -24,6 +25,7 @@ const ForumPostPage = () => {
     likes: 0,
     liked: false,
     bookmarked: false,
+    tags:[]
   });
 
   // State for comments data
@@ -32,51 +34,53 @@ const ForumPostPage = () => {
       id:1,
     username : "anil",
     comment : "well done well donewell donewell donewell donewell donewell donewell donewell donewell done",
-    upvoteCount : 100,
-    isBookmarked : false
-    },
-    {
-      id:2,
-    username : "anil",
-    comment : "well done",
-    upvoteCount : 100,
-    isBookmarked : false
-    },
-    {
-      id:3,
-    username : "anil",
-    comment : "well done",
-    upvoteCount : 100,
-    isBookmarked : false
-    },
-    {
-      id:4,
-    username : "anil",
-    comment : "well done",
-    upvoteCount : 100,
-    isBookmarked : false
-    },
-    {
-      id:5,
-    username : "anil",
-    comment : "well done",
-    upvoteCount : 100,
-    isBookmarked : false
-    },
-    {
-      id:6,
-    username : "anil",
-    comment : "well done",
-    upvoteCount : 100,
-    isBookmarked : false
-    },
-    {
-      id:7,
-    username : "anil",
-    comment : "well done",
-    upvoteCount : 100,
-    isBookmarked : false
-    }
+    likes : 100,
+    isBookmarked : false,
+    liked: false
+      }
+    // ,
+    // {
+    //   id:2,
+    // username : "anil",
+    // comment : "well done",
+    // upvoteCount : 100,
+    // isBookmarked : false
+    // },
+    // {
+    //   id:3,
+    // username : "anil",
+    // comment : "well done",
+    // upvoteCount : 100,
+    // isBookmarked : false
+    // },
+    // {
+    //   id:4,
+    // username : "anil",
+    // comment : "well done",
+    // upvoteCount : 100,
+    // isBookmarked : false
+    // },
+    // {
+    //   id:5,
+    // username : "anil",
+    // comment : "well done",
+    // upvoteCount : 100,
+    // isBookmarked : false
+    // },
+    // {
+    //   id:6,
+    // username : "anil",
+    // comment : "well done",
+    // upvoteCount : 100,
+    // isBookmarked : false
+    // },
+    // {
+    //   id:7,
+    // username : "anil",
+    // comment : "well done",
+    // upvoteCount : 100,
+    // isBookmarked : false
+    // }
 
 
 
@@ -92,6 +96,7 @@ const ForumPostPage = () => {
       likes: 12,
       liked: false,
       bookmarked: true,
+      tags: ["vocabulary", "business"]
     }
   );
 
@@ -109,6 +114,7 @@ const ForumPostPage = () => {
           likes: 12,
           liked: false,
           bookmarked: true,
+          tags: ["vocabulary", "business"]
         });
       } catch (error) {
         console.error("Failed to fetch post:", error);
@@ -131,7 +137,7 @@ const ForumPostPage = () => {
     fetchComments();
   }, [id]);
 
-  const handleLikePress = async () => {
+  const handleLikePost = async () => {
     const newLikedState = !post.liked;
 
     setPost({
@@ -139,22 +145,59 @@ const ForumPostPage = () => {
           liked: newLikedState,
           likes: newLikedState ? post.likes + 1 : post.likes - 1
     });
-    console.log(newLikedState)
-    // console.log(newLikedState)
 
-    try {
-      const response = await likePost(post.id);
-      if (response.success) {
-        setPost(prevPost => ({
-          ...prevPost,
-          liked: !prevPost.liked,
-          likes: prevPost.liked ? prevPost.likes - 1 : prevPost.likes + 1,
-        }));
-      }
-    } catch (error) {
-      console.error('Failed to like post:', error);
-    }
+    // try {
+    //   const response = await likePost(post.id);
+    //   if (response.success) {
+    //     setPost(prevPost => ({
+    //       ...prevPost,
+    //       liked: !prevPost.liked,
+    //       likes: prevPost.liked ? prevPost.likes - 1 : prevPost.likes + 1,
+    //     }));
+    //   }
+    // } catch (error) {
+    //   console.error('Failed to like post:', error);
+    // }
   };
+
+
+  const handleLikeComment = async (commentId: number) => {
+    console.log("likecomment")
+    setComments(prevComments =>
+      prevComments.map(comment =>
+        comment.id === commentId
+          ? {
+              ...comment,
+              likes: !comment.liked ? comment.likes + 1 : comment.likes - 1,
+              isBookmarked: !comment.isBookmarked,
+              liked: !comment.liked
+            }
+          : comment
+      )
+    );
+
+    // try {
+    //   const response = await likeComment(commentId);
+    //   if (response.success) {
+    //     setComments(prevComments =>
+    //       prevComments.map(comment =>
+    //         comment.id === commentId
+    //           ? {
+    //               ...comment,
+    //               upvoteCount: comment.isBookmarked ? comment.upvoteCount - 1 : comment.upvoteCount + 1,
+    //               isBookmarked: !comment.isBookmarked,
+    //             }
+    //           : comment
+    //       )
+    //     );
+    //   }
+    // } catch (error) {
+    //   console.error('Failed to like comment:', error);
+    // }
+  };
+
+
+
 
   const handleBookmarkPress = async () => {
     try {
@@ -173,12 +216,16 @@ const ForumPostPage = () => {
   // Render each comment in a CommentCard component
   const renderComment = ({ item }) => (
     <CommentCard
+      id = {item.id}
       username={item.username}
+      onUpvote={handleLikeComment}
       comment={item.comment}
-      upvoteCount={item.upvoteCount}
       isBookmarked={item.isBookmarked}
+      liked={item.liked}
+      likes= {item.likes}
     />
   );
+
 
   return (
     <ScrollView style={styles.container}>
@@ -190,8 +237,9 @@ const ForumPostPage = () => {
         liked={post.liked}
         isBookmarked={post.bookmarked}
         feedOrPost="post"
-        onUpvote={handleLikePress}
+        onUpvote={handleLikePost}
         onBookmark={handleBookmarkPress}
+        tags={post.tags}
       />
 
       {/* Comments Section */}
