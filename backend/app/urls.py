@@ -1,7 +1,8 @@
 from django.urls import path
 from app.views import *
 from app.views_directory.profileviews import view_profile, update_profile
-from app.views_directory.follow_unfollow import follow_user, unfollow_user 
+from app.views_directory.follow_unfollow import follow_user, unfollow_user
+from app.views_directory.comment import add_comment, get_comments, delete_comment 
 
 
 urlpatterns = [
@@ -18,4 +19,8 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(), name='auth_logout'),
     path('profile/follow/', follow_user, name='follow_user'),
     path('profile/unfollow/', unfollow_user, name='unfollow_user'),
+    path('posts/comments/add/', add_comment, name='add_comment'),
+    path('posts/<int:post_id>/comments/', get_comments, name='get_comments'),
+    path('posts/comments/<int:comment_id>/delete/', delete_comment, name='delete_comment'),
+
 ]

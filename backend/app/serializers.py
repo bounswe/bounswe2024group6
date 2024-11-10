@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Profile, Quiz, Post
+from .models import Profile, Quiz, Post, Comment
 
 
 
@@ -50,3 +50,10 @@ class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post 
         fields = ['id', 'title', 'description', 'author', 'tags', 'created_at', 'like_count']
+
+class CommentSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField(read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ['id', 'post', 'user', 'content', 'created_at']
