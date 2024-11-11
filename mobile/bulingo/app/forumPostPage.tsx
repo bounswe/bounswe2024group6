@@ -228,8 +228,18 @@ const ForumPostPage = () => {
 
 
   return (
-    <ScrollView style={styles.container}>
-      <PostCard
+    <>    
+      {loading ? (
+        <ActivityIndicator size="large" color="#0000ff" />
+      ) : (
+        <FlatList
+          data={comments}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderComment}
+          contentContainerStyle={styles.commentsContainer}
+          ListHeaderComponent={
+            <>
+              <PostCard
         id= {String(post.id)}
         title={post.title}
         author={post.author}
@@ -245,18 +255,13 @@ const ForumPostPage = () => {
       {/* Comments Section */}
       <Text style={styles.sectionTitle}>Comments</Text>
 
-      {loading ? (
-        <ActivityIndicator size="large" color="#0000ff" />
-      ) : (
-        <FlatList
-          data={comments}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={renderComment}
-          contentContainerStyle={styles.commentsContainer}
+            </>
+          }
+          ListHeaderComponentStyle={styles.container}
         />
       )}
-    </ScrollView>
-  );
+  </>
+);
 };
 
 const styles = StyleSheet.create({
