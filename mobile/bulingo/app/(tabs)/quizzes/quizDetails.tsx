@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
-import Navbar from './navbar';
 import { Shadow } from 'react-native-shadow-2';
 const QuizDetails = () => {
   const { params } = useRoute();
@@ -26,7 +25,6 @@ const QuizDetails = () => {
 
   return (
     <View style={styles.container}>
-      <Navbar />
       <View style={[styles.elevation, styles.quizDetailsBox]}>
         <Text style={styles.quizTitle}>Foods</Text>
         <Text style={styles.quizDescription}>
@@ -40,13 +38,13 @@ const QuizDetails = () => {
 
         {/* Bookmark button in the bottom right corner */}
         <TouchableOpacity style={styles.bookmarkButton}>
-          <Image source={require('../assets/images/bookmark-icon.png')} style={styles.bookmarkIcon} />
+          <Image source={require('@/assets/images/bookmark-icon.png')} style={styles.bookmarkIcon} />
         </TouchableOpacity>
       </View>
       <View style={styles.buttonContainer}>
       <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
         <TouchableOpacity style={styles.quizButton}
-          onPress={() => router.navigate('/quizQuestion')}
+          onPress={() => router.navigate('/(tabs)/quizzes/quizQuestion')}
         >
           <Text style={styles.buttonText}>Take Quiz</Text>
         </TouchableOpacity>
