@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, TextInput, Image, ListRenderItem } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import Navbar from './navbar';
+import Navbar from '../../navbar';
 import { router } from 'expo-router';
-import PostCard from './components/postcard'; 
-import { likePost, bookmarkPost } from './api/forum'; // Import the functions from forum.tsx
+import PostCard from '../../components/postcard'; 
+import { likePost, bookmarkPost } from '../../api/forum'; // Import the functions from forum.tsx
 
 
 interface ForumPost {

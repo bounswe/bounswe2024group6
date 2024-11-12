@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, StyleSheet, Text, FlatList, ActivityIndicator } from 'react-native';
-import PostCard from './components/postcard'; // Assuming you already have the PostCard component defined
-import CommentCard from './components/commentcard'; // Assuming you already have the CommentCard component defined
+import PostCard from '../../components/postcard'; // Assuming you already have the PostCard component defined
+import CommentCard from '../../components/commentcard'; // Assuming you already have the CommentCard component defined
 import { useLocalSearchParams } from 'expo-router';
-import { fetchForumPostWithId, fetchCommentsForPost } from './api/forum'; // Fetch post and comments API
-import { bookmarkPost, likePost } from './api';
+import { fetchForumPostWithId, fetchCommentsForPost } from '../../api/forum'; // Fetch post and comments API
+import { bookmarkPost, likePost } from '../../api';
 
 const ForumPostPage = () => {
   const { id } = useLocalSearchParams(); // Get post ID from parameters
