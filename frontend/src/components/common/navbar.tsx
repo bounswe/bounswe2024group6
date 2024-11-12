@@ -1,5 +1,15 @@
-import { Popover, PopoverTrigger, PopoverContent, Avatar, Card, Input, Button, Divider } from "@nextui-org/react";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  Avatar,
+  Card,
+  Input,
+  Button,
+  Divider,
+} from "@nextui-org/react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { ThemeSwitcher } from "./theme-switcher";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -60,7 +70,8 @@ export default function Navbar() {
             </Button>
           </div>
         </div>
-        <div className="flex-1 flex justify-end items-center">
+        <div className="flex-1 flex justify-end items-center gap-2">
+          <ThemeSwitcher />
           <Popover key="bottom-end" placement="bottom-end">
             <PopoverTrigger>
               <button onClick={() => navigate("/profile/oktay_ozel")}>
@@ -78,4 +89,3 @@ export default function Navbar() {
     </div>
   );
 }
-
