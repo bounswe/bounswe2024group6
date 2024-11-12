@@ -1,5 +1,6 @@
 import { Card, CardBody, CardHeader, CardFooter, Chip, Button, cn } from "@nextui-org/react";
 import Navbar from "../components/common/navbar.tsx";
+import { useNavigate } from "react-router-dom";
 import {
     IconBookmark,
     IconBookmarkFilled,
@@ -9,6 +10,8 @@ import {
 import { useEffect, useState } from "react";
 
 export default function QuizEnd() {
+    const navigate = useNavigate();
+    const id=1;
 
     const likeCount = 15;
     const score = 10;
@@ -100,7 +103,7 @@ export default function QuizEnd() {
                                         )}
                                     </Button>
                                 </div>
-                                <Button color="primary" variant="flat" className="text-lg w-24 h-12">
+                                <Button color="primary" variant="flat" onClick={() => navigate(`/quiz/${id}`)} className="text-lg w-24 h-12">
                                     Retake
                                 </Button>
                                 <div className="ml-9">
