@@ -72,6 +72,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     backgroundColor: '#ffffff',
+    marginTop: 25
   },
   navbar: {
     flexDirection: 'row',

@@ -83,7 +83,7 @@ const ForumFeed: React.FC = () => {
 
   const handlePostPress = (item: ForumPost) => {
   
-    router.navigate({pathname: '../forumPostPage', params: {
+    router.navigate({pathname: '/(tabs)/forums/forumPostPage', params: {
        "id": item.id,
        "title": item.title,
        "author": item.author,
@@ -97,7 +97,7 @@ const ForumFeed: React.FC = () => {
 
   const handleAddButton = () => {
     router.push({
-      pathname: '../forumPostCreation',
+      pathname: '/(tabs)/forums/forumPostCreation',
       params: {
         title: 'Create a New Post',      // Custom title
         headerColor: '#4a90e2',          // Custom header color
@@ -192,7 +192,7 @@ const ForumFeed: React.FC = () => {
           onPress={() => handleAddButton()}
         >
           <Image 
-            source={require('../assets/images/add-icon.png')} 
+            source={require('../../../assets/images/add-icon.png')} 
             style={styles.icon} 
           />
         </TouchableOpacity>
@@ -218,6 +218,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
     padding: 16,
+    marginTop: 25
   },
   navbarContainer: {
     marginBottom: 16,
@@ -226,6 +227,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 16,
+    padding: 8
+
   },
   searchBar: {
     flex: 1,

@@ -269,6 +269,8 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
     backgroundColor: '#f0f0f0',
+    marginTop: 25
+
   },
   sectionTitle: {
     fontSize: 18,
