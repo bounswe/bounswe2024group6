@@ -49,7 +49,7 @@ export default function App({
         </p>
       </CardHeader>
       <Divider />
-      <CardBody className="flex flex-col justify-center shadow-lg rounded-lg shadow-zinc-200 w-[550px] h-[200px]">
+      <CardBody className="flex flex-col justify-center shadow-lg rounded-lg w-[550px] h-[200px]">
         <p className="text-center text-5xl text-blue-900">Lamb</p>
       </CardBody>
 
