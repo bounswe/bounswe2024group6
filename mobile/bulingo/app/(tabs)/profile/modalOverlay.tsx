@@ -1,20 +1,40 @@
 import React from 'react';
 import { View, TouchableOpacity, Button, StyleSheet, TouchableWithoutFeedback, Text} from 'react-native';
+import {router} from 'expo-router';
 
 type ModalOverlayProps = {
   closeModal: () => void,
 };
 
 export function ModalOverlay(props:ModalOverlayProps) {
+  const handleLikedQuizzesPress = () => {
+    props.closeModal();
+    router.push("/(tabs)/profile/likedQuizzes");
+  };
+
+  const handleBookmarkedQuizzesPress = () => {
+    props.closeModal();
+    router.push("/(tabs)/profile/bookmarkedQuizzes");
+  };
+
+  const handleLikedPostsAndCommentsPress = () => {
+    props.closeModal();
+    router.push("/(tabs)/profile/likedPostsAndComments");
+  };
+
+  const handleBookmarkedPostsAndCommentsPress = () => {
+    props.closeModal();
+    router.push("/(tabs)/profile/bookmarkedPostsAndComments");
+  };
 
   return (
     <TouchableWithoutFeedback onPress={props.closeModal}>
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
-          <Option text={'Liked Quizzes'}/>
-          <Option text={'Bookmarked Quizzes'}/>
-          <Option text={'Liked Posts/Comments'}/>   
-          <Option text={'Bookmarked Posts/Comments'}/>          
+          <Option text={'Liked Quizzes'} onPress={handleLikedQuizzesPress}/>
+          <Option text={'Bookmarked Quizzes'} onPress={handleBookmarkedQuizzesPress}/>
+          <Option text={'Liked Posts/Comments'} onPress={handleLikedPostsAndCommentsPress}/>   
+          <Option text={'Bookmarked Posts/Comments'} onPress={handleBookmarkedPostsAndCommentsPress}/>          
         </View>
       </View>
     </TouchableWithoutFeedback>

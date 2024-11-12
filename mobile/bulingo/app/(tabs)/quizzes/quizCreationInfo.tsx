@@ -1,6 +1,5 @@
 import React, { useState, useEffect} from 'react';
 import { Keyboard, StyleSheet, Text, TextInput, View, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
-import Navbar from './navbar';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Shadow } from 'react-native-shadow-2';
 
@@ -64,7 +63,7 @@ const QuizCreationInfo = () => {
   };
 
   const handleAddQuestion = () => {
-    router.navigate({ pathname: './quizCreationQuestionList', params: { question: question, answers: JSON.stringify(answers), correctAnswer: answers[correctAnswerIndex!], selectedType: selectedType, index: index } });
+    router.navigate({ pathname: '/(tabs)/quizzes/quizCreationQuestionList', params: { question: question, answers: JSON.stringify(answers), correctAnswer: answers[correctAnswerIndex!], selectedType: selectedType, index: index } });
   };
 
   const handleTypeSelect = (type: string) => {
@@ -80,7 +79,6 @@ const QuizCreationInfo = () => {
   return (
     <TouchableWithoutFeedback onPress={resetSelections} accessible={false}>
     <View style={styles.container}>
-      <Navbar />
 
       <View style={styles.page}>
         {/* Type Selection Buttons */}
