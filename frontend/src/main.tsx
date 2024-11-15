@@ -1,8 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { NextUIProvider } from "@nextui-org/react";
-import { Navigate, RouterProvider } from "react-router-dom";
-import { typesafeBrowserRouter } from "react-router-typesafe";
+import { RouterProvider, createBrowserRouter } from "react-router-dom";
 
 import Quizzes from "./pages/quizzes.tsx";
 import Quiz from "./pages/quiz.tsx";
@@ -11,40 +10,70 @@ import Post from "./pages/post.tsx";
 import Profile from "./pages/profile.tsx";
 import Browse from "./pages/browse.tsx";
 import ComposePost from "./pages/compose-post.tsx";
+import Home from "./pages/home.tsx";
+import ProtectedRoute from "./components/auth/protect-routes.tsx";
 import "./index.css";
 
-const { router } = typesafeBrowserRouter([
+const router = createBrowserRouter([
   {
     path: "/",
-    element: <Navigate to="/forum" replace />,
+    element: <Home />,
   },
   {
     path: "/quizzes",
-    Component: Quizzes,
+    element: (
+      <ProtectedRoute>
+        <Quizzes />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/quiz/:quizID",
-    Component: Quiz,
+    element: (
+      <ProtectedRoute>
+        <Quiz />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/forum",
-    Component: Forum,
+    element: (
+      <ProtectedRoute>
+        <Forum />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/post/:postID",
-    Component: Post,
+    element: (
+      <ProtectedRoute>
+        <Post />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/compose-post",
-    Component: ComposePost,
+    element: (
+      <ProtectedRoute>
+        <ComposePost />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/profile/:username",
-    Component: Profile,
+    element: (
+      <ProtectedRoute>
+        <Profile />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/browse",
-    Component: Browse,
+    element: (
+      <ProtectedRoute>
+        <Browse />
+      </ProtectedRoute>
+    ),
   },
 ]);
 
@@ -55,3 +84,4 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     </NextUIProvider>
   </React.StrictMode>
 );
+

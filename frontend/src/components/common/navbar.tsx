@@ -1,10 +1,26 @@
 import { Popover, PopoverTrigger, PopoverContent, Avatar, Card, Input, Button, Divider } from "@nextui-org/react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { AuthActions } from "../auth/utils";
 
 export default function Navbar() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const username = "oktay_ozel";
+
+  const { logout, removeTokens } = AuthActions();
+
+  const handleLogout = () => {
+    logout()
+      .res(() => {
+        removeTokens();
+
+        navigate("/");
+      })
+      .catch(() => {
+        removeTokens();
+        navigate("/");
+      });
+  };
 
   const content = (
     <PopoverContent>
@@ -12,7 +28,7 @@ export default function Navbar() {
         <div className="text-medium font-semibold px-5 py-2">{username}</div>
         <Divider className="w-full bg-zinc-300" />
         <div className="text-medium pt-2">Edit Profile</div>
-        <div className="text-medium">Log Out</div>
+        <div className="text-medium" onClick={handleLogout} >Log Out</div>
       </div>
     </PopoverContent>
   );
