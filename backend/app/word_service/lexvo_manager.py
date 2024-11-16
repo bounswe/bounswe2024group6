@@ -6,7 +6,6 @@ from rest_framework.response import Response
 from ..models import Relationship, Word
 from urllib.parse import unquote
 import time
-import csv
 
 CEFR_LEVELS = "https://github.com/openlanguageprofiles/olp-en-cefrj"
 LEXVO_BASE_URL = "http://www.lexvo.org/data/term/eng/"
