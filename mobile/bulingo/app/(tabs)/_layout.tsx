@@ -25,6 +25,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="search"
           options={{
+            headerShown: true,
             title: 'Search',
             tabBarIcon: ({ color }) => <FontAwesome size={28} name="search" color={color} />,
           }}
