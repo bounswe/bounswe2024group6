@@ -1,6 +1,7 @@
 from django.urls import path
 from app.views import *
 from app.views_directory.profileviews import view_profile, update_profile
+from app.views_directory.wordviews import get_word_info, get_turkish_translation, get_similar_level_and_part_of_speech, get_word_details
 
 urlpatterns = [
     path('', index , name='index_page'),
@@ -14,6 +15,8 @@ urlpatterns = [
     path('signup/', RegisterView.as_view(), name='auth_register'),
     path('login/', LoginView.as_view(), name='auth_login'),
     path('logout/', LogoutView.as_view(), name='auth_logout'),
-    path('add-word/',add_word, name='add_word'),
-    path('get_word_info/', get_word_info, name='get_word_info'),
+    path('get-word-info/<str:word>/', get_word_info, name='get_word_info'),
+    path('get-word-details/<str:word>/', get_word_details, name='get_word_details'),
+    path('get-translation/<str:word>/', get_turkish_translation, name='get_turkish_translation'),
+    path('get-related-words/<str:word>/', get_similar_level_and_part_of_speech, name='get_similar_level_and_part_of_speech'),
 ]

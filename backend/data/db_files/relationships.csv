@@ -5069,7 +5069,7 @@ applause,approval,broader
 applause,hand,narrower
 applause,round,narrower
 applause,handclap,narrower
-apple,edible,broader
+apple,fruit,broader
 apple,pome,broader
 apple,cooking,narrower
 apple,crab,narrower
@@ -8346,7 +8346,7 @@ banana,herb,broader
 banana,plantain,narrower
 banana,Japanese,narrower
 banana,abaca,narrower
-banana,edible,narrower
+banana,fruit,narrower
 banana,dwarf,narrower
 band,musical,broader
 band,big,narrower
@@ -10726,7 +10726,7 @@ bent,velvet,narrower
 bent,inclination,broader
 berry,pick,broader
 berry,blackberry,narrower
-berry,edible,broader
+berry,fruit,broader
 berry,currant,narrower
 berry,dewberry,narrower
 berry,blueberry,narrower
@@ -20784,7 +20784,7 @@ cherry,sour,narrower
 cherry,sweet,narrower
 cherry,capulin,narrower
 cherry,drupe,broader
-cherry,edible,broader
+cherry,fruit,broader
 cherry,sour,narrower
 cherry,capulin,narrower
 cherry,sweet,narrower
@@ -22680,7 +22680,7 @@ cocoa,5078,narrower
 coconut,palm,broader
 coconut,food,broader
 coconut,copra,narrower
-coconut,edible,broader
+coconut,fruit,broader
 coconut,sh85052105,broader
 coconut,sh85097229,broader
 coconut,sh85027629,broader
