@@ -8,6 +8,8 @@ const CONTENT_TYPES = ["Users", "Quizzes", "Posts", "Comments"]
 
 export default function Tab() {
   const [searchResults, setSearchResults] = useState<any>(undefined);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [userInput, setUserInput] = useState("");
   const [sortByOption, setSortByOption] = useState<string>('Sort by');
   const [contentTypesOption, setContentTypesOption] = useState<{name: string, active: boolean}[]>(
     CONTENT_TYPES.map(ct => ({name: ct, active: true}))
@@ -20,13 +22,23 @@ export default function Tab() {
   const [tagsModalOpen, setTagsModalOpen] = useState(false);
 
 
+  // Temporary, will be changed when connection with backend is made.
+  useEffect(() => {
+    const fetchResults = async (params: any) => {
+      console.log("fetchResults called, returning mock data")
+      setSearchResults([]);
+    };
+    fetchResults({});
+  }, [sortByOption, contentTypesOption, tagsOption, searchQuery]);
+
+
   return (
     <View style={styles.container}>
       <View style={styles.topContainer}>
         <View style={styles.searchBar}>
           <View style={styles.searchBox}>
-            <TextInput style={styles.searchText} placeholder='Search'/>
-            <TouchableOpacity onPress={() => console.log(contentTypesOption)}>
+            <TextInput style={styles.searchText} placeholder='Search' onChangeText={setUserInput} onEndEditing={() => setSearchQuery(userInput)}/>
+            <TouchableOpacity onPress={() => setSearchQuery(userInput)}>
               <FontAwesome name="search" style={styles.searchButton}/>
             </TouchableOpacity>
           </View>
@@ -43,7 +55,7 @@ export default function Tab() {
           </TouchableOpacity>
         </View>
       </View>
-      {searchResults === undefined ? 
+      {searchResults.length == 0 ? 
         <View style={styles.reminderContainer}>
           <FontAwesome name='search' style={styles.reminderIcon}/>
           <Text style={styles.reminderText}>Use the search bar above to search for quizzes, forums and users!</Text>
@@ -127,7 +139,7 @@ const MultiChoiceModalType2 = (props: MultiChoiceModalProps) => {
 
   useEffect(() => {
     chunkedOptions = chunkArray(tempOptions, 3);
-  }, [tempOptions]); // Dependency array
+  }, [tempOptions]);
   
 
   return (
