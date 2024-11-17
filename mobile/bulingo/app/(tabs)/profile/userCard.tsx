@@ -1,7 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, View, Image, StyleSheet, Text } from 'react-native';
 import { RFPercentage } from 'react-native-responsive-fontsize';
-import { router } from 'expo-router';
+import { router, useSegments } from 'expo-router';
 
 type UserCardProps = {
   profilePictureUri: string,
@@ -15,6 +15,7 @@ type UserCardProps = {
 };
 
 const UserCard = (props: UserCardProps) => {
+  const segments = useSegments();
   const handleButtonPress = () => {
     console.log("Button Pressed: " + props.username);
     if (props.onButtonPress){
@@ -26,7 +27,11 @@ const UserCard = (props: UserCardProps) => {
     if (props.onCardPress){ 
       props.onCardPress();
     }
-    router.push(`/(tabs)/profile/users/${props.username}`)
+
+    router.navigate('/(tabs)/profile')
+    setTimeout(() => {
+      router.push(`/(tabs)/profile/users/${props.username}`);
+    }, 0);
   };
 
   let buttonStyleAddOn;
