@@ -2,11 +2,12 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Tabs } from 'expo-router';
 import React, {useState} from 'react';
 import {TouchableOpacity} from 'react-native';
+import { RFPercentage } from 'react-native-responsive-fontsize';
 
 export default function TabLayout() {
   return (
     <>
-      <Tabs screenOptions={{ tabBarActiveTintColor: 'red', headerShown: false, tabBarStyle:{paddingBottom:5, paddingTop: 5}}}>
+      <Tabs screenOptions={{ tabBarActiveTintColor: 'red', headerShown: false, tabBarLabelStyle:{fontSize: RFPercentage(1.5)}}}>
         <Tabs.Screen
           name="index"
           options={{

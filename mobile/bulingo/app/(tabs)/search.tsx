@@ -1,10 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, StyleSheet, TouchableOpacity, Text, Pressable } from 'react-native';
+import { View, TextInput, StyleSheet, TouchableOpacity, Text, Pressable, ActivityIndicator, FlatList } from 'react-native';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import QuizCard from '../components/quizCard';
+import UserCard from './profile/userCard';
 
 const TAGS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2', 'TAG1', 'TAG2', 'TAG3', 'GRAMMAR'];
 const CONTENT_TYPES = ["Users", "Quizzes", "Posts", "Comments"]
+const MOCK_SEARCH_RESULT = [
+  {type: "quiz", data: { id: 13, title: 'Furniture', description: 'Essential furniture', author: 'Kaan', level: 'A2', likes: 3, liked: false }},
+  {type: "user", data: { id: 18, username: 'ygz2', name: 'Yagiz Guldal', level: 'A1', profilePictureUri:"https://static.vecteezy.com/system/resources/thumbnails/024/646/930/small_2x/ai-generated-stray-cat-in-danger-background-animal-background-photo.jpg"}},
+  {type: "post", data: { id: 36, name: "Placeholder Post"}},
+  {type: "comment", data: { id: 326, name: "Placeholder Comment"}},
+];
 
 export default function Tab() {
   const [searchResults, setSearchResults] = useState<any>(undefined);
@@ -20,17 +28,66 @@ export default function Tab() {
   const [sortByModalOpen, setSortByModalOpen] = useState(false);
   const [contentTypeModalOpen, setContentTypeModalOpen] = useState(false);
   const [tagsModalOpen, setTagsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
 
   // Temporary, will be changed when connection with backend is made.
   useEffect(() => {
     const fetchResults = async (params: any) => {
+      setIsLoading(true);
+      await new Promise(resolve => setTimeout(resolve, 500));  // Simulates a network call, can safely be removed later
       console.log("fetchResults called, returning mock data")
-      setSearchResults([]);
+      if (searchQuery.length == 0){
+        setSearchResults(undefined);
+      } else if (searchQuery !== "Empty") {
+        setSearchResults(MOCK_SEARCH_RESULT);
+      } else {
+        setSearchResults([]);
+      }
+      setIsLoading(false);
     };
     fetchResults({});
   }, [sortByOption, contentTypesOption, tagsOption, searchQuery]);
 
+  const renderSearchResults = () => {
+    if (searchResults === undefined){
+      return (
+        <View style={styles.reminderContainer}>
+          <FontAwesome name='search' style={styles.reminderIcon}/>
+          <Text style={styles.reminderText}>Use the search bar above to search for quizzes, forums and users!</Text>
+        </View>
+      );
+    } else if (searchResults.length == 0){
+      return (
+        <View style={styles.reminderContainer}>
+          <Text style={styles.noResultsText}>No results found. Try changing what you searched for or adjusting the filters!</Text>
+        </View>
+      );
+    } 
+    else {
+      return (
+        <FlatList
+          data={searchResults}
+          keyExtractor={(item) => item.data.id}
+          renderItem={({item}) => {
+            if (item.type == "user"){
+              return (<UserCard {...item.data} buttonText='Follow' buttonStyleNo={1}/>);
+            }
+            else if (item.type == "quiz"){
+              return (<QuizCard {...item.data} />);
+            }
+            else if (item.type == "post"){
+              return (<View style={tempStyles.box}><Text>Placeholder post card component.</Text></View>);
+            }
+            else if (item.type == "comment"){
+              return (<View style={tempStyles.box}><Text>Placeholder comment card component.</Text></View>);
+            }
+            return null;
+          }}
+        />
+      );
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -55,13 +112,7 @@ export default function Tab() {
           </TouchableOpacity>
         </View>
       </View>
-      {searchResults.length == 0 ? 
-        <View style={styles.reminderContainer}>
-          <FontAwesome name='search' style={styles.reminderIcon}/>
-          <Text style={styles.reminderText}>Use the search bar above to search for quizzes, forums and users!</Text>
-        </View> :
-        <Text>Yay</Text>
-      }
+      {renderSearchResults()}
       {sortByModalOpen && 
         <SimpleModal options={["Newest", "Most Liked"]} setOption={setSortByOption} setModalOpen={setSortByModalOpen}/>
       }
@@ -70,6 +121,12 @@ export default function Tab() {
       }
       {tagsModalOpen && 
         <MultiChoiceModalType2 options={tagsOption} setOptions={setTagsOptions} setModalOpen={setTagsModalOpen}/>
+      }
+      {isLoading && 
+        <View style={styles.modalOverlay}>
+          <ActivityIndicator/>
+        </View>
+
       }
     </View>
   );
@@ -185,12 +242,12 @@ const styles = StyleSheet.create({
     alignItems: 'stretch',
   },
   searchBox: {
+    flex: 0,
     borderRadius: 10,
     backgroundColor: 'white',
     elevation: 2,
     flexDirection: 'row',
-    height: RFPercentage(6),
-    padding: 10,
+    padding: 5,
     justifyContent: 'space-between',
     alignItems: 'center',
   },
@@ -315,4 +372,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
+  noResultsText: {
+    fontSize: RFPercentage(2.8),
+    color: 'rgba(0, 0, 0, 0.6)',
+    textAlign: 'center',
+    margin: 40,
+  },
+});
+
+const tempStyles = StyleSheet.create({
+  box: {
+    height: 100,
+    margin: 10,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: 'black',
+    justifyContent: 'center',
+    alignItems: 'center',
+  }
 });
