@@ -25,15 +25,13 @@ export default function QuizCard(props: QuizCardProps){
 
   const handleLikePress = (id: number) => {
     props.onLikePress && props.onLikePress(id);
-    if (!props.onLikePress){
-      if(liked){
-        setLiked(false);
-        setLikes(likes - 1);
-      } 
-      else {
-        setLiked(true);
-        setLikes(likes + 1);
-      };
+    if(liked){
+      setLiked(false);
+      setLikes(likes - 1);
+    } 
+    else {
+      setLiked(true);
+      setLikes(likes + 1);
     };
   };
 
