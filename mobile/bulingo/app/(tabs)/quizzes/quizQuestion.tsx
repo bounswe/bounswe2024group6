@@ -3,10 +3,8 @@ import { TouchableOpacity, StyleSheet, Text, View } from 'react-native';
 import {router} from "expo-router"
 import { QuizResultsProps } from './quizResults';
 import { Shadow } from 'react-native-shadow-2';
+import { Dimensions, useColorScheme } from 'react-native';
 
-import { Dimensions } from 'react-native';
-
-import { Appearance, useColorScheme } from 'react-native';
 
 
 const { width, height } = Dimensions.get('window');
@@ -61,14 +59,8 @@ export type QuizQuestionProps = {
 
 
 const QuizQuestion = () => {
-  let colorScheme = useColorScheme();
-
-  const [styles, setStyles] = useState(lightStyles);
-
-  useEffect(() => {
-    setStyles(colorScheme === 'dark' ? darkStyles : lightStyles);
-  }, [colorScheme]);
-
+  const colorScheme = useColorScheme(); // Get the system theme
+  const styles = getStyles(colorScheme); // Dynamically generate styles
   const props: QuizQuestionProps = mockQuiz;
   const questionCount = props.questions.length
   const [selectedChoices, setSelectedChoices] = useState<number[]>(Array(questionCount).fill(0));
@@ -229,264 +221,139 @@ const QuizQuestion = () => {
   );
 };
 
+export const getStyles = (colorScheme: any) => {
+  const isDark = colorScheme === 'dark';
 
-const lightStyles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "flex-start",
-    marginTop: 30,
-    marginBottom: 20,
-    backgroundColor: 'white',
-  },
-  navbarContainer: {
-    flex: 1,
-  },
-  page: {
-    flex: 9,
-    justifyContent: "space-around",
-    alignItems: 'stretch',
-    backgroundColor: 'white',
-    padding: 20,
-  },
-  topContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  cancelQuizButton: {
-    backgroundColor: '#b22222',
-    borderRadius: 10,
-    padding: 10,
-  },
-  cancelQuizText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-  progressContainer: {
-    justifyContent: 'center',
-    backgroundColor: "blue",
-    height: height * 0.05,
-    borderRadius: 10,
-    paddingHorizontal: 20,
-  },
-  progressText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-  questionWrapper: {
-    backgroundColor: "white",
-    borderRadius: 10,
-    justifyContent: "space-around",
-    padding: 20,
-    marginVertical: 10,
-  },
-  questionContainer: {
-    justifyContent: 'center',
-    backgroundColor: "white",
-    height: height * 0.25,
-    marginBottom: 40,
-    borderRadius: 10,
-    borderColor: "#222",
-    paddingHorizontal: 20,
-    alignItems: 'center',
-  },
-  questionText: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: 'black',
-    textAlign: 'center',
-  },
-  optionsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginTop: 20,
-  },
-  optionWrapper: {
-    width: width * 0.35,
-    marginBottom: 12,
-  },
-  optionButton: {
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 10,
-    width: width * 0.35,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  selectedOption: {
-    backgroundColor: 'lightblue',
-  },
-  optionText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#000',
-  },
-  navigationContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 20,
-  },
-  navigationButton: {
-    backgroundColor: '#3944FD',
-    borderRadius: 10,
-    padding: 10,
-    width: width * 0.4,
-    alignItems: 'center',
-  },
-  disabledNavigationButton: {
-    backgroundColor: 'gray',
-    borderRadius: 10,
-    padding: 10,
-    width: width * 0.4,
-    alignItems: 'center',
-  },
-  navigationText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-  elevation: {
-    elevation: 20,
-    shadowColor: 'black',
-  },
-  questionAnswerElevation: {
-    elevation: 3,
-    shadowColor: 'black',
-  },
-});
-
-const darkStyles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "flex-start",
-    marginTop: 30,
-    marginBottom: 20,
-    backgroundColor: '#121212',
-  },
-  navbarContainer: {
-    flex: 1,
-  },
-  page: {
-    flex: 9,
-    justifyContent: "space-around",
-    alignItems: 'stretch',
-    backgroundColor: '#121212',
-    padding: 20,
-  },
-  topContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  cancelQuizButton: {
-    backgroundColor: '#8b0000',
-    borderRadius: 10,
-    padding: 10,
-  },
-  cancelQuizText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-  progressContainer: {
-    justifyContent: 'center',
-    backgroundColor: '#1a1a4e',
-    height: height * 0.05,
-    borderRadius: 10,
-    paddingHorizontal: 20,
-  },
-  progressText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-  questionWrapper: {
-    backgroundColor: '#1e1e2e',
-    borderRadius: 10,
-    justifyContent: "space-around",
-    padding: 20,
-    marginVertical: 10,
-    borderColor: '#333',
-  },
-  questionContainer: {
-    justifyContent: 'center',
-    backgroundColor: '#1e1e2e',
-    height: height * 0.25,
-    marginBottom: 40,
-    borderRadius: 10,
-    borderColor: "#333",
-    paddingHorizontal: 20,
-    alignItems: 'center',
-  },
-  questionText: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: 'white',
-    textAlign: 'center',
-  },
-  optionsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginTop: 20,
-  },
-  optionWrapper: {
-    width: width * 0.35,
-    marginBottom: 12,
-  },
-  optionButton: {
-    backgroundColor: '#2e2e3e',
-    borderRadius: 10,
-    padding: 10,
-    width: width * 0.35,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderColor: '#444',
-  },
-  selectedOption: {
-    backgroundColor: '#3944FD',
-  },
-  optionText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-  navigationContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 20,
-  },
-  navigationButton: {
-    backgroundColor: '#3944FD',
-    borderRadius: 10,
-    padding: 10,
-    width: width * 0.4,
-    alignItems: 'center',
-  },
-  disabledNavigationButton: {
-    backgroundColor: '#555',
-    borderRadius: 10,
-    padding: 10,
-    width: width * 0.4,
-    alignItems: 'center',
-  },
-  navigationText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-  elevation: {
-    elevation: 20,
-    shadowColor: 'black',
-  },
-  questionAnswerElevation: {
-    elevation: 3,
-    shadowColor: 'black',
-  },
-});
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      justifyContent: "flex-start",
+      marginTop: 30,
+      marginBottom: 20,
+      backgroundColor: isDark ? '#121212' : 'white',
+    },
+    navbarContainer: {
+      flex: 1,
+    },
+    page: {
+      flex: 9,
+      justifyContent: "space-around",
+      alignItems: 'stretch',
+      backgroundColor: isDark ? '#121212' : 'white',
+      padding: 20,
+    },
+    topContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    cancelQuizButton: {
+      backgroundColor: isDark ? '#8b0000' : '#b22222',
+      borderRadius: 10,
+      padding: 10,
+    },
+    cancelQuizText: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: 'white',
+    },
+    progressContainer: {
+      justifyContent: 'center',
+      backgroundColor: isDark ? '#1a1a4e' : 'blue',
+      height: height * 0.05,
+      borderRadius: 10,
+      paddingHorizontal: 20,
+    },
+    progressText: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: 'white',
+    },
+    questionWrapper: {
+      backgroundColor: isDark ? '#1e1e2e' : 'white',
+      borderRadius: 10,
+      justifyContent: "space-around",
+      padding: 20,
+      marginVertical: 10,
+      borderColor: isDark ? '#333' : 'transparent',
+    },
+    questionContainer: {
+      justifyContent: 'center',
+      backgroundColor: isDark ? '#1e1e2e' : 'white',
+      height: height * 0.25,
+      marginBottom: 40,
+      borderRadius: 10,
+      borderColor: isDark ? '#333' : '#222',
+      paddingHorizontal: 20,
+      alignItems: 'center',
+    },
+    questionText: {
+      fontSize: 28,
+      fontWeight: 'bold',
+      color: isDark ? 'white' : 'black',
+      textAlign: 'center',
+    },
+    optionsContainer: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'space-between',
+      marginTop: 20,
+    },
+    optionWrapper: {
+      width: width * 0.35,
+      marginBottom: 12,
+    },
+    optionButton: {
+      backgroundColor: isDark ? '#2e2e3e' : 'white',
+      borderRadius: 10,
+      padding: 10,
+      width: width * 0.35,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderColor: isDark ? '#444' : 'transparent',
+    },
+    selectedOption: {
+      backgroundColor: isDark ? '#3944FD' : 'lightblue',
+    },
+    optionText: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: isDark ? 'white' : '#000',
+    },
+    navigationContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginTop: 20,
+    },
+    navigationButton: {
+      backgroundColor: '#3944FD',
+      borderRadius: 10,
+      padding: 10,
+      width: width * 0.4,
+      alignItems: 'center',
+    },
+    disabledNavigationButton: {
+      backgroundColor: isDark ? '#555' : 'gray',
+      borderRadius: 10,
+      padding: 10,
+      width: width * 0.4,
+      alignItems: 'center',
+    },
+    navigationText: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: 'white',
+    },
+    elevation: {
+      elevation: 20,
+      shadowColor: isDark ? 'black' : 'black',
+    },
+    questionAnswerElevation: {
+      elevation: 3,
+      shadowColor: isDark ? 'black' : 'black',
+    },
+  });
+};
 
 
 
