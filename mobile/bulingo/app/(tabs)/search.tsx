@@ -144,7 +144,7 @@ const SimpleModal = (props: SimpleModalProps) => {
       <View style={styles.modalContent}>
         {props.options.map((item, index) => (
           <TouchableOpacity key={index} style={styles.simpleModalItem} onPress={() => {props.setModalOpen(false); props.setOption(item == 'Clear' ? 'Sort by' : item)}}>
-              <Text style={styles.simpleModalText}>{item}</Text>
+              <Text style={[styles.simpleModalText, item == 'Clear' && {color: 'red'}]}>{item}</Text>
           </TouchableOpacity>
         ))}
       </View>
