@@ -349,11 +349,11 @@ const styles = StyleSheet.create({
   tagBox: {
     height: RFPercentage(3.5),
     borderRadius: RFPercentage(1.5),
-    width: RFPercentage(14),
-    borderWidth: RFPercentage(0.2),
+    borderWidth: 2,
     borderColor: 'gray',
     justifyContent: 'center',
-    margin: 5,
+    marginVertical: 5,
+    width: '30%',
   },
   tagBoxActive: {
     borderColor: 'blue',
