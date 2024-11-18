@@ -247,12 +247,14 @@ const getStyles = (colorScheme:any) => {
       width: width * 0.1,
       height: height * 0.06,
       borderRadius: 25,
+      tintColor: isDark ? '#fff' : '#000',
     },
     bottomButtonBookmark: {
       alignItems: 'center',
       width: width * 0.10,
       height: height * 0.06,
       borderRadius: 25,
+      tintColor: isDark ? '#fff' : '#000',
     },
     recommendationContainer: {
       flex: 2,
@@ -360,6 +362,7 @@ const getStyles = (colorScheme:any) => {
       width: width * 0.07,
       height: height * 0.05,
       resizeMode: 'contain',
+      tintColor: isDark ? '#fff' : '#000',
     },
   });
 };
