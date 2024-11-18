@@ -114,7 +114,7 @@ export default function Tab() {
       </View>
       {renderSearchResults()}
       {sortByModalOpen && 
-        <SimpleModal options={["Newest", "Most Liked"]} setOption={setSortByOption} setModalOpen={setSortByModalOpen}/>
+        <SimpleModal options={["Newest", "Most Liked", "Clear"]} setOption={setSortByOption} setModalOpen={setSortByModalOpen}/>
       }
       {contentTypeModalOpen && 
         <MultiChoiceModal options={contentTypesOption} setOptions={setContentTypesOption} setModalOpen={setContentTypeModalOpen}/>
@@ -143,7 +143,7 @@ const SimpleModal = (props: SimpleModalProps) => {
     <Pressable style={styles.modalOverlay} onPress={() => {props.setModalOpen(false)}}>
       <View style={styles.modalContent}>
         {props.options.map((item, index) => (
-          <TouchableOpacity key={index} style={styles.simpleModalItem} onPress={() => {props.setModalOpen(false); props.setOption(item)}}>
+          <TouchableOpacity key={index} style={styles.simpleModalItem} onPress={() => {props.setModalOpen(false); props.setOption(item == 'Clear' ? 'Sort by' : item)}}>
               <Text style={styles.simpleModalText}>{item}</Text>
           </TouchableOpacity>
         ))}
