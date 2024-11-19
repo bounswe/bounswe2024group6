@@ -1,96 +1,38 @@
-# postviews.py
 from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
+from app.models import Profile, ActivityStream
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework import status
-from app.models import Post, Comment, ActivityStream
-
-from app.serializers import CommentSerializer
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def add_comment(request):
-    post_id = request.data.get('post_id')
-    body = request.data.get('body')
-    parent_id = request.data.get('parent_id')  # For nested comments
+def follow_user(request):
+    current_user_profile = request.user.profile
+    user_id = request.data.get("user_id")  # Get the user_id from the request body
+    user_to_follow = get_object_or_404(Profile, user__id=user_id)
 
-    if not post_id or not body:
-        return Response({"detail": "post_id and body are required."}, status=status.HTTP_400_BAD_REQUEST)
+    if user_to_follow != current_user_profile:
+        current_user_profile.following.add(user_to_follow)
 
-    post = get_object_or_404(Post, id=post_id)
-    parent_comment = Comment.objects.filter(id=parent_id).first() if parent_id else None
+        ActivityStream.objects.create(
+            actor=request.user,
+            verb="followed",
+            object_type="Profile",
+            object_id=user_to_follow.user.id,
+            target=None  # Optional: could be used for specific contexts
+        )
 
-    comment = Comment.objects.create(
-        post=post,
-        author=request.user,
-        body=body,
-        parent=parent_comment
-    )
-
-    ActivityStream.objects.create(
-        actor=request.user,
-        verb="commented",
-        object_type="Comment",
-        object_id=comment.id,
-        target=f"Post:{post.id}"
-    )
-
-    return Response(CommentSerializer(comment).data, status=status.HTTP_201_CREATED)
-
-@api_view(['DELETE'])
-@permission_classes([IsAuthenticated])
-def delete_comment(request):
-    comment_id = request.data.get('comment_id')
-    if not comment_id:
-        return Response({"detail": "comment_id is required."}, status=status.HTTP_400_BAD_REQUEST)
-
-    comment = get_object_or_404(Comment, id=comment_id, author=request.user)
-    comment.delete()
-    return Response({"detail": "Comment deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+        return JsonResponse({"message": "Followed successfully"}, status=200)
+    return JsonResponse({"error": "Cannot follow yourself"}, status=400)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def like_comment(request):
-    comment_id = request.data.get('comment_id')
-    if not comment_id:
-        return Response({"detail": "comment_id is required."}, status=status.HTTP_400_BAD_REQUEST)
+def unfollow_user(request):
+    current_user_profile = request.user.profile
+    user_id = request.data.get("user_id")  # Get the user_id from the request body
+    user_to_unfollow = get_object_or_404(Profile, user__id=user_id)
 
-    comment = get_object_or_404(Comment, id=comment_id)
-
-    if request.user in comment.liked_by.all():
-        return Response({"detail": "You have already liked this comment."}, status=status.HTTP_400_BAD_REQUEST)
-
-    comment.liked_by.add(request.user)
-    comment.like_count += 1
-    comment.save()
-
-    ActivityStream.objects.create(
-        actor=request.user,
-        verb="liked",
-        object_type="Comment",
-        object_id=comment.id,
-        target=f"Post:{comment.post.id}"
-    )
-
-    return Response(
-        {"detail": "Comment liked successfully", "like_count": comment.like_count},
-        status=status.HTTP_200_OK
-    )
-
-
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def unlike_comment(request):
-    comment_id = request.data.get('comment_id')
-    if not comment_id:
-        return Response({"detail": "comment_id is required."}, status=status.HTTP_400_BAD_REQUEST)
-
-    comment = get_object_or_404(Comment, id=comment_id)
-    if request.user not in comment.liked_by.all():
-        return Response({"detail": "You have not liked this comment."}, status=status.HTTP_400_BAD_REQUEST)
-
-    comment.liked_by.remove(request.user)
-    comment.like_count -= 1
-    comment.save()
-    return Response({"detail": "Comment unliked successfully", "like_count": comment.like_count}, status=status.HTTP_200_OK)
+    if user_to_unfollow != current_user_profile:
+        current_user_profile.following.remove(user_to_unfollow)
+        return JsonResponse({"message": "Unfollowed successfully"}, status=200)
+    return JsonResponse({"error": "Cannot unfollow yourself"}, status=400)
