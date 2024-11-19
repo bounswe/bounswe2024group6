@@ -66,9 +66,33 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title
+
+class Word(models.Model):
+    word = models.CharField(max_length=255, unique=True)
+    language = models.CharField(max_length=3, default='eng')  # e.g., 'eng' for English
+    level = models.CharField(max_length=20, blank=True, null=True)  # e.g., 'A1', 'B2'
+    part_of_speech = models.CharField(max_length=20, blank=True, null=True)
+    meaning = models.CharField(max_length=1000, default="Meaning not available")
+    sentence = models.CharField(max_length=1000, default="Sentence not available")
+
+    def __str__(self):
+        return self.word
     
+class Relationship(models.Model):
+    word = models.ForeignKey(Word, on_delete=models.CASCADE, related_name="relationships")
+    related_word = models.ForeignKey(Word, on_delete=models.CASCADE, related_name="related_to")
+    relation_type = models.CharField(max_length=50)  # e.g., 'broader', 'narrower', 'synonym'
+
+
+    def __str__(self):
+        return f"{self.word} - {self.relation_type} -> {self.related_word}"
     
-    
+class Translation(models.Model):
+    word = models.ForeignKey(Word, on_delete=models.CASCADE, related_name="translations")
+    translation = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"{self.translation} (Translation of {self.word})"
 
 class ActivityStream(models.Model):
     actor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='activities')  
