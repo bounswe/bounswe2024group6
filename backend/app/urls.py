@@ -9,6 +9,7 @@ from app.views_directory.postviews import like_post, unlike_post
 from app.views_directory.postviews import add_comment, delete_comment, like_comment, unlike_comment
 from app.views_directory.activity_streams import activities_by_user, activities_for_user_as_object
 from app.views_directory.postviews import create_post, delete_post, get_posts_of_user
+from app.views_directory.feed_views import get_user_feed
 
 
 urlpatterns = [
@@ -38,6 +39,7 @@ urlpatterns = [
     path('post/my-posts/', get_posts_of_user, name='get_posts_of_user'),  # Get posts of the requesting user
     path('user-activities/', activities_by_user, name='activities_by_user'),
     path('user-activities-as-object/', activities_for_user_as_object, name='activities_for_user_as_object'),
+    path('feed/', get_user_feed, name='get_user_feed'),
 
 ]
 

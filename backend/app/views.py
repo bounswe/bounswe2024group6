@@ -27,21 +27,6 @@ from .word_service import lexvo_manager
 def index(request):
     return Response({'message': 'Index Page'})
 
-@api_view(['POST'])
-def create_post(request):
-    post_data = request.data
-
-    post = Post.objects.create(
-        title=post_data['title'],
-        description=post_data['description'],
-        author=post_data['author'],
-    )
-
-    if 'tags' in post_data:
-        tags = post_data['tags']
-        post.tags.add(*[Tags.objects.get_or_create(name=tag)[0] for tag in tags])
-
-    return Response({'message': 'Post created successfully.'}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['GET'])
@@ -263,6 +248,16 @@ def view_profile_mock(request):
           
     }
     return Response({'profile': mock_profile})
+
+
+
+
+
+
+
+
+
+
 
 def quiz_view(request):
     # get first 100 quizzes
