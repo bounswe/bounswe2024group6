@@ -291,22 +291,3 @@ def create_quiz_view(request):
     return Response({'message': 'Quiz created successfully.'}, status=status.HTTP_201_CREATED)
 
     
-
-class RegisterView(generics.CreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = (AllowAny,)
-
-class LoginView(TokenObtainPairView):
-    permission_classes = (AllowAny,)
-
-class LogoutView(generics.GenericAPIView):
-    permission_classes = (IsAuthenticated,)
-    def post(self, request):
-        try:
-            refresh_token = request.data["refresh"]
-            token = RefreshToken(refresh_token)
-            token.blacklist() 
-            return Response({"detail": "Successfully logged out."}, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

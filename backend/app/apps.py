@@ -16,6 +16,7 @@ class AppConfig(AppConfig):
     
     def ready(self):
         post_migrate.connect(create_mockdata, sender=self)
+        import app.signals  # Import the signals to ensure they are registered
 
 
 

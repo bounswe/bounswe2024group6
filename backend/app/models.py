@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 from django.contrib.auth.models import User
+from django.utils.timezone import now
+
 
 
 class Profile(models.Model):
@@ -9,9 +11,11 @@ class Profile(models.Model):
     bio = models.TextField(blank=True, null=True)
     location = models.CharField(max_length=100, blank=True, null=True)
     birth_date = models.DateField(null=True, blank=True)
+    following = models.ManyToManyField('self', symmetrical=False, related_name='followers', blank=True)
 
     def __str__(self):
         return self.user.username
+
 
 class Tags(models.Model):
     name = models.CharField(max_length=30, unique=True)
@@ -58,6 +62,8 @@ class Post(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     author = models.CharField(max_length=100)
     like_count = models.IntegerField(default=0)
+    liked_by = models.ManyToManyField(User, related_name='liked_posts', blank=True)  
+
     def __str__(self):
         return self.title
 
@@ -88,3 +94,12 @@ class Translation(models.Model):
     def __str__(self):
         return f"{self.translation} (Translation of {self.word})"
 
+class ActivityStream(models.Model):
+    actor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='activities')  
+    verb = models.CharField(max_length=50)  # liked, created, followed
+    object_type = models.CharField(max_length=50)  # Quiz, Post
+    object_id = models.IntegerField()  #Quiz ID Post ID
+    timestamp = models.DateTimeField(default=now)  # timestamp
+
+    def __str__(self):
+        return f"{self.actor.username} {self.verb} {self.object_type}:{self.object_id} at {self.timestamp}"

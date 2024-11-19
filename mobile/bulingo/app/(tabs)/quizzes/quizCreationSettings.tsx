@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { TouchableOpacity, StyleSheet, Text, TextInput, View } from 'react-native';
-import Navbar from './navbar';
 import { router } from 'expo-router';
+import { Shadow } from 'react-native-shadow-2';
 
 const QuizCreationSettings = () => {
   const [quizTitle, setQuizTitle] = useState('');
@@ -18,7 +18,7 @@ const QuizCreationSettings = () => {
   
 
   const handleAddQuestions = () => {
-    router.push('./quizCreationQuestionList');
+    router.push('/(tabs)/quizzes/quizCreationQuestionList');
   };
 
   // Check if any field is empty
@@ -26,10 +26,9 @@ const QuizCreationSettings = () => {
 
   return (
     <View style={styles.container}>
-      <Navbar />
-
       <View style={styles.page}>
         {/* Title input */}
+        <View style={[styles.wrapper, styles.elevation]}>
         <Text style={styles.label}>Title:</Text>
         <TextInput
           style={styles.input}
@@ -51,6 +50,8 @@ const QuizCreationSettings = () => {
         <Text style={styles.label}>Quiz Level:</Text>
         <View style={styles.optionsContainer}>
           {quizLevels.map((level, index) => (
+            <View style={styles.optionWrapper}>
+            <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
             <TouchableOpacity
               key={index}
               style={[
@@ -61,9 +62,13 @@ const QuizCreationSettings = () => {
             >
               <Text style={styles.optionText}>{level}</Text>
             </TouchableOpacity>
+            </Shadow>
+            </View>
           ))}
         </View>
-
+          
+          <View style={styles.addButtonWrapper}>
+        <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
         <TouchableOpacity
           style={[styles.addButton, isButtonDisabled && styles.disabledButton]} 
           onPress={handleAddQuestions}
@@ -71,7 +76,10 @@ const QuizCreationSettings = () => {
         >
           <Text style={styles.addButtonText}>Add Questions</Text>
         </TouchableOpacity>
+        </Shadow>
+        </View>
       </View>
+    </View>
     </View>
   );
 };
@@ -85,9 +93,21 @@ const styles = StyleSheet.create({
   },
   page: {
     flex: 9,
-    backgroundColor: '#e6ffed',
-    padding: 20,
+    backgroundColor: 'white',
+    padding: 1,
+    paddingTop: 100,
     justifyContent: 'flex-start',
+  },
+  wrapper: {
+    backgroundColor: "white",
+    borderRadius: 10,
+    justifyContent: "space-around",
+    alignSelf: 'stretch',
+    padding: 15,
+  },
+  elevation: {
+    elevation: 30,
+    shadowColor: 'black',
   },
   label: {
     fontSize: 18,
@@ -96,9 +116,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   input: {
-    backgroundColor: '#fff6cc',
-    borderColor: '#000',
-    borderWidth: 2,
+    backgroundColor: '#E8E8E8',
     borderRadius: 10,
     padding: 10,
     fontSize: 16,
@@ -113,19 +131,20 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     marginBottom: 20,
   },
+  optionWrapper: {
+    width: 90,
+    margin: 10,
+  },
   optionButton: {
-    backgroundColor: '#ffec99',
+    backgroundColor: 'white',
     borderRadius: 10,
-    borderWidth: 3,
-    borderColor: '#222',
     padding: 10,
-    margin: 5,
-    flexBasis: '30%',
+    width: 100,
     justifyContent: 'center',
     alignItems: 'center',
   },
   selectedOption: {
-    backgroundColor: '#d1e7dd',
+    backgroundColor: 'lightblue',
   },
   optionText: {
     fontSize: 18,
@@ -133,14 +152,17 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   addButton: {
-    backgroundColor: '#b0e57c',
+    backgroundColor: '#3944FD',
     padding: 15,
+    width: 200,
     borderRadius: 10,
     alignItems: 'center',
-    marginTop: 20,
   },
   disabledButton: {
     backgroundColor: '#ccc', 
+  },
+  addButtonWrapper: {
+    alignItems: 'center',
   },
   addButtonText: {
     fontSize: 18,
