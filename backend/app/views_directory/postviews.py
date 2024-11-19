@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from app.models import Post
+from app.models import Post, ActivityStream
 
 #
 @api_view(['POST'])
@@ -21,6 +21,14 @@ def like_post(request):
     post.liked_by.add(request.user)
     post.like_count = post.liked_by.count()  
     post.save()
+
+    ActivityStream.objects.create(
+        actor=request.user,
+        verb="liked",
+        object_type="Post",
+        object_id=post.id,
+        target=None  # Optional, can specify context if needed
+    )
     return Response({"detail": "Post liked successfully.", "like_count": post.like_count}, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
