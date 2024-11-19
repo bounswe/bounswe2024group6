@@ -1,0 +1,26 @@
+name: Deploy Backend Dev
+
+on:
+  push:
+    branches:
+      - BACKEND-DEV
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set Up Docker Environment
+        run: |
+          docker version
+          docker-compose version
+
+      - name: Build and Start Docker Containers
+        run: |
+          docker-compose down   # Stop any running containers
+          docker-compose up -d  # Start containers in detached mode
+
+      - name: Verify Running Containers
+        run: docker ps
