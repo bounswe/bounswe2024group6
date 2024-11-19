@@ -8,7 +8,7 @@ import random
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_user_feed(request):
+def get_user_post_feed(request):
 
     posts = Post.objects.all()
 
