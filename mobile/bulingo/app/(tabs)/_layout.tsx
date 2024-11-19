@@ -1,19 +1,11 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Tabs } from 'expo-router';
-import React, {useState} from 'react';
-import {TouchableOpacity} from 'react-native';
-import { ModalOverlay } from '../modalOverlay';
+import React from 'react';
 
 export default function TabLayout() {
-  const [isModalVisible, setIsModalVisible] = useState(false);
-
-  const openModal = () => setIsModalVisible(true);
-  const closeModal = () => setIsModalVisible(false);
-
-
   return (
     <>
-      <Tabs screenOptions={{ tabBarActiveTintColor: 'red' }}>
+      <Tabs screenOptions={{ tabBarActiveTintColor: 'red', headerShown: false}}>
         <Tabs.Screen
           name="index"
           options={{
@@ -24,6 +16,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="quizzes"
           options={{
+            headerShown: false,
             title: 'Quizzes',
             tabBarIcon: ({ color }) => <FontAwesome size={28} name="question" color={color} />,
           }}
@@ -31,6 +24,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="search"
           options={{
+            headerShown: true,
             title: 'Search',
             tabBarIcon: ({ color }) => <FontAwesome size={28} name="search" color={color} />,
           }}
@@ -47,17 +41,9 @@ export default function TabLayout() {
           options={{
             title: 'Profile',
             tabBarIcon: ({ color }) => <FontAwesome size={28} name="user" color={color} />,
-            headerRight: () => (
-              <TouchableOpacity onPress={openModal} style={{width: 40}}>
-                <FontAwesome size={28} name="ellipsis-v"/>
-              </TouchableOpacity>
-            ),
           }}
         />
       </Tabs>
-      {isModalVisible && (
-        <ModalOverlay closeModal={closeModal} />
-      )}
     </>
   );
 }
