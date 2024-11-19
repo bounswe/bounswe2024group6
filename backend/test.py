@@ -21,7 +21,6 @@ class AuthenticationTests(APITestCase):
         )
 
     def test_register_user(self):
-        """Test user registration."""
         response = self.client.post(self.register_url, {
             "username": "newuser",
             "password": "newpassword123",
@@ -32,7 +31,6 @@ class AuthenticationTests(APITestCase):
         self.assertEqual(User.objects.get(username="newuser").email, "newuser@example.com")
 
     def test_login_user(self):
-        """Test user login and token generation."""
         response = self.client.post(self.login_url, {
             "username": self.user_data["username"],
             "password": self.user_data["password"]
@@ -42,7 +40,6 @@ class AuthenticationTests(APITestCase):
         self.assertIn("refresh", response.data)
 
     def test_login_user_invalid_credentials(self):
-        """Test login with invalid credentials."""
         response = self.client.post(self.login_url, {
             "username": self.user_data["username"],
             "password": "wrongpassword"
@@ -51,7 +48,6 @@ class AuthenticationTests(APITestCase):
         self.assertIn("detail", response.data)
 
     def test_logout_user(self):
-        """Test user logout by blacklisting the refresh token."""
         tokens = RefreshToken.for_user(self.user)
         refresh_token = str(tokens)
 
@@ -63,7 +59,6 @@ class AuthenticationTests(APITestCase):
         self.assertEqual(response.data["detail"], "Successfully logged out.")
 
     def test_logout_user_invalid_token(self):
-        """Test logout with an invalid refresh token."""
         self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {RefreshToken.for_user(self.user).access_token}")
         response = self.client.post(self.logout_url, {"refresh": "invalidtoken"})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
