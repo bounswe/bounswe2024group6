@@ -2,8 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { NextUIProvider } from "@nextui-org/react";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
-import { Navigate, RouterProvider } from "react-router-dom";
-import { typesafeBrowserRouter } from "react-router-typesafe";
+import { RouterProvider, createBrowserRouter } from "react-router-dom";
 
 import Quizzes from "./pages/quizzes.tsx";
 import Quiz from "./pages/quiz.tsx";
@@ -15,53 +14,110 @@ import ComposePost from "./pages/compose-post.tsx";
 import QuizEnd from "./pages/quiz-end.tsx";
 import QuizDetails from "./pages/quiz-details.tsx";
 import Notifications from "./pages/notifications.tsx";
+import Home from "./pages/home.tsx";
+import ProtectedRoute from "./components/auth/protect-routes.tsx";
 import "./index.css";
 
-
-const { router } = typesafeBrowserRouter([
+const router = createBrowserRouter([
   {
     path: "/",
-    element: <Navigate to="/forum" replace />,
+    element: <Home />,
   },
   {
     path: "/quizzes",
-    Component: Quizzes,
+    element: (
+      <ProtectedRoute>
+        <Quizzes />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/quiz/:quizID",
-    Component: Quiz,
+    element: (
+      <ProtectedRoute>
+        <Quiz />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/quiz/:quizID/details",
-    Component: QuizDetails,
+    element: (
+      <ProtectedRoute>
+        <QuizDetails />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/quiz/:quizID/end",
-    Component: QuizEnd,
+    element: (
+      <ProtectedRoute>
+        <QuizEnd />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/quiz/:quizID/details",
+    element: (
+      <ProtectedRoute>
+        <QuizDetails />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/quiz/:quizID/end",
+    element: (
+      <ProtectedRoute>
+        <QuizEnd />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/forum",
-    Component: Forum,
+    element: (
+      <ProtectedRoute>
+        <Forum />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/post/:postID",
-    Component: Post,
+    element: (
+      <ProtectedRoute>
+        <Post />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/compose-post",
-    Component: ComposePost,
+    element: (
+      <ProtectedRoute>
+        <ComposePost />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/profile/:username",
-    Component: Profile,
+    element: (
+      <ProtectedRoute>
+        <Profile />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/browse",
-    Component: Browse,
+    element: (
+      <ProtectedRoute>
+        <Browse />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/notifications",
-    Component: Notifications,
+    element: (
+      <ProtectedRoute>
+        <Notifications />
+      </ProtectedRoute>
+    ),
   },
 ]);
 
@@ -74,3 +130,4 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     </NextUIProvider>
   </React.StrictMode>
 );
+
