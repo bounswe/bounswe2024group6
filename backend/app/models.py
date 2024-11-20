@@ -103,3 +103,14 @@ class ActivityStream(models.Model):
 
     def __str__(self):
         return f"{self.actor.username} {self.verb} {self.object_type}:{self.object_id} at {self.timestamp}"
+    
+    
+class Comment(models.Model):
+    post = models.ForeignKey('Post', on_delete=models.CASCADE, related_name='comments')  # Assuming a Post model exists
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
+    body = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, related_name='replies', null=True, blank=True)
+
+    def __str__(self):
+        return f'Comment by {self.author.username} on {self.post}'

@@ -4,12 +4,12 @@ from app.views_directory.profileviews import view_profile, update_profile
 from app.views_directory.wordviews import get_word_info, get_turkish_translation, get_similar_level_and_part_of_speech, get_word_details
 from app.views_directory.follow_unfollow import follow_user, unfollow_user 
 from app.views_directory.authentication_endpoints import RegisterView, LoginView, LogoutView
-from app.views_directory.comments import add_comment, delete_comment, like_comment
+from app.views_directory.comments import add_comment, delete_comment, like_comment, unlike_comment
 from app.views_directory.postviews import like_post, unlike_post
-from app.views_directory.postviews import add_comment, delete_comment, like_comment, unlike_comment
 from app.views_directory.activity_streams import activities_by_user, activities_for_user_as_object
 from app.views_directory.postviews import create_post, delete_post, get_posts_of_user
 from app.views_directory.feed_views import get_user_post_feed
+
 
 
 urlpatterns = [
