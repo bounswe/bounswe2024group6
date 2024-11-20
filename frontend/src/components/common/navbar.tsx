@@ -11,8 +11,12 @@ export default function Navbar() {
       <div className="px-2 pb-2">
         <div className="text-medium font-semibold px-5 py-2">{username}</div>
         <Divider className="w-full bg-zinc-300" />
-        <div className="text-medium pt-2">Edit Profile</div>
-        <div className="text-medium">Log Out</div>
+        <div className="flex flex-col">
+          <Button variant="light" onClick={() => navigate("/profile/oktay_ozel")} className="text-medium mt-2">Profile</Button>
+          <Button variant="light" className="text-medium w-full">Edit Profile</Button>
+          <Button variant="light" color="danger" className="text-medium w-full">Log out</Button>
+        </div>
+
       </div>
     </PopoverContent>
   );
@@ -63,7 +67,7 @@ export default function Navbar() {
         <div className="flex-1 flex justify-end items-center">
           <Popover key="bottom-end" placement="bottom-end">
             <PopoverTrigger>
-              <button onClick={() => navigate("/profile/oktay_ozel")}>
+              <button>
                 <Avatar
                   isBordered
                   color="success"
