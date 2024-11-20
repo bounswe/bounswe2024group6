@@ -5,4 +5,7 @@ psycopg2>=2.9
 adrf
 django-cors-headers
 requests
+rdflib
+pandas
+
 
