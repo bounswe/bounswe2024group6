@@ -26,8 +26,8 @@ class Quiz(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField()
     # TODO: switch the below line to the following when we have a working user model
-    # author = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='posts')
-    author = models.CharField(max_length=100)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
+    # author = models.CharField(max_length=100)
     tags = models.ManyToManyField(Tags, related_name='quizzes')
     created_at = models.DateTimeField(default=timezone.now)
     times_taken = models.IntegerField(default=0)
