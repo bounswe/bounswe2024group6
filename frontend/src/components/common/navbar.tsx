@@ -1,10 +1,38 @@
-import { Popover, PopoverTrigger, PopoverContent, Avatar, Card, Input, Button, Divider } from "@nextui-org/react";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  Avatar,
+  Card,
+  Input,
+  Button,
+  Divider,
+  Badge,
+} from "@nextui-org/react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { IconBell } from "@tabler/icons-react";
+import { ThemeSwitcher } from "./theme-switcher";
+import { AuthActions } from "../auth/utils";
 
 export default function Navbar() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const username = "oktay_ozel";
+
+  const { logout, removeTokens } = AuthActions();
+
+  const handleLogout = () => {
+    logout()
+      .res(() => {
+        removeTokens();
+
+        navigate("/");
+      })
+      .catch(() => {
+        removeTokens();
+        navigate("/");
+      });
+  };
 
   const content = (
     <PopoverContent>
@@ -14,7 +42,7 @@ export default function Navbar() {
         <div className="flex flex-col">
           <Button variant="light" onClick={() => navigate(`/profile/${username}`)} className="text-medium mt-2">Profile</Button>
           <Button variant="light" className="text-medium w-full">Edit Profile</Button>
-          <Button variant="light" color="danger" className="text-medium w-full">Log out</Button>
+          <Button variant="light" color="danger" className="text-medium w-full" onClick={handleLogout} >Log out</Button>
         </div>
 
       </div>
@@ -64,7 +92,19 @@ export default function Navbar() {
             </Button>
           </div>
         </div>
-        <div className="flex-1 flex justify-end items-center">
+        <div className="flex-1 flex justify-end items-center flex-row gap-2">
+          <ThemeSwitcher />
+          <Badge content="3" shape="circle" color="danger">
+            <Button
+              radius="full"
+              isIconOnly
+              aria-label="more than 99 notifications"
+              variant="light"
+              onClick={() => navigate("/notifications")}
+            >
+              <IconBell size={24} />
+            </Button>
+          </Badge>
           <Popover key="bottom-end" placement="bottom-end">
             <PopoverTrigger>
               <button>
@@ -82,4 +122,3 @@ export default function Navbar() {
     </div>
   );
 }
-

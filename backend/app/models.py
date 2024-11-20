@@ -66,7 +66,16 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title
-    
+
+class QuizProgress(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='quiz_progress')
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='progress')
+    current_question = models.ForeignKey(Question, on_delete=models.SET_NULL, null=True, blank=True)
+    answers = models.JSONField(default=dict)  
+    completed = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.user.username}'s progress on {self.quiz.title}"
     
     
 

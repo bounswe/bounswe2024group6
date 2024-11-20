@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, Appearance, useColorScheme } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { Shadow } from 'react-native-shadow-2';
@@ -7,6 +7,14 @@ const QuizDetails = () => {
   const { params } = useRoute();
   const [response, setResponse] = useState(null);
   const router = useRouter();
+
+  let colorScheme = useColorScheme();
+
+  const [styles, setStyles] = useState(lightStyles);
+
+  useEffect(() => {
+    setStyles(colorScheme === 'dark' ? darkStyles : lightStyles);
+  }, [colorScheme]);
 
   const search = () => {
     // Example of fetching quiz data
@@ -61,7 +69,7 @@ const QuizDetails = () => {
     
 };
 
-const styles = StyleSheet.create({
+const lightStyles = StyleSheet.create({
   buttonContainer: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -139,5 +147,86 @@ const styles = StyleSheet.create({
   },
 
 });
+
+const darkStyles = StyleSheet.create({
+  buttonContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 20,
+  },
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: '#121212', // Dark background color
+  },
+  headerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  headerButton: {
+    padding: 10,
+  },
+  icon: {
+    width: 24,
+    height: 24,
+    tintColor: '#ffffff', // White icon color
+  },
+  quizDetailsBox: {
+    backgroundColor: '#1e1e1e', // Dark background color for quiz details
+    borderRadius: 5,
+    padding: 20,
+    marginTop: 20,
+    marginBottom: 30,
+    position: 'relative',
+  },
+  quizTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    color: '#ffffff', // White text color for titles
+  },
+  quizDescription: {
+    fontSize: 16,
+    color: '#cccccc', // Light gray color for description text
+  },
+  quizButton: {
+    backgroundColor: '#3944FD', // Dark blue button color
+    padding: 15,
+    borderRadius: 10,
+    width: 300,
+    alignItems: 'center',
+    alignSelf: 'center',
+  },
+  elevation: {
+    elevation: 50,
+    shadowColor: '#000000', // Dark shadow color
+  },
+  goBackButton: {
+    backgroundColor: '#333333', // Dark gray color for "go back" button
+    padding: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+    width: '70%',
+    alignSelf: 'center',
+  },
+  buttonText: {
+    fontSize: 18,
+    alignItems: 'center',
+    color: '#ffffff', // White text color for buttons
+    fontWeight: 'bold',
+  },
+  bookmarkButton: {
+    position: 'absolute',
+    bottom: 10,
+    right: 10,
+  },
+  bookmarkIcon: {
+    width: 24,
+    height: 24,
+    tintColor: '#ffffff', // White icon color for bookmarks
+  },
+});
+
 
 export default QuizDetails;

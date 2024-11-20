@@ -14,12 +14,18 @@
     "@tabler/icons-react": "3.17.0",
     "axios": "^1.7.7",
     "framer-motion": "^11.11.9",
+    "next-themes": "^0.4.3",
+    "js-cookie": "^3.0.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-typesafe": "^1.5.0"
+    "react-hook-form": "^7.53.2",
+    "react-router-typesafe": "^1.5.0",
+    "swr": "^2.2.5",
+    "wretch": "^2.11.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.11.1",
+    "@types/js-cookie": "^3.0.6",
     "@types/react": "^18.3.10",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.2",
