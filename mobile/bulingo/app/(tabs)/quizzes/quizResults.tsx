@@ -1,7 +1,6 @@
 import React, {useState} from 'react';
 import {Image, StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 import { useLocalSearchParams } from "expo-router";
-import Navbar from "./navbar";
 import {router} from "expo-router";
 import { Shadow } from 'react-native-shadow-2';
 
@@ -20,7 +19,6 @@ const QuizResults = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.navbarContainer}><Navbar/></View>
       <View style={styles.page}>
         <View style={styles.resultsCardContainer}>
           <QuizResultsCard 
@@ -41,7 +39,7 @@ const QuizResults = () => {
         </View>
         <View style={styles.buttonContainer}>
         <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
-          <TouchableOpacity style={styles.retakeQuizButton} onPress={() => {router.push("/quizQuestion")}}>
+          <TouchableOpacity style={styles.retakeQuizButton} onPress={() => {router.push("/(tabs)/quizzes/quizQuestion")}}>
             <Text style={styles.retakeQuizText}>Retake Quiz</Text>
           </TouchableOpacity>
           </Shadow>
@@ -113,7 +111,7 @@ export const QuizCard = (props: QuizCardProps) => {
   return (
     <TouchableOpacity
     style={[styles.quizItem, styles.elevation]}
-    onPress={() => router.navigate('/quizDetails')}
+    onPress={() => router.navigate('/(tabs)/quizzes/quizDetails')}
   >
     <View style={styles.quizInfo}>
       <Text style={styles.quizTitle}>{props.name}</Text>
@@ -123,12 +121,12 @@ export const QuizCard = (props: QuizCardProps) => {
     </View>
     <View style={styles.quizActions}>
       <TouchableOpacity style={styles.likeButton}>
-        <Image source={require('../assets/images/like-1.png')} style={styles.icon} />
+        <Image source={require('@/assets/images/like-1.png')} style={styles.icon} />
         
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.bookmarkButton}>
-        <Image source={require('../assets/images/bookmark-icon.png')} style={styles.icon} />
+        <Image source={require('@/assets/images/bookmark-icon.png')} style={styles.icon} />
       </TouchableOpacity>
     </View>
   </TouchableOpacity>

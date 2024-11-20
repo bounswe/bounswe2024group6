@@ -6,7 +6,7 @@ import {
   Divider,
   Button,
 } from "@nextui-org/react";
-
+import { useNavigate } from "react-router-dom";
 enum Answer {
   None,
   A,
@@ -16,6 +16,7 @@ enum Answer {
 }
 
 const SidebarLayout = ({
+  id,
   cur_question,
   setCurrentPage,
   answers,
@@ -34,6 +35,7 @@ const SidebarLayout = ({
   const contentClasses = `ml-0 transition-all duration-500 ease-in-out ${
     isOpen ? "mr-[15vw]" : ""
   }`;
+  const navigate = useNavigate();
 
   return (
     <div className="relative overflow-hidden">
@@ -63,7 +65,7 @@ const SidebarLayout = ({
           </CardBody>
           <Divider />
           <CardFooter className="flex items-center justify-center">
-            <Button color="primary" variant="solid" className="items-center">
+            <Button color="primary" onClick={() => navigate(`/quiz/${id}/end`)} variant="solid" className="items-center">
               Finish Quiz
             </Button>
           </CardFooter>
