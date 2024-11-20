@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 from django.contrib.auth.models import User
+from django.utils.timezone import now
+
 
 
 class Profile(models.Model):
@@ -77,3 +79,12 @@ class QuizProgress(models.Model):
     
     
 
+class ActivityStream(models.Model):
+    actor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='activities')  
+    verb = models.CharField(max_length=50)  # liked, created, followed
+    object_type = models.CharField(max_length=50)  # Quiz, Post
+    object_id = models.IntegerField()  #Quiz ID Post ID
+    timestamp = models.DateTimeField(default=now)  # timestamp
+
+    def __str__(self):
+        return f"{self.actor.username} {self.verb} {self.object_type}:{self.object_id} at {self.timestamp}"

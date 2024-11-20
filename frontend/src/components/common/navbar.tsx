@@ -7,8 +7,10 @@ import {
   Input,
   Button,
   Divider,
+  Badge,
 } from "@nextui-org/react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { IconBell } from "@tabler/icons-react";
 import { ThemeSwitcher } from "./theme-switcher";
 
 export default function Navbar() {
@@ -70,8 +72,19 @@ export default function Navbar() {
             </Button>
           </div>
         </div>
-        <div className="flex-1 flex justify-end items-center gap-2">
+        <div className="flex-1 flex justify-end items-center flex-row gap-2">
           <ThemeSwitcher />
+          <Badge content="3" shape="circle" color="danger">
+            <Button
+              radius="full"
+              isIconOnly
+              aria-label="more than 99 notifications"
+              variant="light"
+              onClick={() => navigate("/notifications")}
+            >
+              <IconBell size={24} />
+            </Button>
+          </Badge>
           <Popover key="bottom-end" placement="bottom-end">
             <PopoverTrigger>
               <button onClick={() => navigate("/profile/oktay_ozel")}>

@@ -12,7 +12,11 @@ import Post from "./pages/post.tsx";
 import Profile from "./pages/profile.tsx";
 import Browse from "./pages/browse.tsx";
 import ComposePost from "./pages/compose-post.tsx";
+import QuizEnd from "./pages/quiz-end.tsx";
+import QuizDetails from "./pages/quiz-details.tsx";
+import Notifications from "./pages/notifications.tsx";
 import "./index.css";
+
 
 const { router } = typesafeBrowserRouter([
   {
@@ -26,6 +30,14 @@ const { router } = typesafeBrowserRouter([
   {
     path: "/quiz/:quizID",
     Component: Quiz,
+  },
+  {
+    path: "/quiz/:quizID/details",
+    Component: QuizDetails,
+  },
+  {
+    path: "/quiz/:quizID/end",
+    Component: QuizEnd,
   },
   {
     path: "/forum",
@@ -46,6 +58,10 @@ const { router } = typesafeBrowserRouter([
   {
     path: "/browse",
     Component: Browse,
+  },
+  {
+    path: "/notifications",
+    Component: Notifications,
   },
 ]);
 

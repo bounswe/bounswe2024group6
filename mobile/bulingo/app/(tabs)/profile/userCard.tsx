@@ -26,7 +26,11 @@ const UserCard = (props: UserCardProps) => {
     if (props.onCardPress){ 
       props.onCardPress();
     }
-    router.push(`/(tabs)/profile/users/${props.username}`)
+
+    router.navigate('/(tabs)/profile')
+    setTimeout(() => {
+      router.push(`/(tabs)/profile/users/${props.username}`);
+    }, 0);
   };
 
   let buttonStyleAddOn;
