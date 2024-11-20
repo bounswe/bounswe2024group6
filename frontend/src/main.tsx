@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { NextUIProvider } from "@nextui-org/react";
+import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 
 import Quizzes from "./pages/quizzes.tsx";
@@ -10,6 +11,9 @@ import Post from "./pages/post.tsx";
 import Profile from "./pages/profile.tsx";
 import Browse from "./pages/browse.tsx";
 import ComposePost from "./pages/compose-post.tsx";
+import QuizEnd from "./pages/quiz-end.tsx";
+import QuizDetails from "./pages/quiz-details.tsx";
+import Notifications from "./pages/notifications.tsx";
 import Home from "./pages/home.tsx";
 import ProtectedRoute from "./components/auth/protect-routes.tsx";
 import "./index.css";
@@ -32,6 +36,38 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <Quiz />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/quiz/:quizID/details",
+    element: (
+      <ProtectedRoute>
+        <QuizDetails />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/quiz/:quizID/end",
+    element: (
+      <ProtectedRoute>
+        <QuizEnd />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/quiz/:quizID/details",
+    element: (
+      <ProtectedRoute>
+        <QuizDetails />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/quiz/:quizID/end",
+    element: (
+      <ProtectedRoute>
+        <QuizEnd />
       </ProtectedRoute>
     ),
   },
@@ -75,12 +111,22 @@ const router = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
+  {
+    path: "/notifications",
+    element: (
+      <ProtectedRoute>
+        <Notifications />
+      </ProtectedRoute>
+    ),
+  },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <NextUIProvider>
-      <RouterProvider router={router} />
+      <NextThemesProvider attribute="class" defaultTheme="light">
+        <RouterProvider router={router} />
+      </NextThemesProvider>
     </NextUIProvider>
   </React.StrictMode>
 );

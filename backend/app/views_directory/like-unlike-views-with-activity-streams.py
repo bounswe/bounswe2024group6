@@ -1,12 +1,31 @@
-# postviews.py
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from app.models import Post, ActivityStream
+from app.models import Post
+import json
+from datetime import datetime
 
-#
+def log_activity(actor, verb, obj_type, obj_id, obj_content):
+    activity = {
+        "@context": "localhost",
+        "type": "Post Like/Unlike",
+        "actor": {
+            "type": "Person",
+            "id": actor.id,
+            "name": actor.username
+        },
+        "verb": verb,
+        "object": {
+            "type": obj_type,
+            "id": obj_id,
+            "content": obj_content
+        },
+        "published": datetime.utcnow().isoformat() + 'Z'
+    }
+    print(json.dumps(activity))  
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def like_post(request): 
@@ -22,13 +41,14 @@ def like_post(request):
     post.like_count = post.liked_by.count()  
     post.save()
 
-    ActivityStream.objects.create(
+    log_activity(
         actor=request.user,
-        verb="liked",
-        object_type="Post",
-        object_id=post.id,
-        target=None  # Optional, can specify context if needed
+        verb="like",
+        obj_type="Post",
+        obj_id=post.id,
+        obj_content=post.content
     )
+
     return Response({"detail": "Post liked successfully.", "like_count": post.like_count}, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
@@ -45,4 +65,14 @@ def unlike_post(request):
     post.liked_by.remove(request.user)
     post.like_count = post.liked_by.count() 
     post.save()
+
+    # Log the "unlike" activity
+    log_activity(
+        actor=request.user,
+        verb="unlike",
+        obj_type="Post",
+        obj_id=post.id,
+        obj_content=post.content
+    )
+
     return Response({"detail": "Post unliked successfully.", "like_count": post.like_count}, status=status.HTTP_200_OK)

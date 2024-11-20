@@ -1,7 +1,10 @@
 import React, {useState} from 'react';
-import {Image, Pressable, StyleSheet, Text, View} from 'react-native';
+import {Image, TouchableOpacity, StyleSheet, Text, View, Dimensions} from 'react-native';
 import { router } from "expo-router";
 import TokenManager from '../TokenManager';
+import { Shadow } from 'react-native-shadow-2';
+
+const { width, height } = Dimensions.get('window');
 
 export default function Home() {
   const handleRegister = () => {
@@ -32,18 +35,25 @@ export default function Home() {
       </View>
       {username ?
         <View style={styles.buttonsContainer}>
-          <Pressable style={styles.rectangularButton} onPress={handleLogOut}>
+          <TouchableOpacity style={styles.rectangularButton} onPress={handleLogOut}>
             <Text style={styles.buttonText}>Log Out</Text>
-          </Pressable>
+          </TouchableOpacity>
         </View> :
+        
         <View style={styles.buttonsContainer}>
-          <Pressable style={[styles.rectangularButton, {'backgroundColor': 'gray'}]} onPress={handleRegister} disabled={true}>
+          <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
+          <TouchableOpacity style={[styles.rectangularButton]} onPress={handleRegister}>
             <Text style={styles.buttonText}>Register</Text>
-          </Pressable>
-          <Pressable style={styles.rectangularButton} onPress={() => { router.navigate("/login") }}>
+          </TouchableOpacity>
+          </Shadow>
+        
+          <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
+          <TouchableOpacity style={styles.rectangularButton} onPress={() => { router.navigate("/login") }}>
             <Text style={styles.buttonText}>Log In</Text>
-          </Pressable>
+          </TouchableOpacity>
+          </Shadow>
         </View>
+
       }
 
       </View>
@@ -73,14 +83,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   messageContainer:{
-    borderColor: '#000',
-    borderWidth: 3,
     borderRadius: 16,
-    width: "90%",
+    width: width * 0.8,
     height: 120,
     padding: 3,
-    backgroundColor: '#b2f2bb',
+    backgroundColor: 'white',
     margin: 10,
+    elevation: 10,
   },
   profilePicture: {
     width: 192,
@@ -99,15 +108,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   rectangularButton: {
-    backgroundColor: "#9775fa",
-    width: '90%',
+    backgroundColor: "#3944FD",
+    width: width * 0.65,
     height: 50,
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
     margin: 5,
-    borderWidth: 3,
-    borderColor: "#222",
   },
   buttonText: {
     color: '#fff',

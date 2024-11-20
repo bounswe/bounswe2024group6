@@ -1,12 +1,11 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Tabs } from 'expo-router';
-import React, {useState} from 'react';
-import {TouchableOpacity} from 'react-native';
+import React from 'react';
 
 export default function TabLayout() {
   return (
     <>
-      <Tabs screenOptions={{ tabBarActiveTintColor: 'red', headerShown: false, tabBarStyle:{paddingBottom:5, paddingTop: 5}}}>
+      <Tabs screenOptions={{ tabBarActiveTintColor: 'red', headerShown: false}}>
         <Tabs.Screen
           name="index"
           options={{
@@ -25,6 +24,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="search"
           options={{
+            headerShown: true,
             title: 'Search',
             tabBarIcon: ({ color }) => <FontAwesome size={28} name="search" color={color} />,
           }}
@@ -37,12 +37,21 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
+          name="notifications"
+          options={{
+            title: 'Notifications',
+            tabBarIcon: ({ color }) => <FontAwesome size={28} name="bell" color={color} />, // FontAwesome bell icon for notifications
+          }}
+        />
+        <Tabs.Screen
           name="profile"
           options={{
             title: 'Profile',
             tabBarIcon: ({ color }) => <FontAwesome size={28} name="user" color={color} />,
           }}
         />
+
+
       </Tabs>
     </>
   );

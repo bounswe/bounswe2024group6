@@ -4,7 +4,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from app.models import Post, Comment
+from app.models import Post, Comment, ActivityStream
+
 from app.serializers import CommentSerializer
 
 @api_view(['POST'])
@@ -25,6 +26,14 @@ def add_comment(request):
         author=request.user,
         body=body,
         parent=parent_comment
+    )
+
+    ActivityStream.objects.create(
+        actor=request.user,
+        verb="commented",
+        object_type="Comment",
+        object_id=comment.id,
+        target=f"Post:{post.id}"
     )
 
     return Response(CommentSerializer(comment).data, status=status.HTTP_201_CREATED)
@@ -48,12 +57,26 @@ def like_comment(request):
         return Response({"detail": "comment_id is required."}, status=status.HTTP_400_BAD_REQUEST)
 
     comment = get_object_or_404(Comment, id=comment_id)
+
     if request.user in comment.liked_by.all():
         return Response({"detail": "You have already liked this comment."}, status=status.HTTP_400_BAD_REQUEST)
 
     comment.liked_by.add(request.user)
+    comment.like_count += 1
     comment.save()
-    return Response({"detail": "Comment liked successfully", "like_count": comment.like_count}, status=status.HTTP_200_OK)
+
+    ActivityStream.objects.create(
+        actor=request.user,
+        verb="liked",
+        object_type="Comment",
+        object_id=comment.id,
+        target=f"Post:{comment.post.id}"
+    )
+
+    return Response(
+        {"detail": "Comment liked successfully", "like_count": comment.like_count},
+        status=status.HTTP_200_OK
+    )
 
 
 @api_view(['POST'])
@@ -68,5 +91,6 @@ def unlike_comment(request):
         return Response({"detail": "You have not liked this comment."}, status=status.HTTP_400_BAD_REQUEST)
 
     comment.liked_by.remove(request.user)
+    comment.like_count -= 1
     comment.save()
     return Response({"detail": "Comment unliked successfully", "like_count": comment.like_count}, status=status.HTTP_200_OK)
