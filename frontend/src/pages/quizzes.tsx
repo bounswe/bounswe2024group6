@@ -32,7 +32,7 @@ export default function Quiz() {
         title={quiz.title}
         content={quiz.content}
         timePassed={quiz.timestamp}
-        likeCount="1000"
+        likeCount={1000}
         tags={quiz.tags} // if exists
       />
     </div>
