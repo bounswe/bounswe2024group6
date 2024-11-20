@@ -64,7 +64,10 @@ const SidebarLayout = ({
             </div>
           </CardBody>
           <Divider />
-          <CardFooter className="flex items-center justify-center">
+          <CardFooter className="flex items-center justify-center gap-2">
+            <Button color="primary" variant="faded" className="items-center">
+              Quit Quiz
+            </Button>
             <Button color="primary" onClick={() => navigate(`/quiz/${id}/end`)} variant="solid" className="items-center">
               Finish Quiz
             </Button>
