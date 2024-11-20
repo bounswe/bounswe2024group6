@@ -11,6 +11,7 @@ import Post from "./pages/post.tsx";
 import Profile from "./pages/profile.tsx";
 import Browse from "./pages/browse.tsx";
 import ComposePost from "./pages/compose-post.tsx";
+import Notifications from "./pages/notifications.tsx";
 import "./index.css";
 
 const { router } = typesafeBrowserRouter([
@@ -45,6 +46,10 @@ const { router } = typesafeBrowserRouter([
   {
     path: "/browse",
     Component: Browse,
+  },
+  {
+    path: "/notifications",
+    Component: Notifications,
   },
 ]);
 

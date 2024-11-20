@@ -43,6 +43,13 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
+          name="notifications"
+          options={{
+            title: 'Notifications',
+            tabBarIcon: ({ color }) => <FontAwesome size={28} name="bell" color={color} />, // FontAwesome bell icon for notifications
+          }}
+        />
+        <Tabs.Screen
           name="profile"
           options={{
             title: 'Profile',
@@ -54,6 +61,8 @@ export default function TabLayout() {
             ),
           }}
         />
+
+
       </Tabs>
       {isModalVisible && (
         <ModalOverlay closeModal={closeModal} />
