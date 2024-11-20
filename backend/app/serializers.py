@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Profile, Quiz, Post, Comment
+from .models import Profile, Quiz, Post, QuizResults, QuizProgress, QuestionProgress, Question, Comment
 
 
 
@@ -41,17 +41,37 @@ class UserSerializer(serializers.ModelSerializer):
 
         return instance
 
+class QuizResultsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QuizResults
+        fields = ['quiz', 'user', 'score', 'time_taken']
+
 class QuizSerializer(serializers.ModelSerializer):
     class Meta:
         model = Quiz
         fields = ['id', 'title', 'description', 'author', 'tags', 'created_at', 'times_taken', 'total_score', 'time_limit', 'like_count']
 
+
+class QuizProgressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QuizProgress
+        fields = ['quiz', 'user', 'current_question', 'score', 'time_taken', 'date_started', 'completed']
+
+class QuestionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Question
+        fields = ['quiz', 'id', 'question_number', 'question_text', 'choice1', 'choice2', 'choice3', 'choice4', 'correct_choice']
+
+class QuestionProgressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QuestionProgress
+        fields = ['question', 'user', 'answer', 'time_taken']
+
+
 class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post 
         fields = ['id', 'title', 'description', 'author', 'tags', 'created_at', 'like_count']
-
-
 
 class CommentSerializer(serializers.ModelSerializer):
     replies = serializers.SerializerMethodField()  # To fetch nested replies

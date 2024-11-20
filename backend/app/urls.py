@@ -7,6 +7,7 @@ from app.views_directory.authentication_endpoints import RegisterView, LoginView
 from app.views_directory.comments import add_comment, delete_comment, like_comment, unlike_comment
 from app.views_directory.postviews import like_post, unlike_post
 
+import app.views_directory.quiz_views as quiz_views
 
 urlpatterns = [
     path('', index , name='index_page'),
@@ -14,9 +15,13 @@ urlpatterns = [
     path('profile_mock/', view_profile_mock, name='profile_mock'),
     path('profile/', view_profile, name='view_profile'),
     path('profile/update/', update_profile, name='update_profile'),
-    path('quizzes/', quiz_view, name="quizzes"),
+    path('quiz/', quiz_views.get_quiz, name="get_quiz"),
+    path('quiz-create/', quiz_views.create_quiz, name="create_quiz"),
+    path('quiz-question/', quiz_views.get_question, name="get_question"),
+    path('question-solve/', quiz_views.solve_question, name="solve_question"),
+    path('quiz-submit/', quiz_views.submit_quiz, name="submit_quiz"),
+
     path('create-post/',create_post, name='create_post'),
-    path('create-quiz/', create_quiz_view, name="create_quiz"),
     path('signup/', RegisterView.as_view(), name='auth_register'),
     path('login/', LoginView.as_view(), name='auth_login'),
     path('logout/', LogoutView.as_view(), name='auth_logout'),

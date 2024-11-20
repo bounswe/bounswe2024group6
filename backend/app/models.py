@@ -28,8 +28,7 @@ class Quiz(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField()
     # TODO: switch the below line to the following when we have a working user model
-    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
-    # author = models.CharField(max_length=100)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='quiz_author')
     tags = models.ManyToManyField(Tags, related_name='quizzes')
     created_at = models.DateTimeField(default=timezone.now)
     times_taken = models.IntegerField(default=0)
@@ -41,9 +40,33 @@ class Quiz(models.Model):
         return self.title
     
 
+class QuizProgress(models.Model):
+    id = models.AutoField(primary_key=True)
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='progress')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='quiz_progress')
+    current_question = models.IntegerField(default=0)
+    score = models.FloatField(default=0)
+    time_taken = models.IntegerField(default=0)
+    date_started = models.DateTimeField(default=timezone.now)
+    completed = models.BooleanField(default=False)
+    
+    def __str__(self):
+        return self.quiz.title + ' - ' + self.user.username
+
+class QuizResults(models.Model):
+    id = models.AutoField(primary_key=True)
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='results')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='results')
+    score = models.FloatField()
+    time_taken = models.IntegerField()
+    
+    def __str__(self):
+        return self.quiz.title + ' - ' + self.user.username
+
 class Question(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='questions')
     id = models.AutoField(primary_key=True)
+    question_number = models.IntegerField(default=0)
     question_text = models.TextField()
     choice1 = models.CharField(max_length=100)
     choice2 = models.CharField(max_length=100)
@@ -54,6 +77,16 @@ class Question(models.Model):
     def __str__(self):
         return self.question_text
     
+class QuestionProgress(models.Model):
+    id = models.AutoField(primary_key=True)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='progress')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='question_progress')
+    answer = models.IntegerField(default=0)
+    time_taken = models.IntegerField(default=0)
+    
+    def __str__(self):
+        return self.question.question_text + ' - ' + self.user.username
+
 class Post(models.Model):
     id = models.AutoField(primary_key=True)
     tags = models.ManyToManyField(Tags, related_name='posts')
