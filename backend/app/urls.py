@@ -3,9 +3,8 @@ from app.views import *
 from app.views_directory.profileviews import view_profile, update_profile
 from app.views_directory.follow_unfollow import follow_user, unfollow_user 
 from app.views_directory.authentication_endpoints import RegisterView, LoginView, LogoutView
-from app.views_directory.comments import add_comment, delete_comment, like_comment
+from app.views_directory.comments import add_comment, delete_comment, like_comment, unlike_comment
 from app.views_directory.postviews import like_post, unlike_post
-from app.views_directory.postviews import add_comment, delete_comment, like_comment, unlike_comment
 
 
 urlpatterns = [
