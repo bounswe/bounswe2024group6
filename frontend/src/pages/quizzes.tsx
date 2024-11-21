@@ -23,7 +23,7 @@ export default function Quiz() {
         username={quiz.author}
         title={quiz.title}
         content={quiz.content}
-        picture={quiz.picture}
+        picture={""}
         timePassed={quiz.timestamp}
         likeCount={quiz.likes}
         tags={quiz.tags}

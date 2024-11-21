@@ -15,6 +15,7 @@ import {
   IconBookmarkFilled,
   IconThumbUp,
   IconThumbUpFilled,
+  IconPhotoOff,
 } from "@tabler/icons-react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -36,7 +37,7 @@ export default function PostCard({
   username,
   title,
   content,
-  picture = "https://nextui.org/avatars/avatar-1.png",
+  picture = "",
   timePassed,
   likeCount,
   tags,
@@ -87,7 +88,32 @@ export default function PostCard({
         <Divider className="mt-1.5 bg-zinc-200" />
       </CardHeader>
       <div className="flex flex-row justify-between items-center mb-5">
-        <img src={picture} style={{ width: "200px", height: "200px", objectFit: "cover", objectPosition: "center" }} ></img>
+        {picture ? (
+          <img
+            src={picture}
+            alt="quiz"
+            style={{
+              width: "200px",
+              height: "200px",
+              objectFit: "cover",
+              objectPosition: "center",
+            }}
+          />
+        ) : (
+          <div
+            style={{
+              width: "200px",
+              height: "200px",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: "#f0f0f0", // Light gray background for the fallback
+              borderRadius: "8px",
+            }}
+          >
+            <IconPhotoOff style={{ width: '70%', height: '70%', position: 'center', top: '50%', left: '50%'}} stroke={1.5} color="gray" />
+          </div>
+        )}
         <div className="w-[500px] flex flex-col justify-between h-full pt-4">
           <CardBody className="px-3 py-0 text-small text-default-600 text-justify leading-relaxed overflow-hidden">
             <div className="flex flex-row justify-between w-full">
