@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Image, StyleSheet, Text, View, TouchableOpacity} from 'react-native';
+import {Image, StyleSheet, Text, View, TouchableOpacity, useColorScheme} from 'react-native';
 import { useLocalSearchParams } from "expo-router";
 import {router} from "expo-router";
 import { Shadow } from 'react-native-shadow-2';
@@ -16,6 +16,8 @@ export type QuizResultsProps = {
 const QuizResults = () => {
   const rawProps = useLocalSearchParams<{'props': string}>();
   const props: QuizResultsProps = JSON.parse(rawProps.props);
+  const colorScheme = useColorScheme();
+  const styles = getStyles(colorScheme);
 
   return (
     <View style={styles.container}>
@@ -26,6 +28,7 @@ const QuizResults = () => {
             tags={props.quizResultsProps.tags} 
             score={props.quizResultsProps.score} 
             maxScore={props.quizResultsProps.maxScore}
+            styles={{styles}}
           />
         </View>
         <View style={styles.recommendationContainer}>
@@ -35,6 +38,7 @@ const QuizResults = () => {
             author={props.recommendationProps.author} 
             desc={props.recommendationProps.desc} 
             tags={props.recommendationProps.tags}
+            styles={{styles}}
           />
         </View>
         <View style={styles.buttonContainer}>
@@ -62,9 +66,11 @@ export type QuizResultsCardProps = {
   score: number,
   maxScore: number,
   tags: string[],
+  styles?: any,
 }
 
 export const QuizResultsCard = (props: QuizResultsCardProps) => {
+    const { styles } = props.styles;
   return (
     <View style={[styles.resultsCard, styles.elevation]}>
       <View style={styles.resultsTitleContainer}>
@@ -105,9 +111,11 @@ export type QuizCardProps = {
   desc?: string,
   author?: string,
   tags: string[],
+  styles?: any,
 };
 
 export const QuizCard = (props: QuizCardProps) => {
+  const { styles } = props.styles;
   return (
     <TouchableOpacity
     style={[styles.quizItem, styles.elevation]}
@@ -134,221 +142,228 @@ export const QuizCard = (props: QuizCardProps) => {
 };
 
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "flex-start",
-    marginTop: 30,
-    marginBottom: 20,
-    backgroundColor: '#fff'
-  },
-  navbarContainer: {
-    flex: 1,
-  },
-  page: {
-    flex: 9,
-    justifyContent: "space-around",
-    alignItems: 'stretch',
-    backgroundColor: '#fff'
-  },
-  resultsCardContainer: {
-    flex: 3,
-    marginLeft: 20,
-    marginRight: 20,
-    marginTop: 20,
-  },
-  resultsCard: {
-    flex: 1,
-    borderRadius: 20,
-    backgroundColor: "white",
-    alignItems: 'stretch',
-  },
-  resultsTitleContainer: {
-    flex: 2,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  resultsTitle: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  resultsTagsContainer: {
-    flexDirection: "row",
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  tagBox: {
-    backgroundColor: '#dfe4ea',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 4,
-    fontSize: 12,
-    color: '#333',
-    alignSelf: 'flex-start',
-  },
-  tagText: {
-    textAlign: 'center',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  resultsScoreContainer: {
-    flex: 2,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  scoreText: {
-    textAlign: 'center',
-    fontSize: 24,
-  },
-  scoreBox: {
-    width: width * 0.24,
-    height: height * 0.05,
-    borderRadius: 15,
-    backgroundColor: "blue",
-    paddingHorizontal: 5,
-    paddingVertical: 6,
-    margin: 15,
-  },
-  scoreBoxText: {
-    textAlign: 'center',
-    textAlignVertical: 'center',
-    color: 'white',
-    fontSize: 20,
-  },
-  resultsBottomContainer: {
-    flex: 2,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-  },
-  bottomMessageContainer: {
-    flex: 2,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  bottomMessage: {
-    textAlign: 'center',
-    fontSize: 24
-  }, 
-  bottomButtonLike: {
-    alignItems: 'center',
-    width: width * 0.1,
-    height: height * 0.06,
-    borderRadius: 25,
-  },
-  bottomButtonBookmark: {
-    alignItems: 'center',
-    width: width * 0.10,
-    height: height * 0.06,
-    borderRadius: 25,
-  },
-  recommendationContainer: {
-    flex: 2,
-    justifyContent: 'center',
-    alignItems: 'stretch',
-    marginLeft: 20,
-    marginRight: 20,
-    padding: 15,
-  },
-  recommendationText: {
-    fontSize: 18,
-    fontFamily: 'sans-serif',
-    paddingLeft: 5,
-  },
-  quizItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    padding: 16,
-    backgroundColor: 'white',
-    marginBottom: 5,
-    marginTop: 8,
-    borderRadius: 8,
-    position: 'relative',
-  },
-  retakeQuizButton: {
-    backgroundColor: '#3944FD',
-    padding: 15,
-    borderRadius: 10,
-    width: width * 0.7,
-    alignItems: 'center',
-  },
-  buttonContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: 20,
-  },
-  retakeQuizText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: 'white',
-    textAlign: 'center',
-  },
-  mainMenuButton: {
-    backgroundColor: '#CCCCCC',
-    padding: 15,
-    borderRadius: 10,
-    width: width * 0.5,
-    alignItems: 'center',
-    alignSelf: 'center',
-  },
-  mainMenuText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: 'white',
-    textAlign: 'center'
-  },
-  elevation: {
-    elevation: 10,
-    shadowColor: 'black',
-  },
-  quizInfo: {
-    flex: 1,
-  },
-  quizTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  quizDescription: {
-    fontSize: 14,
-    color: '#666',
-  },
-  quizAuthor: {
-    fontSize: 12,
-    color: '#999',
-  },
-  quizLevel: {
-    backgroundColor: '#dfe4ea',
-    marginTop : 4,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-    fontSize: 12,
-    color: '#333',
-    alignSelf: 'flex-start',
-  },
-  quizActions: {
-    position: 'absolute',
-    bottom: 0,
-    right: 10,
-    padding: 4,
-},
-  likeButton: {
-    position: 'absolute',
-    bottom: height * 0.02,
-    left: -width * 0.15,
-  },
-  bookmarkButton: {
-    position: 'absolute',
-    bottom: height * 0.02,
-    right: width * 0.03, 
-  },
-  icon: {
-    width: width * 0.07,
-    height: height * 0.05,
-    resizeMode: 'contain',
-  },
-  
-});
+const getStyles = (colorScheme:any) => {
+  const isDark = colorScheme === 'dark';
+
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      justifyContent: "flex-start",
+      paddingTop: 30,
+      backgroundColor: isDark ? '#121212' : '#fff',
+    },
+    page: {
+      flex: 9,
+      justifyContent: "space-around",
+      alignItems: 'stretch',
+      backgroundColor: isDark ? '#121212' : '#fff',
+    },
+    resultsCardContainer: {
+      flex: 3,
+      marginLeft: 20,
+      marginRight: 20,
+      marginTop: 20,
+    },
+    resultsCard: {
+      flex: 1,
+      borderRadius: 20,
+      backgroundColor: isDark ? '#1e1e1e' : 'white',
+      alignItems: 'stretch',
+    },
+    resultsTitleContainer: {
+      flex: 2,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    resultsTitle: {
+      fontSize: 32,
+      fontWeight: 'bold',
+      textAlign: 'center',
+      color: isDark ? '#fff' : '#000',
+    },
+    resultsTagsContainer: {
+      flexDirection: "row",
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    tagBox: {
+      backgroundColor: isDark ? '#333' : '#dfe4ea',
+      paddingHorizontal: 8,
+      paddingVertical: 2,
+      borderRadius: 4,
+      fontSize: 12,
+      alignSelf: 'flex-start',
+    },
+    tagText: {
+      textAlign: 'center',
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: isDark ? '#fff' : '#000',
+    },
+    resultsScoreContainer: {
+      flex: 2,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    scoreText: {
+      textAlign: 'center',
+      fontSize: 24,
+      color: isDark ? '#bbb' : '#000',
+    },
+    scoreBox: {
+      width: width * 0.24,
+      height: height * 0.05,
+      borderRadius: 15,
+      backgroundColor: isDark ? '#3944FD' : 'blue',
+      paddingHorizontal: 5,
+      paddingVertical: 6,
+      margin: 15,
+    },
+    scoreBoxText: {
+      textAlign: 'center',
+      textAlignVertical: 'center',
+      color: 'white',
+      fontSize: 20,
+    },
+    bottomMessageContainer: {
+      flex: 2,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    bottomMessage: {
+      textAlign: 'center',
+      fontSize: 24,
+      color: isDark ? '#fff' : '#000',
+    },
+    resultsBottomContainer: {
+      flex: 2,
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      alignItems: 'center',
+    },
+    bottomButtonLike: {
+      alignItems: 'center',
+      width: width * 0.1,
+      height: height * 0.06,
+      borderRadius: 25,
+      tintColor: isDark ? '#fff' : '#000',
+    },
+    bottomButtonBookmark: {
+      alignItems: 'center',
+      width: width * 0.10,
+      height: height * 0.06,
+      borderRadius: 25,
+      tintColor: isDark ? '#fff' : '#000',
+    },
+    recommendationContainer: {
+      flex: 2,
+      justifyContent: 'center',
+      alignItems: 'stretch',
+      marginLeft: 20,
+      marginRight: 20,
+      padding: 15,
+    },
+    recommendationText: {
+      fontSize: 18,
+      fontFamily: 'sans-serif',
+      paddingLeft: 5,
+      color: isDark ? '#fff' : '#000',
+    },
+    quizItem: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      padding: 16,
+      backgroundColor: isDark ? '#1e1e1e' : 'white',
+      marginBottom: 5,
+      marginTop: 8,
+      borderRadius: 8,
+      position: 'relative',
+    },
+    retakeQuizButton: {
+      backgroundColor: '#3944FD',
+      padding: 15,
+      borderRadius: 10,
+      width: width * 0.7,
+      alignItems: 'center',
+    },
+    buttonContainer: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginVertical: 20,
+    },
+    retakeQuizText: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: 'white',
+      textAlign: 'center',
+    },
+    mainMenuButton: {
+      backgroundColor: isDark ? '#333' : '#CCCCCC',
+      padding: 15,
+      borderRadius: 10,
+      width: width * 0.5,
+      alignItems: 'center',
+      alignSelf: 'center',
+    },
+    mainMenuText: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: 'white',
+      textAlign: 'center',
+    },
+    elevation: {
+      elevation: 10,
+      shadowColor: isDark ? '#fff' : 'black',
+    },
+    quizInfo: {
+      flex: 1,
+    },
+    quizTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: isDark ? '#fff' : '#000',
+    },
+    quizDescription: {
+      fontSize: 14,
+      color: isDark ? '#aaa' : '#666',
+    },
+    quizAuthor: {
+      fontSize: 12,
+      color: isDark ? '#888' : '#999',
+    },
+    quizLevel: {
+      backgroundColor: isDark ? '#444' : '#dfe4ea',
+      marginTop: 4,
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+      borderRadius: 4,
+      fontSize: 12,
+      color: isDark ? '#fff' : '#333',
+      alignSelf: 'flex-start',
+    },
+    quizActions: {
+      position: 'absolute',
+      bottom: 0,
+      right: 10,
+      padding: 4,
+    },
+    likeButton: {
+      position: 'absolute',
+      bottom: height * 0.02,
+      left: -width * 0.15,
+    },
+    bookmarkButton: {
+      position: 'absolute',
+      bottom: height * 0.02,
+      right: width * 0.03,
+    },
+    icon: {
+      width: width * 0.07,
+      height: height * 0.05,
+      resizeMode: 'contain',
+      tintColor: isDark ? '#fff' : '#000',
+    },
+  });
+};
 
 export default QuizResults;

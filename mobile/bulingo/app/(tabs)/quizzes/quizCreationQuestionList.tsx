@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TouchableOpacity, StyleSheet, Text, View, FlatList, Image } from 'react-native';
+import { TouchableOpacity, StyleSheet, Text, View, FlatList, Image, useColorScheme } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Shadow } from 'react-native-shadow-2';
 const QuizCreationQuestionList = () => {
@@ -11,7 +11,8 @@ const QuizCreationQuestionList = () => {
   ]);
   
   
-  
+  const colorScheme = useColorScheme();
+  const styles = getStyles(colorScheme);
 
   
   const { question, answers, correctAnswer, selectedType, index } = useLocalSearchParams();
@@ -111,100 +112,96 @@ const QuizCreationQuestionList = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'white',
-    padding: 20,
-    justifyContent: 'flex-start',
-  },
-  headerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  headerText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#000',
-  },
-  addButton: {
-    borderRadius: 20,
-    padding: 10,
-    width: 50,
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  addButtonText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#000',
-  },
-  questionList: {
-    flex: 1,
-    marginBottom: 20,
-  },
-  questionContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'white',
-    marginTop: 10,
-    padding: 20,
-    marginBottom: 10,
-  },
-  elevation: {
-    elevation: 10,
-    shadowColor: 'black',
-  },
-  questionText: {
-    flex: 3,
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#000',
-  },
-  iconButton: {
-    flex: 0.5,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  iconText: {
-    fontSize: 18,
-    color: '#000',
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 20,
-    flex : 0.15,
-  },
-  footerButton: {
-    backgroundColor: '#3944FD',
-    padding: 15,
-    borderRadius: 10,
-    justifyContent: 'center',
-    width: 170,
-    alignItems: 'center',
-  },
-  cancelButton: {
-    backgroundColor: '#CCCCCC',
-    padding: 15,
-    borderRadius: 10,
-    width: 170,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  footerButtonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#000',
-  },
-  icon: {
-    width: 30,
-    height: 30,
-    resizeMode: 'contain',
-  },
-});
+const getStyles = (colorScheme: any) => {
+  const isDark = colorScheme === 'dark';
+
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: isDark ? '#121212' : 'white',
+      padding: 20,
+      justifyContent: 'flex-start',
+    },
+    headerContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 20,
+    },
+    headerText: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: isDark ? '#ffffff' : '#000',
+    },
+    addButton: {
+      borderRadius: 20,
+      padding: 10,
+      width: 50,
+      height: 50,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    questionList: {
+      flex: 1,
+      marginBottom: 20,
+    },
+    questionContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: isDark ? '#1e1e1e' : 'white',
+      marginTop: 10,
+      padding: 20,
+      marginBottom: 10,
+    },
+    elevation: {
+      elevation: 10,
+      shadowColor: isDark ? '#ffffff' : 'black',
+    },
+    questionText: {
+      flex: 3,
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: isDark ? '#ffffff' : '#000',
+    },
+    iconButton: {
+      flex: 0.5,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    footer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginTop: 20,
+      flex: 0.15,
+    },
+    footerButton: {
+      backgroundColor: '#3944FD',
+      padding: 15,
+      borderRadius: 10,
+      justifyContent: 'center',
+      width: 170,
+      alignItems: 'center',
+    },
+    cancelButton: {
+      backgroundColor: isDark ? '#555555' : '#CCCCCC',
+      padding: 15,
+      borderRadius: 10,
+      width: 170,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    footerButtonText: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: isDark ? '#ffffff' : '#000',
+    },
+    icon: {
+      width: 30,
+      height: 30,
+      resizeMode: 'contain',
+    },
+  });
+};
+
 
 export default QuizCreationQuestionList;

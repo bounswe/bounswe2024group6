@@ -1,5 +1,5 @@
 import React, { useState, useEffect} from 'react';
-import { Keyboard, StyleSheet, Text, TextInput, View, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
+import { Keyboard, StyleSheet, Text, TextInput, View, TouchableWithoutFeedback, TouchableOpacity, useColorScheme } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Shadow } from 'react-native-shadow-2';
 
@@ -18,6 +18,8 @@ const QuizCreationInfo = () => {
     return nonEmptyAnswers.length < answers.length || uniqueAnswers.size !== nonEmptyAnswers.length || correctAnswerIndex === null || !question.trim() || !selectedType?.trim();
   };
 
+  const colorScheme = useColorScheme();
+  const styles = getStyles(colorScheme);
 
   // get params from the previous screen
   const { initialQuestion, initialAnswers, initialCorrectAnswer, type, index} = useLocalSearchParams();
@@ -205,177 +207,180 @@ const QuizCreationInfo = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: '#fff',
-    justifyContent: 'flex-start',
-  },
-  page: {
-    flex: 9,
-    backgroundColor: 'white',
-    padding: 20,
-    paddingTop: 50,
-    justifyContent: 'flex-start',
-  },
-  typeContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 20,
-  },
-  typeButton: {
-    backgroundColor: 'white',
-    padding: 10,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: '#000',
-    flex: 1,
-    marginHorizontal: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  selectedType: {
-    backgroundColor: 'lightblue',
-  },
-  typeText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#000',
-  },
-  questionAnswersContainer: {
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 20,
-  },
-  questionBox: {
-    marginBottom: 20,
-  },
-  questionText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#000',
-    backgroundColor: '#E8E8E8',
-    borderRadius: 8, 
-    padding: 10,
-  },
-  answerGridContainer: {
-    marginBottom: 20,
-  },
-  answerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 10,
-  },
-  answerBox: {
-    backgroundColor: 'white',
-    borderRadius: 10,
-    width: 150,
-    padding: 10,  
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  selectedAnswer: {
-    backgroundColor: 'lightblue',
-  },
-  answerText: {
-    fontSize: 18,
-    color: '#000',
-  },
-  label: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#000',
-    marginBottom: 10,
-  },
-  addAnswerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  input: {
-    backgroundColor: '#E8E8E8',
-    borderRadius: 10,
-    padding: 10,
-    flex: 1,
-    marginRight: 10,
-  },
-  addButton: {
-    backgroundColor: 'lightblue',
-    padding: 10,
-    borderRadius: 10,
-  },
-  addButtonText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#000',
-  },
-  suggestionsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 20,
-  },
-  suggestionButton: {
-    backgroundColor: '#d1e7dd',
-    padding: 5,
-    width: 80,
-    height: 40,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  suggestionText: {
-    fontSize: 16,
-    color: '#000',
-  },
-  navButtonsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  navButton: {
-    backgroundColor: '#3944FD',
-    padding: 15,
-    width: 150,
-    alignItems: 'center',
-    borderRadius: 10,
-  },
-  backButton: {  
-    backgroundColor: '#CCCCCC',
-    padding: 15,
-    width: 150,
-    alignItems: 'center',
-    borderRadius: 10,
-  },
-  navButtonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-  disabledButton: {
-    backgroundColor: '#ccc',
-  },
-  selectButton: {
-    position: 'absolute', 
-    top: '50%',           
-    left: '50%',          
-    transform: [{ translateX: -50 }, { translateY: -50 }], 
-    backgroundColor: '#3944FD',
-    padding: 5,
-    borderRadius: 5,
-    zIndex: 1,
-  },
-  selectButtonText: {
-    color: '#fff',
-    fontSize: 14,
-  },
-  correctAnswer: {
-    backgroundColor: '#4caf50',
-  },
-  elevation: {
-    elevation: 30,
-    shadowColor: 'black',
-  },
-});
+const getStyles = (colorScheme: any) => {
+  const isDark = colorScheme === 'dark';
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      padding: 16,
+      backgroundColor: isDark ? '#121212' : '#fff',
+    },
+    page: {
+      flex: 9,
+      backgroundColor: isDark ? '#121212' : 'white',
+      padding: 20,
+      paddingTop: 50,
+      justifyContent: 'flex-start',
+    },
+    typeContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: 20,
+    },
+    typeButton: {
+      backgroundColor: isDark ? '#2e2e2e' : 'white',
+      padding: 10,
+      borderRadius: 10,
+      borderWidth: 2,
+      borderColor: isDark ? '#aaa' : '#000',
+      flex: 1,
+      marginHorizontal: 5,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    selectedType: {
+      backgroundColor: isDark ? '#3944FD' : 'lightblue',
+    },
+    typeText: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: isDark ? '#fff' : '#000',
+    },
+    questionAnswersContainer: {
+      backgroundColor: isDark ? '#1e1e1e' : 'white',
+      borderRadius: 10,
+      padding: 15,
+      marginBottom: 20,
+    },
+    questionBox: {
+      marginBottom: 20,
+    },
+    questionText: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: isDark ? '#fff' : '#000',
+      backgroundColor: isDark ? '#333' : '#E8E8E8',
+      borderRadius: 8,
+      padding: 10,
+    },
+    answerGridContainer: {
+      marginBottom: 20,
+    },
+    answerRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: 10,
+    },
+    answerBox: {
+      backgroundColor: isDark ? '#333' : 'white',
+      borderRadius: 10,
+      width: 150,
+      padding: 10,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    selectedAnswer: {
+      backgroundColor: isDark ? '#555' : 'lightblue',
+    },
+    answerText: {
+      fontSize: 18,
+      color: isDark ? '#fff' : '#000',
+    },
+    label: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: isDark ? '#fff' : '#000',
+      marginBottom: 10,
+    },
+    addAnswerContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 20,
+    },
+    input: {
+      backgroundColor: isDark ? '#333' : '#E8E8E8',
+      color: isDark ? '#fff' : '#000',
+      borderRadius: 10,
+      padding: 10,
+      flex: 1,
+      marginRight: 10,
+    },
+    addButton: {
+      backgroundColor: isDark ? '#3944FD' : 'lightblue',
+      padding: 10,
+      borderRadius: 10,
+    },
+    addButtonText: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: isDark ? '#fff' : '#000',
+    },
+    suggestionsContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: 20,
+    },
+    suggestionButton: {
+      backgroundColor: isDark ? '#444' : '#d1e7dd',
+      padding: 5,
+      width: 80,
+      height: 40,
+      borderRadius: 10,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    suggestionText: {
+      fontSize: 16,
+      color: isDark ? '#fff' : '#000',
+    },
+    navButtonsContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+    },
+    navButton: {
+      backgroundColor: isDark ? '#3944FD' : '#3944FD',
+      padding: 15,
+      width: 150,
+      alignItems: 'center',
+      borderRadius: 10,
+    },
+    backButton: {
+      backgroundColor: isDark ? '#555' : '#CCCCCC',
+      padding: 15,
+      width: 150,
+      alignItems: 'center',
+      borderRadius: 10,
+    },
+    navButtonText: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: 'white',
+    },
+    disabledButton: {
+      backgroundColor: isDark ? '#444' : '#ccc',
+    },
+    selectButton: {
+      position: 'absolute',
+      top: '50%',
+      left: '50%',
+      transform: [{ translateX: -50 }, { translateY: -50 }],
+      backgroundColor: isDark ? '#3944FD' : '#3944FD',
+      padding: 5,
+      borderRadius: 5,
+      zIndex: 1,
+    },
+    selectButtonText: {
+      color: isDark ? '#fff' : '#fff',
+      fontSize: 14,
+    },
+    correctAnswer: {
+      backgroundColor: isDark ? '#4caf50' : '#4caf50',
+    },
+    elevation: {
+      elevation: 30,
+      shadowColor: isDark ? '#fff' : 'black',
+    },
+  });
+};
 
 export default QuizCreationInfo;

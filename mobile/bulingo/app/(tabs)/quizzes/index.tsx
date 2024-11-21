@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, TextInput, Image } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, TextInput, Image, useColorScheme } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { router } from 'expo-router';
 import QuizCard  from '@/app/components/quizCard';
@@ -39,7 +39,9 @@ const QuizFeed = () => {
   const navigation = useNavigation<any>();
   const [quizData, setQuizData] = useState(initialQuizData);
   
-
+  const colorScheme = useColorScheme();
+  const styles = getStyles(colorScheme);
+  const isDark = colorScheme === "dark";
   useEffect(() => {
     loadQuizzes();
   }, [page]);
@@ -113,8 +115,10 @@ const QuizFeed = () => {
         <TextInput
           style={styles.searchBar}
           placeholder="Search by title or author"
+          placeholderTextColor={isDark ? "white" : "black"}
           value={searchTerm}
           onChangeText={handleSearch}
+          
         />
         <TouchableOpacity style={styles.addButton} onPress={() => router.push('/(tabs)/quizzes/quizCreationSettings')}>
           <Image source={require('@/assets/images/add-icon.png')} style={styles.icon} />
@@ -135,34 +139,41 @@ const QuizFeed = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-    marginTop: 25,
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-    padding: 8,
-    borderRadius: 8,
-    backgroundColor: '#fff',
-  },
-  searchBar: {
-    flex: 1,
-    padding: 8,
-    backgroundColor: '#E8E8E8',
-    borderRadius: 8,
-  },
-  addButton: {
-    marginLeft: 10,
-  },
-  icon: {
-    width: 30,
-    height: 30,
-    resizeMode: 'contain',
-  },
-});
+const getStyles = (colorScheme: any) => {
+  const isDark = colorScheme === 'dark';
+
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      paddingTop: 25,
+      padding: 16,
+      backgroundColor: isDark ? '#121212' : '#f8f8f8',
+    },
+    searchContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 16,
+      padding: 8,
+      borderRadius: 8,
+      backgroundColor: isDark ? '#1e1e1e' : '#fff',
+    },
+    searchBar: {
+      flex: 1,
+      padding: 8,
+      backgroundColor: isDark ? '#333' : '#E8E8E8',
+      borderRadius: 8,
+      color: isDark ? '#fff' : '#000',
+    },
+    addButton: {
+      marginLeft: 10,
+    },
+    icon: {
+      width: 30,
+      height: 30,
+      resizeMode: 'contain',
+      tintColor: isDark ? '#fff' : '#000',
+    },
+  });
+};
 
 export default QuizFeed;

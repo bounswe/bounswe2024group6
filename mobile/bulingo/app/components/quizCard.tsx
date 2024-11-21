@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TouchableOpacity, Image, Text, View, StyleSheet } from 'react-native';
+import { TouchableOpacity, Image, Text, View, StyleSheet, useColorScheme } from 'react-native';
 
 type QuizCardProps = {
   title: string,
@@ -18,6 +18,10 @@ type QuizCardProps = {
 export default function QuizCard(props: QuizCardProps){
   const [likes, setLikes] = useState(props.likes);
   const [liked, setLiked] = useState(props.liked);
+
+  const colorScheme = useColorScheme();
+  const styles = getStyles(colorScheme);
+  
 
   const handleQuizPress = (id: number) => {
     props.onQuizPress && props.onQuizPress(id);
@@ -68,73 +72,80 @@ export default function QuizCard(props: QuizCardProps){
   );
 }
 
-const styles = StyleSheet.create({
-  quizItem: {
-    flex: 1,
-    justifyContent: 'space-between',
-    padding: 16,
-    backgroundColor: 'white',
-    marginBottom: 8,
-    marginHorizontal: 12, 
-    borderRadius: 8,
-  },
-  elevation: {
-    elevation: 2,
-    shadowColor: 'black',
-  },
-  quizTop: {
-    flex: 1
-  },
-  quizBottom: {
-    flex: 1,
-    flexDirection: 'row',
-  },
-  quizBottomLeft: {
-    flex: 3,
-  },
-  quizTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  quizDescription: {
-    fontSize: 14,
-    color: '#666',
-  },
-  quizAuthor: {
-    fontSize: 12,
-    color: '#999',
-  },
-  quizLevel: {
-    backgroundColor: '#dfe4ea',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 4,
-    fontSize: 12,
-    marginTop : 4,
-    color: '#333',
-    alignSelf: 'flex-start',
-  },
-  quizActions: {
-    position: 'absolute',
-    bottom: 0,
-    right: 10,
-    height: 50,
-    padding: 4,
-},
-  quizLikes: {
-    fontSize: 16,
-  },
-  likeButton: {
-    flex: 2,
-  },
-  bookmarkButton: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    alignItems: 'flex-end',
-  },
-  icon: {
-    width: 30,
-    height: 30,
-    resizeMode: 'contain',
-  },
-});
+const getStyles = (colorScheme: any) => {
+  const isDark = colorScheme === 'dark';
+
+  return StyleSheet.create({
+    quizItem: {
+      flex: 1,
+      justifyContent: 'space-between',
+      padding: 16,
+      backgroundColor: isDark ? '#1e1e1e' : 'white',
+      marginBottom: 8,
+      marginHorizontal: 12,
+      borderRadius: 8,
+    },
+    elevation: {
+      elevation: 2,
+      shadowColor: isDark ? '#fff' : 'black',
+    },
+    quizTop: {
+      flex: 1,
+    },
+    quizBottom: {
+      flex: 1,
+      flexDirection: 'row',
+    },
+    quizBottomLeft: {
+      flex: 3,
+    },
+    quizTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: isDark ? '#fff' : '#000',
+    },
+    quizDescription: {
+      fontSize: 14,
+      color: isDark ? '#aaa' : '#666',
+    },
+    quizAuthor: {
+      fontSize: 12,
+      color: isDark ? '#888' : '#999',
+    },
+    quizLevel: {
+      backgroundColor: isDark ? '#333' : '#dfe4ea',
+      paddingHorizontal: 8,
+      paddingVertical: 2,
+      borderRadius: 4,
+      fontSize: 12,
+      marginTop: 4,
+      color: isDark ? '#ddd' : '#333',
+      alignSelf: 'flex-start',
+    },
+    quizActions: {
+      position: 'absolute',
+      bottom: 0,
+      right: 10,
+      height: 50,
+      padding: 4,
+    },
+    quizLikes: {
+      fontSize: 16,
+      color: isDark ? '#fff' : '#000',
+    },
+    likeButton: {
+      flex: 2,
+    },
+    bookmarkButton: {
+      flex: 1,
+      justifyContent: 'flex-end',
+      alignItems: 'flex-end',
+    },
+    icon: {
+      width: 30,
+      height: 30,
+      resizeMode: 'contain',
+      tintColor: isDark ? '#fff' : '#000',
+    },
+  });
+};
