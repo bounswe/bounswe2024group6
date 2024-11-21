@@ -66,7 +66,7 @@ const QuizQuestion = () => {
   const [selectedChoices, setSelectedChoices] = useState<number[]>(Array(questionCount).fill(0));
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   
-
+  const isDark = colorScheme === 'dark';
   const handleOptionSelect = (option: number) => {
     const newChoices = [...selectedChoices];
     newChoices[currentQuestionIndex] = option;
@@ -123,7 +123,7 @@ const QuizQuestion = () => {
     <View style={styles.container}>
       <View style={styles.page}>
         <View style={styles.topContainer}>
-        <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
+        <Shadow distance={8} startColor= {isDark ? "#FFFFFF1A" : "#00000020"} endColor={isDark ? "#FFFFFF00" : "#00000000"} offset={[0, 2]}>
           <TouchableOpacity style={styles.cancelQuizButton} onPress={handleCancel}>
             <Text style={styles.cancelQuizText}>Cancel Quiz</Text>
           </TouchableOpacity>
@@ -141,7 +141,7 @@ const QuizQuestion = () => {
 
         <View style={styles.optionsContainer}>
         <View style={styles.optionWrapper}>
-        <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
+        <Shadow distance={8} startColor={isDark ? "#FFFFFF1A" : "#00000020"} endColor={isDark ? "#FFFFFF00" : "#00000000"} offset={[0, 4]}>
           <TouchableOpacity
             style={[
               styles.optionButton,
@@ -155,7 +155,7 @@ const QuizQuestion = () => {
           </View>
 
           <View style={styles.optionWrapper}>
-          <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
+          <Shadow distance={8} startColor={isDark ? "#FFFFFF1A" : "#00000020"} endColor={isDark ? "#FFFFFF00" : "#00000000"} offset={[0, 4]}>
           <TouchableOpacity
             style={[
               styles.optionButton,
@@ -169,7 +169,7 @@ const QuizQuestion = () => {
           </View>
 
           <View style={styles.optionWrapper}>
-          <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
+          <Shadow distance={8} startColor={isDark ? "#FFFFFF1A" : "#00000020"} endColor={isDark ? "#FFFFFF00" : "#00000000"} offset={[0, 4]}>
           <TouchableOpacity
             style={[
               styles.optionButton,
@@ -182,7 +182,7 @@ const QuizQuestion = () => {
           </Shadow>
           </View>
           <View style={styles.optionWrapper}>
-          <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
+          <Shadow distance={8} startColor={isDark ? "#FFFFFF1A" : "#00000020"} endColor={isDark ? "#FFFFFF00" : "#00000000"} offset={[0, 4]}>
           <TouchableOpacity
             style={[
               styles.optionButton,
@@ -198,18 +198,18 @@ const QuizQuestion = () => {
         </View>
         </View>
         <View style={styles.navigationContainer}>
-        <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
+        <Shadow distance={8} startColor={isDark ? "#FFFFFF1A" : "#00000020"} endColor={isDark ? "#FFFFFF00" : "#00000000"} offset={[0, 4]}>
           <TouchableOpacity style={currentQuestionIndex==0 ? styles.disabledNavigationButton : styles.navigationButton} onPress={handlePrevious} disabled={currentQuestionIndex==0}>
             <Text style={styles.navigationText}>Previous</Text>
           </TouchableOpacity>
           </Shadow>
           { currentQuestionIndex == questionCount-1 ?
-          <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
+          <Shadow distance={8} startColor={isDark ? "#FFFFFF1A" : "#00000020"} endColor={isDark ? "#FFFFFF00" : "#00000000"} offset={[0, 4]}>
               <TouchableOpacity style={styles.navigationButton} onPress={handleFinish}>
                 <Text style={styles.navigationText}>Finish</Text>
               </TouchableOpacity> 
               </Shadow> :
-              <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
+              <Shadow distance={8} startColor={isDark ? "#FFFFFF1A" : "#00000020"} endColor={isDark ? "#FFFFFF00" : "#00000000"} offset={[0, 4]}>
               <TouchableOpacity style={styles.navigationButton} onPress={handleNext}>
                 <Text style={styles.navigationText}>Next</Text>
               </TouchableOpacity>
