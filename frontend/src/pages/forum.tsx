@@ -43,7 +43,7 @@ export default function Forum() {
     <div className="flex flex-col items-center overflow-hidden">
       <Navbar />
       <ComposePostButton />
-      <div className="flex w-[740px] justify-between items-center mb-4">
+      <div className="flex w-[740px] justify-between items-center mb-4 mt-4">
         <Select placeholder="Sort By" className="w-32 text-black">
           {SortFilters.map((sortFilter) => (
             <SelectItem key={sortFilter}>{sortFilter}</SelectItem>
