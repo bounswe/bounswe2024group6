@@ -149,8 +149,7 @@ const getStyles = (colorScheme:any) => {
     container: {
       flex: 1,
       justifyContent: "flex-start",
-      marginTop: 30,
-      marginBottom: 20,
+      paddingTop: 30,
       backgroundColor: isDark ? '#121212' : '#fff',
     },
     page: {

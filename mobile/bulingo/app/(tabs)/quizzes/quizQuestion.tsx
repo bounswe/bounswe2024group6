@@ -228,8 +228,6 @@ export const getStyles = (colorScheme: any) => {
     container: {
       flex: 1,
       justifyContent: "flex-start",
-      marginTop: 30,
-      marginBottom: 20,
       backgroundColor: isDark ? '#121212' : 'white',
     },
     navbarContainer: {
@@ -296,6 +294,7 @@ export const getStyles = (colorScheme: any) => {
     optionsContainer: {
       flexDirection: 'row',
       flexWrap: 'wrap',
+      color: isDark ? 'white' : 'black',
       justifyContent: 'space-between',
       marginTop: 20,
     },
@@ -322,6 +321,7 @@ export const getStyles = (colorScheme: any) => {
     },
     navigationContainer: {
       flexDirection: 'row',
+      color: isDark ? 'white' : 'black',
       justifyContent: 'space-between',
       marginTop: 20,
     },

@@ -145,8 +145,8 @@ const getStyles = (colorScheme: any) => {
   return StyleSheet.create({
     container: {
       flex: 1,
+      paddingTop: 25,
       padding: 16,
-      marginTop: 25,
       backgroundColor: isDark ? '#121212' : '#f8f8f8',
     },
     searchContainer: {
