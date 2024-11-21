@@ -1,4 +1,5 @@
 import Navbar from "../components/common/navbar.tsx";
+import CreateQuizButton from "../components/post/create-quiz-button.tsx";
 import QuizCard from "../components/quiz/quiz-card.tsx";
 
 export default function Quiz() {
@@ -15,6 +16,7 @@ export default function Quiz() {
   return (
     <div className="h-screen w-screen items-center gap-4 flex flex-col">
       <Navbar />
+      <CreateQuizButton />
       <QuizCard
         key={quiz.id}
         id={quiz.id}
@@ -36,7 +38,5 @@ export default function Quiz() {
         tags={quiz.tags} // if exists
       />
     </div>
-
-
   );
 }
