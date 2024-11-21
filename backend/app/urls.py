@@ -3,7 +3,7 @@ from app.views import *
 from app.views_directory.profileviews import view_profile, update_profile
 from app.views_directory.wordviews import get_word_info, get_turkish_translation, get_similar_level_and_part_of_speech, get_word_details
 from app.views_directory.follow_unfollow import follow_user, unfollow_user 
-from app.views_directory.authentication_endpoints import RegisterView, LoginView, LogoutView
+from app.views_directory.authentication_endpoints import RegisterView, LoginView, LogoutView, RefreshTokenView
 from app.views_directory.comments import add_comment, delete_comment, like_comment, unlike_comment
 from app.views_directory.postviews import like_post, unlike_post
 from app.views_directory.activity_streams import activities_by_user, activities_for_user_as_object
@@ -22,6 +22,7 @@ urlpatterns = [
     path('signup/', RegisterView.as_view(), name='auth_register'),
     path('login/', LoginView.as_view(), name='auth_login'),
     path('logout/', LogoutView.as_view(), name='auth_logout'),
+    path('token/refresh/', RefreshTokenView.as_view(), name='token_refresh'),
     path('get-word-info/<str:word>/', get_word_info, name='get_word_info'),
     path('get-word-details/<str:word>/', get_word_details, name='get_word_details'),
     path('get-translation/<str:word>/', get_turkish_translation, name='get_turkish_translation'),
@@ -43,7 +44,6 @@ urlpatterns = [
     path('bookmark/', bookmark_post, name='bookmark_post'),  
     path('unbookmark/', unbookmark_post, name='unbookmark_post'), 
     path('get_bookmarked_posts/', get_bookmarked_posts, name='get_bookmarked_posts'),  
-    
 
 ]
 
