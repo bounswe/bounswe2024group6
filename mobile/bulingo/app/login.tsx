@@ -71,12 +71,12 @@ export default function Home() {
 
       <View style={styles.navbarContainer}><Navbar/></View>
         <View style={styles.page}>
+        
+
 
           <View style={styles.titleContainer}>
             <Text style={styles.titleText}>Log In</Text>
           </View>
-
-          <View style={styles.loginContainer}>
             <View style={styles.namedUserInput}>
               <Text style={styles.userInputText}>E-mail:</Text>
               <View style={styles.inputBox}>
@@ -99,7 +99,7 @@ export default function Home() {
                 </TextInput>
               </View>
             </View>
-            <View style={styles.buttonContainer}>
+            <View style={[styles.buttonContainer, {marginTop:10}]}>
                 {isErrorVisible && (
                   <Text style={styles.errorMessage}>Wrong Login information</Text>
                 )}
@@ -107,15 +107,12 @@ export default function Home() {
                 <Text style={styles.buttonText}>Log In</Text>
               </Pressable>
             </View>
-          </View>
-          <View style={styles.registerContainer} >
             <Text style={styles.smallText}>Don't have an account?</Text>
             <View style={styles.buttonContainer}>
               <Pressable style={[styles.rectangularButton, {backgroundColor: 'gray'}]} onPress={handleRegister} disabled={true}>
                 <Text style={styles.buttonText}>Register</Text>
               </Pressable>
             </View>
-          </View>
         </View>
     </View>
   );
@@ -129,11 +126,15 @@ const styles = StyleSheet.create({
     marginTop: 30,
     backgroundColor: '#fff'
   },
+  elevation: {
+    elevation: 30,
+    shadowColor: 'black',
+  },
   navbarContainer: {
     flex: 1,
   },
   page: {
-    flex: 7,
+    flex: 9,
     justifyContent: "space-around",
     alignItems: 'stretch',
     backgroundColor: '#fff'
@@ -144,20 +145,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   loginContainer: {
-    flex: 2,
+    flex: 0.6,
     justifyContent: 'center',
+    backgroundColor: 'white',
+    alignContent: 'center',
   },
-  registerContainer: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    alignItems: 'stretch',
-    marginBottom: 30,
-  },
+
   namedUserInput: {
     flex: 1,
     marginLeft: 40,
     marginRight: 40,
-    alignItems: 'stretch',
   },
   buttonContainer: {
     flex: 1,
@@ -166,27 +163,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   titleText: {
-    flex: 1,
     textAlign: 'center',
     fontSize: 30,
   },
   userInputText: {
     fontSize: 16,
-    margin: 5,
     textAlign: 'left',
   },
   inputBox: {
     justifyContent: 'center',
-    backgroundColor: "#ffec99",
+    backgroundColor: "#E8E8E8",
     height: 50,
     borderRadius: 10,
-    borderWidth: 3,
-    borderColor: "#222",
   },
   input: {
-    flex: 1,
-    margin: 5,
+    backgroundColor: '#E8E8E8',
+    borderRadius: 10,
     fontSize: 16,
+    marginLeft: 10,
   },
   smallText:{
     fontSize: 12,
@@ -194,15 +188,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   rectangularButton: {
-    backgroundColor: "#9775fa",
+    backgroundColor: "#3944FD",
     width: '80%',
     height: 50,
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    margin: 5,
-    borderWidth: 3,
-    borderColor: "#222",
   },
   buttonText: {
     color: '#fff',

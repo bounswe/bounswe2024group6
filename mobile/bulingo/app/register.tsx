@@ -184,6 +184,7 @@ const Register = () => {
 
       
       <Text style={styles.label}>Level:</Text>
+      <View style={{borderRadius: 10, overflow: 'hidden', marginBottom: 16}}>
       <Picker
         selectedValue={level}
         style={styles.picker}
@@ -196,6 +197,7 @@ const Register = () => {
         <Picker.Item label="C1" value="C1" />
         <Picker.Item label="C2" value="C2" />
       </Picker>
+      </View>
 
       <TouchableOpacity 
         style={[styles.button, (!isFormValid || isTyping) ? styles.buttonDisabled : null]} // Disable styling
@@ -227,7 +229,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
-    color: '#800080',
+    color: '#3944FD',
   },
   label: {
     fontSize: 18,
@@ -235,17 +237,18 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   input: {
-    backgroundColor: '#ffec99',
-    padding: 10,
-    borderRadius: 8,
-    fontSize: 16,
-    marginBottom: 0,
+    minHeight : 30,
+    backgroundColor: '#E8E8E8',
+    borderRadius: 10,
+    flex: 0.14,
+    marginRight: 10,
+    paddingLeft: 10,
   },
   picker: {
-    height: 50,
-    backgroundColor: '#FFEB3B',
-    borderRadius: 8,
-    marginBottom: 16,
+
+    height : 50,
+    backgroundColor: '#E8E8E8',
+    borderRadius: 10,
   },
   registerButton: {
     backgroundColor: '#800080',
@@ -284,7 +287,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   button: {
-    backgroundColor: '#9775fa',
+    backgroundColor: '#3944FD',
     paddingVertical: 10,
     borderRadius: 5,
   },
@@ -292,9 +295,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#A9A9A9', // Gray color when disabled
   },
   buttonText: {
-    color: '#fff',
+    color: 'white',
     textAlign: 'center',
-    fontSize: 16,
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });
 
