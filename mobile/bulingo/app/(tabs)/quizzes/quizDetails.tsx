@@ -130,6 +130,8 @@ const getStyles = (colorScheme: any) => {
     bookmarkIcon: {
       width: 24,
       height: 24,
+      tintColor: isDark ? 'white' : 'black',
+
     },
   });
 };
