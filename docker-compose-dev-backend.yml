@@ -23,16 +23,6 @@ services:
       - .env
     depends_on:
       - db
-
-  frontend:
-    build: ./frontend
-    ports:
-      - "5173:5173"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    depends_on:
-      - web
-
+      
 volumes:
   dbdata:
