@@ -41,7 +41,7 @@ const QuizFeed = () => {
   
   const colorScheme = useColorScheme();
   const styles = getStyles(colorScheme);
-
+  const isDark = colorScheme === "dark";
   useEffect(() => {
     loadQuizzes();
   }, [page]);
@@ -115,8 +115,10 @@ const QuizFeed = () => {
         <TextInput
           style={styles.searchBar}
           placeholder="Search by title or author"
+          placeholderTextColor={isDark ? "white" : "black"}
           value={searchTerm}
           onChangeText={handleSearch}
+          
         />
         <TouchableOpacity style={styles.addButton} onPress={() => router.push('/(tabs)/quizzes/quizCreationSettings')}>
           <Image source={require('@/assets/images/add-icon.png')} style={styles.icon} />
