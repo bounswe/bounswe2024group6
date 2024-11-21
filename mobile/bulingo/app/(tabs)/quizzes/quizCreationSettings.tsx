@@ -12,6 +12,8 @@ const QuizCreationSettings = () => {
   const colorScheme = useColorScheme();
   const styles = getStyles(colorScheme);
 
+  const isDark = colorScheme === 'dark';
+
   const quizLevels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 
   const handleLevelSelect = (level: string) => {
@@ -36,6 +38,7 @@ const QuizCreationSettings = () => {
         <TextInput
           style={styles.input}
           placeholder="Enter quiz title"
+          placeholderTextColor={isDark ? 'white' : 'dark'}
           value={quizTitle}
           onChangeText={setQuizTitle}
         />
@@ -45,6 +48,7 @@ const QuizCreationSettings = () => {
         <TextInput
           style={[styles.input, styles.descriptionInput]}
           placeholder="Enter quiz description"
+          placeholderTextColor={isDark ? 'white' : 'dark'}
           value={quizDescription}
           onChangeText={setQuizDescription}
           multiline={true}

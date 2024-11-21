@@ -112,7 +112,7 @@ const QuizCreationQuestionList = () => {
   );
 };
 
-const getStyles = (colorScheme) => {
+const getStyles = (colorScheme: any) => {
   const isDark = colorScheme === 'dark';
 
   return StyleSheet.create({
