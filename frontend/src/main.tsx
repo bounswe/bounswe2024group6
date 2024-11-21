@@ -14,6 +14,7 @@ import ComposePost from "./pages/compose-post.tsx";
 import QuizEnd from "./pages/quiz-end.tsx";
 import QuizDetails from "./pages/quiz-details.tsx";
 import Notifications from "./pages/notifications.tsx";
+import QuizCreation from "./pages/quiz-creation.tsx";
 import Home from "./pages/home.tsx";
 import ProtectedRoute from "./components/auth/protect-routes.tsx";
 import "./index.css";
@@ -60,6 +61,14 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <QuizDetails />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/create-quiz",
+    element: (
+      <ProtectedRoute>
+        <QuizCreation />
       </ProtectedRoute>
     ),
   },
@@ -130,4 +139,3 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     </NextUIProvider>
   </React.StrictMode>
 );
-
