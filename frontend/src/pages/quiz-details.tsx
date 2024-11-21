@@ -17,21 +17,22 @@ import {
     IconBookmarkFilled,
     IconThumbUp,
     IconThumbUpFilled,
+    IconPhotoOff,
 } from "@tabler/icons-react";
-import { time } from "framer-motion/client";
 
 const quiz = {
     id: 1,
     author: "elifndeniz",
     title: "Geographical Landforms",
     content: "Different types of landforms.",
+    picture: "https://nextui.org/avatars/avatar-1.png",
     timestamp: "1h ago",
     likeCount: 10,
     attempts: 15,
     questionCount: 10,
     averageScore: 8,
     timeLimit: "No Limit",
-    tags: ["geography", "A2"],
+    tags: ["other", "A2"],
 };
 
 export default function QuizDetails() {
@@ -53,7 +54,7 @@ export default function QuizDetails() {
     };
 
     return (
-        <div className="h-screen w-screen items-center gap-4 flex flex-col">
+        <div className="h-screen w-screen items-center gap-2 flex flex-col">
             <Navbar />
 
             <Card className="max-w-[600px] items-center">
@@ -74,25 +75,56 @@ export default function QuizDetails() {
                         </div>
                         <p className="text-default-400 items-center text-small">{quiz.timestamp}</p>
                     </div>
-                    <Divider className="my-1.5 bg-zinc-200" />
-                    <div className="flex flex-row justify-between w-full mx-2 mt-1">
+                    <Divider className="mt-1.5 bg-zinc-200" />
+                </CardHeader>
+                <CardBody className="flex flex-col justify-start rounded-lg shadow-zinc-200 w-[550px] h-[300px] overflow-hidden mb-2">
+                    <div className="flex flex-row justify-between w-full mx-2 mb-4">
                         <h2 className="text-3xl font-semibold leading-none text-black">
                             {quiz.title}
                         </h2>
                     </div>
-                </CardHeader>
-                <CardBody className="flex flex-col justify-around rounded-lg shadow-zinc-200 w-[550px] h-[300px]">
                     <div className="flex flex-col justify-center mx-3">
-                        <p className="w-full items-center text-lg mb-4">{quiz.content}</p>
-                        <div className="flex flex-col justify-center gap-1 my-4">
-                            <p>Attempts: {quiz.attempts}</p>
-                            <p>Question Count: {quiz.questionCount}</p>
-                            <p>Average Score: {quiz.averageScore}</p>
-                            <p>Time Limit: {quiz.timeLimit}</p>
+                        <div className="flex flex-row justify-between">
+                            <div >
+                                <p className="w-full items-center text-lg mb-4">{quiz.content}</p>
+                                <div className="flex flex-col justify-center gap-1 my-4">
+                                    <p>Attempts: {quiz.attempts}</p>
+                                    <p>Question Count: {quiz.questionCount}</p>
+                                    <p>Average Score: {quiz.averageScore}</p>
+                                    <p>Time Limit: {quiz.timeLimit}</p>
+                                </div>
+                            </div>
+                            {quiz.picture ? (
+                                <img
+                                    src={quiz.picture}
+                                    alt="quiz"
+                                    style={{
+                                        width: "170px",
+                                        height: "170px",
+                                        objectFit: "cover",
+                                        objectPosition: "center",
+                                    }}
+                                />
+                            ) : (
+                                <div
+                                    style={{
+                                        width: "200px",
+                                        height: "200px",
+                                        display: "flex",
+                                        justifyContent: "center",
+                                        alignItems: "center",
+                                        backgroundColor: "#f0f0f0", // Light gray background for the fallback
+                                        borderRadius: "8px",
+                                    }}
+                                >
+                                    <IconPhotoOff style={{ width: '70%', height: '70%', position: 'center', top: '50%', left: '50%' }} stroke={1.5} color="gray" />
+                                </div>
+                            )}
                         </div>
+
                         <div className="w-full flex flex-row justify-start gap-3 items-center">
                             <Button color="primary" variant="solid" onClick={() => navigate(`/quiz/${quiz.id}`)}
-                             className="w-1/3 items-center text-center mt-3">
+                                className="w-1/3 items-center text-center mt-3">
                                 Start Quiz
                             </Button>
                             {hasAttempted && (
@@ -103,7 +135,7 @@ export default function QuizDetails() {
                         </div>
                     </div>
                 </CardBody>
-                <Divider className="mb-1.5 bg-zinc-200" />
+                <Divider className="bg-zinc-200" />
                 <CardFooter className="flex justify-between gap-2">
                     <div className="flex gap-0 items-center">
                         <div className="flex justify-between items-center">
