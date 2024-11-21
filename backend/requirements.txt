@@ -7,5 +7,4 @@ django-cors-headers
 requests
 rdflib
 pandas
-
-
+python-dotenv
