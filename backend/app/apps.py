@@ -3,15 +3,12 @@ import requests
 from django.db.models.signals import post_migrate, post_init
 import json
 
+
+
 class AppConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'app'
     
     def ready(self):
-        # post_migrate.connect(create_mockdata, sender=self)
         import app.signals  # Import the signals to ensure they are registered
-
-
-
-
         

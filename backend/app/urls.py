@@ -6,13 +6,16 @@ from app.views_directory.follow_unfollow import follow_user, unfollow_user
 from app.views_directory.authentication_endpoints import RegisterView, LoginView, LogoutView
 from app.views_directory.comments import add_comment, delete_comment, like_comment, unlike_comment
 from app.views_directory.postviews import like_post, unlike_post
+from app.views_directory.activity_streams import activities_by_user, activities_for_user_as_object
+from app.views_directory.postviews import create_post, delete_post, get_posts_of_user
+from app.views_directory.feed_views import get_user_post_feed
+from app.views_directory.bookmark_views import bookmark_post, unbookmark_post, get_bookmarked_posts  
+
 
 import app.views_directory.quiz_views as quiz_views
 
 urlpatterns = [
     path('', index , name='index_page'),
-    path('posts/', post_view_page, name='posts'),
-    path('profile_mock/', view_profile_mock, name='profile_mock'),
     path('profile/', view_profile, name='view_profile'),
     path('profile/update/', update_profile, name='update_profile'),
     path('quiz/', quiz_views.get_quiz, name="get_quiz"),
@@ -37,5 +40,16 @@ urlpatterns = [
     path('post/comment/delete/', delete_comment, name='delete_comment'),
     path('post/comment/like/', like_comment, name='like_comment'),
     path('post/comment/unlike/', unlike_comment, name='unlike_comment'),
+    path('post/create/', create_post, name='create_post'), 
+    path('post/delete/', delete_post, name='delete_post'), 
+    path('post/my-posts/', get_posts_of_user, name='get_posts_of_user'),  
+    path('user-activities/', activities_by_user, name='activities_by_user'),
+    path('user-activities-as-object/', activities_for_user_as_object, name='activities_for_user_as_object'),
+    path('feed/', get_user_post_feed, name='get_user_feed'),
+    path('bookmark/', bookmark_post, name='bookmark_post'),  
+    path('unbookmark/', unbookmark_post, name='unbookmark_post'), 
+    path('get_bookmarked_posts/', get_bookmarked_posts, name='get_bookmarked_posts'),  
+    
+
 ]
 
