@@ -10,17 +10,25 @@ import {
   Modal,
   ModalContent,
   useDisclosure,
+  Select,
+  SelectItem,
 } from "@nextui-org/react";
 
 import PostCard from "./post-card.tsx";
 
 const Tags = [
   "@Vocabulary",
-  "@Daily Words",
+  "@Grammar",
   "@Vocabulary Tips",
-  "@Flashcards",
-  "@Memorization",
+  "@Cultural Insights",
+  "@Idioms & Expressions",
+  "@Challenges",
+  "@Learning Material",
+  "@Common Mistakes",
+  "@General",
+  "@Fun",
 ];
+const DifficultyTags = ["@A1", "@A2", "@B1", "@B2", "@C1", "@C2",];
 
 export default function ComposePostForm() {
   const [title, setTitle] = useState("");
@@ -35,8 +43,12 @@ export default function ComposePostForm() {
       setSelectedTags([...selectedTags, tag]);
     }
   };
+  const [diffTag, setDiffTag] = useState<string>("");
+  const handleDiffTagClick = (tag: string) => {
+    setDiffTag((prevTag) => (prevTag === tag ? "" : tag)); // Toggle diffTag
+  };
 
-  const handleSubmit = () => {};
+  const handleSubmit = () => { };
 
   return (
     <div className="flex justify-center items-center h-full overflow-hidden">
@@ -71,7 +83,7 @@ export default function ComposePostForm() {
             <label className="block mb-2 text-md text-center font-medium text-gray-700">
               Tags
             </label>
-            <div className="flex flex-wrap gap-2">
+            {/* <div className="flex flex-wrap gap-2">
               {Tags.map((tag) => (
                 <Button
                   key={tag}
@@ -82,6 +94,28 @@ export default function ComposePostForm() {
                   {tag}
                 </Button>
               ))}
+            </div> */}
+            <div className="flex flex-row justify-between mb-3">
+              <Select
+                label="Difficulty"
+                placeholder="Optional"
+                className="w-48 text-black"
+              >
+                {DifficultyTags.map((tag) => (
+                  <SelectItem onPress={() => handleDiffTagClick(tag)} key={tag}>{tag}</SelectItem>
+                ))}
+              </Select>
+              <Select
+                isRequired
+                label="Categories"
+                placeholder="Required Field"
+                selectionMode="multiple"
+                className="w-48 text-black"
+              >
+                {Tags.map((tag) => (
+                  <SelectItem onPress={() => handleTagClick(tag)} key={tag}>{tag}</SelectItem>
+                ))}
+              </Select>
             </div>
           </div>
         </div>
@@ -90,7 +124,7 @@ export default function ComposePostForm() {
           <Button
             onPress={onOpen}
             color="default"
-            isDisabled={!title || !content}
+            isDisabled={!title || !content || selectedTags.length === 0}
             variant="flat"
           >
             Preview
@@ -108,7 +142,7 @@ export default function ComposePostForm() {
                 username="@alitariksahin"
                 title={title}
                 content={content}
-                tags={selectedTags}
+                tags={[...selectedTags, ...(diffTag ? [diffTag] : [])]}
                 likeCount={0}
                 timePassed="Just now"
               />
@@ -117,7 +151,7 @@ export default function ComposePostForm() {
           <Button
             color="primary"
             onPress={handleSubmit}
-            isDisabled={!title || !content}
+            isDisabled={!title || !content || selectedTags.length === 0}
           >
             Post
           </Button>

@@ -11,11 +11,17 @@ import type { Post } from "../types.ts";
 
 const Tags = [
   "@Vocabulary",
-  "@Daily Words",
+  "@Grammar",
   "@Vocabulary Tips",
-  "@Flashcards",
-  "@Memorization",
+  "@Idioms & Expressions",
+  "@Cultural Insights",
+  "@Challenges",
+  "@Learning Material",
+  "@Common Mistakes",
+  "@General",
+  "@Fun",
 ];
+const DifficultyTags = ["A1", "A2", "B1", "B2", "C1", "C2"];
 const SortFilters = ["Most Recent", "Most Liked", "Most Commented"];
 
 export default function Forum() {
@@ -43,15 +49,27 @@ export default function Forum() {
             <SelectItem key={sortFilter}>{sortFilter}</SelectItem>
           ))}
         </Select>
-        <Select
-          placeholder="Select Tags"
-          selectionMode="multiple"
-          className="w-32 text-black"
-        >
-          {Tags.map((tag) => (
-            <SelectItem key={tag}>{tag}</SelectItem>
-          ))}
-        </Select>
+        <div className="flex flex-row gap-2">
+          <Select
+            placeholder="Difficulty"
+            selectionMode="multiple"
+            className="w-32 text-black"
+          >
+            {DifficultyTags.map((tag) => (
+              <SelectItem key={tag}>@{tag}</SelectItem>
+            ))}
+          </Select>
+          <Select
+            placeholder="Categories"
+            selectionMode="multiple"
+            className="w-32 text-black"
+          >
+            {Tags.map((tag) => (
+              <SelectItem key={tag}>{tag}</SelectItem>
+            ))}
+          </Select>
+        </div>
+
       </div>
 
       <div className="flex flex-col gap-6">
