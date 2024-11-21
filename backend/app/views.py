@@ -20,8 +20,6 @@ from rest_framework import generics, status
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import Tags
-from .models import Quiz
 from .word_service import lexvo_manager
 
 
@@ -94,31 +92,3 @@ def view_profile_mock(request):
           
     }
     return Response({'profile': mock_profile})
-
-def quiz_view(request):
-    # get first 100 quizzes
-    quizzes = Quiz.objects.all()[:100]
-    serializer = QuizSerializer(quizzes, many=True)
-    return JsonResponse({"quizzes": serializer.data})
-
-@api_view(['POST'])
-def create_quiz_view(request):
-    quiz_data = request.data
-
-    quiz = Quiz.objects.create(
-        title=quiz_data['title'],
-        description=quiz_data['description'],
-        author=quiz_data['author'],
-        times_taken=0,
-        total_score=0,
-        time_limit=quiz_data['time_limit'],
-        like_count=0
-    )
-
-    if 'tags' in quiz_data:
-        tags = quiz_data['tags']
-        quiz.tags.add(*[Tags.objects.get_or_create(name=tag)[0] for tag in tags])
-
-    return Response({'message': 'Quiz created successfully.'}, status=status.HTTP_201_CREATED)
-
-    
