@@ -8,6 +8,7 @@ import {
   Button,
   Divider,
   Badge,
+  Link,
 } from "@nextui-org/react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { IconBell } from "@tabler/icons-react";
@@ -108,7 +109,7 @@ export default function Navbar() {
         </div>
         <div className="flex-1 flex justify-end items-center flex-row">
           <ThemeSwitcher />
-          <Badge content="3" shape="circle" color="danger">
+          <Badge content="3" shape="circle" color="danger" className="">
             <Button
               radius="full"
               isIconOnly
@@ -121,13 +122,13 @@ export default function Navbar() {
           </Badge>
           <Popover key="bottom-end" placement="bottom-end">
             <PopoverTrigger>
-              <button className="pl-4">
-                <Avatar
-                  isBordered
-                  color="success"
-                  src="https://nextui.org/avatars/avatar-1.png"
-                />
-              </button>
+              <Avatar
+                as="button"
+                isBordered
+                color="success"
+                src="https://nextui.org/avatars/avatar-1.png"
+                className="ml-4"
+              />
             </PopoverTrigger>
             {content}
           </Popover>
