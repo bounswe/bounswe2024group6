@@ -74,7 +74,6 @@ export default function Home() {
         
 
 
-          <View style={[styles.loginContainer, styles.elevation]}>
           <View style={styles.titleContainer}>
             <Text style={styles.titleText}>Log In</Text>
           </View>
@@ -114,7 +113,6 @@ export default function Home() {
                 <Text style={styles.buttonText}>Register</Text>
               </Pressable>
             </View>
-          </View>
         </View>
     </View>
   );
