@@ -12,16 +12,16 @@ import { AuthActions } from "../components/auth/utils.tsx";
 import { convertPostResponseToPost } from "../components/common/utils.tsx";
 
 const Tags = [
-  "@Vocabulary",
-  "@Grammar",
-  "@Vocabulary Tips",
-  "@Idioms & Expressions",
-  "@Cultural Insights",
-  "@Challenges",
-  "@Learning Material",
-  "@Common Mistakes",
-  "@General",
-  "@Fun",
+  "#Vocabulary",
+  "#Grammar",
+  "#Vocabulary Tips",
+  "#Idioms & Expressions",
+  "#Cultural Insights",
+  "#Challenges",
+  "#Learning Material",
+  "#Common Mistakes",
+  "#General",
+  "#Fun",
 ];
 const DifficultyTags = ["A1", "A2", "B1", "B2", "C1", "C2"];
 const SortFilters = ["Most Recent", "Most Liked", "Most Commented"];
@@ -45,6 +45,7 @@ export default function Forum() {
         },
       })
       .then((response) => {
+        console.log(response.data);
         const postData: PostResponse[] = response.data.feed;
         setPosts(postData.map(convertPostResponseToPost));
       })
@@ -70,7 +71,7 @@ export default function Forum() {
     <div className="flex flex-col items-center overflow-hidden">
       <Navbar />
       <ComposePostButton />
-      <div className="flex w-[740px] justify-between items-center mb-4 mt-4">
+      <div className="flex w-[740px] justify-between items-center  mt-4">
         <Select onChange={handleSelectionChange} placeholder="Sort By" defaultSelectedKeys={["Most Recent"]} className="w-32 text-black">
           {SortFilters.map((sortFilter) => (
             <SelectItem key={sortFilter}>{sortFilter}</SelectItem>
@@ -83,7 +84,7 @@ export default function Forum() {
             className="w-32 text-black"
           >
             {DifficultyTags.map((tag) => (
-              <SelectItem key={tag}>@{tag}</SelectItem>
+              <SelectItem key={tag}>{tag}</SelectItem>
             ))}
           </Select>
           <Select
@@ -99,7 +100,7 @@ export default function Forum() {
 
       </div>
 
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-6 m-6">
         {sortedPosts.map((post) => (
 
           <Suspense key={post.id} fallback={<PostCardSkeleton />}>
