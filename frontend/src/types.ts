@@ -20,6 +20,7 @@ export type Comment = {
       content: string;
       tags: string[];
       timestamp: string;
+      created_at: string;
     };
     engagement: {
       likes: number;

@@ -37,6 +37,7 @@ export const convertPostResponseToPost = (postResponse: PostResponse): Post => {
       content: postResponse.description,
       tags: postResponse.tags,
       timestamp: formatTimeAgo(postResponse.created_at),
+      created_at: postResponse.created_at,
     },
     engagement: {
       likes: postResponse.like_count,
