@@ -1,8 +1,7 @@
 import React, {useState} from 'react';
 import {Image, Pressable, StyleSheet, Text, View} from 'react-native';
 import { router } from "expo-router";
-import Navbar from "./navbar";
-import TokenManager from './TokenManager';
+import TokenManager from '../TokenManager';
 
 export default function Home() {
   const handleRegister = () => {
@@ -20,7 +19,6 @@ export default function Home() {
 
   return (
     <View style={styles.container}>
-      <Navbar/>
       <View style={styles.page}>
       <View style={styles.profilePictureContainer}>
       <Image

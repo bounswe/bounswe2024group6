@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Pressable, StyleSheet, Text, View, FlatList } from 'react-native';
-import Navbar from './navbar';
+import { TouchableOpacity, StyleSheet, Text, View, FlatList, Image } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-
+import { Shadow } from 'react-native-shadow-2';
 const QuizCreationQuestionList = () => {
   const [questions, setQuestions] = useState([
     {id: 1, name: 'Pasta', correctAnswer: 'makarna', answers: ['makarna', 'pizza', 'hamburger', 'sushi'], type: 'Type II'},
@@ -44,19 +43,19 @@ const QuizCreationQuestionList = () => {
   }, [question, answers, correctAnswer, selectedType]);
 
   const handleAddQuestion = () => {
-    router.navigate('./quizCreationInfo');
+    router.navigate('/(tabs)/quizzes/quizCreationInfo');
   };
 
   const handleUpdateQuestion = (index: number) => {
-    router.navigate({pathname: './quizCreationInfo', params: { "initialQuestion": questions[index].name , "initialAnswers": JSON.stringify(questions[index].answers), "initialCorrectAnswer": questions[index].correctAnswer, "type": questions[index].type, "index": index}});
+    router.navigate({pathname: '/(tabs)/quizzes/quizCreationInfo', params: { "initialQuestion": questions[index].name , "initialAnswers": JSON.stringify(questions[index].answers), "initialCorrectAnswer": questions[index].correctAnswer, "type": questions[index].type, "index": index}});
   };
 
   const handleCreateQuiz = () => {
-    router.navigate('./quizFeed');
+    router.navigate('/(tabs)/quizzes/');
   }
 
   const handleCancel = () => {
-    router.navigate("./quizFeed");
+    router.navigate("/(tabs)/quizzes/");
   }
 
 
@@ -67,25 +66,24 @@ const QuizCreationQuestionList = () => {
   };
 
   const renderQuestionItem = ({ item, index }: { item: any; index: number }) => (
-    <View style={styles.questionContainer}>
+    <View style={[styles.questionContainer, styles.elevation]}>
       <Text style={styles.questionText}>{`Question ${index + 1}: ${item.name}`}</Text>
-      <Pressable style={styles.iconButton} onPress={() => handleUpdateQuestion(index)}>
-        <Text style={styles.iconText}>♻️</Text>
-      </Pressable>
-      <Pressable style={styles.iconButton} onPress={() => handleDeleteQuestion(index)}>
-        <Text style={styles.iconText}>🗑️</Text>
-      </Pressable>
+      <TouchableOpacity style={styles.iconButton} onPress={() => handleUpdateQuestion(index)}>
+      <Image source={require('@/assets/images/update-icon.png')} style={styles.icon} />
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.iconButton} onPress={() => handleDeleteQuestion(index)}>
+      <Image source={require('@/assets/images/bin-icon.png')} style={styles.icon} />
+      </TouchableOpacity>
     </View>
   );
 
   return (
     <View style={styles.container}>
-      <Navbar />
       <View style={styles.headerContainer}>
         <Text style={styles.headerText}>Food</Text>
-        <Pressable style={styles.addButton} onPress={handleAddQuestion}>
-          <Text style={styles.addButtonText}>+</Text>
-        </Pressable>
+        <TouchableOpacity style={styles.addButton} onPress={handleAddQuestion}>
+        <Image source={require('@/assets/images/add-icon.png')} style={styles.icon} />
+        </TouchableOpacity>
       </View>
 
       {/* Questions List */}
@@ -98,12 +96,16 @@ const QuizCreationQuestionList = () => {
 
       {/* Footer Buttons */}
       <View style={styles.footer}>
-        <Pressable style={styles.footerButton} onPress={() => handleCancel()}>
+      <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
+        <TouchableOpacity style={styles.cancelButton} onPress={() => handleCancel()}>
           <Text style={styles.footerButtonText}>Cancel</Text>
-        </Pressable>
-        <Pressable style={styles.footerButton} onPress={() => handleCreateQuiz()}>
+        </TouchableOpacity>
+        </Shadow>
+        <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
+        <TouchableOpacity style={styles.footerButton} onPress={() => handleCreateQuiz()}>
           <Text style={styles.footerButtonText}>Create Quiz</Text>
-        </Pressable>
+        </TouchableOpacity>
+        </Shadow>
       </View>
     </View>
   );
@@ -112,7 +114,7 @@ const QuizCreationQuestionList = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: 'white',
     padding: 20,
     justifyContent: 'flex-start',
   },
@@ -128,9 +130,10 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   addButton: {
-    backgroundColor: '#d1e7dd',
-    borderRadius: 10,
+    borderRadius: 20,
     padding: 10,
+    width: 50,
+    height: 50,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -145,14 +148,15 @@ const styles = StyleSheet.create({
   },
   questionContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#e6ffed',
-    borderRadius: 10,
-    padding: 10,
+    backgroundColor: 'white',
+    marginTop: 10,
+    padding: 20,
     marginBottom: 10,
-    borderColor: '#000',
-    borderWidth: 2,
+  },
+  elevation: {
+    elevation: 10,
+    shadowColor: 'black',
   },
   questionText: {
     flex: 3,
@@ -173,12 +177,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 20,
+    flex : 0.15,
   },
   footerButton: {
-    backgroundColor: '#b0e57c',
+    backgroundColor: '#3944FD',
     padding: 15,
     borderRadius: 10,
-    flex: 0.45,
+    justifyContent: 'center',
+    width: 170,
+    alignItems: 'center',
+  },
+  cancelButton: {
+    backgroundColor: '#CCCCCC',
+    padding: 15,
+    borderRadius: 10,
+    width: 170,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -186,6 +199,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: '#000',
+  },
+  icon: {
+    width: 30,
+    height: 30,
+    resizeMode: 'contain',
   },
 });
 
