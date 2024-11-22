@@ -15,6 +15,10 @@ import {
 } from "@nextui-org/react";
 
 import PostCard from "./post-card.tsx";
+import axios from "axios";
+import { BASE_URL } from "../../lib/baseURL.ts";
+import { AuthActions } from "../auth/utils.tsx";
+import { useNavigate } from "react-router-dom";
 
 const Tags = [
   "@Vocabulary",
@@ -35,6 +39,7 @@ export default function ComposePostForm() {
   const [content, setContent] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const navigate = useNavigate();
 
   const handleTagClick = (tag: string) => {
     if (selectedTags.includes(tag)) {
@@ -48,7 +53,29 @@ export default function ComposePostForm() {
     setDiffTag((prevTag) => (prevTag === tag ? "" : tag)); // Toggle diffTag
   };
 
-  const handleSubmit = () => { };
+  const handleSubmit = () => {  
+    const { getToken } = AuthActions();
+    const token = getToken("access"); 
+    
+    axios
+      .post(`${BASE_URL}/post/create/`, {
+        title: title,
+        description: content,
+        tags: selectedTags,
+      }, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        }
+      })
+      .then((response) => {
+        navigate("/forum");
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    }
 
   return (
     <div className="flex justify-center items-center h-full overflow-hidden">
