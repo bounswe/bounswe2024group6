@@ -5,6 +5,7 @@ from .models import Profile, Post, Comment
 
 
 class ProfileSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username', read_only=True) 
     posts = serializers.SerializerMethodField()
     comments = serializers.SerializerMethodField()
     follower_count = serializers.SerializerMethodField()
