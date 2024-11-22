@@ -18,6 +18,11 @@ import {
   IconMessageCircle,
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
+import { AuthActions } from "../auth/utils";
+import { PostResponse } from "../../types";
+import { convertPostResponseToPost } from "../common/utils";
+import axios from "axios";
+import { BASE_URL } from "../../lib/baseURL";
 
 const maxLength = 250; // Maximum length of the content to be displayed
 
@@ -45,14 +50,36 @@ export default function PostCard({
   const [likes, setLikes] = useState(likeCount);
   const [isBookmarked, setIsBookmarked] = useState(false); // Example state for bookmark
   const navigate = useNavigate();
+  const { getToken } = AuthActions();
+  const token = getToken("access");
 
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
   };
 
   const toggleLike = () => {
+    axios
+      .post(
+        `${BASE_URL}/post/like/`,
+        { post_id: id },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      .then((response) => {
+        setLikes(response.data.like_count);
+      })
+      .catch((error) => {
+        if (
+          error.response.data.detail === "You have already liked this post."
+        ) {
+          setIsLiked(true);
+        }
+        console.log(error.response.data);
+      });
     setIsLiked(!isLiked);
-    setLikes(likes + (!isLiked ? 1 : -1));
   };
 
   const toggleBookmark = () => {
