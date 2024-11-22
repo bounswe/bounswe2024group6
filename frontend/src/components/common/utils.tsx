@@ -50,7 +50,7 @@ export const convertPostResponseToPost = (postResponse: PostResponse): Post => {
 export const convertProfileResponseToProfile = (profileResponse: ProfileResponse): Profile => {
   return {
     id: 0,
-    username: profileResponse.name,
+    username: profileResponse.username,
     level: profileResponse.level,
     followers: profileResponse.follower_count,
     following: profileResponse.following_count,
