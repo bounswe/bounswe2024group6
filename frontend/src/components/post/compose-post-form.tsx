@@ -61,7 +61,7 @@ export default function ComposePostForm() {
       .post(`${BASE_URL}/post/create/`, {
         title: title,
         description: content,
-        tags: selectedTags,
+        tags: [...selectedTags, ...(diffTag ? [diffTag] : [])],
       }, {
         headers: {
           "Content-Type": "application/json",
