@@ -13,7 +13,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ['name', 'level', 'posts', 'comments', 'follower_count', 'following_count']
+        fields = ['username','name', 'level', 'posts', 'comments', 'follower_count', 'following_count']
 
     def get_posts(self, obj):
         """Get posts created by the user."""
