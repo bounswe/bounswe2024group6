@@ -65,6 +65,7 @@ export type Comment = {
     following_count: number;
     level: string;
     name: string;
+    username: string;
     posts: PostResponse[];
     image?: string; // TODO: to be made required
     quizzes?: Quiz[]; // TODO: to be made required

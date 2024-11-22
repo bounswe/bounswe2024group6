@@ -21,18 +21,18 @@ import { AuthActions } from "../auth/utils.tsx";
 import { useNavigate } from "react-router-dom";
 
 const Tags = [
-  "@Vocabulary",
-  "@Grammar",
-  "@Vocabulary Tips",
-  "@Cultural Insights",
-  "@Idioms & Expressions",
-  "@Challenges",
-  "@Learning Material",
-  "@Common Mistakes",
-  "@General",
-  "@Fun",
+  "#Vocabulary",
+  "#Grammar",
+  "#Vocabulary Tips",
+  "#Cultural Insights",
+  "#Idioms & Expressions",
+  "#Challenges",
+  "#Learning Material",
+  "#Common Mistakes",
+  "#General",
+  "#Fun",
 ];
-const DifficultyTags = ["@A1", "@A2", "@B1", "@B2", "@C1", "@C2",];
+const DifficultyTags = ["A1", "A2", "B1", "B2", "C1", "C2",];
 
 export default function ComposePostForm() {
   const [title, setTitle] = useState("");
