@@ -81,9 +81,9 @@ class PostSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'description', 'author', 'tags', 'created_at', 'like_count', 'comments']
 
     def get_comments(self, obj):
-        """Get all comments related to the post, including nested replies."""
-        comments = Comment.objects.filter(post=obj, parent=None)  # Only top-level comments
+        comments = Comment.objects.filter(post=obj)  # Fetch all comments for the post
         return CommentSerializer(comments, many=True).data
+
 
 class CommentSerializer(serializers.ModelSerializer):
     replies = serializers.SerializerMethodField()  # Fetch nested replies

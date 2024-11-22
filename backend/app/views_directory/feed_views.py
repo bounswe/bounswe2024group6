@@ -4,13 +4,15 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from app.models import Comment
+from app.models import Comment, Bookmark
 from app.serializers import CommentSerializer
 import random
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_user_post_feed(request):
+    user = request.user  
+
     posts = Post.objects.all()
 
     if posts.exists():
@@ -27,6 +29,9 @@ def get_user_post_feed(request):
             "created_at": post.created_at,
             "like_count": post.like_count,
             "tags": [tag for tag in post.tags],
+            "is_liked": post.liked_by.filter(id=user.id).exists(),  # Check if the user liked the post
+            "is_bookmarked": Bookmark.objects.filter(user=user, post=post).exists(),  # Check if the user bookmarked the post
+
             "comments": CommentSerializer(
                 Comment.objects.filter(post=post),  # Fetch all comments for the post
                 many=True
