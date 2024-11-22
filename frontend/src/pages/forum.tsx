@@ -31,6 +31,12 @@ export default function Forum() {
   const { getToken } = AuthActions();
   const token = getToken("access"); 
 
+  const [sortFilter, setSortFilter] = useState<string>("Most Recent");
+
+  const handleSelectionChange = (e) => {
+    setSortFilter(e.target.value);
+  };
+
   useEffect(() => {
     axios
       .get(`${BASE_URL}/feed/`, {
@@ -47,12 +53,25 @@ export default function Forum() {
       });
   }, []);
 
+  const sortedPosts = [...posts].sort((a, b) => {
+    switch (sortFilter) {
+      case "Most Recent":
+        return new Date(b.post.created_at).getTime() - new Date(a.post.created_at).getTime();
+      case "Most Liked":
+        return b.engagement.likes - a.engagement.likes;
+      // case "Most Commented":
+      //   return b.engagement.comments - a.engagement.comments; 
+      default:
+        return 0;
+    }
+  });
+
   return (
     <div className="flex flex-col items-center overflow-hidden">
       <Navbar />
       <ComposePostButton />
       <div className="flex w-[740px] justify-between items-center mb-4 mt-4">
-        <Select placeholder="Sort By" className="w-32 text-black">
+        <Select onChange={handleSelectionChange} placeholder="Sort By" defaultSelectedKeys={["Most Recent"]} className="w-32 text-black">
           {SortFilters.map((sortFilter) => (
             <SelectItem key={sortFilter}>{sortFilter}</SelectItem>
           ))}
@@ -81,7 +100,8 @@ export default function Forum() {
       </div>
 
       <div className="flex flex-col gap-6">
-        {posts.map((post) => (
+        {sortedPosts.map((post) => (
+
           <Suspense key={post.id} fallback={<PostCardSkeleton />}>
             <PostCard
               id={post.id}
