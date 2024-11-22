@@ -1,6 +1,5 @@
 from rest_framework import serializers
-from django.contrib.auth.models import User
-from .models import Profile, Post, Comment
+from .models import Profile, Post, Comment, CustomUser
 
 
 
@@ -16,7 +15,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     def get_posts(self, obj):
         """Get posts created by the user."""
-        posts = Post.objects.filter(author=obj.user.username)
+        posts = Post.objects.filter(author=obj.user)
         return PostSerializer(posts, many=True).data
 
     def get_comments(self, obj):
@@ -34,29 +33,22 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    profile = ProfileSerializer()
 
     class Meta:
-        model = User
-        fields = ('username', 'password', 'email', 'profile')
+        model = CustomUser
+        fields = ('username', 'password', 'email')
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
-        # Extract profile data from validated_data
-        profile_data = validated_data.pop('profile', {})
-
         # Create the user
-        user = User.objects.create_user(
+        user = CustomUser.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
             password=validated_data['password']
         )
 
-        # Update the profile created by the signal
-        profile = user.profile  # Get the profile created by the signal
-        profile.name = profile_data.get('name', user.username)
-        profile.level = profile_data.get('level', 1)
-        profile.save()
+      
+        Profile.objects.create(user=user, name=user.username)
 
         return user
 
@@ -71,12 +63,11 @@ class UserSerializer(serializers.ModelSerializer):
             instance.set_password(validated_data['password'])
         instance.save()
 
-        # Update profile fields
-        profile = instance.profile
-        profile.name = profile_data.get('name', profile.name)
-        profile.username = profile_data.get('username', profile.username)
-        profile.level = profile_data.get('level', profile.level)
-        profile.save()
+        if profile_data:
+            profile = instance.profile
+            profile.name = profile_data.get('name', profile.name)
+            profile.level = profile_data.get('level', profile.level)
+            profile.save()
 
         return instance
 
