@@ -5,7 +5,7 @@ import PostCard from "../components/post/post-card.tsx";
 import PostCardSkeleton from "../components/post/post-card-skeleton.tsx";
 import axios from "axios";
 import { BASE_URL } from "../lib/baseURL";
-import type { Profile, ProfileResponse } from "../types.ts";
+import type { Post, Profile, ProfileResponse } from "../types.ts";
 import {
   IconBookmark,
   IconSquareRoundedCheck,
@@ -23,6 +23,7 @@ export default function Profile() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const { getToken } = AuthActions();
   const token = getToken("access");
+  const [sortedPosts, setSortedPosts] = useState<Post[]>([]);
 
   useEffect(() => {
     axios
@@ -39,7 +40,11 @@ export default function Profile() {
       .then((response) => {
         const data: ProfileResponse = response.data;
         console.log(data);
-        const profile = convertProfileResponseToProfile(data);
+        const profile = convertProfileResponseToProfile(data); 
+        const sortedVersion= [...profile.posts].sort((a, b) => {
+          return new Date(b.post.created_at).getTime() - new Date(a.post.created_at).getTime();
+        });
+        setSortedPosts(sortedVersion);
         console.log(profile);
         setProfile(profile);
       })
@@ -47,6 +52,9 @@ export default function Profile() {
         console.log(error);
       });
   }, []);
+
+
+
 
   return (
     <div className="h-full w-full items-center overflow-hidden flex flex-col">
@@ -104,12 +112,10 @@ export default function Profile() {
           >
             {profile && (
               <div className="flex flex-col p-5 items-center">
-                {activeSection === "quizzes" ? (
-                  <div className="p-5"></div>
-                ) : (
+                {activeSection === "posts" ? (
                   <div className="flex flex-col gap-4 items-center">
                     {profile &&
-                      profile.posts.map((post) => {
+                      sortedPosts.map((post) => {
                         return (
                           <Suspense
                             key={post.id}
@@ -128,6 +134,8 @@ export default function Profile() {
                         );
                       })}
                   </div>
+                ) : (
+                  <div className="p-5"></div>
                 )}
               </div>
             )}
