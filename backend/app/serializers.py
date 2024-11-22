@@ -73,8 +73,7 @@ class QuizResultsSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuizResults
         fields = ['quiz', 'user', 'score', 'time_taken']
-from rest_framework import serializers
-from .models import Quiz, Tags
+
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
@@ -111,6 +110,13 @@ class QuizSerializer(serializers.ModelSerializer):
 
         return quiz
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        
+        # Transform tags to a list of names
+        representation['tags'] = [tag['name'] for tag in representation['tags']]
+        
+        return representation
 
 class QuizProgressSerializer(serializers.ModelSerializer):
     class Meta:
