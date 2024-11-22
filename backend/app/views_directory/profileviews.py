@@ -40,13 +40,4 @@ def view_other_profile(request, username):
     serializer = ProfileSerializer(profile)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def view_other_profile(request, username):
-    """
-    View a user's profile by their username.
-    """
-    user = get_object_or_404(User, username=username)
-    profile = get_object_or_404(Profile, user=user)
-    serializer = ProfileSerializer(profile)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+
