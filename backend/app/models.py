@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.utils.timezone import now
@@ -12,18 +11,15 @@ LEVEL_CHOICES = [
     ('B2', 'B2'),
     ('C1', 'C1'),
     ('C2', 'C2'),
+    ('NA', 'NA')
 ]
 
-class CustomUser(User):
-    level = models.CharField(max_length=2, choices=LEVEL_CHOICES, default='A1')
-
-    def __str__(self):
-        return self.username
 
 class Profile(models.Model):
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name="profile")
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     name = models.CharField(max_length=100,null=True, blank=True)
     following = models.ManyToManyField("self", symmetrical=False, related_name="followers", blank=True)
+    level = models.CharField(max_length=2, choices=LEVEL_CHOICES, default='A1')
 
     def __str__(self):
         return self.name
@@ -42,7 +38,7 @@ class Post(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     author = models.CharField(max_length=100)
     like_count = models.IntegerField(default=0)
-    liked_by = models.ManyToManyField(CustomUser, related_name='liked_posts', blank=True)  
+    liked_by = models.ManyToManyField(User, related_name='liked_posts', blank=True)  
 
     def __str__(self):
         return self.title
@@ -76,7 +72,7 @@ class Translation(models.Model):
         return f"{self.translation} (Translation of {self.word})"
 
 class ActivityStream(models.Model):
-    actor = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='activities')  
+    actor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='activities')  
     verb = models.CharField(max_length=50)  # liked, created, followed
     object_type = models.CharField(max_length=50)  # Quiz, Post
     object_id = models.IntegerField()  #Quiz ID Post ID
@@ -88,7 +84,7 @@ class ActivityStream(models.Model):
     
 class Comment(models.Model):
     post = models.ForeignKey('Post', on_delete=models.CASCADE, related_name='comments')  # Assuming a Post model exists
-    author = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='comments')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
     body = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     parent = models.ForeignKey('self', on_delete=models.CASCADE, related_name='replies', null=True, blank=True)
@@ -97,7 +93,7 @@ class Comment(models.Model):
         return f'Comment by {self.author.username} on {self.post}'
 
 class Bookmark(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='bookmarks')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookmarks')
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='bookmarked_by')
     created_at = models.DateTimeField(auto_now_add=True)
 
