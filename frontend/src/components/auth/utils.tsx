@@ -1,9 +1,10 @@
 import wretch from "wretch";
 import Cookies from "js-cookie";
+import { BASE_URL } from "../../lib/baseURL";
 
 
 // Base API setup for making HTTP requests
-const api = wretch("http://161.35.208.249:8000").accept("application/json");
+const api = wretch(`${BASE_URL}`).accept("application/json");
 
 
 /**
@@ -42,12 +43,15 @@ const register = (email: string, username: string, password: string) => {
   
   const logout = () => {
     const refreshToken = getToken("refresh");
-    return api.post({ refresh: refreshToken }, "/logout/");
+    const accessToken = getToken("access");
+    return api
+      .auth(`Bearer ${accessToken}`)
+      .post({ refresh: refreshToken }, "/logout/");
   };
   
   const handleJWTRefresh = () => {
     const refreshToken = getToken("refresh");
-    return api.post({ refresh: refreshToken }, "/auth/jwt/refresh");
+    return api.post({ refresh: refreshToken }, "/refresh/");
   };
 
 
