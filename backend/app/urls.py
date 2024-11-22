@@ -19,6 +19,7 @@ urlpatterns = [
     path('profile/', view_profile, name='view_profile'),
     path('profile/update/', update_profile, name='update_profile'),
     path('quiz/', quiz_views.get_quiz, name="get_quiz"),
+    path('feed/quiz/', quiz_views.view_quizzes, name="feed_quiz"),
     path('quiz-create/', quiz_views.create_quiz, name="create_quiz"),
     path('quiz-question/', quiz_views.get_question, name="get_question"),
     path('question-solve/', quiz_views.solve_question, name="solve_question"),

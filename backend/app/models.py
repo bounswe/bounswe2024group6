@@ -14,6 +14,12 @@ LEVEL_CHOICES = [
     ('NA', 'NA')
 ]
 
+class Tags(models.Model):
+    name = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.name
+
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
@@ -24,14 +30,23 @@ class Profile(models.Model):
     def __str__(self):
         return self.name
 
+
 class Quiz(models.Model):
-    id = models.AutoField(primary_key=True)
+    LEVEL_CHOICES = [
+        ('A1', 'A1'),
+        ('A2', 'A2'),
+        ('B1', 'B1'),
+        ('B2', 'B2'),
+        ('C1', 'C1'),
+        ('C2', 'C2'),
+    ]
+
     title = models.CharField(max_length=100)
     description = models.TextField()
-    # TODO: switch the below line to the following when we have a working user model
-    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='quiz_author')
-    tags = models.ManyToManyField(Tags, related_name='quizzes')
-    created_at = models.DateTimeField(default=timezone.now)
+    author = models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='quizzes')
+    tags = models.ManyToManyField('Tags', related_name='quizzes')
+    level = models.CharField(max_length=2, choices=LEVEL_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
     times_taken = models.IntegerField(default=0)
     total_score = models.FloatField(default=0)
     time_limit = models.IntegerField(default=0)
@@ -39,7 +54,23 @@ class Quiz(models.Model):
 
     def __str__(self):
         return self.title
-    
+
+
+class Question(models.Model):
+    LEVEL_CHOICES = Quiz.LEVEL_CHOICES
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='questions')
+    question_number = models.IntegerField()
+    question_text = models.TextField()
+    level = models.CharField(max_length=2, choices=LEVEL_CHOICES)
+    choice1 = models.CharField(max_length=100)
+    choice2 = models.CharField(max_length=100)
+    choice3 = models.CharField(max_length=100)
+    choice4 = models.CharField(max_length=100)
+    correct_choice = models.IntegerField()
+
+    def __str__(self):
+        return self.question_text
+
 
 class QuizProgress(models.Model):
     id = models.AutoField(primary_key=True)
@@ -64,19 +95,6 @@ class QuizResults(models.Model):
     def __str__(self):
         return self.quiz.title + ' - ' + self.user.username
 
-class Question(models.Model):
-    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='questions')
-    id = models.AutoField(primary_key=True)
-    question_number = models.IntegerField(default=0)
-    question_text = models.TextField()
-    choice1 = models.CharField(max_length=100)
-    choice2 = models.CharField(max_length=100)
-    choice3 = models.CharField(max_length=100)
-    choice4 = models.CharField(max_length=100)
-    correct_choice = models.IntegerField()
-
-    def __str__(self):
-        return self.question_text
     
 class QuestionProgress(models.Model):
     id = models.AutoField(primary_key=True)

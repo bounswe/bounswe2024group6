@@ -15,22 +15,25 @@ def create_quiz(request):
     data = request.data
     data['quiz']['author'] = request.user.id
     quizSerializer = QuizSerializer(data=data['quiz'])
-    if quizSerializer.is_valid():
-        quiz = quizSerializer.save()
-    else:
-        return Response(quizSerializer.errors, status=status.HTTP_400_BAD_REQUEST)  
+    if not quizSerializer.is_valid():
+        return Response(quizSerializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+    quiz = quizSerializer.save() 
     questions = data['questions']
+    question_serializers = []
     for question in questions:
+        question['quiz'] = quiz.id
+        question['level'] = quiz.level # TODO: change this
         questionSerializer = QuestionSerializer(data=question)
         if questionSerializer.is_valid():
-            question = questionSerializer.save()
+            question_serializers.append(questionSerializer)
         else:
+            quiz.delete()
             return Response(questionSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
-    if quizSerializer.is_valid():
-        quizSerializer.save()
-        return Response(quizSerializer.data, status=status.HTTP_201_CREATED)
-    return Response(quizSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # quizSerializer.save()
+    for question_serializer in question_serializers:
+        question_serializer.save()
+    return Response(quizSerializer.data, status=status.HTTP_201_CREATED)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

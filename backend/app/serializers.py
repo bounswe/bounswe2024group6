@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Profile, Quiz, Post, QuizResults, QuizProgress, QuestionProgress, Question, Comment
+from .models import Profile, Quiz, Post, QuizResults, QuizProgress, QuestionProgress, Question, Comment, Tags
 
 
 
@@ -73,11 +73,43 @@ class QuizResultsSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuizResults
         fields = ['quiz', 'user', 'score', 'time_taken']
+from rest_framework import serializers
+from .models import Quiz, Tags
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tags
+        fields = ['id', 'name']
 
 class QuizSerializer(serializers.ModelSerializer):
+    tags = TagSerializer(many=True)
+    level = serializers.ChoiceField(choices=Quiz.LEVEL_CHOICES) 
+
     class Meta:
         model = Quiz
-        fields = ['id', 'title', 'description', 'author', 'tags', 'created_at', 'times_taken', 'total_score', 'time_limit', 'like_count']
+        fields = [
+            'id',
+            'title',
+            'description',
+            'author',
+            'tags',
+            'level',
+            'created_at',
+            'times_taken',
+            'total_score',
+            'time_limit',
+            'like_count',
+        ]
+
+    def create(self, validated_data):
+        tags_data = validated_data.pop('tags')
+        quiz = Quiz.objects.create(**validated_data)
+
+        for tag_data in tags_data:
+            tag, _ = Tags.objects.get_or_create(name=tag_data['name'])
+            quiz.tags.add(tag)
+
+        return quiz
 
 
 class QuizProgressSerializer(serializers.ModelSerializer):
@@ -85,10 +117,23 @@ class QuizProgressSerializer(serializers.ModelSerializer):
         model = QuizProgress
         fields = ['quiz', 'user', 'current_question', 'score', 'time_taken', 'date_started', 'completed']
 
+
 class QuestionSerializer(serializers.ModelSerializer):
+    level = serializers.ChoiceField(choices=Question.LEVEL_CHOICES) 
     class Meta:
         model = Question
-        fields = ['quiz', 'id', 'question_number', 'question_text', 'choice1', 'choice2', 'choice3', 'choice4', 'correct_choice']
+        fields = [
+            'quiz',
+            'id',
+            'question_number',
+            'question_text',
+            'choice1',
+            'choice2',
+            'choice3',
+            'choice4',
+            'correct_choice',
+            'level',
+        ]
 
 class QuestionProgressSerializer(serializers.ModelSerializer):
     class Meta:
