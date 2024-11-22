@@ -73,21 +73,27 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class PostSerializer(serializers.ModelSerializer):
+    comments = serializers.SerializerMethodField()
+
     class Meta:
-        model = Post 
-        fields = ['id', 'title', 'description', 'author', 'tags', 'created_at', 'like_count']
+        model = Post
+        fields = ['id', 'title', 'description', 'author', 'tags', 'created_at', 'like_count', 'comments']
 
-
+    def get_comments(self, obj):
+        """Get all comments related to the post, including nested replies."""
+        comments = Comment.objects.filter(post=obj, parent=None)  # Only top-level comments
+        return CommentSerializer(comments, many=True).data
 
 class CommentSerializer(serializers.ModelSerializer):
-    replies = serializers.SerializerMethodField()  # To fetch nested replies
+    replies = serializers.SerializerMethodField()  # Fetch nested replies
 
     class Meta:
         model = Comment
         fields = ['id', 'post', 'author', 'body', 'created_at', 'parent', 'replies']
 
     def get_replies(self, obj):
-        # If this comment has replies, serialize them recursively
-        if obj.replies.exists():
-            return CommentSerializer(obj.replies.all(), many=True).data
+        """Recursively get all replies to a comment."""
+        replies = obj.replies.all()  # Fetch all replies related to the comment
+        if replies.exists():
+            return CommentSerializer(replies, many=True).data
         return None
