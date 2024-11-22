@@ -27,6 +27,16 @@ export type Comment = {
     };
     comments: Comment[];
   };
+
+  export type PostResponse = {
+    author: string;
+    created_at: string;
+    description: string;
+    id: number;
+    like_count: number;
+    tags: string[];
+    title: string;
+  };
   
   export type Quiz = {
     id: number;
@@ -46,5 +56,16 @@ export type Comment = {
     image: string;
     posts: Post[];
     quizzes: Quiz[];
+  };
+
+  export type ProfileResponse = {
+    comments: Comment[]; // TODO: to be removed
+    follower_count: number; 
+    following_count: number;
+    level: string;
+    name: string;
+    posts: PostResponse[];
+    image?: string; // TODO: to be made required
+    quizzes?: Quiz[]; // TODO: to be made required
   };
   
