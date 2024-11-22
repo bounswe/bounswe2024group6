@@ -28,7 +28,20 @@ def like_post(request):
         object_type="Post",
         object_id=post.id,
     )
-    return Response({"detail": "Post liked successfully.", "like_count": post.like_count}, status=status.HTTP_200_OK)
+
+    # Include like and bookmark status in the response
+    is_liked = request.user in post.liked_by.all()
+    is_bookmarked = post.bookmarked_by.filter(id=request.user.id).exists()
+
+    return Response(
+        {
+            "detail": "Post liked successfully.",
+            "like_count": post.like_count,
+            "is_liked": is_liked,
+            "is_bookmarked": is_bookmarked,
+        },
+        status=status.HTTP_200_OK
+    )
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -44,7 +57,20 @@ def unlike_post(request):
     post.liked_by.remove(request.user)
     post.like_count = post.liked_by.count()
     post.save()
-    return Response({"detail": "Post unliked successfully.", "like_count": post.like_count}, status=status.HTTP_200_OK)
+
+    # Include like and bookmark status in the response
+    is_liked = request.user in post.liked_by.all()
+    is_bookmarked = post.bookmarked_by.filter(id=request.user.id).exists()
+
+    return Response(
+        {
+            "detail": "Post unliked successfully.",
+            "like_count": post.like_count,
+            "is_liked": is_liked,
+            "is_bookmarked": is_bookmarked,
+        },
+        status=status.HTTP_200_OK
+    )
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
