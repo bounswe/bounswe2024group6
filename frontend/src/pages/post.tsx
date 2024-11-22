@@ -7,22 +7,30 @@ import { IconChevronDown } from "@tabler/icons-react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { BASE_URL } from "../lib/baseURL";
-import type { Comment, Post } from "../types.ts";
+import type { Comment, Post, PostResponse } from "../types.ts";
+import { AuthActions } from "../components/auth/utils.tsx";
+import { convertPostResponseToPost } from "../components/common/utils.tsx";
 
 export default function Post() {
   const { postID } = useParams();
   const [post, setPost] = useState<Post | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
+  const { getToken } = AuthActions();
+  const token = getToken("access");
 
   useEffect(() => {
     axios
-      .get(`${BASE_URL}/posts/`)
+      .get(`${BASE_URL}/feed/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       .then((response) => {
-        const post = response.data.posts.filter(
-          (post: Post) => post.id === parseInt(postID!)
+        const postData: PostResponse = response.data.feed.filter(
+          (post: PostResponse) => post.id === parseInt(postID!)
         )[0];
-        setPost(post);
-        setComments(post.comments);
+        setPost(convertPostResponseToPost(postData));
+        setComments(convertPostResponseToPost(postData).comments);
       })
       .catch((error) => {
         console.log(error);
@@ -68,3 +76,4 @@ export default function Post() {
     </div>
   );
 }
+
