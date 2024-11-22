@@ -22,29 +22,54 @@ class Command(BaseCommand):
             self.populate_words(words_csv)
             self.populate_translations(translations_csv)
             self.populate_relationships(relationships_csv)
-            self.stdout.write(self.style.SUCCESS("Database populated successfully!"))
         except Exception as e:
             self.stderr.write(self.style.ERROR(f"Error: {e}"))
 
     def populate_words(self, file_path):
-        self.stdout.write(f"Loading Words from {file_path}...")
         with open(file_path, newline='', encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile)
+
+            word_dict = {}
+
             for row in reader:
-                Word.objects.get_or_create(
-                    word=row['word'],
-                    defaults={
+                word_list = word_dict.get(row['word'], list())
+                info_dict = {
                         'language': row.get('language', 'eng'),
                         'level': row.get('level'),
                         'part_of_speech': row.get('part_of_speech'),
-                        'meaning': row.get('meaning', 'Meaning not available'),
+                        'meaning': row.get('explanation', 'Meaning not available'),
                         'sentence': row.get('sentence', 'Sentence not available')
+
+                }
+
+                word_list.append(info_dict)
+
+                word_dict[row['word']] = word_list
+
+
+            
+            for word in word_dict.keys():
+                defaults={
+                    'language': '', 
+                    'level': '',
+                    'part_of_speech': '',
+                    'meaning': '',
+                    'sentence': ''
                     }
+                for key in defaults.keys():
+                    parts = [info[key] for info in word_dict[word]]
+                    defaults[key] = parts
+                    
+                
+
+                result = Word.objects.get_or_create(
+                    word=word,
+                    defaults=defaults
                 )
-        self.stdout.write(self.style.SUCCESS("Words loaded successfully."))
+
+                
 
     def populate_translations(self, file_path):
-        self.stdout.write(f"Loading Translations from {file_path}...")
         with open(file_path, newline='', encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
@@ -59,21 +84,17 @@ class Command(BaseCommand):
                         'sentence': 'No example provided'
                     }
                 )
-                if created:
-                    self.stdout.write(f"Created missing Word: {row['word']}")
 
                 # Create or get the Translation
                 Translation.objects.get_or_create(
                     word=word,
                     translation=row['turkish_translation']
                 )
-        self.stdout.write(self.style.SUCCESS("Translations loaded successfully."))
 
 
 
 
     def populate_relationships(self, file_path):
-        self.stdout.write(f"Loading Relationships from {file_path}...")
         with open(file_path, newline='', encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
@@ -100,9 +121,6 @@ class Command(BaseCommand):
                         }
                     )
 
-                    # If the related word was created, log it
-                    if created:
-                        self.stdout.write(f"Created missing related word '{related_word}'.")
 
                     # Create the relationship in the Relationship table
                     Relationship.objects.get_or_create(
@@ -114,7 +132,6 @@ class Command(BaseCommand):
                 except Word.DoesNotExist:
                     self.stderr.write(f"Word '{row['word']}' not found. Skipping relationship.")
         
-        self.stdout.write(self.style.SUCCESS("Relationships loaded successfully."))
 
 
 

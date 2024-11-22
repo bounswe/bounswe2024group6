@@ -1,7 +1,7 @@
 from django.urls import path
 from app.views import *
 from app.views_directory.profileviews import view_profile, update_profile
-from app.views_directory.wordviews import get_word_info, get_turkish_translation, get_similar_level_and_part_of_speech, get_word_details
+from app.views_directory.wordviews import get_word_info, get_turkish_translation, get_similar_level_and_part_of_speech, get_word_details,get_lexvo_info
 
 urlpatterns = [
     path('', index , name='index_page'),
@@ -19,4 +19,5 @@ urlpatterns = [
     path('get-word-details/<str:word>/', get_word_details, name='get_word_details'),
     path('get-translation/<str:word>/', get_turkish_translation, name='get_turkish_translation'),
     path('get-related-words/<str:word>/', get_similar_level_and_part_of_speech, name='get_similar_level_and_part_of_speech'),
+    path('get-lexvo-info/<str:word>/', get_lexvo_info, name='get_lexvo_info'),
 ]

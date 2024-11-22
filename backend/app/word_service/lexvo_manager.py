@@ -47,7 +47,8 @@ def get_meanings_uris_and_translations_with_cache(word):
             meanings_uris.append(str(obj)) 
         elif 'translation' in pred:
             translations.append(str(obj))
-    
+
+
     CACHE[word] = (meanings_uris, translations)
     return meanings_uris, translations
 
@@ -106,9 +107,10 @@ def search_lexvo(word):
     meanings_details = []
     
     for uri in meanings_uris:
-        detailed_info = get_detailed_info(uri)
-        if detailed_info:
-            meanings_details.append(detailed_info)
+        if uri[7:12] == "lexvo":
+            detailed_info = get_detailed_info(uri)
+            if detailed_info:
+                meanings_details.append(detailed_info)
 
     for translation_uri in translations:
         if len(translation_uri.split('/')) > 1 and translation_uri.split('/')[5] == "tur":
@@ -120,7 +122,9 @@ def search_lexvo(word):
     }
 
 def get_final_info(word):
+    print(word)
     results = decode_data(search_lexvo(word))
+    print(results)
     final_info = {
         "word": word,
         "meanings": [],
