@@ -7,7 +7,9 @@ import ComposePostButton from "../components/post/compose-post-button.tsx";
 import PostCard from "../components/post/post-card.tsx";
 import PostCardSkeleton from "../components/post/post-card-skeleton.tsx";
 import { BASE_URL } from "../lib/baseURL";
-import type { Post } from "../types.ts";
+import type { Post, PostResponse } from "../types.ts";
+import { AuthActions } from "../components/auth/utils.tsx";
+import { convertPostResponseToPost } from "../components/common/utils.tsx";
 
 const Tags = [
   "@Vocabulary",
@@ -26,13 +28,19 @@ const SortFilters = ["Most Recent", "Most Liked", "Most Commented"];
 
 export default function Forum() {
   const [posts, setPosts] = useState<Post[]>([]);
+  const { getToken } = AuthActions();
+  const token = getToken("access"); 
 
   useEffect(() => {
     axios
-      .get(`${BASE_URL}/posts/`)
+      .get(`${BASE_URL}/feed/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       .then((response) => {
-        const posts = response.data.posts;
-        setPosts(posts);
+        const postData: PostResponse[] = response.data.feed;
+        setPosts(postData.map(convertPostResponseToPost));
       })
       .catch((error) => {
         console.log(error);

@@ -5,25 +5,43 @@ import PostCard from "../components/post/post-card.tsx";
 import PostCardSkeleton from "../components/post/post-card-skeleton.tsx";
 import axios from "axios";
 import { BASE_URL } from "../lib/baseURL";
-import type { Profile } from "../types.ts";
+import type { Profile, ProfileResponse } from "../types.ts";
 import {
   IconBookmark,
   IconSquareRoundedCheck,
   IconBorderAll,
   IconClipboardText,
 } from "@tabler/icons-react";
+import { AuthActions } from "../components/auth/utils.tsx";
+import {
+  convertPostResponseToPost,
+  convertProfileResponseToProfile,
+} from "../components/common/utils.tsx";
 
 export default function Profile() {
   const [activeSection, setActiveSection] = useState("posts");
   const [profile, setProfile] = useState<Profile | null>(null);
+  const { getToken } = AuthActions();
+  const token = getToken("access");
 
   useEffect(() => {
     axios
-      .get(`${BASE_URL}/profile_mock/`)
+      .post(
+        `${BASE_URL}/profile/`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      )
       .then((response) => {
-        const data = response.data.profile;
+        const data: ProfileResponse = response.data;
         console.log(data);
-        setProfile(data);
+        const profile = convertProfileResponseToProfile(data);
+        console.log(profile);
+        setProfile(profile);
       })
       .catch((error) => {
         console.log(error);
@@ -87,24 +105,28 @@ export default function Profile() {
             {profile && (
               <div className="flex flex-col p-5 items-center">
                 {activeSection === "quizzes" ? (
-                  <div className="p-5">
-                  </div>
+                  <div className="p-5"></div>
                 ) : (
                   <div className="flex flex-col gap-4 items-center">
                     {profile &&
-                      profile.posts.map((post) => (
-                        <Suspense key={post.id} fallback={<PostCardSkeleton />}>
-                          <PostCard
+                      profile.posts.map((post) => {
+                        return (
+                          <Suspense
                             key={post.id}
-                            id={post.id}
-                            username={post.author.username}
-                            content={post.post.content}
-                            timePassed={post.post.timestamp}
-                            likeCount={post.engagement.likes}
-                            tags={post.post.tags} // if exists
-                          />
-                        </Suspense>
-                      ))}
+                            fallback={<PostCardSkeleton />}
+                          >
+                            <PostCard
+                              id={post.id}
+                              username={post.author.username}
+                              title={post.post.title}
+                              content={post.post.content}
+                              timePassed={post.post.timestamp}
+                              likeCount={post.engagement.likes}
+                              tags={post.post.tags}
+                            />
+                          </Suspense>
+                        );
+                      })}
                   </div>
                 )}
               </div>
@@ -137,3 +159,4 @@ export default function Profile() {
     </div>
   );
 }
+

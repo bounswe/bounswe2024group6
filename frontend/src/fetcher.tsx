@@ -1,12 +1,13 @@
 import wretch, { Wretch, WretchError } from "wretch";
 import { AuthActions } from "./components/auth/utils";
+import { BASE_URL } from "./lib/baseURL";
 
 // Extract necessary functions from the AuthActions utility.
 const { handleJWTRefresh, storeToken, getToken } = AuthActions();
 
 const api = () => {
   return (
-    wretch("http://161.35.208.249:8000")
+    wretch(`${BASE_URL}`)
       // Initialize authentication with the access token.
       .auth(`Bearer ${getToken("access")}`)
       // Catch 401 errors to refresh the token and retry the request.
