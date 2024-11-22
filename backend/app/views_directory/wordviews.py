@@ -16,8 +16,7 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from ..serializers import *
 from django.shortcuts import render
-from ..models import Tags
-from ..models import Quiz, Relationship, Word, Translation
+from ..models import  Relationship, Word, Translation
 from ..word_service import lexvo_manager
 import requests
 

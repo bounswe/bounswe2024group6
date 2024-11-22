@@ -25,7 +25,7 @@ def get_user_post_feed(request):
             "author": post.author,
             "created_at": post.created_at,
             "like_count": post.like_count,
-            "tags": [tag.name for tag in post.tags.all()]
+            "tags": [tag for tag in post.tags]
         }
         for post in random_posts
     ]

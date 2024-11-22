@@ -2,6 +2,8 @@ from rest_framework import generics, status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenRefreshView
+
 from django.contrib.auth.models import User
 from ..serializers import UserSerializer
 from rest_framework.response import Response
@@ -25,3 +27,6 @@ class LogoutView(generics.GenericAPIView):
             return Response({"detail": "Successfully logged out."}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+class RefreshTokenView(TokenRefreshView):
+    permission_classes = (AllowAny,)
