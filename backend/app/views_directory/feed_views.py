@@ -28,7 +28,7 @@ def get_user_post_feed(request):
             "like_count": post.like_count,
             "tags": [tag for tag in post.tags],
             "comments": CommentSerializer(
-                Comment.objects.filter(post=post, parent=None),  # Only top-level comments
+                Comment.objects.filter(post=post),  # Fetch all comments for the post
                 many=True
             ).data,
         }
