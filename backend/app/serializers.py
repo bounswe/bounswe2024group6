@@ -115,7 +115,7 @@ class QuizSerializer(serializers.ModelSerializer):
         
         # Transform tags to a list of names
         representation['tags'] = [tag['name'] for tag in representation['tags']]
-        
+        representation['author'] = { 'id' : instance.author.id, 'username' : instance.author.username } 
         return representation
 
 class QuizProgressSerializer(serializers.ModelSerializer):
@@ -126,6 +126,7 @@ class QuizProgressSerializer(serializers.ModelSerializer):
 
 class QuestionSerializer(serializers.ModelSerializer):
     level = serializers.ChoiceField(choices=Question.LEVEL_CHOICES) 
+    quiz = QuizSerializer()
     class Meta:
         model = Question
         fields = [
@@ -140,6 +141,12 @@ class QuestionSerializer(serializers.ModelSerializer):
             'correct_choice',
             'level',
         ]
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation.pop('quiz')
+        representation['quiz_id'] = instance.quiz.id
+        return representation 
 
 class QuestionProgressSerializer(serializers.ModelSerializer):
     class Meta:

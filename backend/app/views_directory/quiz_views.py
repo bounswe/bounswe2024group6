@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
-from app.serializers import QuizSerializer, QuizResultsSerializer, QuestionSerializer
+from app.serializers import QuizSerializer, QuizResultsSerializer, QuestionSerializer, QuizProgressSerializer, QuestionProgressSerializer
 from django.contrib.auth.models import User
 from app.models import Quiz, QuizResults, Question, QuizProgress, QuestionProgress
 
@@ -25,6 +25,7 @@ def create_quiz(request):
         question['level'] = quiz.level # TODO: change this
         questionSerializer = QuestionSerializer(data=question)
         if questionSerializer.is_valid():
+            print(questionSerializer.validated_data['question_number'])
             question_serializers.append(questionSerializer)
         else:
             quiz.delete()
@@ -54,6 +55,34 @@ def submit_quiz(request):
     quizResult = QuizResults(quiz=quiz, user=request.user, score=score, time_taken=request.data['time_taken'])
     quizResult.save()
     return Response({'score': score}, status=status.HTTP_200_OK)
+
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def start_quiz(request):
+    quiz = get_object_or_404(Quiz, id=request.data['quiz_id'])     
+    progress_data = {
+    'quiz': quiz.id,
+    'user': request.user.id,
+    }
+    progress = QuizProgressSerializer(data = progress_data)
+    if progress.is_valid():
+        progress.save()
+    else:
+        return Response(progress.errors, status=status.HTTP_400_BAD_REQUEST)
+    data = {}
+    # print([x.quiz.id for x in Question.objects.all()])
+    first_question = Question.objects.get(quiz=quiz, question_number=1)
+    questionProgress = QuestionProgressSerializer(data = {"question": first_question.id, "user":request.user.id})
+    if questionProgress.is_valid():
+        questionProgress.save()
+    else:
+        return Response(questionProgress.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    data = QuestionSerializer(first_question).data
+    # data['is_correct'] = is_correct
+    return Response(data, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
