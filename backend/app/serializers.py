@@ -126,7 +126,6 @@ class QuizProgressSerializer(serializers.ModelSerializer):
 
 class QuestionSerializer(serializers.ModelSerializer):
     level = serializers.ChoiceField(choices=Question.LEVEL_CHOICES) 
-    quiz = QuizSerializer()
     class Meta:
         model = Question
         fields = [

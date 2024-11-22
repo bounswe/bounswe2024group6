@@ -15,7 +15,9 @@ def create_quiz(request):
     data = request.data
     data['quiz']['author'] = request.user.id
     quizSerializer = QuizSerializer(data=data['quiz'])
+    quiz = None
     if not quizSerializer.is_valid():
+        print("was")
         return Response(quizSerializer.errors, status=status.HTTP_400_BAD_REQUEST) 
     quiz = quizSerializer.save() 
     questions = data['questions']
@@ -72,7 +74,7 @@ def start_quiz(request):
     else:
         return Response(progress.errors, status=status.HTTP_400_BAD_REQUEST)
     data = {}
-    # print([x.quiz.id for x in Question.objects.all()])
+
     first_question = Question.objects.get(quiz=quiz, question_number=1)
     questionProgress = QuestionProgressSerializer(data = {"question": first_question.id, "user":request.user.id})
     if questionProgress.is_valid():
@@ -90,20 +92,34 @@ def solve_question(request):
     question = get_object_or_404(Question, id=request.data['question_id'])
     is_correct = question.correct_choice == request.data['answer']
       
-    progress = get_object_or_404(QuizProgress, quiz=question.quiz, user=request.user) # must be unique
-    questionProgress = QuestionProgress.objects.get_or_create(question=question, user=request.user)
-    questionProgress.update(answer=request.data['answer'])
-    questionProgress.save()
-    data = {}
-    # data['is_correct'] = is_correct
-    return Response(data, status=status.HTTP_200_OK)
+    question_progress = get_object_or_404(QuestionProgress, question=question, user=request.user)
+
+    # Serialize the existing instance with updated data
+    question_progress_serializer = QuestionProgressSerializer(
+        instance=question_progress,
+        data={"answer": request.data['answer']},
+        partial=True  # Allow partial updates
+    )
+
+    if question_progress_serializer.is_valid():
+        question_progress_serializer.save()
+        return Response({"detail": "Question progress updated."}, status=status.HTTP_200_OK)
+    else:
+        return Response(question_progress_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_question(request):
     question = get_object_or_404(Question, question_number = request.data['question_number'], quiz=request.data['quiz_id'])
-    return Response({'question': question.question_text, 'choices': [question.choice1, question.choice2, question.choice3, question.choice4]}, status=status.HTTP_200_OK)
+    print(question)
+    questionProgress = QuestionProgress.objects.get(question=question.id, user=request.user.id)
+    previous_answer = None
+    if questionProgress is not None:
+        previous_answer = questionProgress.answer
+    
+    return Response({'question': question.question_text, 'choices': [question.choice1, question.choice2, question.choice3, question.choice4], 'previous_answer': previous_answer}, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])

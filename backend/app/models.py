@@ -102,7 +102,10 @@ class QuestionProgress(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='question_progress')
     answer = models.IntegerField(default=0)
     time_taken = models.IntegerField(default=0)
-    
+
+    class Meta:
+        unique_together = ('question', 'user')  # Enforce unique combination of question and user
+
     def __str__(self):
         return self.question.question_text + ' - ' + self.user.username
 
