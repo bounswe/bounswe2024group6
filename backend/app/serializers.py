@@ -86,7 +86,7 @@ class UserSerializer(serializers.ModelSerializer):
 class QuizResultsSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuizResults
-        fields = ['quiz', 'user', 'score', 'time_taken']
+        fields = ['id', 'quiz', 'user', 'score', 'time_taken']
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)

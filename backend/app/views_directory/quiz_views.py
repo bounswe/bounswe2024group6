@@ -69,9 +69,17 @@ def submit_quiz(request):
 
     score = sum([1 for question_progress in question_progresses if question_progress.question.correct_choice == question_progress.answer])
 
-    quizResults = QuizResultsSerializer(data = {'quiz': quiz.id, 'user': request.user.id, 'score': score, 'time_taken': quiz_progress.quiz_attempt})
-    if quizResults.is_valid():
-        quizResults.save()
+    quiz_result_serializer = QuizResultsSerializer(data={
+        'quiz': quiz.id,
+        'user': request.user.id,
+        'score': score,
+        'time_taken': quiz_progress.quiz_attempt
+    })
+
+    if quiz_result_serializer.is_valid():
+        quiz_result = quiz_result_serializer.save()  # Save and get the instance
+    else:
+        return Response(quiz_result.errors, status=status.HTTP_400_BAD_REQUEST)
 
     quiz_progress.completed = True
     quiz_progress.save()
@@ -79,8 +87,9 @@ def submit_quiz(request):
 
     # update time taken of quiz in database
     quiz.times_taken += 1
+    result_url = f"/quiz/result/{quiz_result.id}"
 
-    return Response({'score': score}, status=status.HTTP_200_OK)
+    return Response({'result_url': result_url}, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
@@ -90,6 +99,21 @@ def get_quiz_results(request):
     serializer = QuizResultsSerializer(quizResults, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_specific_quiz_result(request, quiz_progress_id):
+    """
+    Retrieves the quiz result for the authenticated user for the given quiz ID.
+    """
+    # Fetch the quiz to validate its existence
+
+    # Fetch the quiz result for the authenticated user
+    quiz_result = get_object_or_404(QuizResults, id=quiz_progress_id, user=request.user)
+
+    # Serialize and return the quiz result
+    serializer = QuizResultsSerializer(quiz_result)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -180,8 +204,8 @@ def get_question(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_quiz(request):
-    quiz = get_object_or_404(Quiz, id=request.data['quiz_id'])
+def get_quiz(request, quiz_id):
+    quiz = get_object_or_404(Quiz, id=quiz_id)
     serializer = QuizSerializer(quiz, context = {'request': request})
     
     return Response(serializer.data, status=status.HTTP_200_OK)
