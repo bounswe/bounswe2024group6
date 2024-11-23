@@ -1,7 +1,10 @@
 import { http, HttpResponse } from "msw";
+import { BASE_URL } from "../lib/baseURL";
+
+const backend = (path: string) => `${BASE_URL}${path}`;
 
 export const handlers = [
-  http.get("/feed", () => {
+  http.get(backend("/feed"), () => {
     return HttpResponse.json({
       feed: [
         {
@@ -17,6 +20,14 @@ export const handlers = [
           comments: [],
         },
       ],
+    });
+  }),
+  http.post(backend("/post/like/"), () => {
+    return HttpResponse.json({
+      detail: "Post liked successfully.",
+      like_count: 1,
+      is_liked: true,
+      is_bookmarked: false,
     });
   }),
 ];

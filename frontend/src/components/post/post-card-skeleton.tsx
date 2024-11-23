@@ -2,7 +2,7 @@ import { Card, Skeleton } from "@nextui-org/react";
 
 export default function PostCardSkeleton() {
   return (
-    <Card className="w-[740px] h-[240px] space-y-5 p-4" radius="lg">
+    <Card className="w-[740px] h-[240px] space-y-5 p-4" radius="lg" data-testid="post-card-skeleton">
       <div>
         <Skeleton className="flex rounded-full w-12 h-12" />
       </div>

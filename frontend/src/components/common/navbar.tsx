@@ -66,7 +66,7 @@ export default function Navbar() {
   );
 
   return (
-    <div className="w-screen p-2 shadow-none">
+    <div className="w-screen p-2 shadow-none" data-testid="navbar">
       <Card className="flex flex-row w-full px-5 py-3 rounded-full shadow-md">
         <div className="flex-1 flex flex-row gap-6 items-center">
           <div
