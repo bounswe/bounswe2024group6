@@ -23,18 +23,29 @@ const Tags = [
   "#General",
   "#Fun",
 ];
-const DifficultyTags = ["A1", "A2", "B1", "B2", "C1", "C2"];
+const DifficultyTags = ["#A1", "#A2", "#B1", "#B2", "#C1", "#C2",];
 const SortFilters = ["Most Recent", "Most Liked", "Most Commented"];
 
 export default function Forum() {
   const [posts, setPosts] = useState<Post[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const { getToken } = AuthActions();
   const token = getToken("access"); 
 
   const [sortFilter, setSortFilter] = useState<string>("Most Recent");
-
   const handleSelectionChange = (e) => {
     setSortFilter(e.target.value);
+  };
+
+
+
+  const handleTagClick = (tag: string) => {
+    if (selectedTags.includes(tag)) {
+      setSelectedTags(selectedTags.filter((t) => t !== tag));
+    } else {
+      setSelectedTags([...selectedTags, tag]);
+    }
+
   };
 
   useEffect(() => {
@@ -54,7 +65,15 @@ export default function Forum() {
       });
   }, []);
 
-  const sortedPosts = [...posts].sort((a, b) => {
+  const filteredPosts = posts.filter((post) => {
+    // Show all posts if no tags are selected
+    if (selectedTags.length === 0) return true;
+  
+    // Check if the post has at least one tag from the selectedTags
+    return post.post.tags.some((tag) => selectedTags.includes(tag));
+  });
+
+  const sortedPosts = [...filteredPosts].sort((a, b) => {
     switch (sortFilter) {
       case "Most Recent":
         return new Date(b.post.created_at).getTime() - new Date(a.post.created_at).getTime();
@@ -84,7 +103,8 @@ export default function Forum() {
             className="w-32 text-black"
           >
             {DifficultyTags.map((tag) => (
-              <SelectItem key={tag}>{tag}</SelectItem>
+              <SelectItem onPress={() => handleTagClick(tag)} key={tag}>{tag}</SelectItem>
+
             ))}
           </Select>
           <Select
@@ -93,7 +113,7 @@ export default function Forum() {
             className="w-32 text-black"
           >
             {Tags.map((tag) => (
-              <SelectItem key={tag}>{tag}</SelectItem>
+              <SelectItem onPress={() => handleTagClick(tag)} key={tag}>{tag}</SelectItem>
             ))}
           </Select>
         </div>
