@@ -24,6 +24,7 @@ class Tags(models.Model):
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     name = models.CharField(max_length=100,null=True, blank=True)
+    bio = models.TextField(null=True, blank=True)
     following = models.ManyToManyField("self", symmetrical=False, related_name="followers", blank=True)
     level = models.CharField(max_length=2, choices=LEVEL_CHOICES, default='A1')
 
@@ -165,6 +166,7 @@ class ActivityStream(models.Model):
     object_type = models.CharField(max_length=50)  # Quiz, Post
     object_id = models.IntegerField()  #Quiz ID Post ID
     timestamp = models.DateTimeField(default=now)  # timestamp
+    target = models.CharField(max_length=100, null=True, blank=True)  # Add this field
 
     def __str__(self):
         return f"{self.actor.username} {self.verb} {self.object_type}:{self.object_id} at {self.timestamp}"
@@ -176,6 +178,8 @@ class Comment(models.Model):
     body = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     parent = models.ForeignKey('self', on_delete=models.CASCADE, related_name='replies', null=True, blank=True)
+    like_count = models.IntegerField(default=0)
+    liked_by = models.ManyToManyField(User, related_name='liked_comments', blank=True)
 
     def __str__(self):
         return f'Comment by {self.author.username} on {self.post}'

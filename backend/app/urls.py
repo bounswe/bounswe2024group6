@@ -4,10 +4,10 @@ from app.views_directory.profileviews import view_profile, update_profile, view_
 from app.views_directory.wordviews import get_word_info, get_turkish_translation, get_similar_level_and_part_of_speech, get_word_details
 from app.views_directory.follow_unfollow import follow_user, unfollow_user 
 from app.views_directory.authentication_endpoints import RegisterView, LoginView, LogoutView, RefreshTokenView
-from app.views_directory.comments import add_comment, delete_comment, like_comment, unlike_comment
+from app.views_directory.comments import add_comment, delete_comment, like_comment, unlike_comment, get_comment_by_id
 from app.views_directory.postviews import like_post, unlike_post
 from app.views_directory.activity_streams import activities_by_user, activities_for_user_as_object
-from app.views_directory.postviews import create_post, delete_post, get_posts_of_user
+from app.views_directory.postviews import create_post, delete_post, get_posts_of_user, get_post_details
 from app.views_directory.feed_views import get_user_post_feed
 from app.views_directory.bookmark_views import bookmark_post, unbookmark_post, get_bookmarked_posts  
 
@@ -26,7 +26,6 @@ urlpatterns = [
     path('quiz/submit/', quiz_views.submit_quiz, name="submit_quiz"),
     path('quiz/start/', quiz_views.start_quiz, name="start_quiz"),
     path('quiz/results/', quiz_views.get_quiz_results, name="get_quiz_results"),
-
     path('create-post/',create_post, name='create_post'),
     path('signup/', RegisterView.as_view(), name='auth_register'),
     path('login/', LoginView.as_view(), name='auth_login'),
@@ -38,6 +37,8 @@ urlpatterns = [
     path('get-related-words/<str:word>/', get_similar_level_and_part_of_speech, name='get_similar_level_and_part_of_speech'),
     path('profile/follow/', follow_user, name='follow_user'),
     path('profile/unfollow/', unfollow_user, name='unfollow_user'),
+    path('post/', get_post_details, name='get_post_details'),
+    path('comment/', get_comment_by_id, name='get_comment_by_id'),
     path('post/like/', like_post, name='like_post'),
     path('post/unlike/', unlike_post, name='unlike_post'),
     path('post/comment/add/', add_comment, name='add_comment'),
