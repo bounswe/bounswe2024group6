@@ -26,6 +26,8 @@ urlpatterns = [
     path('quiz/submit/', quiz_views.submit_quiz, name="submit_quiz"),
     path('quiz/start/', quiz_views.start_quiz, name="start_quiz"),
     path('quiz/results/', quiz_views.get_quiz_results, name="get_quiz_results"),
+    path('quiz/like/', quiz_views.like_quiz, name="like_quiz"),
+    path('quiz/bookmark/', quiz_views.bookmark_quiz, name="bookmark_quiz"),
 
     path('create-post/',create_post, name='create_post'),
     path('signup/', RegisterView.as_view(), name='auth_register'),

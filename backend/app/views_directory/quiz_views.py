@@ -44,7 +44,7 @@ def create_quiz(request):
 def view_quizzes(request):
     quizzes = Quiz.objects.all()
     # TODO: paginate the results
-    serializer = QuizSerializer(quizzes, many=True)
+    serializer = QuizSerializer(quizzes, many=True, context = {'request': request})
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
@@ -126,14 +126,7 @@ def start_quiz(request):
 
     for question in Question.objects.filter(quiz=quiz):
         question_progress = QuestionProgress.objects.create(quiz_progress= quiz_progress, question= question)
-        question_progress.answer = 0
-
-        question_progress_serializer = QuestionProgressSerializer(
-            instance=question_progress,
-            data={"answer": 0},
-            partial=True
-        )
-
+        
     # send all questions to the user
     questions = Question.objects.filter(quiz=quiz)
     data = {"questions": []}
@@ -189,7 +182,37 @@ def get_question(request):
 @permission_classes([IsAuthenticated])
 def get_quiz(request):
     quiz = get_object_or_404(Quiz, id=request.data['quiz_id'])
-    serializer = QuizSerializer(quiz)
+    serializer = QuizSerializer(quiz, context = {'request': request})
     
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def bookmark_quiz(request):
+    quiz = get_object_or_404(Quiz, id=request.data['quiz_id'])
+
+    if request.user in quiz.bookmarked_by.all():
+        quiz.bookmarked_by.remove(request.user)  # Unbookmark if already bookmarked
+        return Response({'message': 'Quiz unbookmarked'}, status=status.HTTP_200_OK)
+
+    quiz.bookmarked_by.add(request.user)  # Add bookmark
+    return Response({'message': 'Quiz bookmarked'}, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def like_quiz(request):
+    quiz = get_object_or_404(Quiz, id=request.data['quiz_id'])
+
+    if request.user in quiz.liked_by.all():
+        quiz.liked_by.remove(request.user)  # Unlike if already liked
+        quiz.like_count -= 1
+        quiz.save()
+        return Response({'message': 'Quiz unliked'}, status=status.HTTP_200_OK)
+
+    quiz.liked_by.add(request.user)  # Add like
+    quiz.like_count += 1
+    quiz.save()
+    return Response({'message': 'Quiz liked'}, status=status.HTTP_200_OK)
