@@ -33,7 +33,7 @@ const PostCard: React.FC<PostCardProps> = ({
 
 
   return (
-    <TouchableOpacity onPress={onPress}>
+    <TouchableOpacity onPress={onPress} testID='card'>
       <View style={styles.cardContainer}>
         <View style={styles.header}>
           <Text style={styles.title}>{title}</Text>
@@ -53,14 +53,14 @@ const PostCard: React.FC<PostCardProps> = ({
               <Text style={styles.upvoteCount}>{likes}</Text>
             </TouchableOpacity>
              */}
-            <TouchableOpacity style={styles.likeButton} onPress={() => onUpvote(id)}>
+            <TouchableOpacity style={styles.likeButton} onPress={() => onUpvote(id)} testID={'likeButton'}>
              <Text style={styles.quizLikes}>
             <Image source={liked ? require('../../assets/images/like-2.png') : require('../../assets/images/like-1.png')}style={styles.icon} /> 
             {likes}
             </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={onBookmark} style={styles.bookmarkButton}>
+            <TouchableOpacity onPress={onBookmark} style={styles.bookmarkButton} testID={'bookmarkButton'}>
               <FontAwesome 
                 name={isBookmarked ? 'bookmark' : 'bookmark-o'} 
                 size={20} 
