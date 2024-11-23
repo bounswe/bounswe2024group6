@@ -9,6 +9,9 @@ import {
   Divider,
   Button,
   cn,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
 } from "@nextui-org/react";
 import {
   IconBookmark,
@@ -23,6 +26,7 @@ import { PostResponse } from "../../types";
 import { convertPostResponseToPost } from "../common/utils";
 import axios from "axios";
 import { BASE_URL } from "../../lib/baseURL";
+import { UserCard } from "../common/user-card";
 
 const maxLength = 250; // Maximum length of the content to be displayed
 
@@ -96,17 +100,27 @@ export default function PostCard({
       <CardHeader className="flex flex-col items-start gap-2">
         <div className="flex w-full justify-between">
           <div className="flex gap-3">
-            <Avatar
-              isBordered
-              radius="full"
-              className="w-6 h-6 text-tiny"
-              src="https://nextui.org/avatars/avatar-1.png"
-            />
-            <div className="flex flex-col gap-1 items-start justify-center">
-              <h5 className="text-small tracking-tight text-default-400">
-                {username}
-              </h5>
-            </div>
+            <Popover showArrow placement="bottom">
+              <PopoverTrigger>
+                <div className="flex flex-row gap-3 items-center">
+                  <Avatar
+                    as="button"
+                    isBordered
+                    radius="full"
+                    className="w-6 h-6 text-tiny"
+                    src="https://nextui.org/avatars/avatar-1.png"
+                  />
+                  <div className="flex flex-col gap-1 items-start justify-center">
+                    <h5 className="text-small tracking-tight text-default-400">
+                      {username}
+                    </h5>
+                  </div>
+                </div>
+              </PopoverTrigger>
+              <PopoverContent className="p-1">
+                <UserCard />
+              </PopoverContent>
+            </Popover>
           </div>
           <p className="text-default-400 text-small">{timePassed}</p>
         </div>
