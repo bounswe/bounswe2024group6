@@ -40,7 +40,6 @@ def create_quiz(request):
     return Response(quizSerializer.data, status=status.HTTP_201_CREATED)
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
 def view_quizzes(request):
     quizzes = Quiz.objects.all()
     # TODO: paginate the results
