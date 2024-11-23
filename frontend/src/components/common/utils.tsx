@@ -42,6 +42,7 @@ export const convertPostResponseToPost = (postResponse: PostResponse): Post => {
     engagement: {
       likes: postResponse.like_count,
       comments: 0,
+      is_liked: postResponse.is_liked,
     },
     comments: [],
   };

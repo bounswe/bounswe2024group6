@@ -38,6 +38,7 @@ type Props = {
   timePassed: string;
   likeCount: number;
   tags?: string[];
+  initialIsLiked: boolean;
 };
 
 export default function PostCard({
@@ -48,9 +49,10 @@ export default function PostCard({
   timePassed,
   likeCount,
   tags,
+  initialIsLiked,
 }: Props) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isLiked, setIsLiked] = useState(false);
+  const [isLiked, setIsLiked] = useState(initialIsLiked);
   const [likes, setLikes] = useState(likeCount);
   const [isBookmarked, setIsBookmarked] = useState(false); // Example state for bookmark
   const navigate = useNavigate();

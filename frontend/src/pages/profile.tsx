@@ -151,6 +151,7 @@ export default function Profile() {
                               timePassed={post.post.timestamp}
                               likeCount={post.engagement.likes}
                               tags={post.post.tags}
+                              initialIsLiked={post.engagement.is_liked}
                             />
                           </Suspense>
                         );

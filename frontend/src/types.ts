@@ -7,6 +7,7 @@ export type Comment = {
     comment: string;
     timestamp: string;
     likes: number;
+    is_liked: boolean;
   };
   
   export type Post = {
@@ -25,6 +26,7 @@ export type Comment = {
     engagement: {
       likes: number;
       comments: number;
+      is_liked: boolean;
     };
     comments: Comment[];
   };
@@ -37,6 +39,7 @@ export type Comment = {
     like_count: number;
     tags: string[];
     title: string;
+    is_liked: boolean;
   };
   
   export type Quiz = {
