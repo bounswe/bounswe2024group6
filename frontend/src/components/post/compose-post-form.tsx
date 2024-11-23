@@ -161,6 +161,7 @@ export default function ComposePostForm() {
                 tags={[...selectedTags, ...(diffTag ? [diffTag] : [])]}
                 likeCount={0}
                 timePassed="Just now"
+                initialIsLiked={false}
               />
             </ModalContent>
           </Modal>

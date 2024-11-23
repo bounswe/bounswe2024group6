@@ -50,6 +50,7 @@ export default function Post() {
               timePassed={post.post.timestamp}
               likeCount={post.engagement.likes}
               tags={post.post.tags}
+              initialIsLiked={post.engagement.is_liked}
             />
           </Suspense>
         )}
@@ -69,6 +70,7 @@ export default function Post() {
               content={comment.comment}
               timePassed={comment.timestamp}
               likeCount={comment.likes}
+              initialIsLiked={comment.is_liked}
             />
           </Suspense>
         ))}
