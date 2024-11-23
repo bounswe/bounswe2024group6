@@ -105,10 +105,12 @@ def search_lexvo(word):
     turkish_translations = []
     meanings_details = []
     
+    
     for uri in meanings_uris:
-        detailed_info = get_detailed_info(uri)
-        if detailed_info:
-            meanings_details.append(detailed_info)
+        if uri[7:12] == "lexvo":
+            detailed_info = get_detailed_info(uri)
+            if detailed_info:
+                meanings_details.append(detailed_info)
 
     for translation_uri in translations:
         if len(translation_uri.split('/')) > 1 and translation_uri.split('/')[5] == "tur":
