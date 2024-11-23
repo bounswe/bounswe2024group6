@@ -127,7 +127,7 @@ class QuizSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         tags_data = validated_data.pop('tags')
         quiz = Quiz.objects.create(**validated_data)
-
+        
         for tag_data in tags_data:
             tag, _ = Tags.objects.get_or_create(name=tag_data['name'])
             quiz.tags.add(tag)
@@ -139,6 +139,9 @@ class QuizSerializer(serializers.ModelSerializer):
         representation.pop('bookmarked_by')
         representation.pop('liked_by')
         
+        total_score = representation.pop('total_score')
+        representation['average_score'] = total_score / instance.times_taken if instance.times_taken > 0 else 0
+
         # Transform tags to a list of names
         representation['tags'] = [tag['name'] for tag in representation['tags']]
         representation['author'] = { 'id' : instance.author.id, 'username' : instance.author.username } 

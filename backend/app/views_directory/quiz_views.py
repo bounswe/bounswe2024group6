@@ -77,7 +77,7 @@ def submit_quiz(request):
     })
 
     if quiz_result_serializer.is_valid():
-        quiz_result = quiz_result_serializer.save()  # Save and get the instance
+        quiz_result = quiz_result_serializer.save() 
     else:
         return Response(quiz_result.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -87,6 +87,8 @@ def submit_quiz(request):
 
     # update time taken of quiz in database
     quiz.times_taken += 1
+    quiz.total_score += score
+    quiz.save()
     result_url = f"/quiz/result/{quiz_result.id}"
 
     return Response({'result_url': result_url}, status=status.HTTP_200_OK)
