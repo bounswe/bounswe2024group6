@@ -44,7 +44,7 @@ def create_quiz(request):
 def view_quizzes(request):
     quizzes = Quiz.objects.all()
     # TODO: paginate the results
-    serializer = QuizSerializer(quizzes, many=True)
+    serializer = QuizSerializer(quizzes, many=True, context = {'request': request})
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
@@ -69,9 +69,17 @@ def submit_quiz(request):
 
     score = sum([1 for question_progress in question_progresses if question_progress.question.correct_choice == question_progress.answer])
 
-    quizResults = QuizResultsSerializer(data = {'quiz': quiz.id, 'user': request.user.id, 'score': score, 'time_taken': quiz_progress.quiz_attempt})
-    if quizResults.is_valid():
-        quizResults.save()
+    quiz_result_serializer = QuizResultsSerializer(data={
+        'quiz': quiz.id,
+        'user': request.user.id,
+        'score': score,
+        'time_taken': quiz_progress.quiz_attempt
+    })
+
+    if quiz_result_serializer.is_valid():
+        quiz_result = quiz_result_serializer.save() 
+    else:
+        return Response(quiz_result.errors, status=status.HTTP_400_BAD_REQUEST)
 
     quiz_progress.completed = True
     quiz_progress.save()
@@ -79,8 +87,11 @@ def submit_quiz(request):
 
     # update time taken of quiz in database
     quiz.times_taken += 1
+    quiz.total_score += score
+    quiz.save()
+    result_url = f"/quiz/result/{quiz_result.id}"
 
-    return Response({'score': score}, status=status.HTTP_200_OK)
+    return Response({'result_url': result_url}, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
@@ -90,6 +101,21 @@ def get_quiz_results(request):
     serializer = QuizResultsSerializer(quizResults, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_specific_quiz_result(request, quiz_progress_id):
+    """
+    Retrieves the quiz result for the authenticated user for the given quiz ID.
+    """
+    # Fetch the quiz to validate its existence
+
+    # Fetch the quiz result for the authenticated user
+    quiz_result = get_object_or_404(QuizResults, id=quiz_progress_id, user=request.user)
+
+    # Serialize and return the quiz result
+    serializer = QuizResultsSerializer(quiz_result)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -114,6 +140,8 @@ def start_quiz(request):
                             'question_number': question_progress.question.question_number,
                             'previous_answer': question_progress.answer})
             data["quiz_progress_id"] = quiz_progress.id
+            data["quiz_title"] = quiz.title
+            data["question_count"] = quiz.question_count
             return Response(data, status=status.HTTP_200_OK)
     
     # no quiz progress found, create a new one
@@ -126,14 +154,7 @@ def start_quiz(request):
 
     for question in Question.objects.filter(quiz=quiz):
         question_progress = QuestionProgress.objects.create(quiz_progress= quiz_progress, question= question)
-        question_progress.answer = 0
-
-        question_progress_serializer = QuestionProgressSerializer(
-            instance=question_progress,
-            data={"answer": 0},
-            partial=True
-        )
-
+        
     # send all questions to the user
     questions = Question.objects.filter(quiz=quiz)
     data = {"questions": []}
@@ -145,6 +166,8 @@ def start_quiz(request):
                         'question_number': question.question_number,
                         'previous_answer': question_progress.answer})
     data["quiz_progress_id"] = quiz_progress.id
+    data["quiz_title"] = quiz.title
+    data["question_count"] = quiz.question_count
 
     return Response(data, status=status.HTTP_200_OK)
 
@@ -153,6 +176,8 @@ def start_quiz(request):
 @permission_classes([IsAuthenticated])
 def solve_question(request):
     quizProgress = get_object_or_404(QuizProgress, id=request.data['quiz_progress_id'])
+    if quizProgress.completed:
+        return Response({'error': 'Quiz already submitted.'}, status=status.HTTP_400_BAD_REQUEST)
     quiz = quizProgress.quiz
     question = get_object_or_404(Question, question_number = request.data['question_number'], quiz = quiz)
     
@@ -187,9 +212,39 @@ def get_question(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_quiz(request):
-    quiz = get_object_or_404(Quiz, id=request.data['quiz_id'])
-    serializer = QuizSerializer(quiz)
+def get_quiz(request, quiz_id):
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+    serializer = QuizSerializer(quiz, context = {'request': request})
     
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def bookmark_quiz(request):
+    quiz = get_object_or_404(Quiz, id=request.data['quiz_id'])
+
+    if request.user in quiz.bookmarked_by.all():
+        quiz.bookmarked_by.remove(request.user)  # Unbookmark if already bookmarked
+        return Response({'message': 'Quiz unbookmarked'}, status=status.HTTP_200_OK)
+
+    quiz.bookmarked_by.add(request.user)  # Add bookmark
+    return Response({'message': 'Quiz bookmarked'}, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def like_quiz(request):
+    quiz = get_object_or_404(Quiz, id=request.data['quiz_id'])
+
+    if request.user in quiz.liked_by.all():
+        quiz.liked_by.remove(request.user)  # Unlike if already liked
+        quiz.like_count -= 1
+        quiz.save()
+        return Response({'message': 'Quiz unliked'}, status=status.HTTP_200_OK)
+
+    quiz.liked_by.add(request.user)  # Add like
+    quiz.like_count += 1
+    quiz.save()
+    return Response({'message': 'Quiz liked'}, status=status.HTTP_200_OK)

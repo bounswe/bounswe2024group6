@@ -114,7 +114,7 @@ class UserSerializer(serializers.ModelSerializer):
 class QuizResultsSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuizResults
-        fields = ['quiz', 'user', 'score', 'time_taken']
+        fields = ['id', 'quiz', 'user', 'score', 'time_taken']
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
@@ -147,14 +147,15 @@ class QuizSerializer(serializers.ModelSerializer):
             'created_at',
             'times_taken',
             'total_score',
-            'time_limit',
             'like_count',
+            'bookmarked_by',
+            'liked_by'
         ]
 
     def create(self, validated_data):
         tags_data = validated_data.pop('tags')
         quiz = Quiz.objects.create(**validated_data)
-
+        
         for tag_data in tags_data:
             tag, _ = Tags.objects.get_or_create(name=tag_data['name'])
             quiz.tags.add(tag)
@@ -163,10 +164,21 @@ class QuizSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
+        representation.pop('bookmarked_by')
+        representation.pop('liked_by')
         
+        total_score = representation.pop('total_score')
+        representation['average_score'] = total_score / instance.times_taken if instance.times_taken > 0 else 0
+
         # Transform tags to a list of names
         representation['tags'] = [tag['name'] for tag in representation['tags']]
         representation['author'] = { 'id' : instance.author.id, 'username' : instance.author.username } 
+
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            representation['is_bookmarked'] = instance.bookmarked_by.filter(id=request.user.id).exists()
+            representation['is_liked'] = instance.liked_by.filter(id=request.user.id).exists()
+
         return representation
 
 class QuizProgressSerializer(serializers.ModelSerializer):

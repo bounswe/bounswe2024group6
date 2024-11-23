@@ -51,8 +51,9 @@ class Quiz(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     times_taken = models.IntegerField(default=0)
     total_score = models.FloatField(default=0)
-    time_limit = models.IntegerField(default=0)
     like_count = models.IntegerField(default=0)
+    liked_by = models.ManyToManyField(User, related_name='liked_quizzes', blank=True)
+    bookmarked_by = models.ManyToManyField(User, related_name='bookmarked_quizzes', blank=True)
 
     def __str__(self):
         return self.title
@@ -196,3 +197,4 @@ class Bookmark(models.Model):
 
     def __str__(self):
         return f"{self.user.username} bookmarked {self.post.title}"
+    
