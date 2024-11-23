@@ -138,6 +138,8 @@ def start_quiz(request):
                             'question_number': question_progress.question.question_number,
                             'previous_answer': question_progress.answer})
             data["quiz_progress_id"] = quiz_progress.id
+            data["quiz_title"] = quiz.title
+            data["question_count"] = quiz.question_count
             return Response(data, status=status.HTTP_200_OK)
     
     # no quiz progress found, create a new one
@@ -162,6 +164,8 @@ def start_quiz(request):
                         'question_number': question.question_number,
                         'previous_answer': question_progress.answer})
     data["quiz_progress_id"] = quiz_progress.id
+    data["quiz_title"] = quiz.title
+    data["question_count"] = quiz.question_count
 
     return Response(data, status=status.HTTP_200_OK)
 
@@ -170,6 +174,8 @@ def start_quiz(request):
 @permission_classes([IsAuthenticated])
 def solve_question(request):
     quizProgress = get_object_or_404(QuizProgress, id=request.data['quiz_progress_id'])
+    if quizProgress.completed:
+        return Response({'error': 'Quiz already submitted.'}, status=status.HTTP_400_BAD_REQUEST)
     quiz = quizProgress.quiz
     question = get_object_or_404(Question, question_number = request.data['question_number'], quiz = quiz)
     
