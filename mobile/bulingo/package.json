@@ -10,8 +10,7 @@
     "test": "jest --watchAll"
   },
   "jest": {
-    "preset": "jest-expo",
-    "setupFilesAfterEnv": ["@testing-library/jest-native/extend-expect"]
+    "preset": "jest-expo"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.0",
@@ -47,6 +46,7 @@
   "devDependencies": {
     "@babel/core": "^7.20.0",
     "@testing-library/react-native": "^12.8.1",
+    "@types/jest": "^29.5.14",
     "@types/react": "~18.2.45",
     "jest": "^29.7.0",
     "jest-expo": "~51.0.4",
