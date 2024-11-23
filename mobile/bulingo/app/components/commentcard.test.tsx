@@ -21,3 +21,22 @@ test('renders the commentcard and handles press', () => {
 
   expect(mockFn).toHaveBeenCalled(); // Verify the onPress function is called
 });
+
+test('renders commentcard and includes all the input props', () => {
+  const mockFn = jest.fn();
+  const uname = 'test username';
+  const comment = 'test comment';
+  const { getByText } = render(
+    <CommentCard 
+      onUpvote={mockFn}
+      id={0} 
+      isBookmarked={false} 
+      username={uname} 
+      comment={comment}
+      liked={true}
+      likes={15}
+    />);
+
+  expect(getByText(uname)).toBeTruthy();
+  expect(getByText(comment)).toBeTruthy();
+});
