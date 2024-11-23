@@ -1,6 +1,5 @@
 import React, {useState, createContext, useContext} from 'react';
 import {Pressable, StyleSheet, Text, View, TextInput, TouchableWithoutFeedback, ActivityIndicator} from 'react-native';
-import Navbar from "./navbar";
 import {router} from 'expo-router'
 import TokenManager from './TokenManager'; // Import the TokenManager
 
@@ -69,7 +68,6 @@ export default function Home() {
         </TouchableWithoutFeedback>
       )}
 
-      <View style={styles.navbarContainer}><Navbar/></View>
         <View style={styles.page}>
         
 
@@ -109,7 +107,7 @@ export default function Home() {
             </View>
             <Text style={styles.smallText}>Don't have an account?</Text>
             <View style={styles.buttonContainer}>
-              <Pressable style={[styles.rectangularButton, {backgroundColor: 'gray'}]} onPress={handleRegister} disabled={true}>
+              <Pressable style={[styles.rectangularButton]} onPress={handleRegister}>
                 <Text style={styles.buttonText}>Register</Text>
               </Pressable>
             </View>
