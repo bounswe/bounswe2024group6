@@ -14,6 +14,12 @@ LEVEL_CHOICES = [
     ('NA', 'NA')
 ]
 
+class Tags(models.Model):
+    name = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.name
+
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
@@ -24,6 +30,88 @@ class Profile(models.Model):
     def __str__(self):
         return self.name
 
+
+class Quiz(models.Model):
+    LEVEL_CHOICES = [
+        ('A1', 'A1'),
+        ('A2', 'A2'),
+        ('B1', 'B1'),
+        ('B2', 'B2'),
+        ('C1', 'C1'),
+        ('C2', 'C2'),
+    ]
+
+    title = models.CharField(max_length=100)
+    description = models.TextField()
+    author = models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='quizzes')
+    tags = models.ManyToManyField('Tags', related_name='quizzes')
+    level = models.CharField(max_length=2, choices=LEVEL_CHOICES)
+    question_count = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    times_taken = models.IntegerField(default=0)
+    total_score = models.FloatField(default=0)
+    time_limit = models.IntegerField(default=0)
+    like_count = models.IntegerField(default=0)
+
+    def __str__(self):
+        return self.title
+
+
+class Question(models.Model):
+    LEVEL_CHOICES = Quiz.LEVEL_CHOICES
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='questions')
+    question_number = models.IntegerField()
+    question_text = models.TextField()
+    level = models.CharField(max_length=2, choices=LEVEL_CHOICES)
+    choice1 = models.CharField(max_length=100)
+    choice2 = models.CharField(max_length=100)
+    choice3 = models.CharField(max_length=100)
+    choice4 = models.CharField(max_length=100)
+    correct_choice = models.IntegerField()
+
+    def __str__(self):
+        return self.question_text
+
+
+class QuizProgress(models.Model):
+    id = models.AutoField(primary_key=True)
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='progress')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='quiz_progress')
+    score = models.FloatField(default=0)
+    quiz_attempt = models.IntegerField(default=0)
+    date_started = models.DateTimeField(default=timezone.now)
+    completed = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('quiz', 'user', "quiz_attempt")  # Enforce unique combination of quiz and user
+
+    
+    def __str__(self):
+        return self.quiz.title + ' - ' + self.user.username
+
+class QuizResults(models.Model):
+    id = models.AutoField(primary_key=True)
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='results')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='results')
+    score = models.FloatField()
+    time_taken = models.IntegerField()
+    
+    def __str__(self):
+        return self.quiz.title + ' - ' + self.user.username
+
+    
+class QuestionProgress(models.Model):
+    id = models.AutoField(primary_key=True)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='progress')
+    answer = models.IntegerField(default=0)
+    time_taken = models.IntegerField(default=0)
+    quiz_progress = models.ForeignKey(QuizProgress, on_delete=models.CASCADE, related_name='question_progress')
+
+    class Meta:
+        unique_together = ('question', 'quiz_progress')  # Enforce unique combination of question and user
+
+    def __str__(self):
+        return self.question.question_text + ' - ' + self.user.username
 
 class Post(models.Model):
     id = models.AutoField(primary_key=True)

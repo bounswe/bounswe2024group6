@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Profile, Post, Comment
+from .models import Profile, Quiz, Post, QuizResults, QuizProgress, QuestionProgress, Question, Comment, Tags
 
 
 
@@ -70,7 +70,97 @@ class UserSerializer(serializers.ModelSerializer):
 
         return instance
 
+class QuizResultsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QuizResults
+        fields = ['quiz', 'user', 'score', 'time_taken']
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['quiz'] = { 'id' : instance.quiz.id, 'title' : instance.quiz.title }
+        representation['question_count'] = instance.quiz.question_count
+        representation['user'] = { 'id' : instance.user.id, 'username' : instance.user.username }
+        representation['author'] = { 'id' : instance.quiz.author.id, 'username' : instance.quiz.author.username }
+        return representation
+
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tags
+        fields = ['id', 'name']
+
+class QuizSerializer(serializers.ModelSerializer):
+    tags = TagSerializer(many=True)
+    level = serializers.ChoiceField(choices=Quiz.LEVEL_CHOICES) 
+
+    class Meta:
+        model = Quiz
+        fields = [
+            'id',
+            'title',
+            'description',
+            'author',
+            'tags',
+            'level',
+            'question_count',
+            'created_at',
+            'times_taken',
+            'total_score',
+            'time_limit',
+            'like_count',
+        ]
+
+    def create(self, validated_data):
+        tags_data = validated_data.pop('tags')
+        quiz = Quiz.objects.create(**validated_data)
+
+        for tag_data in tags_data:
+            tag, _ = Tags.objects.get_or_create(name=tag_data['name'])
+            quiz.tags.add(tag)
+
+        return quiz
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        
+        # Transform tags to a list of names
+        representation['tags'] = [tag['name'] for tag in representation['tags']]
+        representation['author'] = { 'id' : instance.author.id, 'username' : instance.author.username } 
+        return representation
+
+class QuizProgressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QuizProgress
+        fields = ['quiz', 'user', 'score', 'quiz_attempt', 'date_started', 'completed']
+
+
+class QuestionSerializer(serializers.ModelSerializer):
+    level = serializers.ChoiceField(choices=Question.LEVEL_CHOICES) 
+    class Meta:
+        model = Question
+        fields = [
+            'quiz',
+            'id',
+            'question_number',
+            'question_text',
+            'choice1',
+            'choice2',
+            'choice3',
+            'choice4',
+            'correct_choice',
+            'level',
+        ]
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation.pop('quiz')
+        representation['quiz_id'] = instance.quiz.id
+        return representation 
+
+class QuestionProgressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QuestionProgress
+        fields = ['question', 'quiz_progress', 'answer', 'time_taken']
 
 
 class PostSerializer(serializers.ModelSerializer):
@@ -80,10 +170,10 @@ class PostSerializer(serializers.ModelSerializer):
         model = Post
         fields = ['id', 'title', 'description', 'author', 'tags', 'created_at', 'like_count', 'comments']
 
+
     def get_comments(self, obj):
         comments = Comment.objects.filter(post=obj)  # Fetch all comments for the post
         return CommentSerializer(comments, many=True).data
-
 
 class CommentSerializer(serializers.ModelSerializer):
     replies = serializers.SerializerMethodField()  # Fetch nested replies

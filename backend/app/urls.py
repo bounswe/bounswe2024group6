@@ -12,11 +12,22 @@ from app.views_directory.feed_views import get_user_post_feed
 from app.views_directory.bookmark_views import bookmark_post, unbookmark_post, get_bookmarked_posts  
 
 
+import app.views_directory.quiz_views as quiz_views
 
 urlpatterns = [
     path('', index , name='index_page'),
     path('profile/', view_profile, name='view_profile'),
     path('profile/update/', update_profile, name='update_profile'),
+    path('quiz/', quiz_views.get_quiz, name="get_quiz"),
+    path('feed/quiz/', quiz_views.view_quizzes, name="feed_quiz"),
+    path('quiz/create/', quiz_views.create_quiz, name="create_quiz"),
+    path('quiz/question/', quiz_views.get_question, name="get_question"),
+    path('quiz/question/solve/', quiz_views.solve_question, name="solve_question"),
+    path('quiz/submit/', quiz_views.submit_quiz, name="submit_quiz"),
+    path('quiz/start/', quiz_views.start_quiz, name="start_quiz"),
+    path('quiz/results/', quiz_views.get_quiz_results, name="get_quiz_results"),
+
+    path('create-post/',create_post, name='create_post'),
     path('signup/', RegisterView.as_view(), name='auth_register'),
     path('login/', LoginView.as_view(), name='auth_login'),
     path('logout/', LogoutView.as_view(), name='auth_logout'),
