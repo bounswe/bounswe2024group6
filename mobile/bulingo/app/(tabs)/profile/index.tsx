@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableWithoutFeedback, Image, TouchableOpaci
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import {router} from 'expo-router';
 import QuizCard from '@/app/components/quizCard';
+import TokenManager from '@/app/TokenManager';
 
 const debugUserInfo: UserInfo = {
   name: 'Yagiz Guldal',
@@ -81,22 +82,23 @@ export default function Profile() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const ENDPOINT_URL = "http://161.35.208.249:8000/userInfo";  // Placeholder
     const fetchProfileInfo = async () => {
       const params = {
-        // TODO
+        'user': TokenManager.getUsername(),
        };
+       console.log(await TokenManager.getAccessToken());
       try {
-        const response = await fetch(ENDPOINT_URL, {
+        const response = await TokenManager.authenticatedFetch('profile/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(params),
         });
-
+        const res = await response.json();
+        console.log(res);
         if (response.ok){
-          setUserInfo(await response.json());
+          setUserInfo(res);
         } else {
           console.log(response.status)
         };
