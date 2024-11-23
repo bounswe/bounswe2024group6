@@ -51,7 +51,7 @@ const UserCard = (props: UserCardProps) => {
   
 
   return (
-    <TouchableOpacity style={styles.followerContainer} onPress={handleCardPress}>
+    <TouchableOpacity style={styles.followerContainer} onPress={handleCardPress} testID='card'>
       <View style={styles.profilePictureContainer}>
         <Image 
           source={{
@@ -69,7 +69,7 @@ const UserCard = (props: UserCardProps) => {
           <Text style={styles.levelText}>{props.level}</Text>
         </View>
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={[styles.buttonStyle, buttonStyleAddOn]} onPress={handleButtonPress}>
+          <TouchableOpacity style={[styles.buttonStyle, buttonStyleAddOn]} onPress={handleButtonPress} testID='button'>
             <Text style={[styles.buttonText, {color: buttonTextColor}]}>{props.buttonText}</Text>
           </TouchableOpacity>
         </View>
