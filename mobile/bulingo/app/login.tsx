@@ -162,7 +162,9 @@ const styles = StyleSheet.create({
   },
   titleText: {
     textAlign: 'center',
-    fontSize: 30,
+    fontSize: 36,
+    color: '#3944FD',
+    fontWeight: 'bold',
   },
   userInputText: {
     fontSize: 16,
