@@ -69,18 +69,19 @@ export default function Profile() {
     <div className="h-full w-full items-center overflow-hidden flex flex-col">
       <Navbar />
       {profile && (
-        <div className="flex justify-center gap-6 items-center w-full px-32 py-5">
+        <div className="flex justify-center gap-6 items-center w-full px-32 py-3">
           <div className="flex items-center px-2 bg-white rounded-lg">
             <Avatar
               src="https://nextui.org/avatars/avatar-1.png"
-              className="mr-3 w-24 h-24"
+              className="mr-2 w-24 h-24"
             />
-            <div className="mx-4">
+            <div className="mx-4 max-w-52">
               <h3 className="text-xl font-semibold">{profile.username}</h3>
               <p className="text-gray-500">@{profile.level}</p>
+              <p className="text-zinc-800 break-words">{profile.bio}</p>
             </div>
           </div>
-          <div className={`flex flex-row ${profile.username === Cookies.get("username") ? "pl-64" : "pl-24"} gap-6`}>
+          <div className={`flex flex-row ${profile.username === Cookies.get("username") ? "pl-32" : "pl-0"} gap-6`}>
             {profile.username !== Cookies.get("username") && (
               <Button
                 variant={isFollowing ? "faded" : "solid"}

@@ -54,6 +54,7 @@ export const convertProfileResponseToProfile = (profileResponse: ProfileResponse
     id: 0,
     username: profileResponse.username,
     level: profileResponse.level,
+    bio: profileResponse.bio,
     followers: profileResponse.follower_count,
     following: profileResponse.following_count,
     image: profileResponse.image || '',

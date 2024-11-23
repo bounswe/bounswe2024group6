@@ -49,7 +49,7 @@ export default function Navbar() {
           >
             Profile
           </Button>
-          <Button variant="light" className="text-medium w-full">
+          <Button variant="light" onClick={() => navigate(`/profile/${username}/edit`)} className="text-medium w-full">
             Edit Profile
           </Button>
           <Button
