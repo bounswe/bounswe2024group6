@@ -5,15 +5,19 @@ from .models import Profile, Quiz, Post, QuizResults, QuizProgress, QuestionProg
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(source='user.username', read_only=True) 
+    username = serializers.CharField(source='user.username', read_only=True)
     posts = serializers.SerializerMethodField()
     comments = serializers.SerializerMethodField()
     follower_count = serializers.SerializerMethodField()
     following_count = serializers.SerializerMethodField()
+    is_followed = serializers.SerializerMethodField()
 
     class Meta:
         model = Profile
-        fields = ['username','name', 'level', 'posts', 'comments', 'follower_count', 'following_count']
+        fields = [
+            'username', 'name', 'level', 'posts', 'comments',
+            'follower_count', 'following_count', 'is_followed'
+        ]
 
     def get_posts(self, obj):
         """Get posts created by the user."""
@@ -32,6 +36,15 @@ class ProfileSerializer(serializers.ModelSerializer):
     def get_following_count(self, obj):
         """Get the count of following."""
         return obj.following.count()
+
+    def get_is_followed(self, obj):
+        """Check if the authenticated user follows this profile."""
+        request = self.context.get('request')
+        if not request or not request.user.is_authenticated:
+            return False
+        return obj.followers.filter(id=request.user.id).exists()
+
+
 
 
 class UserSerializer(serializers.ModelSerializer):

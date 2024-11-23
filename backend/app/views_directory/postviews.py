@@ -30,7 +30,7 @@ def like_post(request):
     )
 
     # Include like and bookmark status in the response
-    is_liked = request.user in post.liked_by.all()
+    is_liked = post.liked_by.filter(id=request.user.id).exists()
     is_bookmarked = post.bookmarked_by.filter(id=request.user.id).exists()
 
     return Response(
@@ -59,7 +59,7 @@ def unlike_post(request):
     post.save()
 
     # Include like and bookmark status in the response
-    is_liked = request.user in post.liked_by.all()
+    is_liked = post.liked_by.filter(id=request.user.id).exists()
     is_bookmarked = post.bookmarked_by.filter(id=request.user.id).exists()
 
     return Response(

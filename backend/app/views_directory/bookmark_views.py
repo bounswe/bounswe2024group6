@@ -11,9 +11,9 @@ from app.serializers import PostSerializer
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def bookmark_post(request):
-    post_id = request.data.get('post_id')
+    post_id = request.data.get("post_id")
     if not post_id:
-        return Response({"detail": "post_id is required."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"detail": "Post ID is required."}, status=status.HTTP_400_BAD_REQUEST)
 
     post = get_object_or_404(Post, id=post_id)
 
@@ -22,15 +22,27 @@ def bookmark_post(request):
 
     Bookmark.objects.create(user=request.user, post=post)
 
-    return Response({"detail": "Post bookmarked successfully."}, status=status.HTTP_201_CREATED)
+    # Include like and bookmark status in the response
+    is_liked = post.liked_by.filter(id=request.user.id).exists()
+    is_bookmarked = Bookmark.objects.filter(user=request.user, post=post).exists()
+
+    return Response(
+        {
+            "detail": "Post bookmarked successfully.",
+            "is_liked": is_liked,
+            "is_bookmarked": is_bookmarked,
+            "like_count": post.like_count,
+        },
+        status=status.HTTP_201_CREATED
+    )
 
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def unbookmark_post(request):
-    post_id = request.data.get('post_id')
+    post_id = request.data.get("post_id")
     if not post_id:
-        return Response({"detail": "post_id is required."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"detail": "Post ID is required."}, status=status.HTTP_400_BAD_REQUEST)
 
     post = get_object_or_404(Post, id=post_id)
 
@@ -40,8 +52,19 @@ def unbookmark_post(request):
 
     bookmark.delete()
 
-    return Response({"detail": "Post unbookmarked successfully."}, status=status.HTTP_200_OK)
+    # Include like and bookmark status in the response
+    is_liked = post.liked_by.filter(id=request.user.id).exists()
+    is_bookmarked = Bookmark.objects.filter(user=request.user, post=post).exists()
 
+    return Response(
+        {
+            "detail": "Post unbookmarked successfully.",
+            "is_liked": is_liked,
+            "is_bookmarked": is_bookmarked,
+            "like_count": post.like_count,
+        },
+        status=status.HTTP_200_OK
+    )
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
