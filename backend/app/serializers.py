@@ -119,7 +119,6 @@ class QuizSerializer(serializers.ModelSerializer):
             'created_at',
             'times_taken',
             'total_score',
-            'time_limit',
             'like_count',
         ]
 

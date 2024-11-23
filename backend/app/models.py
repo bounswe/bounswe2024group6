@@ -50,7 +50,6 @@ class Quiz(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     times_taken = models.IntegerField(default=0)
     total_score = models.FloatField(default=0)
-    time_limit = models.IntegerField(default=0)
     like_count = models.IntegerField(default=0)
 
     def __str__(self):
