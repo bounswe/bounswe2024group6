@@ -15,14 +15,42 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = [
-            'username', 'name', 'about','level', 'posts', 'comments',
+            'username', 'name','bio','level', 'posts', 'comments',
             'follower_count', 'following_count', 'is_followed'
         ]
 
     def get_posts(self, obj):
-        """Get posts created by the user."""
+        """Get posts created by the user, similar to get_post_details."""
         posts = Post.objects.filter(author=obj.user)
-        return PostSerializer(posts, many=True).data
+        post_data = []
+        for post in posts:
+            is_liked = post.liked_by.filter(id=self.context['request'].user.id).exists()
+            is_bookmarked = post.bookmarked_by.filter(id=self.context['request'].user.id).exists()
+            
+            comments_data = [
+                {
+                    "id": comment.id,
+                    "content": comment.body, 
+                    "author": comment.author.username,
+                    "created_at": comment.created_at,
+                    "is_liked": comment.liked_by.filter(id=self.context['request'].user.id).exists(),
+                    "like_count": comment.liked_by.count(),  
+                }
+                for comment in post.comments.all().order_by("-created_at")
+            ]
+            
+            post_data.append({
+                "id": post.id,
+                "title": post.title,
+                "description": post.description,
+                "created_at": post.created_at,
+                "like_count": post.like_count,
+                "tags": post.tags,
+                "is_liked": is_liked,
+                "is_bookmarked": is_bookmarked,
+                "comments": comments_data
+            })
+        return post_data
 
     def get_comments(self, obj):
         """Get comments created by the user."""
