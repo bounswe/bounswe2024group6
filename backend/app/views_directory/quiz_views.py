@@ -14,13 +14,14 @@ def create_quiz(request):
         return Response({'error': 'quiz and questions must be provided'}, status=status.HTTP_400_BAD_REQUEST)
     data = request.data
     data['quiz']['author'] = request.user.id
+    questions = data['questions']
+    data['quiz']['question_count'] = len(questions)
     quizSerializer = QuizSerializer(data=data['quiz'])
     quiz = None
     if not quizSerializer.is_valid():
         print("was")
         return Response(quizSerializer.errors, status=status.HTTP_400_BAD_REQUEST) 
     quiz = quizSerializer.save() 
-    questions = data['questions']
     question_serializers = []
     for question in questions:
         question['quiz'] = quiz.id
@@ -63,48 +64,62 @@ def submit_quiz(request):
             return Response({'error': 'Please answer all questions'}, status=status.HTTP_400_BAD_REQUEST)
         question_progresses.append(question_progress)
 
-    # QuestionProgress.objects.filter(quiz=quiz, user=request.user)
     score = sum([1 for question_progress in question_progresses if question_progress.question.correct_choice == question_progress.answer])
-    # quizResult = QuizResults(quiz=quiz, user=request.user, score=score, time_taken=request.data['time_taken'])
+
     quizResults = QuizResultsSerializer(data = {'quiz': quiz.id, 'user': request.user.id, 'score': score, 'time_taken': 5})
     if quizResults.is_valid():
         quizResults.save()
+    
+    # delete question progresses
+    for question_progress in question_progresses:
+        question_progress.delete()
+
+    # update time taken of quiz in database
+    quiz.times_taken += 1
+
     return Response({'score': score}, status=status.HTTP_200_OK)
 
-
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_quiz_results(request):
+    quizResults = QuizResults.objects.filter(user=request.user)
+    serializer = QuizResultsSerializer(quizResults, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def start_quiz(request):
     quiz = get_object_or_404(Quiz, id=request.data['quiz_id'])     
-    progress_data = {
-    'quiz': quiz.id,
-    'user': request.user.id,
-    }
-    progress = QuizProgressSerializer(data = progress_data)
-    if progress.is_valid():
-        progress.save()
-    else:
-        return Response(progress.errors, status=status.HTTP_400_BAD_REQUEST)
-    data = {}
 
-    first_question = Question.objects.get(quiz=quiz, question_number=1)
-    questionProgress = QuestionProgressSerializer(data = {"question": first_question.id, "user":request.user.id})
-    if questionProgress.is_valid():
-        questionProgress.save()
-    else:
-        return Response(questionProgress.errors, status=status.HTTP_400_BAD_REQUEST)
+    # if start quiz is called, we assume that the user is starting the quiz from the beginning
+    for question in Question.objects.filter(quiz=quiz):
+        question_progress, _ = QuestionProgress.objects.get_or_create(question=question, user=request.user)
+        question_progress.answer = 0
 
-    data = QuestionSerializer(first_question).data
-    # data['is_correct'] = is_correct
+        question_progress_serializer = QuestionProgressSerializer(
+            instance=question_progress,
+            data={"answer": 0},
+            partial=True
+        )
+    # send all questions to the user
+    questions = Question.objects.filter(quiz=quiz)
+    data = []
+    for question in questions:
+        question_progress = get_object_or_404(QuestionProgress, question=question, user=request.user)
+        data.append({'question': question.question_text, 
+                        'choices': [question.choice1, question.choice2, 
+                        question.choice3, question.choice4], 
+                        'question_number': question.question_number,
+                        'previous_answer': question_progress.answer})
+
+
+
     return Response(data, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def solve_question(request):
     question = get_object_or_404(Question, question_number = request.data['question_number'], quiz=request.data['quiz_id'])
-
-    # is_correct = question.correct_choice == request.data['answer']
       
     question_progress = get_object_or_404(QuestionProgress, question=question, user=request.user)
 

@@ -93,6 +93,7 @@ class QuizSerializer(serializers.ModelSerializer):
             'author',
             'tags',
             'level',
+            'question_count',
             'created_at',
             'times_taken',
             'total_score',

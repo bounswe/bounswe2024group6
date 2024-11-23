@@ -46,6 +46,7 @@ class Quiz(models.Model):
     author = models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='quizzes')
     tags = models.ManyToManyField('Tags', related_name='quizzes')
     level = models.CharField(max_length=2, choices=LEVEL_CHOICES)
+    question_count = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     times_taken = models.IntegerField(default=0)
     total_score = models.FloatField(default=0)
