@@ -18,6 +18,8 @@ import {
   convertPostResponseToPost,
   convertProfileResponseToProfile,
 } from "../components/common/utils.tsx";
+import Cookies from "js-cookie";
+
 
 export default function Profile() {
   const { username } = useParams<{ username: string }>();
@@ -26,6 +28,12 @@ export default function Profile() {
   const { getToken } = AuthActions();
   const token = getToken("access");
   const [sortedPosts, setSortedPosts] = useState<Post[]>([]);
+  const [isFollowing, setIsFollowing] = useState(false);
+
+  const toggleFollow = () => {
+    setIsFollowing((prev) => !prev); // Toggle the follow state
+  };
+
 
   useEffect(() => {
     if (username) {
@@ -36,24 +44,24 @@ export default function Profile() {
             "Content-Type": "application/json",
           },
         })
-      .then((response) => {
-        const data: ProfileResponse = response.data;
-            console.log(data);
-            const profile = convertProfileResponseToProfile(data);
-            const sortedVersion = [...profile.posts].sort((a, b) => {
-              return (
-                new Date(b.post.created_at).getTime() -
-                new Date(a.post.created_at).getTime()
-              );
-            });
-            setSortedPosts(sortedVersion);
-            setProfile(profile);
-          })
-          .catch((error) => {
-            console.log(error);
+        .then((response) => {
+          const data: ProfileResponse = response.data;
+          console.log(data);
+          const profile = convertProfileResponseToProfile(data);
+          const sortedVersion = [...profile.posts].sort((a, b) => {
+            return (
+              new Date(b.post.created_at).getTime() -
+              new Date(a.post.created_at).getTime()
+            );
           });
-      }
-    }, [username, token]);
+          setSortedPosts(sortedVersion);
+          setProfile(profile);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+  }, [username, token]);
 
 
 
@@ -62,7 +70,7 @@ export default function Profile() {
       <Navbar />
       {profile && (
         <div className="flex justify-center gap-6 items-center w-full px-32 py-5">
-          <div className="flex items-center px-5 bg-white rounded-lg">
+          <div className="flex items-center px-2 bg-white rounded-lg">
             <Avatar
               src="https://nextui.org/avatars/avatar-1.png"
               className="mr-3 w-24 h-24"
@@ -72,15 +80,28 @@ export default function Profile() {
               <p className="text-gray-500">@{profile.level}</p>
             </div>
           </div>
-          <div className="flex flex-row pl-36 gap-6">
+          <div className={`flex flex-row ${profile.username === Cookies.get("username") ? "pl-64" : "pl-24"} gap-6`}>
+            {profile.username !== Cookies.get("username") && (
+              <Button
+                variant={isFollowing ? "faded" : "solid"}
+                color="primary"
+                onClick={toggleFollow}
+                className={`border-2 rounded-lg min-w-36 font-bold px-8 py-6 ${isFollowing ? "text-blue-900" : ""
+                  }`}
+              >
+                {isFollowing ? "Unfollow" : "Follow"}
+              </Button>
+            )}
             <Button
-              variant="light"
+              variant="faded"
+              color="primary"
               className="border-2 rounded-lg font-bold text-blue-900 px-8 py-6 "
             >
               {profile.following} Following
             </Button>
             <Button
-              variant="light"
+              variant="faded"
+              color="primary"
               className="border-2 rounded-lg font-bold text-blue-900 px-8 py-6 "
             >
               {profile.followers} Followers
@@ -152,17 +173,19 @@ export default function Profile() {
           >
             <p>Solved</p>
           </Tab>
-          <Tab
-            key="saved"
-            title={
-              <div className="flex items-center space-x-2">
-                <IconBookmark size={20} stroke={1.5} />
-                <span>Saved</span>
-              </div>
-            }
-          >
-            <p>Saved</p>
-          </Tab>
+          {profile && profile.username === Cookies.get("username") && (
+            <Tab
+              key="saved"
+              title={
+                <div className="flex items-center space-x-2">
+                  <IconBookmark size={20} stroke={1.5} />
+                  <span>Saved</span>
+                </div>
+              }
+            >
+              <p>Saved</p>
+            </Tab>
+          )}
         </Tabs>
       </div>
     </div>
