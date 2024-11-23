@@ -14,12 +14,12 @@ def follow_user(request):
     if user_to_follow != current_user_profile:
         current_user_profile.following.add(user_to_follow)
 
+        # Updated ActivityStream creation without 'target'
         ActivityStream.objects.create(
             actor=request.user,
             verb="followed",
             object_type="Profile",
-            object_id=user_to_follow.user.id,
-            target=None  # Optional: could be used for specific contexts
+            object_id=user_to_follow.user.id
         )
 
         return JsonResponse({"message": "Followed successfully"}, status=200)
