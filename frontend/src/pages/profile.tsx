@@ -4,6 +4,7 @@ import { Suspense, useState, useEffect } from "react";
 import PostCard from "../components/post/post-card.tsx";
 import PostCardSkeleton from "../components/post/post-card-skeleton.tsx";
 import axios from "axios";
+import { useParams } from "react-router-dom";
 import { BASE_URL } from "../lib/baseURL";
 import type { Post, Profile, ProfileResponse } from "../types.ts";
 import {
@@ -19,6 +20,7 @@ import {
 } from "../components/common/utils.tsx";
 
 export default function Profile() {
+  const { username } = useParams<{ username: string }>();
   const [activeSection, setActiveSection] = useState("posts");
   const [profile, setProfile] = useState<Profile | null>(null);
   const { getToken } = AuthActions();
@@ -26,33 +28,32 @@ export default function Profile() {
   const [sortedPosts, setSortedPosts] = useState<Post[]>([]);
 
   useEffect(() => {
-    axios
-      .post(
-        `${BASE_URL}/profile/`,
-        {},
-        {
+    if (username) {
+      axios
+        .get(`${BASE_URL}/profile/${username}/`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-        }
-      )
+        })
       .then((response) => {
         const data: ProfileResponse = response.data;
-        console.log(data);
-        const profile = convertProfileResponseToProfile(data); 
-        const sortedVersion= [...profile.posts].sort((a, b) => {
-          return new Date(b.post.created_at).getTime() - new Date(a.post.created_at).getTime();
-        });
-        setSortedPosts(sortedVersion);
-        console.log(profile);
-        setProfile(profile);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }, []);
-
+            console.log(data);
+            const profile = convertProfileResponseToProfile(data);
+            const sortedVersion = [...profile.posts].sort((a, b) => {
+              return (
+                new Date(b.post.created_at).getTime() -
+                new Date(a.post.created_at).getTime()
+              );
+            });
+            setSortedPosts(sortedVersion);
+            setProfile(profile);
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      }
+    }, [username, token]);
 
 
 
