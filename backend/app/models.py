@@ -24,6 +24,8 @@ class Tags(models.Model):
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     name = models.CharField(max_length=100,null=True, blank=True)
+    about = models.CharField(max_length=500,null=True, blank=True)
+
     following = models.ManyToManyField("self", symmetrical=False, related_name="followers", blank=True)
     level = models.CharField(max_length=2, choices=LEVEL_CHOICES, default='A1')
 
