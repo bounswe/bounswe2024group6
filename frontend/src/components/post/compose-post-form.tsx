@@ -162,6 +162,7 @@ export default function ComposePostForm() {
                 likeCount={0}
                 timePassed="Just now"
                 initialIsLiked={false}
+                initialIsBookmarked={false}
               />
             </ModalContent>
           </Modal>
