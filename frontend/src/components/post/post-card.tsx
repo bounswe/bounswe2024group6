@@ -66,7 +66,7 @@ export default function PostCard({
   const toggleLike = () => {
     axios
       .post(
-        `${BASE_URL}/post/like/`,
+        `${BASE_URL}/post/${isLiked ? "unlike" : "like"}/`,
         { post_id: id },
         {
           headers: {
