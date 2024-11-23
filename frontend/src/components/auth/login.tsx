@@ -8,6 +8,8 @@ import { useForm } from "react-hook-form";
 import { AuthActions } from "./utils";
 import { useNavigate } from "react-router-dom";
 
+import Cookies from "js-cookie";
+
 type FormData = {
   username: string;
   password: string;
@@ -33,8 +35,11 @@ export default function Login({
   } = useForm<FormData>();
 
   const onSubmit = () => {
+    Cookies.set("username", username);
     login(username, password)
       .json((json) => {
+        console.log(json);
+        
         storeToken(json.access, "access");
         storeToken(json.refresh, "refresh");
 
