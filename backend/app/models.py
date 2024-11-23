@@ -77,11 +77,14 @@ class QuizProgress(models.Model):
     id = models.AutoField(primary_key=True)
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='progress')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='quiz_progress')
-    current_question = models.IntegerField(default=0)
     score = models.FloatField(default=0)
-    time_taken = models.IntegerField(default=0)
+    quiz_attempt = models.IntegerField(default=0)
     date_started = models.DateTimeField(default=timezone.now)
     completed = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('quiz', 'user', "quiz_attempt")  # Enforce unique combination of quiz and user
+
     
     def __str__(self):
         return self.quiz.title + ' - ' + self.user.username
@@ -100,12 +103,12 @@ class QuizResults(models.Model):
 class QuestionProgress(models.Model):
     id = models.AutoField(primary_key=True)
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='progress')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='question_progress')
     answer = models.IntegerField(default=0)
     time_taken = models.IntegerField(default=0)
+    quiz_progress = models.ForeignKey(QuizProgress, on_delete=models.CASCADE, related_name='question_progress')
 
     class Meta:
-        unique_together = ('question', 'user')  # Enforce unique combination of question and user
+        unique_together = ('question', 'quiz_progress')  # Enforce unique combination of question and user
 
     def __str__(self):
         return self.question.question_text + ' - ' + self.user.username

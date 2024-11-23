@@ -74,6 +74,14 @@ class QuizResultsSerializer(serializers.ModelSerializer):
         model = QuizResults
         fields = ['quiz', 'user', 'score', 'time_taken']
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['quiz'] = { 'id' : instance.quiz.id, 'title' : instance.quiz.title }
+        representation['question_count'] = instance.quiz.question_count
+        representation['user'] = { 'id' : instance.user.id, 'username' : instance.user.username }
+        representation['author'] = { 'id' : instance.quiz.author.id, 'username' : instance.quiz.author.username }
+        return representation
+
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
@@ -122,7 +130,7 @@ class QuizSerializer(serializers.ModelSerializer):
 class QuizProgressSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuizProgress
-        fields = ['quiz', 'user', 'current_question', 'score', 'time_taken', 'date_started', 'completed']
+        fields = ['quiz', 'user', 'score', 'quiz_attempt', 'date_started', 'completed']
 
 
 class QuestionSerializer(serializers.ModelSerializer):
@@ -151,7 +159,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 class QuestionProgressSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionProgress
-        fields = ['question', 'user', 'answer', 'time_taken']
+        fields = ['question', 'quiz_progress', 'answer', 'time_taken']
 
 
 class PostSerializer(serializers.ModelSerializer):
