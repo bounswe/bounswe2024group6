@@ -56,6 +56,7 @@ export default function Forum() {
         },
       })
       .then((response) => {
+        console.log(response.data);
         const postData: PostResponse[] = response.data.feed;
         setPosts(postData.map(convertPostResponseToPost));
       })
@@ -89,7 +90,7 @@ export default function Forum() {
     <div className="flex flex-col items-center overflow-hidden">
       <Navbar />
       <ComposePostButton />
-      <div className="flex w-[740px] justify-between items-center mb-4 mt-4">
+      <div className="flex w-[740px] justify-between items-center  mt-4">
         <Select onChange={handleSelectionChange} placeholder="Sort By" defaultSelectedKeys={["Most Recent"]} className="w-32 text-black">
           {SortFilters.map((sortFilter) => (
             <SelectItem key={sortFilter}>{sortFilter}</SelectItem>
@@ -103,6 +104,7 @@ export default function Forum() {
           >
             {DifficultyTags.map((tag) => (
               <SelectItem onPress={() => handleTagClick(tag)} key={tag}>{tag}</SelectItem>
+
             ))}
           </Select>
           <Select
@@ -118,7 +120,7 @@ export default function Forum() {
 
       </div>
 
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-6 m-6">
         {sortedPosts.map((post) => (
 
           <Suspense key={post.id} fallback={<PostCardSkeleton />}>
