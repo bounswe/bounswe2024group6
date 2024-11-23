@@ -57,10 +57,9 @@ const QuizCreationSettings = () => {
         <Text style={styles.label}>Quiz Level:</Text>
         <View style={styles.optionsContainer}>
           {quizLevels.map((level, index) => (
-            <View style={styles.optionWrapper}>
+            <View style={styles.optionWrapper} key={index}>
             <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
             <TouchableOpacity
-              key={index}
               style={[
                 styles.optionButton,
                 selectedLevel === level ? styles.selectedOption : null,
