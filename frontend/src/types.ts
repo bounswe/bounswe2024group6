@@ -52,6 +52,7 @@ export type Comment = {
     id: number;
     username: string;
     level: string;
+    bio: string;
     followers: number;
     following: number;
     image: string;
@@ -64,6 +65,7 @@ export type Comment = {
     follower_count: number; 
     following_count: number;
     level: string;
+    bio: string;
     name: string;
     username: string;
     posts: PostResponse[];
