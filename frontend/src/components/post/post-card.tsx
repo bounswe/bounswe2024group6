@@ -39,6 +39,7 @@ type Props = {
   likeCount: number;
   tags?: string[];
   initialIsLiked: boolean;
+  initialIsBookmarked: boolean;
 };
 
 export default function PostCard({
@@ -50,11 +51,12 @@ export default function PostCard({
   likeCount,
   tags,
   initialIsLiked,
+  initialIsBookmarked,
 }: Props) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isLiked, setIsLiked] = useState(initialIsLiked);
   const [likes, setLikes] = useState(likeCount);
-  const [isBookmarked, setIsBookmarked] = useState(false); // Example state for bookmark
+  const [isBookmarked, setIsBookmarked] = useState(initialIsBookmarked); // Example state for bookmark
   const navigate = useNavigate();
   const { getToken } = AuthActions();
   const token = getToken("access");
@@ -89,6 +91,19 @@ export default function PostCard({
   };
 
   const toggleBookmark = () => {
+    axios
+      .post(
+        `${BASE_URL}/${isBookmarked ? "unbookmark" : "bookmark"}/`,
+        { post_id: id },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      .then((response) => {
+        setIsBookmarked(response.data.is_bookmarked);
+      });
     setIsBookmarked(!isBookmarked);
   };
 

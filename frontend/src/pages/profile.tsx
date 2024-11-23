@@ -152,6 +152,7 @@ export default function Profile() {
                               likeCount={post.engagement.likes}
                               tags={post.post.tags}
                               initialIsLiked={post.engagement.is_liked}
+                              initialIsBookmarked={post.engagement.is_bookmarked}
                             />
                           </Suspense>
                         );

@@ -8,6 +8,7 @@ export type Comment = {
     timestamp: string;
     likes: number;
     is_liked: boolean;
+    is_bookmarked: boolean;
   };
   
   export type Post = {
@@ -27,6 +28,7 @@ export type Comment = {
       likes: number;
       comments: number;
       is_liked: boolean;
+      is_bookmarked: boolean;
     };
     comments: Comment[];
   };
@@ -40,6 +42,7 @@ export type Comment = {
     tags: string[];
     title: string;
     is_liked: boolean;
+    is_bookmarked: boolean;
   };
   
   export type Quiz = {
