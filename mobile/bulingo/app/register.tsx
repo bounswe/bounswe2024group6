@@ -4,7 +4,7 @@ import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
 import {router} from 'expo-router';
 
-// const SIGNUP_URL = "http://161.35.208.249:8000/signup/";
+const SIGNUP_URL = "http://3.74.151.33:8000/signup/";
 
 const Register = () => {
   const [email, setEmail] = useState('');
@@ -49,15 +49,16 @@ const Register = () => {
       'email': email,
     };
     try {
-      // const response = await fetch(SIGNUP_URL, {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify(params),
-      // });
-      // const json = await response.json();
-      if (true){
+      const response = await fetch(SIGNUP_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(params),
+      });
+      const json = await response.json();
+      console.log(json)
+      if (json){
         router.navigate('/');
       }
     } catch (error) {
