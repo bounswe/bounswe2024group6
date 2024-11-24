@@ -22,6 +22,8 @@ export default function Home() {
     useCallback(() => {
       if (searchParams?.notification == 'login_success'){
         setNotification("Login Successful!");
+      } else if (searchParams?.notification == 'register_success'){
+        setNotification("Registration Successful!");
       }
     }, [])
   );
