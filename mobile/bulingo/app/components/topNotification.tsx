@@ -5,9 +5,10 @@ type NotificationProps = {
     message: string;
     duration?: number; // Duration in milliseconds (default: 3000ms)
     onHide?: () => void; // Callback when notification hides
+    color?: string,
 };
 
-const Notification: React.FC<NotificationProps> = ({ message, duration = 3000, onHide }) => {
+const Notification: React.FC<NotificationProps> = ({ message, duration = 3000, onHide, color }) => {
     const [fadeAnim] = useState(new Animated.Value(0)); // Animation value
 
     useEffect(() => {
@@ -33,7 +34,7 @@ const Notification: React.FC<NotificationProps> = ({ message, duration = 3000, o
     }, [fadeAnim, duration, onHide]);
 
     return (
-        <Animated.View style={[styles.notification, { opacity: fadeAnim }]}>
+        <Animated.View style={[styles.notification, { opacity: fadeAnim }, color && {backgroundColor: color}]}>
             <Text style={styles.notificationText}>{message}</Text>
         </Animated.View>
     );
