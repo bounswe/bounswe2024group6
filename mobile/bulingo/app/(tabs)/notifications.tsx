@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, Image, StyleSheet } from 'react-native';
 import TokenManager from '../TokenManager';
+import { FontAwesome } from '@expo/vector-icons';
+import {router} from "expo-router";
 
 function timeDifferenceToString(isoTimestamp: string): string {
   const now: Date = new Date();
@@ -36,32 +38,55 @@ function timeDifferenceToString(isoTimestamp: string): string {
 
 
 const dbg_notifications = [
-    { id: '1', text: 'Oguz bookmarked your quiz.' },
-    { id: '2', text: 'Halil followed you.' },
-    { id: '3', text: 'Anil followed you.' },
-    { id: '4', text: 'Aras bookmarked your quiz.' },
-    { id: '5', text: 'Oguz followed you.' },
-    { id: '6', text: 'Ozan liked your comment.' },
-    { id: '7', text: 'Sait bookmarked your quiz.' },
-    { id: '8', text: 'Kasap liked your post.' },
-    { id: '9', text: 'Ozan followed you.' },
-    { id: '10', text: 'Kasap followed you.' },
-    { id: '11', text: 'Sait liked your quiz.' },
-    { id: '12', text: 'Ozan bookmarked your post.' },
-    { id: '13', text: 'Kasap liked your recent quiz.' },
-    { id: '14', text: 'Sait followed you.' },
-    { id: '16', text: 'Halil bookmarked your comment.' },
-    { id: '17', text: 'Anil liked your post.' },
-  ];
+  {
+    actor: "ygz", 
+    affected_username: "ygz2",
+    object_id: 2,
+    object_type: "Profile", 
+    timestamp: "2024-11-24T17:06:46.710414Z", 
+    verb: "followed"
+  }
+];
 
-const NotificationItem = ( {text} : any ) => (
-  <View style={styles.notificationContainer}>
-    <View style={styles.profileInfoTopPictureContainer}>
-      <Image source={require('@/assets/images/profile-icon.png')} style={styles.profileInfoTopPicture} />
+const NotificationItem = ( {activity} : any ) => {
+  const ActivityToComponent = (activity: any) => {
+    const username = TokenManager.getUsername();
+    const handlePress = (user: any) => {
+      if (user == username){
+        router.navigate("/(tabs)/profile")
+      } else {
+        router.navigate('/(tabs)/profile')
+        setTimeout(() => {
+          router.push(`/(tabs)/profile/users/${user}`);
+        }, 0);
+      }
+      console.log("text Pressed");
+    };
+    return (
+      <Text style={styles.notificationText}>
+        <Text style={styles.clickableText} onPress={() => handlePress(activity.actor)}>
+          {activity.actor==username ? "You" : activity.actor}
+        </Text>{' '}
+        {activity.verb}{' '}
+        <Text style={styles.clickableText} onPress={() => handlePress(activity.affected_username)}>
+          {activity.affected_username==username ? "You" : activity.affected_username}
+        </Text>{' '}
+        {timeDifferenceToString(activity.timestamp)}
+      </Text>
+    );
+  }
+
+  return (
+    <View style={styles.notificationContainer}>
+      <View style={styles.profileInfoTopPictureContainer}>
+        <FontAwesome name='bell' size={28}/>
+      </View>
+      {ActivityToComponent(activity)}
     </View>
-    <Text style={styles.notificationText}>{text}</Text>
-  </View>
-);
+  );
+}
+
+
 
 const Notifications = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -79,7 +104,7 @@ const Notifications = () => {
         if (response.ok){
           const result = await response.json()
           console.log(result);
-          console.log();
+          setNotifications(result.activities);
         } else {
           console.log(response.status)
         };
@@ -99,8 +124,8 @@ const Notifications = () => {
       </View>
       <FlatList
         data={notifications}
-        renderItem={({ item }) => <NotificationItem text={item.text} />}
-        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => <NotificationItem activity={item} />}
+        keyExtractor={(item) => item.timestamp}
       />
     </View>
   );
@@ -136,7 +161,7 @@ const styles = StyleSheet.create({
   },
   notificationText: {
     fontSize: 16,
-    color: '#1a73e8', // Blue for title text
+    color: 'black',
   },
   title: {
     fontSize: 28,
@@ -147,6 +172,10 @@ const styles = StyleSheet.create({
     flex: 0,
     paddingVertical: 20,
     alignItems: 'center',
+  },
+  clickableText: {
+    fontSize: 16,
+    color: '#1a73e8', // Blue for clickable text
   },
 });
 
