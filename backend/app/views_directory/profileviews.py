@@ -22,7 +22,7 @@ def view_profile(request):
 @permission_classes([IsAuthenticated])
 def update_profile(request):
     user = request.user
-    profile = get_object_or_404(Profile, user=user)
+    profile = get_object_or_404(Profile, user=user
     serializer = ProfileSerializer(profile, data=request.data, partial=True, context={'request': request})
     if serializer.is_valid():
         serializer.save()
