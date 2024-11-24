@@ -15,7 +15,6 @@ import {
   IconBookmarkFilled,
   IconThumbUp,
   IconThumbUpFilled,
-  IconPhotoOff,
 } from "@tabler/icons-react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -100,24 +99,19 @@ export default function PostCard({
             }}
           />
         ) : (
-          <div
-            style={{
-              width: "200px",
-              height: "200px",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              backgroundColor: "#f0f0f0", // Light gray background for the fallback
-              borderRadius: "8px",
-            }}
-          >
-            <IconPhotoOff style={{ width: '70%', height: '70%', position: 'center', top: '50%', left: '50%'}} stroke={1.5} color="gray" />
+          <div className="w-[200px] h-[200px] flex justify-center items-center p-8">
+          <div className="text-blue-800 text-7xl md:text-7xl font-semibold items-center mb-3 pb-6 pl-3">
+            <div className="relative">
+              <span className="inline-block transform -rotate-12 translate-y-2">bu</span>
+              <span className="text-blue-600 inline-block transform rotate-12 translate-y-2">lingo</span>
+            </div>
           </div>
+        </div>
         )}
         <div className="w-[500px] flex flex-col justify-between h-full pt-4">
           <CardBody className="px-3 py-0 text-small text-default-600 text-justify leading-relaxed overflow-hidden">
             <div className="flex flex-row justify-between w-full">
-              <h2 className="text-2xl font-semibold leading-none text-black">
+              <h2 className="text-2xl font-semibold leading-none text-black mb-1">
                 <Link to={`/quiz/${id}/details`} className="text-black hover:underline">
                   {title}
                 </Link>

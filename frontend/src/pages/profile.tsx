@@ -161,7 +161,7 @@ export default function Profile() {
               <div className="mx-4 max-w-52">
                 <h3 className="text-xl font-semibold">{profile.username}</h3>
                 <p className="text-gray-500">@{profile.level}</p>
-                <p className="text-zinc-800 break-words">{profile.bio}</p>
+                <p className="text-zinc-800 break-words">{profile.bio || "Hey, new learner here!"}</p>
               </div>
             </div>
             <div
@@ -203,17 +203,6 @@ export default function Profile() {
       <div className="flex w-full flex-col items-center">
         <Tabs aria-label="Options">
           <Tab
-            key="quiz"
-            title={
-              <div className="flex items-center space-x-2">
-                <IconClipboardText size={20} stroke={1.5} />
-                <span>Quizzes</span>
-              </div>
-            }
-          >
-            <p>Quizzes</p>
-          </Tab>
-          <Tab
             key="post"
             title={
               <div className="flex items-center space-x-2">
@@ -248,6 +237,17 @@ export default function Profile() {
             )}
           </Tab>
           <Tab
+            key="quiz"
+            title={
+              <div className="flex items-center space-x-2">
+                <IconClipboardText size={20} stroke={1.5} />
+                <span>Quizzes</span>
+              </div>
+            }
+          >
+            <p></p>
+          </Tab>
+          <Tab
             key="solved"
             title={
               <div className="flex items-center space-x-2">
@@ -256,7 +256,7 @@ export default function Profile() {
               </div>
             }
           >
-            <p>Solved</p>
+            <p></p>
           </Tab>
           {profile?.username === Cookies.get("username") && (
             <Tab

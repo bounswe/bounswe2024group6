@@ -110,7 +110,7 @@ export default function PostCard({
   };
 
   const displayedText =
-    isExpanded || content.length <= maxLength
+    isExpanded || (content && content.length <= maxLength)
       ? content
       : `${content.slice(0, maxLength)}... `;
 
@@ -151,7 +151,7 @@ export default function PostCard({
       <CardBody className="px-3 py-0 text-small text-default-600 text-justify leading-relaxed overflow-hidden">
         <p>
           {displayedText}
-          {content.length > maxLength && (
+          {(content) && content.length > maxLength && (
             <span
               onClick={toggleExpand}
               style={{ color: "#186df5", cursor: "pointer" }}
