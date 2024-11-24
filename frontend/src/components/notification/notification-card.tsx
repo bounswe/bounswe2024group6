@@ -10,7 +10,7 @@ type Props = {
 
 export default function NotificationCard({ content, timePassed }: Props) {
   return (
-    <Card className="w-[740px] p-2">
+    <Card className="w-[310px] p-2">
       <CardBody className="text-small text-default-600 text-justify leading-relaxed overflow-hidden flex flex-row justify-between">
         <div className="flex flex-row gap-3">
           <Avatar

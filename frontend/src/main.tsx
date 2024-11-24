@@ -13,7 +13,6 @@ import Browse from "./pages/browse.tsx";
 import ComposePost from "./pages/compose-post.tsx";
 import QuizEnd from "./pages/quiz-end.tsx";
 import QuizDetails from "./pages/quiz-details.tsx";
-import Notifications from "./pages/notifications.tsx";
 import QuizCreation from "./pages/quiz-creation.tsx";
 import Home from "./pages/home.tsx";
 import ProtectedRoute from "./components/auth/protect-routes.tsx";
@@ -129,14 +128,6 @@ const router = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
-  {
-    path: "/notifications",
-    element: (
-      <ProtectedRoute>
-        <Notifications />
-      </ProtectedRoute>
-    ),
-  },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
@@ -148,3 +139,4 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     </NextUIProvider>
   </React.StrictMode>
 );
+
