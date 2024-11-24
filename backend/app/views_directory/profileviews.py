@@ -42,4 +42,23 @@ def view_other_profile(request, username):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def view_followers(request, username):
+    user = get_object_or_404(User, username=username)
+    profile = get_object_or_404(Profile, user=user)
+    followers = profile.followers.all()
+    serializer = ProfileSerializer(followers, many=True, context={'request': request})
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def view_following(request, username):
+    user = get_object_or_404(User, username=username)
+    profile = get_object_or_404(Profile, user=user)
+    following = profile.following.all()
+    serializer = ProfileSerializer(following, many=True, context={'request': request})
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
 
