@@ -1,5 +1,5 @@
 import Navbar from "../components/common/navbar.tsx";
-import { Tabs, Tab, Avatar, Button, Divider } from "@nextui-org/react";
+import { Tabs, Tab, Avatar, Button, Divider, user } from "@nextui-org/react";
 import { Suspense, useState, useEffect } from "react";
 import PostCard from "../components/post/post-card.tsx";
 import PostCardSkeleton from "../components/post/post-card-skeleton.tsx";
@@ -14,7 +14,7 @@ import {
   IconClipboardText,
 } from "@tabler/icons-react";
 import { AuthActions } from "../components/auth/utils.tsx";
-import { convertProfileResponseToProfile } from "../components/common/utils.tsx";
+import { convertPostResponseToPost, convertProfileResponseToProfile } from "../components/common/utils.tsx";
 import Cookies from "js-cookie";
 import { usePageTitle } from "../components/common/usePageTitle.ts";
 
@@ -31,11 +31,11 @@ export default function Profile() {
 
   useEffect(() => {
     if (username) {
+      console.log(username);
       axios
         .get(`${BASE_URL}/profile/${username}/`, {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
           },
         })
         .then((response) => {
@@ -59,7 +59,7 @@ export default function Profile() {
   }, [username, token]);
 
   useEffect(() => {
-    if (profile && profile.username === Cookies.get("username")) {
+    if (username === Cookies.get("username")) {
       console.log("Fetching bookmarked posts");
       axios
         .post(`${BASE_URL}/get_bookmarked_posts/`, 
@@ -217,7 +217,7 @@ export default function Profile() {
           >
             <p>Solved</p>
           </Tab>
-          {profile && profile.username === Cookies.get("username") && (
+          {profile?.username === Cookies.get("username") && (
             <Tab
               key="saved"
               title={
