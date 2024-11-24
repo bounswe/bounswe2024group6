@@ -23,7 +23,7 @@ def view_profile(request):
 def update_profile(request):
     user = request.user
     profile = get_object_or_404(Profile, user=user)
-    serializer = ProfileSerializer(profile, data=request.data, partial=True)
+    serializer = ProfileSerializer(profile, data=request.data, partial=True, context = {"request": request})
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
