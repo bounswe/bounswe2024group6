@@ -14,6 +14,7 @@ import {
   formatTimeAgo,
 } from "../components/common/utils.tsx";
 import Cookies from "js-cookie";
+import CommentSkeleton from "../components/post/comment-skeleton.tsx";
 
 export default function Post() {
   const { postID } = useParams();
@@ -93,7 +94,7 @@ export default function Post() {
   return (
     <div className="flex flex-col items-center">
       <Navbar />
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-6 mt-4">
         {isLoading ? (
           <PostCardSkeleton />
         ) : (
@@ -140,25 +141,23 @@ export default function Post() {
             </div>
           </div>
         </Card>
-        {isLoading ? (
-          Array(2).fill(0).map((_, index) => (
-            <PostCardSkeleton key={index} />
-          ))
-        ) : (
-          comments.map((comment) => (
-            <Suspense key={comment.id} fallback={<PostCardSkeleton />}>
-              <PostCard
-                id={comment.id}
-                username={comment.author}
-                content={comment.content}
-                timePassed={formatTimeAgo(comment.created_at)}
-                likeCount={comment.like_count}
-                initialIsLiked={comment.is_liked}
-                initialIsBookmarked={false}
-              />
-            </Suspense>
-          ))
-        )}
+        {isLoading
+          ? Array(1)
+              .fill(0)
+              .map((_, index) => <CommentSkeleton key={index} />)
+          : comments.map((comment) => (
+              <Suspense key={comment.id} fallback={<CommentSkeleton />}>
+                <PostCard
+                  id={comment.id}
+                  username={comment.author}
+                  content={comment.content}
+                  timePassed={formatTimeAgo(comment.created_at)}
+                  likeCount={comment.like_count}
+                  initialIsLiked={comment.is_liked}
+                  initialIsBookmarked={false}
+                />
+              </Suspense>
+            ))}
       </div>
     </div>
   );
