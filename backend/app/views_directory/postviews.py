@@ -27,6 +27,7 @@ def like_post(request):
         verb="liked",
         object_type="Post",
         object_id=post.id,
+        affected_username=post.author.username
     )
 
     # Include like and bookmark status in the response

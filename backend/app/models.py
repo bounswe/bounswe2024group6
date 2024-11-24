@@ -162,16 +162,24 @@ class Translation(models.Model):
         return f"{self.translation} (Translation of {self.word})"
 
 class ActivityStream(models.Model):
-    actor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='activities')  
-    verb = models.CharField(max_length=50)  # liked, created, followed
-    object_type = models.CharField(max_length=50)  # Quiz, Post
-    object_id = models.IntegerField()  #Quiz ID Post ID
-    timestamp = models.DateTimeField(default=now)  # timestamp
-    target = models.CharField(max_length=100, null=True, blank=True)  # Add this field
+    actor = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='activities'
+    )  
+    verb = models.CharField(max_length=50) 
+    object_type = models.CharField(max_length=50) 
+    object_id = models.IntegerField()
+    timestamp = models.DateTimeField(default=now)  
+    target = models.CharField(max_length=100, null=True, blank=True)  
+    affected_username = models.CharField(
+        max_length=150, null=True, blank=True
+    )  
 
     def __str__(self):
-        return f"{self.actor.username} {self.verb} {self.object_type}:{self.object_id} at {self.timestamp}"
-    
+        affected = f" affecting {self.affected_username}" if self.affected_username else ""
+        return (
+            f"{self.actor.username} {self.verb} {self.object_type}:{self.object_id} "
+            f"at {self.timestamp}{affected}"
+        )
     
 class Comment(models.Model):
     post = models.ForeignKey('Post', on_delete=models.CASCADE, related_name='comments')  # Assuming a Post model exists

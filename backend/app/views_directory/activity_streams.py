@@ -6,12 +6,14 @@ from app.models import ActivityStream
 from django.contrib.auth.models import User
 
 
-@api_view(['POST'])
+@api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def activities_for_user_as_object(request):
-    user = request.user  
+    user = request.user  # Logged-in user
 
-    activities = ActivityStream.objects.filter(object_type="Profile", object_id=user.id).order_by('-timestamp')
+    activities = ActivityStream.objects.filter(
+        affected_username=user.username
+    ).order_by('-timestamp')  # Filter where logged-in user is the affected user
 
     activity_data = [
         {
@@ -20,12 +22,12 @@ def activities_for_user_as_object(request):
             "object_type": activity.object_type,
             "object_id": activity.object_id,
             "timestamp": activity.timestamp,
+            "affected_username": activity.affected_username,
         }
         for activity in activities
     ]
 
     return Response({"activities": activity_data}, status=status.HTTP_200_OK)
-
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
