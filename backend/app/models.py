@@ -199,7 +199,7 @@ class Comment(models.Model):
 
 class Bookmark(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookmarks')
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='bookmarked_by')
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='post_bookmarks') 
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
