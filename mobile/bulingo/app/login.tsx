@@ -36,7 +36,7 @@ export default function Home() {
         const { access, refresh } = json;
         TokenManager.saveTokens(access, refresh);
         TokenManager.setUsername(username);
-        router.replace('/');
+        router.replace('/?notification=login_success');
       } else {
         setIsErrorVisible(true);
       };

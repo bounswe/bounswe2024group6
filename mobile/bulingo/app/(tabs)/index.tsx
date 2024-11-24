@@ -1,8 +1,9 @@
-import React, {useState} from 'react';
+import React, {useState, useCallback} from 'react';
 import {Image, TouchableOpacity, StyleSheet, Text, View, Dimensions} from 'react-native';
-import { router } from "expo-router";
+import { router, useLocalSearchParams, useFocusEffect } from "expo-router";
 import TokenManager from '../TokenManager';
 import { Shadow } from 'react-native-shadow-2';
+import Notification from '../components/topNotification';
 
 const { width, height } = Dimensions.get('window');
 
@@ -10,8 +11,20 @@ export default function Home() {
   const handleRegister = () => {
     router.navigate("/register");
   };
+  const searchParams = useLocalSearchParams();
   const username = TokenManager.getUsername();
   const [logoutTrigger, setLogoutTrigger] = useState(false);
+  const [notification, setNotification] = useState<string | null>(null);
+
+
+
+  useFocusEffect(
+    useCallback(() => {
+      if (searchParams?.notification == 'login_success'){
+        setNotification("Login Successful!");
+      }
+    }, [])
+  );
 
   const handleLogOut = () => {
     console.log("logout pressed");
@@ -24,6 +37,12 @@ export default function Home() {
 
   return (
     <View style={styles.container}>
+      {notification && (
+          <Notification
+              message={notification}
+              onHide={() => setNotification(null)} // Clear notification after hiding
+          />
+      )}
       <View style={styles.page}>
       <View style={styles.profilePictureContainer}>
       <Image
