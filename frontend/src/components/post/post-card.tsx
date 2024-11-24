@@ -102,6 +102,7 @@ export default function PostCard({
         }
       )
       .then((response) => {
+        console.log(response.data);
         setIsBookmarked(response.data.is_bookmarked);
       });
     setIsBookmarked(!isBookmarked);
@@ -135,7 +136,7 @@ export default function PostCard({
                 </div>
               </PopoverTrigger>
               <PopoverContent className="p-1">
-                <UserCard />
+                <UserCard username={username} />
               </PopoverContent>
             </Popover>
           </div>
