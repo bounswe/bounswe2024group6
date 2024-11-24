@@ -22,10 +22,12 @@ class ProfileSerializer(serializers.ModelSerializer):
     def get_posts(self, obj):
         """Get posts created by the user, similar to get_post_details."""
         posts = Post.objects.filter(author=obj.user)
+        user = self.context['request'].user
+
         post_data = []
         for post in posts:
             is_liked = post.liked_by.filter(id=self.context['request'].user.id).exists()
-            is_bookmarked = post.bookmarked_by.filter(id=self.context['request'].user.id).exists()
+            is_bookmarked = Bookmark.objects.filter(user=user, post=post).exists()
             
             comments_data = [
                 {

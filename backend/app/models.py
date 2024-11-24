@@ -131,6 +131,7 @@ class Post(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
     like_count = models.IntegerField(default=0)
     bookmarked_by = models.ManyToManyField(User, related_name='bookmarked_posts', blank=True)  
+
     liked_by = models.ManyToManyField(User, related_name='liked_posts', blank=True)
 
     def __str__(self):
@@ -198,7 +199,7 @@ class Comment(models.Model):
 
 class Bookmark(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookmarks')
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)  # No related_name needed here
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='bookmarked_by')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
