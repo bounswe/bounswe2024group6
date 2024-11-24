@@ -90,6 +90,8 @@ export default function Profile() {
       const profileUrl = `${baseUrl}?${queryString}`;
 
       const createdQuizUrl = `quiz/created/${username}/`;
+      const solvedQuizUrl = `quiz/solved/${username}/`;
+      let updatedUserInfo;
 
       try {
         const profileRequest = await TokenManager.authenticatedFetch(profileUrl, {
@@ -100,10 +102,11 @@ export default function Profile() {
         });
         const profileResponse = await profileRequest.json();
         if (profileRequest.ok){
-          setUserInfo(profileResponse);
+          updatedUserInfo = profileResponse
         } else {
           console.log(profileRequest.status)
         };
+
         const createdQuizRequest = await TokenManager.authenticatedFetch(createdQuizUrl, {
           method: 'GET',
           headers: {
@@ -112,10 +115,26 @@ export default function Profile() {
         });
         const createdQuizResponse = await createdQuizRequest.json()
         if (createdQuizRequest.ok){
-          setUserInfo({...userInfo, createdQuizzes: createdQuizResponse});
+          updatedUserInfo = {...updatedUserInfo, createdQuizzes: createdQuizResponse}
         } else {
           console.log(createdQuizResponse.status)
         };
+        
+        const solvedQuizRequest = await TokenManager.authenticatedFetch(solvedQuizUrl, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        const solvedQuizResponse = await solvedQuizRequest.json()
+        console.log(solvedQuizResponse);
+        if (solvedQuizRequest.ok){
+          setUserInfo({...updatedUserInfo, solvedQuizzes: solvedQuizResponse});
+        } else {
+          console.log(createdQuizResponse.status)
+        };
+
+
       } catch (error) {
         console.error(error);
       }
