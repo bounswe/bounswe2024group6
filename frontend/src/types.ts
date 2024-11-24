@@ -64,12 +64,14 @@ export type Comment = {
     image: string;
     posts: Post[];
     quizzes: Quiz[];
+    is_followed: boolean;
   };
 
   export type ProfileResponse = {
     comments: Comment[]; // TODO: to be removed
     follower_count: number; 
     following_count: number;
+    is_followed: boolean;
     level: string;
     bio: string;
     name: string;
