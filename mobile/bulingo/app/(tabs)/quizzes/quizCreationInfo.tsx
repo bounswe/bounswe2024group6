@@ -10,7 +10,7 @@ const QuizCreationInfo = () => {
   const [newAnswer, setNewAnswer] = useState('');
   const [selectedAnswerIndex, setSelectedAnswerIndex] = useState<number | null>(null);
   const [selectedType, setSelectedType] = useState('Type II');
-  const [correctAnswerIndex, setCorrectAnswerIndex] = useState(null)
+  const [correctAnswerIndex, setCorrectAnswerIndex] = useState<number | null>(null)
 
   const isButtonDisabled = () => {
     const nonEmptyAnswers = answers.filter(answer => answer.trim() !== "");
@@ -22,13 +22,16 @@ const QuizCreationInfo = () => {
   const styles = getStyles(colorScheme);
 
   // get params from the previous screen
-  const { initialQuestion, initialAnswers, initialCorrectAnswer, type, index} = useLocalSearchParams();
+  const { initialQuestion, initialAnswers, initialCorrectAnswer, type, index, trigger} = useLocalSearchParams();
+
+
+
 
   useEffect(() => {
     if (initialQuestion && initialAnswers && initialCorrectAnswer) {
       setQuestion(Array.isArray(initialQuestion) ? initialQuestion[0] : initialQuestion);
       setAnswers(JSON.parse(Array.isArray(initialAnswers) ? initialAnswers[0] : initialAnswers));
-      setCorrectAnswerIndex(JSON.parse(Array.isArray(initialAnswers) ? initialAnswers[0] : initialAnswers).indexOf(initialCorrectAnswer));
+      setCorrectAnswerIndex(Number(initialCorrectAnswer));
       setSelectedType(type instanceof Array ? type[0] : type);
     }
   }, [initialQuestion, initialAnswers, initialCorrectAnswer]);
@@ -65,7 +68,7 @@ const QuizCreationInfo = () => {
   };
 
   const handleAddQuestion = () => {
-    router.navigate({ pathname: '/(tabs)/quizzes/quizCreationQuestionList', params: { question: question, answers: JSON.stringify(answers), correctAnswer: correctAnswerIndex, selectedType: selectedType, index: index } });
+    router.navigate({ pathname: '/(tabs)/quizzes/quizCreationQuestionList', params: { question: question, answers: JSON.stringify(answers), correctAnswer: correctAnswerIndex, selectedType: selectedType, index: index, trigger: trigger} });
   };
 
   const handleTypeSelect = (type: string) => {

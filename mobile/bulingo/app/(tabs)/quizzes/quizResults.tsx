@@ -1,49 +1,156 @@
-import React, {useState} from 'react';
-import {Image, StyleSheet, Text, View, TouchableOpacity, useColorScheme} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Image, StyleSheet, Text, View, TouchableOpacity, useColorScheme } from 'react-native';
 import { useLocalSearchParams } from "expo-router";
-import {router} from "expo-router";
+import { router } from "expo-router";
 import { Shadow } from 'react-native-shadow-2';
-
 import { Dimensions } from 'react-native';
+import TokenManager from '@/app/TokenManager';
 
 const { width, height } = Dimensions.get('window');
 
-export type QuizResultsProps = {
-  quizResultsProps: QuizResultsCardProps,
-  recommendationProps: QuizCardProps,
-};
+
 
 const QuizResults = () => {
-  const rawProps = useLocalSearchParams<{'props': string}>();
-  const props: QuizResultsProps = JSON.parse(rawProps.props);
+  const { resultUrl, quizId } = useLocalSearchParams<{ resultUrl: string, quizId: string }>();
   const colorScheme = useColorScheme();
   const styles = getStyles(colorScheme);
 
+  const [quizResult, setQuizResult] = useState<{
+    quiz: { id: number; title: string };
+    score: number;
+    time_taken: number;
+    level: string;
+    question_count: number;
+  } | null>(null);
+
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const [recommendedQuiz, setRecommendedQuiz] = useState<{
+    id: number;
+    title: string;
+    description: string;
+    author : string;
+    level: string;
+    likes: number;
+    liked: boolean;
+  } | null>(null);
+
+  useEffect(() => {
+    const fetchQuizResult = async () => {
+      console.log(resultUrl);
+      try {
+        const response = await TokenManager.authenticatedFetch(resultUrl, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setQuizResult(data);
+        } else {
+          const errorData = await response.json();
+          setError(errorData.detail || 'Failed to fetch quiz result.');
+        }
+      } catch (err: any) {
+        setError(err.message || 'Unknown error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchQuizResult();
+  }, [resultUrl]);
+
+
+  useEffect(() => {
+    const fetchQuizzes = async () => {    
+      try {
+        const response = await TokenManager.authenticatedFetch(`/feed/quiz/`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+    
+        const data = await response.json();
+        console.log(data);
+        if (response.ok) {
+          const formattedResults = data.map((quiz: any) => ({
+            id: Number(quiz.id),
+            title: quiz.title,
+            description: quiz.description,
+            author: quiz.author.username,
+            level: quiz.level,
+            likes: quiz.like_count,
+            liked: quiz.is_liked,
+          }));
+          let randomInt = 0
+          let retryCount = 3;
+
+          while(formattedResults[randomInt].id === Number(quizId) && retryCount > 0) {
+            randomInt = Math.floor(Math.random() * formattedResults.length);
+            retryCount--;
+          };
+
+          setRecommendedQuiz(formattedResults[randomInt]);
+          setError(null);
+        } else {
+          setError('Failed to fetch quizzes. Please try again. Error: ' + data.message || JSON.stringify(data));
+        }
+      } catch (error: any) {
+        setError('An error occurred while fetching quizzes. Please try again. Error: ' + (error.message || 'Unknown error'));
+      }
+    };
+
+          fetchQuizzes(); 
+      }, []);
+
   return (
     <View style={styles.container}>
+    {loading ? (
+      <Text style={styles.loadingText}>Loading...</Text>
+    ) : error ? (
+      <Text style={styles.errorText}>Error: {error}</Text>
+    ) : (
       <View style={styles.page}>
-        <View style={styles.resultsCardContainer}>
-          <QuizResultsCard 
-            quizName={props.quizResultsProps.quizName}
-            tags={props.quizResultsProps.tags} 
-            score={props.quizResultsProps.score} 
-            maxScore={props.quizResultsProps.maxScore}
-            styles={{styles}}
+      <View style={styles.resultsCardContainer}>
+        {quizResult ? (
+          <QuizResultsCard
+            quizName={quizResult.quiz.title}
+            tags={[quizResult.level || 'A1']}
+            score={quizResult.score}
+            maxScore={quizResult.question_count}
+            styles={{ styles }}
           />
-        </View>
+        ) : (
+          <Text style={styles.errorText}>No results found for this quiz.</Text>
+        )}
+      </View>
         <View style={styles.recommendationContainer}>
           <Text style={styles.recommendationText}>Recommended Quiz</Text>
-          <QuizCard 
-            name={props.recommendationProps.name}
-            author={props.recommendationProps.author} 
-            desc={props.recommendationProps.desc} 
-            tags={props.recommendationProps.tags}
-            styles={{styles}}
-          />
+          {recommendedQuiz ? (
+            <QuizCard
+              name={recommendedQuiz.title}
+              author={recommendedQuiz.author}
+              desc={recommendedQuiz.description}
+              tags={[recommendedQuiz.level]}
+              id={recommendedQuiz.id}
+              styles={{ styles }}
+            />
+          ) : (
+            <Text style={styles.errorText}>No recommendations available.</Text>
+          )}
         </View>
         <View style={styles.buttonContainer}>
         <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
-          <TouchableOpacity style={styles.retakeQuizButton} onPress={() => {router.push("/(tabs)/quizzes/quizQuestion")}}>
+          <TouchableOpacity style={styles.retakeQuizButton} onPress={() => {router.push(
+        {
+        pathname:'/(tabs)/quizzes/quizQuestion',
+        params: { quizId: quizId }, 
+      });}}>
             <Text style={styles.retakeQuizText}>Retake Quiz</Text>
           </TouchableOpacity>
           </Shadow>
@@ -56,8 +163,9 @@ const QuizResults = () => {
           </TouchableOpacity>
           </Shadow>
           </View>
-      </View>
-    </View>
+          </View>
+    )}
+  </View>
   );
 };
 
@@ -67,6 +175,7 @@ export type QuizResultsCardProps = {
   maxScore: number,
   tags: string[],
   styles?: any,
+  id?: number,
 }
 
 export const QuizResultsCard = (props: QuizResultsCardProps) => {
@@ -106,20 +215,21 @@ export const QuizResultsCard = (props: QuizResultsCardProps) => {
   );
 };
 
-export type QuizCardProps = {
-  name?: string, 
-  desc?: string,
-  author?: string,
-  tags: string[],
-  styles?: any,
-};
-
-export const QuizCard = (props: QuizCardProps) => {
+export const QuizCard = (props: {
+  name: string;
+  desc: string;
+  author: string;
+  tags: string[];
+  styles: any;
+  id?: number;
+}) => {
   const { styles } = props.styles;
   return (
     <TouchableOpacity
     style={[styles.quizItem, styles.elevation]}
-    onPress={() => router.navigate('/(tabs)/quizzes/quizDetails')}
+    onPress={() => router.navigate({
+      pathname: '/(tabs)/quizzes/quizDetails', 
+      params:{id : props?.id},})}
   >
     <View style={styles.quizInfo}>
       <Text style={styles.quizTitle}>{props.name}</Text>
@@ -141,8 +251,7 @@ export const QuizCard = (props: QuizCardProps) => {
   );
 };
 
-
-const getStyles = (colorScheme:any) => {
+const getStyles = (colorScheme: any) => {
   const isDark = colorScheme === 'dark';
 
   return StyleSheet.create({
@@ -176,7 +285,7 @@ const getStyles = (colorScheme:any) => {
       alignItems: 'center',
     },
     resultsTitle: {
-      fontSize: 32,
+      fontSize: 25,
       fontWeight: 'bold',
       textAlign: 'center',
       color: isDark ? '#fff' : '#000',
@@ -362,6 +471,17 @@ const getStyles = (colorScheme:any) => {
       height: height * 0.05,
       resizeMode: 'contain',
       tintColor: isDark ? '#fff' : '#000',
+    },
+    loadingText: {
+      textAlign: 'center',
+      color: isDark ? '#fff' : '#000',
+      marginTop: 10,
+    },
+    errorText: {
+      color: 'red',
+      fontSize: 16,
+      textAlign: 'center',
+      marginBottom: 16,
     },
   });
 };

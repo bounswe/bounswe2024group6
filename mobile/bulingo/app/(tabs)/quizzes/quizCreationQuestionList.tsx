@@ -21,8 +21,6 @@ type QuizDetails = {
   tags: string[];
 };
 
-let uniqueQuestionKey = 0;
-
 const QuizCreationQuestionList = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
   
@@ -59,20 +57,21 @@ const QuizCreationQuestionList = () => {
   const colorScheme = useColorScheme();
   const styles = getStyles(colorScheme);
   
-  const { question, answers, correctAnswer, selectedType, index } = useLocalSearchParams();
-
+  const { question, answers, correctAnswer, selectedType, index, trigger } = useLocalSearchParams();
   const parsedAnswers = Array.isArray(answers) ? answers.join(', ') : answers ? JSON.parse(answers) : [];
+
+  const key = questions.length === 0 ? 0 : questions[questions.length - 1].id + 1;
+
 
   useEffect(() => {
     if (question && answers && correctAnswer && selectedType) {
       const newQuestion = {
-        id: index !== undefined ? questions[Number(index)].id : uniqueQuestionKey,
+        id: index !== undefined ? questions[Number(index)].id : key,
         name: Array.isArray(question) ? question[0] : question,
         correctAnswer: Array.isArray(correctAnswer) ? correctAnswer[0] : correctAnswer,
         answers: parsedAnswers,
         type: Array.isArray(selectedType) ? selectedType[0] : selectedType 
       };
-      console.log(newQuestion);
 
       if (index !== undefined) {
         setQuestions((prevQuestions) => {
@@ -83,18 +82,19 @@ const QuizCreationQuestionList = () => {
         });
         return;
       }
-      uniqueQuestionKey++;
-      setQuestions((prevQuestions) => [...prevQuestions, newQuestion]);
+
+      const newQuest = { ...newQuestion };
+      setQuestions((prevQuestions) => [...prevQuestions, newQuest]);
       saveQuestions(questions);
     }
-  }, [question, answers, correctAnswer, selectedType]);
+  }, [question, answers, correctAnswer, selectedType, trigger]);
 
   const handleAddQuestion = () => {
-    router.navigate('/(tabs)/quizzes/quizCreationInfo');
+    router.navigate({pathname: '/(tabs)/quizzes/quizCreationInfo', params: { "trigger": key }});
   };
 
   const handleUpdateQuestion = (index: number) => {
-    router.navigate({pathname: '/(tabs)/quizzes/quizCreationInfo', params: { "initialQuestion": questions[index].name , "initialAnswers": JSON.stringify(questions[index].answers), "initialCorrectAnswer": questions[index].correctAnswer, "type": questions[index].type, "index": index}});
+    router.navigate({pathname: '/(tabs)/quizzes/quizCreationInfo', params: { "initialQuestion": questions[index].name , "initialAnswers": JSON.stringify(questions[index].answers), "initialCorrectAnswer": Number(questions[index].correctAnswer), "type": questions[index].type, "index": index, "trigger": key + 50}});
   };
 
   const handleCreateQuiz = async () => {
@@ -110,7 +110,6 @@ const QuizCreationQuestionList = () => {
 
   const formattedTags = [{"name": quizDetails["level"]}];
 
-  console.log(formattedTags);
 
     return {
       quiz: {
@@ -126,14 +125,13 @@ const QuizCreationQuestionList = () => {
         choice2: q.answers[1],
         choice3: q.answers[2],
         choice4: q.answers[3],
-        correct_choice: q.answers.indexOf(q.correctAnswer) + 1,
+        correct_choice: Number(q.correctAnswer) + 1,
       })),
     };
   };
 
   const createQuiz = async () => {
     const quizData = prepareQuizData();
-    console.log('Quiz data:', quizData);
     if (!quizData) return; // Ensure data is prepared
   
     try {
@@ -151,7 +149,6 @@ const QuizCreationQuestionList = () => {
         alert('Failed to create quiz. Please try again.');
       } else {
         const result = await response.json();
-        console.log('Quiz created successfully:', result);
         alert('Quiz created successfully!');
         await clearQuizDetails();
         await clearQuestions();
