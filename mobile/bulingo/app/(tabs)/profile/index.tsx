@@ -9,8 +9,8 @@ const debugUserInfo: UserInfo = {
   name: 'Yagiz Guldal',
   about: "Hello, I am an avid language learner. I am trying my best to learn English.",
   level: 'B1',
-  followerCount: 20,
-  followingCount: 25,
+  follower_count: 20,
+  following_count: 25,
   createdQuizzes: [
     { id: 1, title: 'Food', description: 'Learn about foods', author: 'Oguz', level: 'A2', likes: 135, liked: true },
     { id: 2, title: 'Animals', description: 'Our furry friends!', author: 'Aras', level: 'A2', likes: 12, liked: false },
@@ -35,8 +35,8 @@ type UserInfo = {
   name: string,
   about: string,
   level: string,
-  followerCount: number,
-  followingCount: number,
+  follower_count: number,
+  following_count: number,
   createdQuizzes: QuizInfo[],  // Placeholder
   solvedQuizzes: QuizInfo[],  // Placeholder
   postsAndComments: {id: number, desc: string}[],  // Placeholder
@@ -83,17 +83,28 @@ export default function Profile() {
 
   useEffect(() => {
     const fetchProfileInfo = async () => {
+      const username = TokenManager.getUsername()
+      if (username === null){
+        console.error("username is null")
+        return
+      }
       const params = {
-        'user': TokenManager.getUsername(),
+        'user': username,
        };
-       console.log(await TokenManager.getAccessToken());
+
+      const baseUrl = 'profile/'; // Replace with your API endpoint
+
+      // Convert the parameters to a query string
+      const queryString = new URLSearchParams(params).toString();
+      const urlWithParams = `${baseUrl}?${queryString}`;
+      console.log(`URL = ${urlWithParams}`)
+
       try {
-        const response = await TokenManager.authenticatedFetch('profile/', {
-          method: 'POST',
+        const response = await TokenManager.authenticatedFetch(urlWithParams, {
+          method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(params),
         });
         const res = await response.json();
         console.log(res);
@@ -150,8 +161,8 @@ export default function Profile() {
             name={userInfo.name}
             level={userInfo.level}
             about={userInfo.about}
-            followerCount={userInfo.followerCount}
-            followingCount={userInfo.followingCount}
+            followerCount={userInfo.follower_count}
+            followingCount={userInfo.following_count}
           />
           <Tabs tab={tab} setTab={setTab}/>
         </>
@@ -191,7 +202,7 @@ const ProfileInfo = (props:ProfileInfoProps) => {
         </View>
         <View style={styles.profileInfoTopFollowContainer}>
           <View style={styles.profileInfoTopFollowItemContainer}>
-            <Text style={styles.followItemNumberText}>{props.level}</Text>
+            <Text style={styles.followItemNumberText}>{props.level == 'NA' ? 'N/A' : props.level}</Text>
             <Text style={styles.followItemDescriptionText}>Level</Text>
           </View>
           <TouchableOpacity style={styles.profileInfoTopFollowItemContainer} onPress={handleFollowersPress}>

@@ -1,14 +1,32 @@
 import React, { useState, useRef, useEffect, MutableRefObject } from 'react';
-import { TouchableOpacity, Image, View, StyleSheet, Text, TextInput, Keyboard, TouchableWithoutFeedback, ScrollView } from 'react-native';
+import { TouchableOpacity, Image, View, StyleSheet, Text, TextInput, Keyboard, TouchableWithoutFeedback, ScrollView, ActivityIndicator } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import { ImageSourceOverlay } from './imageSourceOverlay';
 import { Dropdown } from 'react-native-element-dropdown';
+import TokenManager from '@/app/TokenManager';
 
+type UserInfo = {
+  name: string,
+  about: string,
+  level: 'NA' | 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2'
+}
+
+const levels = [
+  {label: 'NA', value: 'N/A'},
+  {label: 'A1', value: 'A1'},
+  {label: 'A2', value: 'A2'},
+  {label: 'B1', value: 'B1'},
+  {label: 'B2', value: 'B2'},
+  {label: 'C1', value: 'C1'},
+  {label: 'C2', value: 'C2'},
+];
 
 export default function EditProfile() {
   const [image, setImage] = useState<string | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [userInfo, setUserInfo] = useState<UserInfo>({name: '', about: '', level: 'NA'});
 
 
   // Removes the highlight from the text input fields if the keyboard is hidden.
@@ -24,6 +42,37 @@ export default function EditProfile() {
     return () => {
       keyboardListener.remove(); // Cleanup listener on component unmount
     };
+  }, []);
+
+  useEffect(() => {
+    const fetchProfileInfo = async () => {
+      const params = {
+        'user': TokenManager.getUsername(),
+       };
+       console.log(await TokenManager.getAccessToken());
+      try {
+        const response = await TokenManager.authenticatedFetch('profile/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(params),
+        });
+        const res = await response.json();
+        console.log(res);
+        if (response.ok){
+          setUserInfo(res);
+        } else {
+          console.log(response.status)
+        };
+        setUserInfo
+      } catch (error) {
+        console.error(error);
+      }
+      setIsLoading(false);
+    };
+
+    fetchProfileInfo();
   }, []);
 
   const openModal = () => setIsModalVisible(true);
@@ -61,8 +110,32 @@ export default function EditProfile() {
     }
   };
 
-  const onSaveChanges = () => {
-
+  const onSaveChanges = async () => {
+    const params = {
+      'user': TokenManager.getUsername(),
+      'name': userInfo.name,
+      'level': userInfo.level,
+     };
+    try {
+      const response = await TokenManager.authenticatedFetch('profile/update/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(params),
+      });
+      const res = await response.json();
+      console.log(res);
+      if (response.ok){
+        setUserInfo(res);
+      } else {
+        console.log(response.status)
+      };
+      setUserInfo
+    } catch (error) {
+      console.error(error);
+    }
+    setIsLoading(false);
   };
 
   const handleChangePicturePress = () => {
@@ -70,14 +143,15 @@ export default function EditProfile() {
     openModal();
   };
 
-  const levels = [
-    {label: 'A1', value: 'A1'},
-    {label: 'A2', value: 'A2'},
-    {label: 'B1', value: 'B1'},
-    {label: 'B2', value: 'B2'},
-    {label: 'C1', value: 'C1'},
-    {label: 'C2', value: 'C2'},
-  ];
+  if(isLoading){
+    return (
+      <TouchableWithoutFeedback>
+        <View style={styles.overlay}>
+          <ActivityIndicator size="large" color="#fff" />
+        </View>
+      </TouchableWithoutFeedback>
+    );
+  };
 
   return (
     <>
@@ -94,9 +168,9 @@ export default function EditProfile() {
         </TouchableOpacity>
       </View>
       <View style={styles.editableFieldsContainer}>
-        <EditableField customHeight={RFPercentage(5)} maxLength={40} ref={inputRefs[0]} name='Name' defaultValue='Yagiz Guldal'/>
-        <EditableField customHeight={RFPercentage(10)} maxLength={120} ref={inputRefs[1]} name='About Me' defaultValue='Hello, I am Yagiz. I am an avid language learner!'/>
-        <DropdownField label='Level' options={levels} defaultValue='B2'/>
+        <EditableField customHeight={RFPercentage(5)} maxLength={40} ref={inputRefs[0]} name='Name' defaultValue={userInfo.name}/>
+        <EditableField customHeight={RFPercentage(10)} maxLength={120} ref={inputRefs[1]} name='About Me' defaultValue={userInfo.about}/>
+        <DropdownField label='Level' options={levels} defaultValue={userInfo.level}/>
       </View>
       <View style={styles.saveButtonContainer}>
         <TouchableOpacity style={styles.saveButton} onPress={onSaveChanges}>
@@ -273,5 +347,16 @@ const styles = StyleSheet.create({
     fontSize: RFPercentage(2.4),
     color: 'white',
     fontWeight: 'bold',
+  },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)', // Semi-transparent background
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1,
   },
 });
