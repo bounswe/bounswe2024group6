@@ -19,8 +19,10 @@ import {
   convertProfileResponseToProfile,
 } from "../components/common/utils.tsx";
 import Cookies from "js-cookie";
+import { usePageTitle } from '../components/common/usePageTitle.ts';
 
 export default function Profile() {
+  usePageTitle('Profile');
   const { username } = useParams<{ username: string }>();
   const [activeSection, setActiveSection] = useState("posts");
   const [profile, setProfile] = useState<Profile | null>(null);

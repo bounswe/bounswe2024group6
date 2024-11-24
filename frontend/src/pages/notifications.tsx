@@ -7,8 +7,10 @@ import { AuthActions } from "../components/auth/utils.tsx";
 import { formatTimeAgo } from "../components/common/utils.tsx";
 import { Card } from "@nextui-org/react";
 import { IconChevronDown } from "@tabler/icons-react";
+import { usePageTitle } from "../components/common/usePageTitle.ts";
 
 export default function Notifications() {
+  usePageTitle('Notifications');
   const { getToken } = AuthActions();
   const token = getToken("access");
   const [notifications, setNotifications] = useState([]);

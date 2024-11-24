@@ -1,25 +1,23 @@
 import Navbar from "../components/common/navbar.tsx";
-import { Avatar, Button, Divider, Input, Textarea } from "@nextui-org/react";
+import { Avatar, Button, Divider, Textarea } from "@nextui-org/react";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { BASE_URL } from "../lib/baseURL";
 import { AuthActions } from "../components/auth/utils.tsx";
 import {
-    convertPostResponseToPost,
     convertProfileResponseToProfile,
 } from "../components/common/utils.tsx";
 import Cookies from "js-cookie";
 import { Profile, ProfileResponse } from "../types.ts";
 import { Select, SelectItem } from "@nextui-org/react";
-import { form } from "framer-motion/client";
 import { useNavigate } from "react-router-dom";
+import { usePageTitle } from "../components/common/usePageTitle.ts";
 
 
 
 export default function EditProfile() {
-    const { username } = useParams<{ username: string }>();
-    const [profile, setProfile] = useState<Profile | null>(null);
+    usePageTitle('Profile');   
     const { getToken } = AuthActions();
     const token = getToken("access");
     const tags = ["A1", "A2", "B1", "B2", "C1", "C2"];
