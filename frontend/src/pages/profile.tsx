@@ -30,6 +30,7 @@ export default function Profile() {
   const token = getToken("access");
   const [sortedPosts, setSortedPosts] = useState<Post[]>([]);
   const [isFollowing, setIsFollowing] = useState(false);
+  const [bookmarkedPosts, setBookmarkedPosts] = useState<Post[]>([]);
 
   useEffect(() => {
     if (username) {
@@ -59,6 +60,32 @@ export default function Profile() {
         });
     }
   }, [username, token]);
+
+  useEffect(() => {
+    if (profile && profile.username === Cookies.get("username")) {
+      console.log("Fetching bookmarked posts");
+      axios
+        .post(`${BASE_URL}/get_bookmarked_posts/`, 
+          {
+            username: profile?.username,
+          },
+          {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((response) => {
+          console.log(response);
+          const bookmarked = response.data.map(convertPostResponseToPost);
+          setBookmarkedPosts(bookmarked);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } else {
+      console.log("Not fetching bookmarked posts");
+    }
+  }, [token]);
 
   const toggleFollow = () => {
     axios
@@ -100,18 +127,16 @@ export default function Profile() {
             </div>
           </div>
           <div
-            className={`flex flex-row ${
-              profile.username === Cookies.get("username") ? "pl-32" : "pl-0"
-            } gap-6`}
+            className={`flex flex-row ${profile.username === Cookies.get("username") ? "pl-32" : "pl-0"
+              } gap-6`}
           >
             {profile.username !== Cookies.get("username") && (
               <Button
                 variant={isFollowing ? "faded" : "solid"}
                 color="primary"
                 onClick={toggleFollow}
-                className={`border-2 rounded-lg min-w-36 font-bold px-8 py-6 ${
-                  isFollowing ? "text-blue-900" : ""
-                }`}
+                className={`border-2 rounded-lg min-w-36 font-bold px-8 py-6 ${isFollowing ? "text-blue-900" : ""
+                  }`}
               >
                 {isFollowing ? "Unfollow" : "Follow"}
               </Button>
@@ -211,7 +236,23 @@ export default function Profile() {
                 </div>
               }
             >
-              <p>Saved</p>
+              <div className="flex flex-col gap-4 items-center">
+                {bookmarkedPosts.map((post) => (
+                  <Suspense key={post.id} fallback={<PostCardSkeleton />}>
+                    <PostCard
+                      id={post.id}
+                      username={post.author.username}
+                      title={post.post.title}
+                      content={post.post.content}
+                      timePassed={post.post.timestamp}
+                      likeCount={post.engagement.likes}
+                      tags={post.post.tags}
+                      initialIsLiked={post.engagement.is_liked}
+                      initialIsBookmarked={post.engagement.is_bookmarked}
+                    />
+                  </Suspense>
+                ))}
+              </div>
             </Tab>
           )}
         </Tabs>

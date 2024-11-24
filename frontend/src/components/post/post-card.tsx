@@ -56,7 +56,7 @@ export default function PostCard({
   const [isExpanded, setIsExpanded] = useState(false);
   const [isLiked, setIsLiked] = useState(initialIsLiked);
   const [likes, setLikes] = useState(likeCount);
-  const [isBookmarked, setIsBookmarked] = useState(initialIsBookmarked); // Example state for bookmark
+  const [isBookmarked, setIsBookmarked] = useState(initialIsBookmarked);
   const navigate = useNavigate();
   const { getToken } = AuthActions();
   const token = getToken("access");
@@ -77,6 +77,7 @@ export default function PostCard({
         }
       )
       .then((response) => {
+        console.log(response);
         setLikes(response.data.like_count);
       })
       .catch((error) => {
@@ -102,9 +103,10 @@ export default function PostCard({
         }
       )
       .then((response) => {
+        console.log(response);
         setIsBookmarked(response.data.is_bookmarked);
       });
-    setIsBookmarked(!isBookmarked);
+    //setIsBookmarked(!isBookmarked);
   };
 
   const displayedText =

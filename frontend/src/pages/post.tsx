@@ -35,6 +35,7 @@ export default function Post() {
         }
       )
       .then((response) => {
+        console.log(response.data);
         const postData: PostResponse = response.data.post;
         setPost(convertPostResponseToPost(postData));
         setComments(convertPostResponseToPost(postData).comments);
