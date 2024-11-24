@@ -16,7 +16,7 @@ def create_quiz(request):
     data['quiz']['author'] = request.user.id
     questions = data['questions']
     data['quiz']['question_count'] = len(questions)
-    quizSerializer = QuizSerializer(data=data['quiz'])
+    quizSerializer = QuizSerializer(data=data['quiz'], context = {'request': request})
     quiz = None
     if not quizSerializer.is_valid():
         print("was")
@@ -248,3 +248,34 @@ def like_quiz(request):
     quiz.like_count += 1
     quiz.save()
     return Response({'message': 'Quiz liked'}, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def view_liked_quizzes(request):
+    quizzes = Quiz.objects.filter(liked_by=request.user.id)
+    serializer = QuizSerializer(quizzes, many=True, context = {'request': request})
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def view_bookmarked_quizzes(request):
+    quizzes = Quiz.objects.filter(bookmarked_by=request.user.id)
+    serializer = QuizSerializer(quizzes, many=True, context = {'request': request})
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def view_created_quizzes(request, username):
+    user = get_object_or_404(User, username=username)
+    quizzes = Quiz.objects.filter(author=user)
+    serializer = QuizSerializer(quizzes, many=True, context = {'request': request})
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def view_solved_quizzes(request, username):
+    user = get_object_or_404(User, username=username)
+    quiz_progresses = QuizProgress.objects.filter(user=user, completed=True)
+    quizzes = [quiz_progress.quiz for quiz_progress in quiz_progresses]
+    serializer = QuizSerializer(quizzes, many=True, context = {'request': request})
+    return Response(serializer.data, status=status.HTTP_200_OK)
