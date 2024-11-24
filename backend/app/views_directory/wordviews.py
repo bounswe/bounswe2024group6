@@ -74,89 +74,135 @@ def get_word_info(request, word):
 
 @api_view(['GET'])
 def get_turkish_translation(request, word):
+    """Get a single Turkish translation for an English word"""
     try:
         try:
             word_obj = Word.objects.get(word=word)
-            translations = word_obj.translations.all().values_list('translation', flat=True)
-        except Word.DoesNotExist:
-            translations = []
-
-        if not translations:
-            try:
-                word_info = lexvo_manager.get_final_info(word)
-            except Exception as e:
+            translation = word_obj.translations.first() 
+            if translation:
                 return Response(
-                    {"error": f"Error fetching data for word '{word}': {str(e)}"},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    {"word": word, "turkish_translation": translation.translation},
+                    status=status.HTTP_200_OK,
+                )
+        except Word.DoesNotExist:
+            pass
+
+        try:
+            word_info = lexvo_manager.get_final_info(word)
+            turkish_translations = word_info.get("turkish_translations", [])
+            
+            if turkish_translations:
+                translation_text = turkish_translations[0].split('/')[-1] 
+                word_obj, _ = Word.objects.get_or_create(word=word)
+                Translation.objects.get_or_create(word=word_obj, translation=translation_text)
+                
+                return Response(
+                    {"word": word, "turkish_translation": translation_text},
+                    status=status.HTTP_200_OK,
                 )
 
-            turkish_translations = word_info.get("turkish_translations", [])
-            for translation_uri in turkish_translations:
-                translation_text = translation_uri.split('/')[-1]
-                word_obj, _ = Word.objects.get_or_create(word=word) 
-                Translation.objects.get_or_create(word=word_obj, translation=translation_text)
+            return Response(
+                {"error": f"No Turkish translation found for '{word}'"},
+                status=status.HTTP_404_NOT_FOUND
+            )
 
-            translations = word_obj.translations.all().values_list('translation', flat=True)
-
-        return Response(
-            {"word": word, "turkish_translations": list(translations)},
-            status=status.HTTP_200_OK,
-        )
+        except Exception as e:
+            return Response(
+                {"error": f"Error fetching data for word '{word}': {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
     except Exception as e:
         return Response(
             {"error": f"An unexpected error occurred: {str(e)}"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
-    
 
+@api_view(['GET'])
+def get_word_meanings(request, word):
+    """Get a single meaning for an English word"""
+    try:
+        word_instance = Word.objects.filter(word=word).first()
+
+        if word_instance:
+            if not word_instance.meaning or word_instance.meaning == "Meaning not available":
+                return fetch_and_update_word_meaning(word_instance, word)
+
+            if isinstance(word_instance.meaning, list):
+                meaning = word_instance.meaning[0]
+            elif isinstance(word_instance.meaning, str):
+                try:
+                    meanings = eval(word_instance.meaning)
+                    meaning = meanings[0] if isinstance(meanings, list) else word_instance.meaning
+                except:
+                    meaning = word_instance.meaning
+            else:
+                meaning = str(word_instance.meaning)
+
+            return Response({"word": word_instance.word, "meaning": meaning}, status=status.HTTP_200_OK)
+
+        word_instance = Word.objects.create(
+            word=word,
+            meaning="Meaning not available",
+            sentence="",
+            level="",
+            part_of_speech=""
+        )
+        return fetch_and_update_word_meaning(word_instance, word)
+
+    except Exception as e:
+        return Response(
+            {"error": f"An unexpected error occurred: {str(e)}"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 @api_view(['GET'])
 def fetch_english_words(request, turkish_word):
+    """Get a single English translation for a Turkish word"""
     try:
-        translations = Translation.objects.filter(translation=turkish_word).select_related('word')
+        translation = Translation.objects.filter(translation=turkish_word).select_related('word').first()
 
-        if translations.exists():
-            english_words = [translation.word.word for translation in translations]
+        if translation:
             return Response(
-                {"english_words": english_words},
+                {"turkish_word": turkish_word, "english_word": translation.word.word},
                 status=status.HTTP_200_OK
             )
         try:
             word_info = get_english_words_from_lexvo(turkish_word)
+            english_words = word_info.get("english_words", [])
+
+            if english_words:
+                english_word = english_words[0] 
+                
+                word_instance, created = Word.objects.get_or_create(
+                    word=english_word,
+                    defaults={
+                        "meaning": "Meaning not fetched",
+                        "sentence": "Sentence not fetched",
+                        "level": "Unknown",
+                        "part_of_speech": "Unknown",
+                    }
+                )
+                Translation.objects.create(
+                    word=word_instance,
+                    translation=turkish_word
+                )
+
+                return Response(
+                    {"turkish_word": turkish_word, "english_word": english_word},
+                    status=status.HTTP_200_OK
+                )
+
+            return Response(
+                {"error": f"No English translation found for '{turkish_word}'"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
         except Exception as e:
             return Response(
                 {"error": f"Error fetching data from Lexvo for '{turkish_word}': {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
-
-        english_words = word_info.get("english_words", [])
-
-        if not english_words:
-            return Response(
-                {"error": f"No English equivalents found for Turkish word '{turkish_word}'."},
-                status=status.HTTP_404_NOT_FOUND
-            )
-
-        for english_word in english_words:
-            word_instance, created = Word.objects.get_or_create(
-                word=english_word,
-                defaults={
-                    "meaning": "Meaning not fetched",
-                    "sentence": "Sentence not fetched",
-                    "level": "Unknown",
-                    "part_of_speech": "Unknown",
-                }
-            )
-            Translation.objects.create(
-                word=word_instance,
-                translation=turkish_word
-            )
-
-        return Response(
-            {"english_words": english_words},
-            status=status.HTTP_200_OK
-        )
 
     except Exception as e:
         return Response(
@@ -177,36 +223,6 @@ def get_english_words_from_lexvo(turkish_word):
     data = response.json()
 
     return {"english_words": data.get("english_words", [])}
-
-
-
-    
-
-@api_view(['GET'])
-def get_word_meanings(request, word):
-    try:
-        word_instance = Word.objects.filter(word=word).first()
-
-        if word_instance:
-            if not word_instance.meaning or word_instance.meaning == "Meaning not available":
-                return fetch_and_update_word_meaning(word_instance, word)
-
-            return Response({"word": word_instance.word, "meanings": word_instance.meaning}, status=status.HTTP_200_OK)
-
-        word_instance = Word.objects.create(
-            word=word,
-            meaning="Meaning not available",
-            sentence="",  
-            level="",   
-            part_of_speech="" 
-        )
-        return fetch_and_update_word_meaning(word_instance, word)
-
-    except Exception as e:
-        return Response(
-            {"error": f"An unexpected error occurred: {str(e)}"},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
 
 
 def fetch_and_update_word_meaning(word_instance, word):

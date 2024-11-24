@@ -19,4 +19,4 @@ ENV PYTHONUNBUFFERED 1
 EXPOSE 8000
 
 # Run the Django development server
-CMD python manage.py makemigrations && python manage.py makemigrations app && python manage.py migrate && python manage.py runserver 0.0.0.0:8000 && python manage.py populate_db_file  /app/data/db_files/words.csv /app/data/db_files/translations.csv /app/data/db_files/relationships.csv
+CMD python manage.py makemigrations && python manage.py makemigrations app && python manage.py migrate && python manage.py populate_db_file  data/db_files/words.csv data/db_files/translations.csv data/db_files/relationships.csv && python manage.py runserver 0.0.0.0:8000 
