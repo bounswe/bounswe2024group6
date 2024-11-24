@@ -147,11 +147,12 @@ export default function Post() {
               .fill(0)
               .map((_, index) => <CommentSkeleton key={index} />)
           : comments.map((comment) => (
+            console.log(comment),
               <Suspense key={comment.id} fallback={<CommentSkeleton />}>
                 <PostCard
                   id={comment.id}
                   username={comment.author}
-                  content={comment.content}
+                  content={comment.body || comment.content}
                   timePassed={formatTimeAgo(comment.created_at)}
                   likeCount={comment.like_count}
                   initialIsLiked={comment.is_liked}
