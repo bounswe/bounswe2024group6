@@ -8,19 +8,85 @@ import {
   Button,
   Divider,
   Badge,
+  DropdownTrigger,
+  Dropdown,
+  DropdownMenu,
+  DropdownSection,
+  DropdownItem,
 } from "@nextui-org/react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { IconBell } from "@tabler/icons-react";
 import { ThemeSwitcher } from "./theme-switcher";
 import { AuthActions } from "../auth/utils";
 import Cookies from "js-cookie";
+import { useState } from "react";
+import { useEffect } from "react";
+import axios from "axios";
+import { BASE_URL } from "../../lib/baseURL";
+import { formatTimeAgo } from "./utils";
+import NotificationCard from "../notification/notification-card";
 
 export default function Navbar() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const username = Cookies.get("username");
 
-  const { logout, removeTokens } = AuthActions();
+  const { logout, removeTokens, getToken } = AuthActions();
+
+  const token = getToken("access");
+  const [notifications, setNotifications] = useState([]);
+  const [isNotificationsViewed, setIsNotificationsViewed] = useState(false);
+
+  useEffect(() => {
+    axios
+      .get(`${BASE_URL}/user-activities-as-object/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        console.log(response.data.activities);
+        setNotifications(
+          response.data.activities.map((activity, i) => ({
+            id: i,
+            content:
+              activity.verb == "followed" ? (
+                <div>
+                  <a
+                    href={`/profile/${activity.actor}`}
+                    className="text-blue-500"
+                  >
+                    {activity.actor}
+                  </a>{" "}
+                  followed you
+                </div>
+              ) : activity.verb == "liked" ? (
+                <div>
+                  <a
+                    href={`/profile/${activity.actor}`}
+                    className="text-blue-500"
+                  >
+                    {activity.actor}
+                  </a>{" "}
+                  liked your{" "}
+                  <a
+                    href={`/post/${activity.object_id}`}
+                    className="text-blue-500"
+                  >
+                    post
+                  </a>
+                </div>
+              ) : (
+                <div>Unknown activity</div>
+              ),
+            timePassed: formatTimeAgo(activity.timestamp),
+          }))
+        );
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
 
   const handleLogout = () => {
     logout()
@@ -38,7 +104,9 @@ export default function Navbar() {
   const content = (
     <PopoverContent>
       <div className="px-2 pb-2">
-        <div className="text-medium font-semibold px-5 py-2 text-center">{username}</div>
+        <div className="text-medium font-semibold px-5 py-2 text-center">
+          {username}
+        </div>
         <Divider className="w-full bg-zinc-300" />
         <div className="flex flex-col">
           <Button
@@ -48,7 +116,11 @@ export default function Navbar() {
           >
             Profile
           </Button>
-          <Button variant="light" onClick={() => navigate(`/profile/${username}/edit`)} className="text-medium w-full">
+          <Button
+            variant="light"
+            onClick={() => navigate(`/profile/${username}/edit`)}
+            className="text-medium w-full"
+          >
             Edit Profile
           </Button>
           <Button
@@ -109,17 +181,42 @@ export default function Navbar() {
         </div>
         <div className="flex-1 flex justify-end items-center flex-row">
           <ThemeSwitcher />
-          <Badge content="3" shape="circle" color="danger" className="">
-            <Button
-              radius="full"
-              isIconOnly
-              aria-label="more than 99 notifications"
-              variant="light"
-              onClick={() => navigate("/notifications")}
+          <Dropdown>
+            <DropdownTrigger>
+              <Button
+                radius="full"
+                isIconOnly
+                aria-label="more than 99 notifications"
+                variant="light"
+                onClick={() => setIsNotificationsViewed(true)}
+              >
+                {!isNotificationsViewed ? (
+                  <Badge content="" shape="circle" color="danger" size="sm">
+                    <IconBell size={24} />
+                  </Badge>
+                ) : (
+                  <IconBell size={24} />
+                )}
+              </Button>
+            </DropdownTrigger>
+            <DropdownMenu
+              aria-label="Dropdown menu with description"
+              className="max-h-[360px] overflow-y-auto"
             >
-              <IconBell size={24} />
-            </Button>
-          </Badge>
+              <DropdownSection title="Notifications" showDivider>
+                {notifications.map((notification) => (
+                  <DropdownItem isReadOnly className="cursor-default">
+                    <NotificationCard
+                      key={notification.id}
+                      content={notification.content}
+                      timePassed={notification.timePassed}
+                    />
+                  </DropdownItem>
+                ))}
+              </DropdownSection>
+            </DropdownMenu>
+          </Dropdown>
+
           <Popover key="bottom-end" placement="bottom-end">
             <PopoverTrigger>
               <Avatar
@@ -137,3 +234,4 @@ export default function Navbar() {
     </div>
   );
 }
+

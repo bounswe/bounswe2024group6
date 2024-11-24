@@ -5,7 +5,7 @@ import type { PostResponse, Profile, ProfileResponse } from "../../types.ts";
 export const formatTimeAgo = (timestamp: string): string => {
   const now = new Date();
   const postDate = new Date(timestamp);
-  const diffInSeconds = Math.floor((now.getTime() - postDate.getTime()) / 1000);
+  const diffInSeconds = Math.floor((now.getTime() - postDate.getTime()) / 1000) + 3; // xd
 
   if (diffInSeconds < 60) return `${diffInSeconds}s ago`;
   
