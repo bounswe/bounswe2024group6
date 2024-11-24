@@ -137,7 +137,7 @@ export default function Profile() {
             about={userInfo.bio}
             followerCount={userInfo.follower_count}
             followingCount={userInfo.following_count}
-            isFollowedByUser={true}
+            isFollowedByUser={userInfo.is_followed}
           />
           <Tabs tab={tab} setTab={setTab}/>
         </>
@@ -165,7 +165,24 @@ const ProfileInfo = (props:ProfileInfoProps) => {
     router.push(`/(tabs)/profile/users/${props.username}/following`)
     console.log("Following button pressed.")
   };
-  const handleButtonPress = () => {
+  const handleButtonPress = async () => {
+    const url = props.isFollowedByUser ? `profile/unfollow/`: "profile/follow/";
+    const params = {
+      'username': props.username,
+    }
+    try {
+      const response = await TokenManager.authenticatedFetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(params),
+      });
+      const res = await response.json()
+    } catch (error) {
+      console.error(error);
+    }
+    console.log("Button Pressed: " + props.username);
     console.log("Another user's follow/unfollow button pressed.")
   };
 
