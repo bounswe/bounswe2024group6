@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { AuthActions } from "./utils";
 
+import Cookies from "js-cookie";
+
 type FormData = {
   email: string;
   username: string;
@@ -32,6 +34,8 @@ export default function Register({
   const onSubmit = () => {
     registerUser(email, username, password)
       .json(() => {
+        Cookies.set("username", username);
+        Cookies.set("password", password);
         setIsRegister(false);
       })
       .catch((err) => {
@@ -60,12 +64,13 @@ export default function Register({
   }, [confirmPassword]);
 
   return (
-    <div className="lg:w-1/3 flex pr-24 pl-12 lg:justify-end items-center h-screen">
+    <div className=" flex  lg:justify-end items-center">
       <div className="flex flex-col items-center w-full max-w-lg p-6">
         <h2 className="text-2xl font-semibold text-center mb-6">Join Us</h2>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="mb-4">
             <Input
+              defaultValue=""
               type="text"
               isRequired
               label="Username"
@@ -73,7 +78,9 @@ export default function Register({
             />
           </div>
           <div className="mb-4">
+            
             <Input
+              defaultValue=""
               type="email"
               isRequired
               label="Email"
@@ -89,6 +96,7 @@ export default function Register({
           <div className="mb-4">
             <Input
               label="Password"
+              defaultValue=""
               variant="bordered"
               isRequired
               {...register("password", { required: "Password is required" })}
@@ -108,6 +116,7 @@ export default function Register({
           <div className="mb-4">
             <Input
               label="Confirm Password"
+              defaultValue=""
               variant="bordered"
               isRequired
               isInvalid={isInvalidConfirmPassword}
@@ -128,6 +137,7 @@ export default function Register({
                 : email === "" ||
                   password === "" ||
                   isInvalidPassword ||
+                  confirmPassword === "" ||
                   isInvalidConfirmPassword
             }
           >
