@@ -17,6 +17,7 @@ def follow_user(request):
 
     if user_to_follow != current_user_profile:
         current_user_profile.following.add(user_to_follow)
+        user_to_follow.followers.add(current_user_profile)  # Add this line
 
         ActivityStream.objects.create(
             actor=request.user,
@@ -51,6 +52,7 @@ def unfollow_user(request):
 
     if user_to_unfollow != current_user_profile:
         current_user_profile.following.remove(user_to_unfollow)
+        user_to_unfollow.followers.remove(current_user_profile)  
 
         follower_count = user_to_unfollow.followers.count()
 
