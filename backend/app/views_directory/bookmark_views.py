@@ -22,7 +22,6 @@ def bookmark_post(request):
 
     Bookmark.objects.create(user=request.user, post=post)
 
-    # Include like and bookmark status in the response
     is_liked = post.liked_by.filter(id=request.user.id).exists()
     is_bookmarked = Bookmark.objects.filter(user=request.user, post=post).exists()
 
@@ -52,7 +51,6 @@ def unbookmark_post(request):
 
     bookmark.delete()
 
-    # Include like and bookmark status in the response
     is_liked = post.liked_by.filter(id=request.user.id).exists()
     is_bookmarked = Bookmark.objects.filter(user=request.user, post=post).exists()
 

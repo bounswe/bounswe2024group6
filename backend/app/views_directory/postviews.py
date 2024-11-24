@@ -4,8 +4,9 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from app.models import Post, ActivityStream, Comment
+from app.models import Post, ActivityStream, Comment , Bookmark
 from django.utils import timezone
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -161,7 +162,7 @@ def get_post_details(request):
     post = get_object_or_404(Post, id=post_id)
 
     is_liked = post.liked_by.filter(id=request.user.id).exists()
-    is_bookmarked = post.bookmarked_by.filter(id=request.user.id).exists()
+    is_bookmarked = Bookmark.objects.filter(user=request.user, post=post).exists() 
 
     comments_data = [
         {
