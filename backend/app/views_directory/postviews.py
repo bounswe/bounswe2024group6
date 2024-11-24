@@ -149,30 +149,29 @@ def get_posts_of_user(request):
 
 
 
-@api_view(['GET'])
+@api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def get_post_details(request):
-    post_id = request.data.get("post_id")
-    
+    post_id = request.data.get("post_id")  
+
     if not post_id:
         return Response({"detail": "Post ID is required."}, status=status.HTTP_400_BAD_REQUEST)
-    
+
     post = get_object_or_404(Post, id=post_id)
-    
+
     is_liked = post.liked_by.filter(id=request.user.id).exists()
     is_bookmarked = post.bookmarked_by.filter(id=request.user.id).exists()
 
-   
     comments_data = [
         {
             "id": comment.id,
-            "content": comment.body, 
+            "content": comment.body,
             "author": comment.author.username,
             "created_at": comment.created_at,
-            "is_liked": comment.liked_by.filter(id=request.user.id).exists(), 
-            "like_count": comment.liked_by.count(),  
+            "is_liked": comment.liked_by.filter(id=request.user.id).exists(),
+            "like_count": comment.liked_by.count(),
         }
-        for comment in post.comments.all().order_by("-created_at") 
+        for comment in post.comments.all().order_by("-created_at")
     ]
 
     post_data = {
@@ -181,12 +180,13 @@ def get_post_details(request):
         "description": post.description,
         "created_at": post.created_at,
         "like_count": post.like_count,
-        "tags": post.tags,  
+        "tags": post.tags,
         "is_liked": is_liked,
         "is_bookmarked": is_bookmarked,
         "comments": comments_data,
     }
 
     return Response({"post": post_data}, status=status.HTTP_200_OK)
+
 
 
