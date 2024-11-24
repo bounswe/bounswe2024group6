@@ -79,7 +79,7 @@ const NotificationItem = ( {activity} : any ) => {
   return (
     <View style={styles.notificationContainer}>
       <View style={styles.profileInfoTopPictureContainer}>
-        <FontAwesome name='bell' size={28}/>
+        <Image source={require("@/assets/images/profile-icon.png")} style={styles.profileInfoTopPicture}/>
       </View>
       {ActivityToComponent(activity)}
     </View>
