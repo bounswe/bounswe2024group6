@@ -152,21 +152,6 @@ const QuizDetails = () => {
         </Shadow>
       </View>
 
-      {quizDetails?.is_solved && (
-      <View style={styles.buttonContainer}>
-        <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
-          <TouchableOpacity
-            style={[styles.quizButton, { backgroundColor: '#FFA500' }]}
-            onPress={() =>
-              router.push('/(tabs)/quizzes/quizReview')
-            }
-          >
-        <Text style={styles.buttonText}>Review Quiz</Text>
-      </TouchableOpacity>
-    </Shadow>
-  </View>
-)}
-
 
       {/* Go Back button */}
       <TouchableOpacity style={styles.goBackButton} onPress={() => router.back()}>
