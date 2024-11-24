@@ -27,6 +27,7 @@ import { AuthActions } from "../components/auth/utils.tsx";
 import { convertPostResponseToPost, convertProfileResponseToProfile } from "../components/common/utils.tsx";
 import Cookies from "js-cookie";
 import { usePageTitle } from "../components/common/usePageTitle.ts";
+import { set } from "react-hook-form";
 
 export default function Profile() {
   usePageTitle("Profile");
@@ -37,7 +38,7 @@ export default function Profile() {
   const token = getToken("access");
   const [sortedPosts, setSortedPosts] = useState<Post[]>([]);
   const [isFollowing, setIsFollowing] = useState(false);
-
+  const [followCount, setFollowCount] = useState(0);
   const [bookmarkedPosts, setBookmarkedPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -60,6 +61,7 @@ export default function Profile() {
               new Date(a.post.created_at).getTime()
             );
           });
+          setFollowCount(profile.followers);
           setIsFollowing(profile.is_followed);
           setSortedPosts(sortedVersion);
           setProfile(profile);
@@ -115,6 +117,7 @@ export default function Profile() {
       )
       .then((response) => {
         console.log(response.data);
+        setFollowCount(response.data.follower_count);
       })
       .catch((error) => {
         console.log(error);
@@ -190,7 +193,7 @@ export default function Profile() {
                 color="primary"
                 className="border-2 rounded-lg font-bold text-blue-900 px-8 py-6 "
               >
-                {profile.followers} Followers
+                {followCount} Followers
               </Button>
             </div>
           </div>

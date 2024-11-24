@@ -20,6 +20,7 @@ export const UserCard = ({
     const { getToken } = AuthActions();
     const token = getToken("access");
     const [profile, setProfile] = useState<Profile | null>(null);
+    const [followCount, setFollowCount] = useState(0);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -37,6 +38,7 @@ export const UserCard = ({
                     const profile = convertProfileResponseToProfile(data);
                     setIsFollowed(profile.is_followed);
                     setProfile(profile);
+                    setFollowCount(profile.followers);
                 })
                 .catch((error) => {
                     console.log(error);
@@ -60,6 +62,7 @@ export const UserCard = ({
           )
           .then((response) => {
             console.log(response.data);
+            setFollowCount(response.data.follower_count);
           })
           .catch((error) => {
             console.log(error);
@@ -105,7 +108,7 @@ export const UserCard = ({
                     <p className=" text-default-500 text-small">Following</p>
                 </div>
                 <div className="flex gap-1">
-                    <p className="font-semibold text-default-600 text-small">{profile?.followers}</p>
+                    <p className="font-semibold text-default-600 text-small">{followCount}</p>
                     <p className="text-default-500 text-small">Followers</p>
                 </div>
             </CardFooter>
