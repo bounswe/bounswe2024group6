@@ -45,13 +45,19 @@ type UserInfo = {
 };
 
 export type QuizInfo = {
+  author: {id: number, username: string},
+  average_score: number,
+  created_at: string,
   id: number,
   title: string,
   description: string,
-  author: string,
   level: string,
-  likes: number,
-  liked: boolean,
+  like_count: number,
+  is_liked: boolean,
+  is_bookmarked: boolean
+  question_count: number,
+  tags: string[],
+  times_taken: number,
 }
 
 export function isQuizInfo(object: any){
@@ -60,10 +66,7 @@ export function isQuizInfo(object: any){
     asQuizInfo.author !== undefined && 
     asQuizInfo.description !== undefined && 
     asQuizInfo.id !== undefined &&
-    asQuizInfo.level !== undefined && 
-    asQuizInfo.liked !== undefined && 
-    asQuizInfo.title !== undefined && 
-    asQuizInfo.likes !== undefined
+    asQuizInfo.level !== undefined
   );
 };
 
@@ -94,6 +97,7 @@ export default function Profile() {
       let updatedUserInfo;
 
       try {
+        console.log('here')
         const profileRequest = await TokenManager.authenticatedFetch(profileUrl, {
           method: 'GET',
           headers: {
@@ -114,6 +118,7 @@ export default function Profile() {
           },
         });
         const createdQuizResponse = await createdQuizRequest.json()
+        console.log(createdQuizResponse);
         if (createdQuizRequest.ok){
           updatedUserInfo = {...updatedUserInfo, createdQuizzes: createdQuizResponse}
         } else {
@@ -164,7 +169,8 @@ export default function Profile() {
       renderItem={({item}) => {
         if (isQuizInfo(item)){
           return (
-            <QuizCard {...item}/>
+            <QuizCard id={item.id} author={item.author.username} title={item.title} level={item.level} 
+              description={item.description} liked={item.is_liked} likes={item.like_count}/>
           );
         }
         else{
