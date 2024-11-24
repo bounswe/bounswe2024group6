@@ -87,22 +87,35 @@ export default function Profile() {
 
       // Convert the parameters to a query string
       const queryString = new URLSearchParams(params).toString();
-      const urlWithParams = `${baseUrl}?${queryString}`;
+      const profileUrl = `${baseUrl}?${queryString}`;
+
+      const createdQuizUrl = `quiz/created/${username}/`;
 
       try {
-        const response = await TokenManager.authenticatedFetch(urlWithParams, {
+        const profileRequest = await TokenManager.authenticatedFetch(profileUrl, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
         });
-        const res = await response.json();
-        if (response.ok){
-          setUserInfo(res);
+        const profileResponse = await profileRequest.json();
+        if (profileRequest.ok){
+          setUserInfo(profileResponse);
         } else {
-          console.log(response.status)
+          console.log(profileRequest.status)
         };
-        setUserInfo
+        const createdQuizRequest = await TokenManager.authenticatedFetch(createdQuizUrl, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        const createdQuizResponse = await createdQuizRequest.json()
+        if (createdQuizRequest.ok){
+          setUserInfo({...userInfo, createdQuizzes: createdQuizResponse});
+        } else {
+          console.log(createdQuizResponse.status)
+        };
       } catch (error) {
         console.error(error);
       }
