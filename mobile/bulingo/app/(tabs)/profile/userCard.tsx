@@ -70,12 +70,22 @@ const UserCard = (props: UserCardProps) => {
   return (
     <TouchableOpacity style={styles.followerContainer} onPress={handleCardPress} testID='card'>
       <View style={styles.profilePictureContainer}>
-        <Image 
-          source={{
-            uri: props.profilePictureUri,
-          }} 
-          style={styles.profilePicture}
-        />
+        {props.profilePictureUri 
+          ? (
+            <Image 
+              source={{
+                uri: props.profilePictureUri,
+              }} 
+              style={styles.profilePicture}
+            />
+          )
+          : (
+            <Image 
+              source={require('@/assets/images/profile-icon.png')}
+              style={styles.profilePicture}
+            />
+          )}
+        
       </View>
       <View style={styles.usernameContainer}>
         <Text style={styles.usernameText}>{props.username}</Text>

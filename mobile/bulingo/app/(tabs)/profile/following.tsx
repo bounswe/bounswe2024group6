@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import {Text, StyleSheet, FlatList, View, Image, TouchableWithoutFeedback, ActivityIndicator } from 'react-native';
 import UserCard from './userCard';
+import TokenManager from '@/app/TokenManager';
+
 
 type UserInfoCompact = {
   username: string,
   name: string,
   level: string,
   profilePictureUri: string,
-  status: string,
+  is_followed: boolean,
 };
 
 export default function Following() {
@@ -17,20 +19,24 @@ export default function Following() {
   useEffect(() => {
     const ENDPOINT_URL = "http://161.35.208.249:8000/following";  // Placeholder
     const fetchFollowing = async () => {
-      const params = {
-        // TODO
-       };
+      const username = TokenManager.getUsername();
+      if (username === undefined){
+        console.error("Username not defined!");
+        return;
+      }
+      const url = `profile/following/${username}/`
+
       try {
-        const response = await fetch(ENDPOINT_URL, {
-          method: 'POST',
+        const response = await TokenManager.authenticatedFetch(url, {
+          method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(params),
         });
 
         if (response.ok){
-          setFollowing(await response.json());
+          const result = await response.json()
+          setFollowing(result);
         } else {
           console.log(response.status)
         };
@@ -63,8 +69,8 @@ export default function Following() {
             username={item.username} 
             profilePictureUri={item.profilePictureUri} 
             level={item.level}
-            buttonText={item.status == 'Following' ? 'Unfollow' : 'Follow'}
-            buttonStyleNo={item.status == 'Following' ? 1 : 2}
+            buttonText={item.is_followed ? 'Unfollow' : 'Follow'}
+            buttonStyleNo={item.is_followed ? 1 : 2}
           />
         );
       }}
