@@ -64,10 +64,12 @@ def unbookmark_post(request):
         status=status.HTTP_200_OK
     )
 
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def get_bookmarked_posts(request):
     bookmarks = Bookmark.objects.filter(user=request.user)
     bookmarked_posts = [bookmark.post for bookmark in bookmarks]
 
-    return Response(PostSerializer(bookmarked_posts, many=True).data, status=status.HTTP_200_OK)
+    serializer = PostSerializer(bookmarked_posts, many=True, context={'request': request})
+    return Response(serializer.data, status=status.HTTP_200_OK)
