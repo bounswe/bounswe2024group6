@@ -183,6 +183,7 @@ def get_post_details(request):
         "like_count": post.like_count,
         "tags": post.tags,
         "is_liked": is_liked,
+        "author": post.author.username,
         "is_bookmarked": is_bookmarked,
         "comments": comments_data,
     }
