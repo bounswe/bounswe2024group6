@@ -77,7 +77,7 @@ export default function PostCard({
         }
       )
       .then((response) => {
-        console.log(response);
+        console.log(response.data);
         setLikes(response.data.like_count);
       })
       .catch((error) => {
@@ -163,12 +163,11 @@ export default function PostCard({
       </CardBody>
       <CardFooter className="flex justify-between gap-3">
         <div className="flex gap-1 items-center">
-          <div className="flex gap-3 items-center">
+          <div className="flex justify-between items-center">
             <p
               className={cn("font-semibold text-default-500", {
                 "font-semibold text-red-500": isLiked,
               })}
-              style={{ width: "15px" }}
             >
               {likes}
             </p>
