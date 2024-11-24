@@ -1,4 +1,5 @@
 import Navbar from "../components/common/navbar.tsx";
+
 import {
   Tabs,
   Tab,
@@ -6,8 +7,10 @@ import {
   Button,
   Divider,
   Skeleton,
+  user
 } from "@nextui-org/react";
 import { useState, useEffect, Suspense } from "react";
+
 import PostCard from "../components/post/post-card.tsx";
 import PostCardSkeleton from "../components/post/post-card-skeleton.tsx";
 import axios from "axios";
@@ -21,7 +24,7 @@ import {
   IconClipboardText,
 } from "@tabler/icons-react";
 import { AuthActions } from "../components/auth/utils.tsx";
-import { convertProfileResponseToProfile } from "../components/common/utils.tsx";
+import { convertPostResponseToPost, convertProfileResponseToProfile } from "../components/common/utils.tsx";
 import Cookies from "js-cookie";
 import { usePageTitle } from "../components/common/usePageTitle.ts";
 
@@ -34,6 +37,8 @@ export default function Profile() {
   const token = getToken("access");
   const [sortedPosts, setSortedPosts] = useState<Post[]>([]);
   const [isFollowing, setIsFollowing] = useState(false);
+
+  const [bookmarkedPosts, setBookmarkedPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -43,7 +48,6 @@ export default function Profile() {
         .get(`${BASE_URL}/profile/${username}/`, {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
           },
         })
         .then((response) => {
@@ -68,6 +72,32 @@ export default function Profile() {
         });
     }
   }, [username, token]);
+
+  useEffect(() => {
+    if (username === Cookies.get("username")) {
+      console.log("Fetching bookmarked posts");
+      axios
+        .post(`${BASE_URL}/get_bookmarked_posts/`, 
+          {
+            username: profile?.username,
+          },
+          {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((response) => {
+          console.log(response);
+          const bookmarked = response.data.map(convertPostResponseToPost);
+          setBookmarkedPosts(bookmarked);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } else {
+      console.log("Not fetching bookmarked posts");
+    }
+  }, [token]);
 
   const toggleFollow = () => {
     axios
@@ -225,7 +255,7 @@ export default function Profile() {
           >
             <p>Solved</p>
           </Tab>
-          {profile && profile.username === Cookies.get("username") && (
+          {profile?.username === Cookies.get("username") && (
             <Tab
               key="saved"
               title={
@@ -235,7 +265,23 @@ export default function Profile() {
                 </div>
               }
             >
-              <p>Saved</p>
+              <div className="flex flex-col gap-4 items-center">
+                {bookmarkedPosts.map((post) => (
+                  <Suspense key={post.id} fallback={<PostCardSkeleton />}>
+                    <PostCard
+                      id={post.id}
+                      username={post.author.username}
+                      title={post.post.title}
+                      content={post.post.content}
+                      timePassed={post.post.timestamp}
+                      likeCount={post.engagement.likes}
+                      tags={post.post.tags}
+                      initialIsLiked={post.engagement.is_liked}
+                      initialIsBookmarked={post.engagement.is_bookmarked}
+                    />
+                  </Suspense>
+                ))}
+              </div>
             </Tab>
           )}
         </Tabs>

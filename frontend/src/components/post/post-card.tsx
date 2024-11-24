@@ -56,7 +56,7 @@ export default function PostCard({
   const [isExpanded, setIsExpanded] = useState(false);
   const [isLiked, setIsLiked] = useState(initialIsLiked);
   const [likes, setLikes] = useState(likeCount);
-  const [isBookmarked, setIsBookmarked] = useState(initialIsBookmarked); // Example state for bookmark
+  const [isBookmarked, setIsBookmarked] = useState(initialIsBookmarked);
   const navigate = useNavigate();
   const { getToken } = AuthActions();
   const token = getToken("access");
@@ -77,6 +77,7 @@ export default function PostCard({
         }
       )
       .then((response) => {
+        console.log(response.data);
         setLikes(response.data.like_count);
       })
       .catch((error) => {
@@ -105,7 +106,7 @@ export default function PostCard({
         console.log(response.data);
         setIsBookmarked(response.data.is_bookmarked);
       });
-    setIsBookmarked(!isBookmarked);
+    //setIsBookmarked(!isBookmarked);
   };
 
   const displayedText =
@@ -162,12 +163,11 @@ export default function PostCard({
       </CardBody>
       <CardFooter className="flex justify-between gap-3">
         <div className="flex gap-1 items-center">
-          <div className="flex gap-3 items-center">
+          <div className="flex justify-between items-center">
             <p
               className={cn("font-semibold text-default-500", {
                 "font-semibold text-red-500": isLiked,
               })}
-              style={{ width: "15px" }}
             >
               {likes}
             </p>
