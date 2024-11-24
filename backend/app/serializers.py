@@ -256,15 +256,25 @@ class PostSerializer(serializers.ModelSerializer):
         return CommentSerializer(comments, many=True, context=self.context).data
 
 class CommentSerializer(serializers.ModelSerializer):
-    replies = serializers.SerializerMethodField()  # Fetch nested replies
+    replies = serializers.SerializerMethodField()
+    is_liked = serializers.SerializerMethodField()
+    author = serializers.CharField(source='author.username')
 
     class Meta:
         model = Comment
-        fields = ['id', 'post', 'author', 'body', 'created_at', 'parent', 'replies']
+        fields = [
+            'id', 'post', 'author', 'body', 'created_at', 'parent',
+            'replies', 'is_liked', 'like_count'
+        ]
 
     def get_replies(self, obj):
-        """Recursively get all replies to a comment."""
-        replies = obj.replies.all()  # Fetch all replies related to the comment
+        replies = obj.replies.all()
         if replies.exists():
-            return CommentSerializer(replies, many=True).data
-        return None
+            return CommentSerializer(replies, many=True, context=self.context).data
+        return []
+
+    def get_is_liked(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.liked_by.filter(id=request.user.id).exists()
+        return False

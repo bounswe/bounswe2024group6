@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from app.models import Post, ActivityStream, Comment , Bookmark
 from django.utils import timezone
-
+from app.serializers import CommentSerializer
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -164,17 +164,9 @@ def get_post_details(request):
     is_liked = post.liked_by.filter(id=request.user.id).exists()
     is_bookmarked = Bookmark.objects.filter(user=request.user, post=post).exists() 
 
-    comments_data = [
-        {
-            "id": comment.id,
-            "content": comment.body,
-            "author": comment.author.username,
-            "created_at": comment.created_at,
-            "is_liked": comment.liked_by.filter(id=request.user.id).exists(),
-            "like_count": comment.liked_by.count(),
-        }
-        for comment in post.comments.all().order_by("-created_at")
-    ]
+    comments = post.comments.all().order_by("-created_at")
+    comments_data = CommentSerializer(comments, many=True, context={'request': request}).data
+
 
     post_data = {
         "id": post.id,
