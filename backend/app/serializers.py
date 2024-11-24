@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Profile, Quiz, Post, QuizResults, QuizProgress, QuestionProgress, Question, Comment, Tags
+from .models import Profile, Quiz, Post, QuizResults, QuizProgress, QuestionProgress, Question, Comment, Tags,Bookmark
 
 
 
@@ -21,11 +21,20 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     def get_posts(self, obj):
         """Get posts created by the user, similar to get_post_details."""
+
+        request = self.context.get('request')
+
+        if not request or not request.user.is_authenticated:
+            return []
+        
         posts = Post.objects.filter(author=obj.user)
+
+        user = request.user
+
         post_data = []
         for post in posts:
-            is_liked = post.liked_by.filter(id=self.context['request'].user.id).exists()
-            is_bookmarked = post.bookmarked_by.filter(id=self.context['request'].user.id).exists()
+            is_liked = post.liked_by.filter(id=request.user.id).exists()
+            is_bookmarked = Bookmark.objects.filter(user=user, post=post).exists()
             
             comments_data = [
                 {
@@ -33,7 +42,7 @@ class ProfileSerializer(serializers.ModelSerializer):
                     "content": comment.body, 
                     "author": comment.author.username,
                     "created_at": comment.created_at,
-                    "is_liked": comment.liked_by.filter(id=self.context['request'].user.id).exists(),
+                    "is_liked": comment.liked_by.filter(id=request.user.id).exists(),
                     "like_count": comment.liked_by.count(),  
                 }
                 for comment in post.comments.all().order_by("-created_at")
@@ -114,7 +123,7 @@ class UserSerializer(serializers.ModelSerializer):
 class QuizResultsSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuizResults
-        fields = ['id', 'quiz', 'user', 'score', 'time_taken']
+        fields = ['id', 'quiz', 'quiz_progress', 'user', 'score', 'time_taken']
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
@@ -122,6 +131,7 @@ class QuizResultsSerializer(serializers.ModelSerializer):
         representation['question_count'] = instance.quiz.question_count
         representation['user'] = { 'id' : instance.user.id, 'username' : instance.user.username }
         representation['author'] = { 'id' : instance.quiz.author.id, 'username' : instance.quiz.author.username }
+        representation['level'] = instance.quiz.level
         return representation
 
 
@@ -218,26 +228,53 @@ class QuestionProgressSerializer(serializers.ModelSerializer):
 
 class PostSerializer(serializers.ModelSerializer):
     comments = serializers.SerializerMethodField()
+    is_bookmarked = serializers.SerializerMethodField()
+    is_liked = serializers.SerializerMethodField()
+    author = serializers.CharField(source='author.username')
 
     class Meta:
         model = Post
-        fields = ['id', 'title', 'description', 'author', 'tags', 'created_at', 'like_count', 'comments']
+        fields = [
+            'id', 'title', 'description', 'author', 'tags', 'created_at',
+            'like_count', 'is_bookmarked', 'is_liked', 'comments'
+        ]
 
+    def get_is_bookmarked(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return Bookmark.objects.filter(user=request.user, post=obj).exists()
+        return False
+
+    def get_is_liked(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.liked_by.filter(id=request.user.id).exists()
+        return False
 
     def get_comments(self, obj):
-        comments = Comment.objects.filter(post=obj)  # Fetch all comments for the post
-        return CommentSerializer(comments, many=True).data
+        comments = Comment.objects.filter(post=obj)
+        return CommentSerializer(comments, many=True, context=self.context).data
 
 class CommentSerializer(serializers.ModelSerializer):
-    replies = serializers.SerializerMethodField()  # Fetch nested replies
+    replies = serializers.SerializerMethodField()
+    is_liked = serializers.SerializerMethodField()
+    author = serializers.CharField(source='author.username')
 
     class Meta:
         model = Comment
-        fields = ['id', 'post', 'author', 'body', 'created_at', 'parent', 'replies']
+        fields = [
+            'id', 'post', 'author', 'body', 'created_at', 'parent',
+            'replies', 'is_liked', 'like_count'
+        ]
 
     def get_replies(self, obj):
-        """Recursively get all replies to a comment."""
-        replies = obj.replies.all()  # Fetch all replies related to the comment
+        replies = obj.replies.all()
         if replies.exists():
-            return CommentSerializer(replies, many=True).data
-        return None
+            return CommentSerializer(replies, many=True, context=self.context).data
+        return []
+
+    def get_is_liked(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.liked_by.filter(id=request.user.id).exists()
+        return False

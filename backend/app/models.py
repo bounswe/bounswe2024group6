@@ -25,7 +25,8 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     name = models.CharField(max_length=100,null=True, blank=True)
     bio = models.TextField(null=True, blank=True)
-    following = models.ManyToManyField("self", symmetrical=False, related_name="followers", blank=True)
+    following = models.ManyToManyField("self", symmetrical=False, related_name="profile_following", blank=True)
+    followers = models.ManyToManyField("self", symmetrical=False, related_name="profile_followers", blank=True)
     level = models.CharField(max_length=2, choices=LEVEL_CHOICES, default='A1')
 
     def __str__(self):
@@ -94,6 +95,7 @@ class QuizProgress(models.Model):
 class QuizResults(models.Model):
     id = models.AutoField(primary_key=True)
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='results')
+    quiz_progress = models.ForeignKey(QuizProgress, on_delete=models.CASCADE, related_name='results')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='results')
     score = models.FloatField()
     time_taken = models.IntegerField()
@@ -126,9 +128,10 @@ class Post(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField()
     created_at = models.DateTimeField(default=timezone.now)
-    author = models.CharField(max_length=100)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
     like_count = models.IntegerField(default=0)
-    bookmarked_by = models.ManyToManyField(User, related_name='bookmarked_posts', blank=True)  # Manages bookmarks
+    bookmarked_by = models.ManyToManyField(User, related_name='bookmarked_posts', blank=True)  
+
     liked_by = models.ManyToManyField(User, related_name='liked_posts', blank=True)
 
     def __str__(self):
@@ -162,16 +165,24 @@ class Translation(models.Model):
         return f"{self.translation} (Translation of {self.word})"
 
 class ActivityStream(models.Model):
-    actor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='activities')  
-    verb = models.CharField(max_length=50)  # liked, created, followed
-    object_type = models.CharField(max_length=50)  # Quiz, Post
-    object_id = models.IntegerField()  #Quiz ID Post ID
-    timestamp = models.DateTimeField(default=now)  # timestamp
-    target = models.CharField(max_length=100, null=True, blank=True)  # Add this field
+    actor = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='activities'
+    )  
+    verb = models.CharField(max_length=50) 
+    object_type = models.CharField(max_length=50) 
+    object_id = models.IntegerField()
+    timestamp = models.DateTimeField(default=now)  
+    target = models.CharField(max_length=100, null=True, blank=True)  
+    affected_username = models.CharField(
+        max_length=150, null=True, blank=True
+    )  
 
     def __str__(self):
-        return f"{self.actor.username} {self.verb} {self.object_type}:{self.object_id} at {self.timestamp}"
-    
+        affected = f" affecting {self.affected_username}" if self.affected_username else ""
+        return (
+            f"{self.actor.username} {self.verb} {self.object_type}:{self.object_id} "
+            f"at {self.timestamp}{affected}"
+        )
     
 class Comment(models.Model):
     post = models.ForeignKey('Post', on_delete=models.CASCADE, related_name='comments')  # Assuming a Post model exists
@@ -188,7 +199,7 @@ class Comment(models.Model):
 
 class Bookmark(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookmarks')
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)  # No related_name needed here
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='post_bookmarks') 
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

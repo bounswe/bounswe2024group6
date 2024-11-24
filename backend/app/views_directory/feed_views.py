@@ -25,15 +25,15 @@ def get_user_post_feed(request):
             "id": post.id,
             "title": post.title,
             "description": post.description,
-            "author": post.author,
+            "author": post.author.username, 
             "created_at": post.created_at,
             "like_count": post.like_count,
             "tags": [tag for tag in post.tags],
-            "is_liked": post.liked_by.filter(id=user.id).exists(),  # Check if the user liked the post
-            "is_bookmarked": Bookmark.objects.filter(user=user, post=post).exists(),  # Check if the user bookmarked the post
+            "is_liked": post.liked_by.filter(id=user.id).exists(),  
+            "is_bookmarked": Bookmark.objects.filter(user=user, post=post).exists(),  
 
             "comments": CommentSerializer(
-                Comment.objects.filter(post=post),  # Fetch all comments for the post
+                Comment.objects.filter(post=post),
                 many=True
             ).data,
         }

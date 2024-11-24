@@ -22,7 +22,6 @@ def bookmark_post(request):
 
     Bookmark.objects.create(user=request.user, post=post)
 
-    # Include like and bookmark status in the response
     is_liked = post.liked_by.filter(id=request.user.id).exists()
     is_bookmarked = Bookmark.objects.filter(user=request.user, post=post).exists()
 
@@ -52,7 +51,6 @@ def unbookmark_post(request):
 
     bookmark.delete()
 
-    # Include like and bookmark status in the response
     is_liked = post.liked_by.filter(id=request.user.id).exists()
     is_bookmarked = Bookmark.objects.filter(user=request.user, post=post).exists()
 
@@ -66,10 +64,12 @@ def unbookmark_post(request):
         status=status.HTTP_200_OK
     )
 
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def get_bookmarked_posts(request):
     bookmarks = Bookmark.objects.filter(user=request.user)
     bookmarked_posts = [bookmark.post for bookmark in bookmarks]
 
-    return Response(PostSerializer(bookmarked_posts, many=True).data, status=status.HTTP_200_OK)
+    serializer = PostSerializer(bookmarked_posts, many=True, context={'request': request})
+    return Response(serializer.data, status=status.HTTP_200_OK)

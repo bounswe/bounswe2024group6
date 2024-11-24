@@ -1,3 +1,4 @@
+#!/bin/bash
 set -e 
 docker-compose -f docker-compose-dev-backend.yml down --volumes
 sudo rm -rf dbdata

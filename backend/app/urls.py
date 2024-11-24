@@ -1,7 +1,7 @@
 from django.urls import path
 from app.views import *
-from app.views_directory.profileviews import view_profile, update_profile, view_other_profile
 from app.views_directory.wordviews import get_turkish_translation, get_lexvo_info, get_word_meanings, fetch_english_words
+from app.views_directory.profileviews import view_profile, update_profile, view_other_profile, view_followers, view_following
 from app.views_directory.follow_unfollow import follow_user, unfollow_user 
 from app.views_directory.authentication_endpoints import RegisterView, LoginView, LogoutView, RefreshTokenView
 from app.views_directory.comments import add_comment, delete_comment, like_comment, unlike_comment, get_comment_by_id
@@ -10,7 +10,7 @@ from app.views_directory.activity_streams import activities_by_user, activities_
 from app.views_directory.postviews import create_post, delete_post, get_posts_of_user, get_post_details
 from app.views_directory.feed_views import get_user_post_feed
 from app.views_directory.bookmark_views import bookmark_post, unbookmark_post, get_bookmarked_posts  
-
+from app.views_directory.searchview import SearchView
 
 import app.views_directory.quiz_views as quiz_views
 
@@ -18,7 +18,7 @@ urlpatterns = [
     path('', index , name='index_page'),
     path('profile/', view_profile, name='view_profile'),
     path('profile/update/', update_profile, name='update_profile'),
-    path('quiz/<int:quiz_id>', quiz_views.get_quiz, name="get_quiz"),
+    path('quiz/<int:quiz_id>/', quiz_views.get_quiz, name="get_quiz"),
     path('feed/quiz/', quiz_views.view_quizzes, name="feed_quiz"),
     path('quiz/create/', quiz_views.create_quiz, name="create_quiz"),
     path('quiz/question/', quiz_views.get_question, name="get_question"),
@@ -28,7 +28,13 @@ urlpatterns = [
     path('quiz/results/', quiz_views.get_quiz_results, name="get_quiz_results"),
     path('quiz/like/', quiz_views.like_quiz, name="like_quiz"),
     path('quiz/bookmark/', quiz_views.bookmark_quiz, name="bookmark_quiz"),
-    path('quiz/result/<int:quiz_progress_id>/', quiz_views.get_specific_quiz_result, name="get_specific_quiz_result"),
+    path('quiz/result/<int:quiz_result_id>/', quiz_views.get_specific_quiz_result, name="get_specific_quiz_result"),
+    path('quiz/bookmarks/', quiz_views.view_bookmarked_quizzes, name="view_bookmarked_quizzes"),
+    path('quiz/likes/', quiz_views.view_liked_quizzes, name="view_bookmarked_quizzes"),
+    path('quiz/created/<str:username>/', quiz_views.view_created_quizzes, name="view_created_quizzes"),
+    path('quiz/solved/<str:username>/', quiz_views.view_solved_quizzes, name="view_solved_quizzes"),
+    path('quiz/review/<int:quiz_result_id>/', quiz_views.get_quiz_review, name="review_quiz"),
+    path('quiz/recommend/<int:quiz_id>/', quiz_views.get_quiz_recommendations, name="recommend_quiz"),
     path('create-post/',create_post, name='create_post'),
     path('signup/', RegisterView.as_view(), name='auth_register'),
     path('login/', LoginView.as_view(), name='auth_login'),
@@ -58,5 +64,8 @@ urlpatterns = [
     path('unbookmark/', unbookmark_post, name='unbookmark_post'), 
     path('get_bookmarked_posts/', get_bookmarked_posts, name='get_bookmarked_posts'),  
     path('profile/<str:username>/', view_other_profile, name='view_other_profile'),
+    path('profile/followers/<str:username>/', view_followers, name='view_followers'),
+    path('profile/following/<str:username>/', view_following, name='view_following'),
+    path('search/', SearchView.as_view(), name='search'),
 ]
 
