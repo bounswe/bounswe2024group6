@@ -9,7 +9,10 @@ import axios from "axios";
 import { BASE_URL } from "../lib/baseURL";
 import type { Comment, Post, PostResponse } from "../types.ts";
 import { AuthActions } from "../components/auth/utils.tsx";
-import { convertPostResponseToPost, formatTimeAgo } from "../components/common/utils.tsx";
+import {
+  convertPostResponseToPost,
+  formatTimeAgo,
+} from "../components/common/utils.tsx";
 import Cookies from "js-cookie";
 
 export default function Post() {
@@ -146,3 +149,4 @@ export default function Post() {
     </div>
   );
 }
+

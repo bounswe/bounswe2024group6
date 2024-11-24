@@ -1,9 +1,9 @@
-import { Pagination, Button } from "@nextui-org/react";
+import { Button } from "@nextui-org/react";
 import Navbar from "../components/common/navbar.tsx";
 import QuestionCard from "../components/quiz/question-card.tsx";
 import React, { useState } from "react";
 import SidebarLayout from "../components/quiz/navigation.tsx";
-import { usePageTitle } from '../components/common/usePageTitle.ts';
+import { usePageTitle } from "../components/common/usePageTitle.ts";
 
 enum Answer {
   None,
@@ -18,7 +18,7 @@ export default function Quizzes() {
   const [answers, setAnswers] = useState(Array(10).fill(Answer.None));
   const [isOpen, setIsOpen] = useState(false);
 
-  usePageTitle('Quiz');
+  usePageTitle("Quiz");
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
