@@ -9,7 +9,8 @@ import axios from "axios";
 import { BASE_URL } from "../lib/baseURL";
 import type { Comment, Post, PostResponse } from "../types.ts";
 import { AuthActions } from "../components/auth/utils.tsx";
-import { convertPostResponseToPost } from "../components/common/utils.tsx";
+import { convertPostResponseToPost, formatTimeAgo } from "../components/common/utils.tsx";
+import Cookies from "js-cookie";
 
 export default function Post() {
   const { postID } = useParams();
@@ -18,18 +19,23 @@ export default function Post() {
   const [comment, setComment] = useState("");
   const { getToken } = AuthActions();
   const token = getToken("access");
+  const username = Cookies.get("username");
 
   useEffect(() => {
     axios
-      .get(`${BASE_URL}/feed/`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      .post(
+        `${BASE_URL}/post/`,
+        {
+          post_id: postID,
         },
-      })
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
       .then((response) => {
-        const postData: PostResponse = response.data.feed.filter(
-          (post: PostResponse) => post.id === parseInt(postID!)
-        )[0];
+        const postData: PostResponse = response.data.post;
         setPost(convertPostResponseToPost(postData));
         setComments(convertPostResponseToPost(postData).comments);
       })
@@ -58,11 +64,19 @@ export default function Post() {
         }
       )
       .then((response) => {
-        const postData: PostResponse = response.data.feed.filter(
-          (post: PostResponse) => post.id === parseInt(postID!)
-        )[0];
-        setPost(convertPostResponseToPost(postData));
-        setComments(convertPostResponseToPost(postData).comments);
+        console.log(response.data);
+        setComment("");
+        setComments([
+          {
+            id: response.data.id,
+            content: response.data.body,
+            author: username || "Me",
+            created_at: response.data.created_at,
+            like_count: 0,
+            is_liked: false,
+          },
+          ...comments,
+        ]);
       })
       .catch((error) => {
         console.log(error);
@@ -118,12 +132,12 @@ export default function Post() {
           <Suspense key={comment.id} fallback={<PostCardSkeleton />}>
             <PostCard
               id={comment.id}
-              username={comment.author.username}
-              content={comment.comment}
-              timePassed={comment.timestamp}
-              likeCount={comment.likes}
+              username={comment.author}
+              content={comment.content}
+              timePassed={formatTimeAgo(comment.created_at)}
+              likeCount={comment.like_count}
               initialIsLiked={comment.is_liked}
-              initialIsBookmarked={comment.is_bookmarked}
+              initialIsBookmarked={false}
             />
           </Suspense>
         ))}
