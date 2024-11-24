@@ -2,33 +2,27 @@ import React, { useState, useEffect } from 'react';
 import {Text, StyleSheet, FlatList, View, TouchableWithoutFeedback, ActivityIndicator } from 'react-native';
 import { QuizInfo } from '.';
 import QuizCard from '@/app/components/quizCard';
+import TokenManager from '@/app/TokenManager';
 
 
 export default function Followers() {
   const [isLoading, setIsLoading] = useState(true);
-  const [bookmarkedQuizzes, setBoormarkedQuizzes] = useState<QuizInfo[]>([
-    { id: 4, title: 'Plants', description: 'Test your plant knowledge', author: 'Halil', level: 'A2', likes: 300, liked: true },
-    { id: 5, title: 'Transport', description: 'Types of transport', author: 'Alex', level: 'B1', likes: 4, liked: false },
-    { id: 6, title: 'Food', description: 'Learn about foods', author: 'Oguz', level: 'A2', likes: 135, liked: true },
-  ])
+  const [bookmarkedQuizzes, setBoormarkedQuizzes] = useState<QuizInfo[]>([])
 
   useEffect(() => {
-    const ENDPOINT_URL = "http://161.35.208.249:8000/bookmarkedquizzes";  // Placeholder
     const fetchFollowers = async () => {
-      const params = {
-        // TODO
-       };
+      const url = "quiz/bookmarks/"
       try {
-        const response = await fetch(ENDPOINT_URL, {
-          method: 'POST',
+        const response = await TokenManager.authenticatedFetch(url, {
+          method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(params),
         });
 
         if (response.ok){
-          setBoormarkedQuizzes(await response.json());
+          const result = await response.json()
+          console.log('Result is', result);
         } else {
           console.log(response.status)
         };
@@ -55,7 +49,8 @@ export default function Followers() {
       data={bookmarkedQuizzes}
       renderItem={({item}) => {  // Placeholder, replace with quiz card
         return (
-          <QuizCard {...item}/>
+          <QuizCard id={item.id} author={item.author.username} title={item.title} level={item.level} 
+              description={item.description} liked={item.is_liked} likes={item.like_count}/>
         );
       }}
       ListHeaderComponent={
