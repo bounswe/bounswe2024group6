@@ -20,8 +20,8 @@ export default function Login({
 }: {
   setIsRegister: (value: boolean) => void;
 }) {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState(Cookies.get("username") || "");
+  const [password, setPassword] = useState(Cookies.get("password") || "");
   const [isVisible, setIsVisible] = useState(false);
   const navigate = useNavigate();
 
@@ -35,11 +35,13 @@ export default function Login({
   } = useForm<FormData>();
 
   const onSubmit = () => {
-    Cookies.set("username", username);
+    
     login(username, password)
       .json((json) => {
+        Cookies.set("username", username);
+        Cookies.set("password", password);
         console.log(json);
-        
+
         storeToken(json.access, "access");
         storeToken(json.refresh, "refresh");
 
@@ -53,7 +55,7 @@ export default function Login({
   const { login, storeToken } = AuthActions();
 
   return (
-    <div className="lg:w-1/3 flex pr-24 pl-12 lg:justify-end items-center h-screen">
+    <div className=" flex lg:justify-end items-center">
       <div className="flex flex-col items-center w-full max-w-sm p-6">
         <h2 className="text-2xl font-semibold text-center mb-6">
           Welcome Back
@@ -63,6 +65,7 @@ export default function Login({
             <Input
               type="username"
               label="Username"
+              defaultValue={Cookies.get("username") || ""}
               {...register("username", { required: true })}
               onChange={(e) => setUsername(e.target.value)}
             />
@@ -75,6 +78,7 @@ export default function Login({
               <Input
                 label="Password"
                 variant="bordered"
+                defaultValue={Cookies.get("password") || ""}
                 {...register("password", { required: true })}
                 onChange={(e) => setPassword(e.target.value)}
                 endContent={
