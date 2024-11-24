@@ -296,3 +296,28 @@ def view_solved_quizzes(request, username):
     quizzes = [quiz_progress.quiz for quiz_progress in quiz_progresses]
     serializer = QuizSerializer(quizzes, many=True, context = {'request': request})
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_quiz_recommendations(request, quiz_id):
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+    level = quiz.level
+    tags = quiz.tags.all()
+    recommended_on_level = Quiz.objects.filter(level=level).exclude(id=quiz_id).order_by('?').first()
+    recommended_on_tags = Quiz.objects.filter(tags__in=tags).exclude(id=quiz_id).order_by('?').first()
+    if recommended_on_level is not None:
+        serializer = QuizSerializer(recommended_on_level, context = {'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    if recommended_on_tags is not None:
+        serializer = QuizSerializer(recommended_on_tags, context = {'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    random = Quiz.objects.exclude(id=quiz_id).order_by('?').first()
+
+    serializer = QuizSerializer(random, context = {'request': request})
+
+    if random is not None:
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    return Response({'error': 'No recommendations found'}, status=status.HTTP_400_BAD_REQUEST)

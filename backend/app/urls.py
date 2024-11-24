@@ -34,6 +34,7 @@ urlpatterns = [
     path('quiz/created/<str:username>/', quiz_views.view_created_quizzes, name="view_created_quizzes"),
     path('quiz/solved/<str:username>/', quiz_views.view_solved_quizzes, name="view_solved_quizzes"),
     path('quiz/review/<int:quiz_result_id>/', quiz_views.get_quiz_review, name="review_quiz"),
+    path('quiz/recommend/<int:quiz_id>/', quiz_views.get_quiz_recommendations, name="recommend_quiz"),
 
 
     path('create-post/',create_post, name='create_post'),
