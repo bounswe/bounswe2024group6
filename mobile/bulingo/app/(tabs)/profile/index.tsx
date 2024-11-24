@@ -97,7 +97,6 @@ export default function Profile() {
       let updatedUserInfo;
 
       try {
-        console.log('here')
         const profileRequest = await TokenManager.authenticatedFetch(profileUrl, {
           method: 'GET',
           headers: {
@@ -118,7 +117,6 @@ export default function Profile() {
           },
         });
         const createdQuizResponse = await createdQuizRequest.json()
-        console.log(createdQuizResponse);
         if (createdQuizRequest.ok){
           updatedUserInfo = {...updatedUserInfo, createdQuizzes: createdQuizResponse}
         } else {
