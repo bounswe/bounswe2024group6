@@ -28,9 +28,8 @@ export default function Notifications() {
 
   useEffect(() => {
     axios
-      .post(
+      .get(
         `${BASE_URL}/user-activities-as-object/`,
-        {},
         {
           headers: {
             Authorization: `Bearer ${token}`,
