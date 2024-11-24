@@ -90,7 +90,7 @@ def submit_quiz(request):
     quiz.times_taken += 1
     quiz.total_score += score
     quiz.save()
-    result_url = f"/quiz/result/{quiz_progress.id}"
+    result_url = f"/quiz/result/{quiz_result.id}"
 
     return Response({'result_url': result_url}, status=status.HTTP_200_OK)
 
@@ -105,17 +105,17 @@ def get_quiz_results(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_specific_quiz_result(request, quiz_progress_id):
+def get_specific_quiz_result(request, quiz_result_id):
 
-    quiz_result = get_object_or_404(QuizResults, quiz_progress_id=quiz_progress_id, user=request.user)
+    quiz_result = get_object_or_404(QuizResults, id=quiz_result_id, user=request.user)
 
     serializer = QuizResultsSerializer(quiz_result)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_quiz_review(request, quiz_progress_id):
-    quiz_progress = get_object_or_404(QuizProgress, id=quiz_progress_id, user=request.user)
+def get_quiz_review(request, quiz_result_id):
+    quiz_progress = get_object_or_404(QuizResults, id=quiz_result_id, user=request.user).quiz_progress
     quiz = quiz_progress.quiz
     question_progresses = QuestionProgress.objects.filter(quiz_progress=quiz_progress)
     data = {'questions': []}
