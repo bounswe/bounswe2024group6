@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Select, SelectItem } from "@nextui-org/react";
 import axios from "axios";
 
@@ -135,28 +135,26 @@ export default function Forum() {
       </div>
 
       <div className="flex flex-col gap-6 m-6">
-        {isLoading ? (
-          // Show multiple skeletons while loading
-          Array(3).fill(0).map((_, index) => (
-            <PostCardSkeleton key={index} />
-          ))
-        ) : (
-          // Show actual posts when loaded
-          sortedPosts.map((post) => (
-            <PostCard
-              key={post.id}
-              id={post.id}
-              username={post.author.username}
-              title={post.post.title}
-              content={post.post.content}
-              timePassed={post.post.timestamp}
-              likeCount={post.engagement.likes}
-              tags={post.post.tags}
-              initialIsLiked={post.engagement.is_liked}
-              initialIsBookmarked={post.engagement.is_bookmarked}
-            />
-          ))
-        )}
+        {isLoading
+          ? // Show multiple skeletons while loading
+            Array(2)
+              .fill(0)
+              .map((_, index) => <PostCardSkeleton key={index} />)
+          : // Show actual posts when loaded
+            sortedPosts.map((post) => (
+              <PostCard
+                key={post.id}
+                id={post.id}
+                username={post.author.username}
+                title={post.post.title}
+                content={post.post.content}
+                timePassed={post.post.timestamp}
+                likeCount={post.engagement.likes}
+                tags={post.post.tags}
+                initialIsLiked={post.engagement.is_liked}
+                initialIsBookmarked={post.engagement.is_bookmarked}
+              />
+            ))}
       </div>
     </div>
   );
