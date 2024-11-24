@@ -145,6 +145,7 @@ const QuizDetails = () => {
       <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
         <TouchableOpacity style={styles.quizButton}
           onPress={() => router.navigate('/(tabs)/quizzes/quizQuestion')}
+        <TouchableOpacity style={styles.quizButton} onPress={() => router.push({ pathname: '/(tabs)/quizzes/quizQuestion', params: { quizId: id } })}
         >
           <Text style={styles.buttonText}>Take Quiz</Text>
         </TouchableOpacity>
