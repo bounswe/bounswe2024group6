@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableWithoutFeedback, Image, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
-import { QuizInfo, isQuizInfo } from '..';
+import { QuizInfo, isQuizInfo } from '../..';
 import QuizCard from '@/app/components/quizCard';
 import TokenManager from '@/app/TokenManager';
 
@@ -56,7 +56,6 @@ export default function Profile() {
           },
         });
         const res = await response.json()
-        console.log('res=', res);
         if (response.ok){
           updatedUserInfo = res
         } else {
@@ -87,7 +86,6 @@ export default function Profile() {
         } else {
           console.log(createdQuizResponse.status)
         };
-        console.log(updatedUserInfo);
         setUserInfo(updatedUserInfo);
       } catch (error) {
         console.error(error);
@@ -133,6 +131,7 @@ export default function Profile() {
       ListHeaderComponent={
         <>
           <ProfileInfo
+            username={username}
             name={userInfo.name}
             level={userInfo.level}
             about={userInfo.bio}
@@ -154,15 +153,16 @@ type ProfileInfoProps = {
   name: string,
   about: string,
   level: string,
+  username: string,
 }
 
 const ProfileInfo = (props:ProfileInfoProps) => {
   const handleFollowersPress = () => {
-    router.push('/(tabs)/profile/followers')
+    router.push(`/(tabs)/profile/users/${props.username}/followers`)
     console.log("Followers button pressed.")
   };
   const handleFollowingPress = () => {
-    router.push('/(tabs)/profile/following')
+    router.push(`/(tabs)/profile/users/${props.username}/following`)
     console.log("Following button pressed.")
   };
   const handleButtonPress = () => {
