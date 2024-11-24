@@ -2,18 +2,49 @@ import React, { useState, useEffect } from 'react';
 import { TouchableOpacity, StyleSheet, Text, View, FlatList, Image, useColorScheme } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Shadow } from 'react-native-shadow-2';
+import { getQuizDetails, clearQuizDetails } from './AsyncStorageHelpers';
+import { saveQuestions, getQuestions, clearQuestions } from './AsyncStorageHelpers';
+
+type Question = {
+  id: number;
+  name: string;
+  correctAnswer: string;
+  answers: string[]; 
+  type: string;
+};
+
+let uniqueQuestionKey = 0;
+
 const QuizCreationQuestionList = () => {
-  const [questions, setQuestions] = useState([
-    {id: 1, name: 'Pasta', correctAnswer: 'makarna', answers: ['makarna', 'pizza', 'hamburger', 'sushi'], type: 'Type II'},
-    {id: 2, name: 'Salt', correctAnswer: 'tuz', answers: ['tuz', 'seker', 'un', 'sut'], type: 'Type II'},
-    {id: 3, name: 'Beef', correctAnswer: 'dana eti', answers: ['dana eti', 'kuzu eti', 'tavuk eti', 'balik'], type: 'Type II'},
-    {id: 4, name:'Lettuce', correctAnswer: 'marul', answers: ['marul', 'domates', 'salatalik', 'biber'], type: 'Type II'},
-  ]);
+  const [questions, setQuestions] = useState<Question[]>([]);
   
-  
+  const [quizDetails, setQuizDetails] = useState(null);
+
+  useEffect(() => {
+    const fetchStoredQuestions = async () => {
+      const storedQuestions = await getQuestions();
+      setQuestions(storedQuestions);
+    };
+    fetchStoredQuestions();
+  }, []);
+
+  useEffect(() => {
+    const fetchQuizDetails = async () => {
+      const details = await getQuizDetails();
+      setQuizDetails(details);
+    };
+
+    fetchQuizDetails();
+  }, []);
+
+  useEffect(() => {
+    saveQuestions(questions);
+  }
+  , [questions]);
+
+
   const colorScheme = useColorScheme();
   const styles = getStyles(colorScheme);
-
   
   const { question, answers, correctAnswer, selectedType, index } = useLocalSearchParams();
 
@@ -22,24 +53,27 @@ const QuizCreationQuestionList = () => {
   useEffect(() => {
     if (question && answers && correctAnswer && selectedType) {
       const newQuestion = {
-        id: questions.length + 1,
-        name: Array.isArray(question) ? question[0] : question, // Handle case if question is an array
-        correctAnswer: Array.isArray(correctAnswer) ? correctAnswer[0] : correctAnswer, // Handle case if correctAnswer is an array
-        answers: parsedAnswers, // This should now be an array
-        type: Array.isArray(selectedType) ? selectedType[0] : selectedType // Convert selectedType to a string
+        id: index !== undefined ? questions[Number(index)].id : uniqueQuestionKey,
+        name: Array.isArray(question) ? question[0] : question,
+        correctAnswer: Array.isArray(correctAnswer) ? correctAnswer[0] : correctAnswer,
+        answers: parsedAnswers,
+        type: Array.isArray(selectedType) ? selectedType[0] : selectedType 
       };
 
       if (index !== undefined) {
         setQuestions((prevQuestions) => {
           const updatedQuestions = [...prevQuestions];
           updatedQuestions[Number(index)] = newQuestion;
+          console.log(questions);
+          saveQuestions(questions);
           return updatedQuestions;
         });
         return;
       }
-
-      // Update the state to add the new question
+      uniqueQuestionKey++;
+      console.log(questions);
       setQuestions((prevQuestions) => [...prevQuestions, newQuestion]);
+      saveQuestions(questions);
     }
   }, [question, answers, correctAnswer, selectedType]);
 
@@ -55,15 +89,19 @@ const QuizCreationQuestionList = () => {
     router.navigate('/(tabs)/quizzes/');
   }
 
-  const handleCancel = () => {
+  const handleCancel = async () => {
+    await clearQuizDetails(); 
+    await clearQuestions();
     router.navigate("/(tabs)/quizzes/");
+
   }
 
 
 
-  const handleDeleteQuestion = (index: number) => {
+  const handleDeleteQuestion = async (index: number) => {
     const updatedQuestions = questions.filter((_, i) => i !== index);
     setQuestions(updatedQuestions);
+    await saveQuestions(updatedQuestions);
   };
 
   const renderQuestionItem = ({ item, index }: { item: any; index: number }) => (
@@ -81,13 +119,15 @@ const QuizCreationQuestionList = () => {
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
-        <Text style={styles.headerText}>Food</Text>
+      <Text style={styles.headerText}>
+        {quizDetails && quizDetails["title"] ? quizDetails["title"] : "Default Title"}
+        </Text>
         <TouchableOpacity style={styles.addButton} onPress={handleAddQuestion}>
         <Image source={require('@/assets/images/add-icon.png')} style={styles.icon} />
         </TouchableOpacity>
       </View>
 
-      {/* Questions List */}
+
       <FlatList
         data={questions}
         renderItem={renderQuestionItem}
@@ -95,7 +135,6 @@ const QuizCreationQuestionList = () => {
         style={styles.questionList}
       />
 
-      {/* Footer Buttons */}
       <View style={styles.footer}>
       <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
         <TouchableOpacity style={styles.cancelButton} onPress={() => handleCancel()}>
