@@ -2,10 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
-import Navbar from "./navbar";
 import {router} from 'expo-router';
 
-// const SIGNUP_URL = "http://161.35.208.249:8000/signup/";
+const SIGNUP_URL = "http://3.74.151.33:8000/signup/";
 
 const Register = () => {
   const [email, setEmail] = useState('');
@@ -50,21 +49,26 @@ const Register = () => {
       'email': email,
     };
     try {
-      // const response = await fetch(SIGNUP_URL, {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify(params),
-      // });
-      // const json = await response.json();
-      if (true){
+      const response = await fetch(SIGNUP_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(params),
+      });
+      const json = await response.json();
+      console.log(json)
+      if (json){
         router.navigate('/');
       }
     } catch (error) {
       console.error(error);
     }
   };
+
+  const handleReturnHome = () => {
+    router.navigate('/');
+  }
 
   useEffect (() => {
     if (!isTyping) {
@@ -124,7 +128,6 @@ const Register = () => {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
     <View style={styles.container}>
-      <View style={styles.navbarContainer}><Navbar/></View>
 
       <Text style={styles.header}>Register</Text>
 
@@ -206,6 +209,15 @@ const Register = () => {
         >
         <Text style={styles.buttonText}>Sign Up</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity 
+        style={[styles.button, { marginTop: 10 }]} // Add margin top
+        onPress={handleReturnHome}
+        
+        >
+          <Text style={styles.buttonText}>Return Home</Text>
+        </TouchableOpacity>
+
     </View>
     </TouchableWithoutFeedback>
   );
@@ -240,7 +252,7 @@ const styles = StyleSheet.create({
     minHeight : 30,
     backgroundColor: '#E8E8E8',
     borderRadius: 10,
-    flex: 0.14,
+    flex: 0.10,
     marginRight: 10,
     paddingLeft: 10,
   },
@@ -303,3 +315,4 @@ const styles = StyleSheet.create({
 });
 
 export default Register;
+

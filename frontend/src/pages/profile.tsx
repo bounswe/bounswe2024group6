@@ -4,6 +4,7 @@ import { Suspense, useState, useEffect } from "react";
 import PostCard from "../components/post/post-card.tsx";
 import PostCardSkeleton from "../components/post/post-card-skeleton.tsx";
 import axios from "axios";
+import { useParams } from "react-router-dom";
 import { BASE_URL } from "../lib/baseURL";
 import type { Post, Profile, ProfileResponse } from "../types.ts";
 import {
@@ -17,42 +18,50 @@ import {
   convertPostResponseToPost,
   convertProfileResponseToProfile,
 } from "../components/common/utils.tsx";
+import Cookies from "js-cookie";
+
 
 export default function Profile() {
+  const { username } = useParams<{ username: string }>();
   const [activeSection, setActiveSection] = useState("posts");
   const [profile, setProfile] = useState<Profile | null>(null);
   const { getToken } = AuthActions();
   const token = getToken("access");
   const [sortedPosts, setSortedPosts] = useState<Post[]>([]);
+  const [isFollowing, setIsFollowing] = useState(false);
+
+  const toggleFollow = () => {
+    setIsFollowing((prev) => !prev); // Toggle the follow state
+  };
+
 
   useEffect(() => {
-    axios
-      .post(
-        `${BASE_URL}/profile/`,
-        {},
-        {
+    if (username) {
+      axios
+        .get(`${BASE_URL}/profile/${username}/`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-        }
-      )
-      .then((response) => {
-        const data: ProfileResponse = response.data;
-        console.log(data);
-        const profile = convertProfileResponseToProfile(data); 
-        const sortedVersion= [...profile.posts].sort((a, b) => {
-          return new Date(b.post.created_at).getTime() - new Date(a.post.created_at).getTime();
+        })
+        .then((response) => {
+          const data: ProfileResponse = response.data;
+          console.log(data);
+          const profile = convertProfileResponseToProfile(data);
+          const sortedVersion = [...profile.posts].sort((a, b) => {
+            return (
+              new Date(b.post.created_at).getTime() -
+              new Date(a.post.created_at).getTime()
+            );
+          });
+          setSortedPosts(sortedVersion);
+          setProfile(profile);
+        })
+        .catch((error) => {
+          console.log(error);
         });
-        setSortedPosts(sortedVersion);
-        console.log(profile);
-        setProfile(profile);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }, []);
-
+    }
+  }, [username, token]);
 
 
 
@@ -60,26 +69,40 @@ export default function Profile() {
     <div className="h-full w-full items-center overflow-hidden flex flex-col">
       <Navbar />
       {profile && (
-        <div className="flex justify-center gap-6 items-center w-full px-32 py-5">
-          <div className="flex items-center px-5 bg-white rounded-lg">
+        <div className="flex justify-center gap-6 items-center w-full px-32 py-3">
+          <div className="flex items-center px-2 bg-white rounded-lg">
             <Avatar
               src="https://nextui.org/avatars/avatar-1.png"
-              className="mr-3 w-24 h-24"
+              className="mr-2 w-24 h-24"
             />
-            <div className="mx-4">
+            <div className="mx-4 max-w-52">
               <h3 className="text-xl font-semibold">{profile.username}</h3>
               <p className="text-gray-500">@{profile.level}</p>
+              <p className="text-zinc-800 break-words">{profile.bio}</p>
             </div>
           </div>
-          <div className="flex flex-row pl-36 gap-6">
+          <div className={`flex flex-row ${profile.username === Cookies.get("username") ? "pl-32" : "pl-0"} gap-6`}>
+            {profile.username !== Cookies.get("username") && (
+              <Button
+                variant={isFollowing ? "faded" : "solid"}
+                color="primary"
+                onClick={toggleFollow}
+                className={`border-2 rounded-lg min-w-36 font-bold px-8 py-6 ${isFollowing ? "text-blue-900" : ""
+                  }`}
+              >
+                {isFollowing ? "Unfollow" : "Follow"}
+              </Button>
+            )}
             <Button
-              variant="light"
+              variant="faded"
+              color="primary"
               className="border-2 rounded-lg font-bold text-blue-900 px-8 py-6 "
             >
               {profile.following} Following
             </Button>
             <Button
-              variant="light"
+              variant="faded"
+              color="primary"
               className="border-2 rounded-lg font-bold text-blue-900 px-8 py-6 "
             >
               {profile.followers} Followers
@@ -129,6 +152,8 @@ export default function Profile() {
                               timePassed={post.post.timestamp}
                               likeCount={post.engagement.likes}
                               tags={post.post.tags}
+                              initialIsLiked={post.engagement.is_liked}
+                              initialIsBookmarked={post.engagement.is_bookmarked}
                             />
                           </Suspense>
                         );
@@ -151,17 +176,19 @@ export default function Profile() {
           >
             <p>Solved</p>
           </Tab>
-          <Tab
-            key="saved"
-            title={
-              <div className="flex items-center space-x-2">
-                <IconBookmark size={20} stroke={1.5} />
-                <span>Saved</span>
-              </div>
-            }
-          >
-            <p>Saved</p>
-          </Tab>
+          {profile && profile.username === Cookies.get("username") && (
+            <Tab
+              key="saved"
+              title={
+                <div className="flex items-center space-x-2">
+                  <IconBookmark size={20} stroke={1.5} />
+                  <span>Saved</span>
+                </div>
+              }
+            >
+              <p>Saved</p>
+            </Tab>
+          )}
         </Tabs>
       </div>
     </div>

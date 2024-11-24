@@ -14,11 +14,12 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { IconBell } from "@tabler/icons-react";
 import { ThemeSwitcher } from "./theme-switcher";
 import { AuthActions } from "../auth/utils";
+import Cookies from "js-cookie";
 
 export default function Navbar() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const username = "oktay_ozel";
+  const username = Cookies.get("username");
 
   const { logout, removeTokens } = AuthActions();
 
@@ -38,7 +39,7 @@ export default function Navbar() {
   const content = (
     <PopoverContent>
       <div className="px-2 pb-2">
-        <div className="text-medium font-semibold px-5 py-2">{username}</div>
+        <div className="text-medium font-semibold px-5 py-2 text-center">{username}</div>
         <Divider className="w-full bg-zinc-300" />
         <div className="flex flex-col">
           <Button
@@ -48,7 +49,7 @@ export default function Navbar() {
           >
             Profile
           </Button>
-          <Button variant="light" className="text-medium w-full">
+          <Button variant="light" onClick={() => navigate(`/profile/${username}/edit`)} className="text-medium w-full">
             Edit Profile
           </Button>
           <Button
@@ -65,7 +66,7 @@ export default function Navbar() {
   );
 
   return (
-    <div className="w-screen p-2 shadow-none">
+    <div className="w-screen p-2 shadow-none" data-testid="navbar">
       <Card className="flex flex-row w-full px-5 py-3 rounded-full shadow-md">
         <div className="flex-1 flex flex-row gap-6 items-center">
           <div

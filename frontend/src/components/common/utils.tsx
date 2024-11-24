@@ -42,6 +42,8 @@ export const convertPostResponseToPost = (postResponse: PostResponse): Post => {
     engagement: {
       likes: postResponse.like_count,
       comments: 0,
+      is_liked: postResponse.is_liked,
+      is_bookmarked: postResponse.is_bookmarked,
     },
     comments: [],
   };
@@ -52,6 +54,7 @@ export const convertProfileResponseToProfile = (profileResponse: ProfileResponse
     id: 0,
     username: profileResponse.username,
     level: profileResponse.level,
+    bio: profileResponse.bio,
     followers: profileResponse.follower_count,
     following: profileResponse.following_count,
     image: profileResponse.image || '',

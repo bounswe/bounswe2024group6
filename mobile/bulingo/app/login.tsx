@@ -1,18 +1,16 @@
 import React, {useState, createContext, useContext} from 'react';
 import {Pressable, StyleSheet, Text, View, TextInput, TouchableWithoutFeedback, ActivityIndicator} from 'react-native';
-import Navbar from "./navbar";
 import {router} from 'expo-router'
 import TokenManager from './TokenManager'; // Import the TokenManager
 
 
-const LOGIN_URL = "http://161.35.208.249:8000/login/";
+const LOGIN_URL = "http://3.74.151.33:8000/login/";
 
 export default function Home() {
-  const [email, setEmail] = useState('');    // State for email
+  const [username, setUsername] = useState('');    // State for username
   const [password, setPassword] = useState('');  // State for password
   const [isLoading, setIsLoading] = useState(false);
   const [isErrorVisible, setIsErrorVisible] = useState(false);
-  const username = "1";
   const handleRegister = () => {
     router.navigate('/register')
   };
@@ -20,21 +18,11 @@ export default function Home() {
 
   const handleLogin = async () => {
     setIsLoading(true);
-   const params = {
-    'username': username,
-    'password': password,
-    'email': email,
-   };
+    const params = {
+      'username': username,
+      'password': password,
+    };
     try {
-    fetch('https://reactnative.dev/movies.json')
-    .then(response => response.json())
-    .then(json => {
-      // logic to perform if the request succeeds
-    })
-    .catch(error => {
-      console.error(error); // catching the error and handling it the way you see fit.
-    }); // retrieved from https://reactnative.dev/docs/network
-
       const response = await fetch(LOGIN_URL, {
         method: 'POST',
         headers: {
@@ -44,10 +32,9 @@ export default function Home() {
       });
       const json = await response.json();
       if ("access" in json){
-        const { accessToken, refreshToken } = json;
-        TokenManager.setTokens({ accessToken, refreshToken });
+        const { access, refresh } = json;
+        TokenManager.saveTokens(access, refresh);
         TokenManager.setUsername(username);
-        console.log(TokenManager.getTokens())
         router.navigate('/');
       } else {
         setIsErrorVisible(true);
@@ -69,7 +56,6 @@ export default function Home() {
         </TouchableWithoutFeedback>
       )}
 
-      <View style={styles.navbarContainer}><Navbar/></View>
         <View style={styles.page}>
         
 
@@ -78,13 +64,13 @@ export default function Home() {
             <Text style={styles.titleText}>Log In</Text>
           </View>
             <View style={styles.namedUserInput}>
-              <Text style={styles.userInputText}>E-mail:</Text>
+              <Text style={styles.userInputText}>Username:</Text>
               <View style={styles.inputBox}>
                 <TextInput 
                   style={styles.input}
-                  value={email} 
-                  onChangeText={text => setEmail(text)} 
-                  keyboardType="email-address">
+                  value={username} 
+                  onChangeText={text => setUsername(text)} 
+                  >
                 </TextInput>
               </View>
             </View>
@@ -109,7 +95,7 @@ export default function Home() {
             </View>
             <Text style={styles.smallText}>Don't have an account?</Text>
             <View style={styles.buttonContainer}>
-              <Pressable style={[styles.rectangularButton, {backgroundColor: 'gray'}]} onPress={handleRegister} disabled={true}>
+              <Pressable style={[styles.rectangularButton]} onPress={handleRegister}>
                 <Text style={styles.buttonText}>Register</Text>
               </Pressable>
             </View>
@@ -164,7 +150,9 @@ const styles = StyleSheet.create({
   },
   titleText: {
     textAlign: 'center',
-    fontSize: 30,
+    fontSize: 36,
+    color: '#3944FD',
+    fontWeight: 'bold',
   },
   userInputText: {
     fontSize: 16,

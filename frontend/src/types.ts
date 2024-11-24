@@ -7,6 +7,8 @@ export type Comment = {
     comment: string;
     timestamp: string;
     likes: number;
+    is_liked: boolean;
+    is_bookmarked: boolean;
   };
   
   export type Post = {
@@ -25,6 +27,8 @@ export type Comment = {
     engagement: {
       likes: number;
       comments: number;
+      is_liked: boolean;
+      is_bookmarked: boolean;
     };
     comments: Comment[];
   };
@@ -37,6 +41,8 @@ export type Comment = {
     like_count: number;
     tags: string[];
     title: string;
+    is_liked: boolean;
+    is_bookmarked: boolean;
   };
   
   export type Quiz = {
@@ -52,6 +58,7 @@ export type Comment = {
     id: number;
     username: string;
     level: string;
+    bio: string;
     followers: number;
     following: number;
     image: string;
@@ -64,6 +71,7 @@ export type Comment = {
     follower_count: number; 
     following_count: number;
     level: string;
+    bio: string;
     name: string;
     username: string;
     posts: PostResponse[];

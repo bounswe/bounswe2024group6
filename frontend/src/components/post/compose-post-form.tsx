@@ -32,7 +32,8 @@ const Tags = [
   "#General",
   "#Fun",
 ];
-const DifficultyTags = ["A1", "A2", "B1", "B2", "C1", "C2",];
+const DifficultyTags = ["#A1", "#A2", "#B1", "#B2", "#C1", "#C2",];
+
 
 export default function ComposePostForm() {
   const [title, setTitle] = useState("");
@@ -110,18 +111,6 @@ export default function ComposePostForm() {
             <label className="block mb-2 text-md text-center font-medium text-gray-700">
               Tags
             </label>
-            {/* <div className="flex flex-wrap gap-2">
-              {Tags.map((tag) => (
-                <Button
-                  key={tag}
-                  color={selectedTags.includes(tag) ? "secondary" : "secondary"}
-                  variant={selectedTags.includes(tag) ? "solid" : "light"}
-                  onPress={() => handleTagClick(tag)}
-                >
-                  {tag}
-                </Button>
-              ))}
-            </div> */}
             <div className="flex flex-row justify-between mb-3">
               <Select
                 label="Difficulty"
@@ -166,12 +155,14 @@ export default function ComposePostForm() {
             <ModalContent>
               <PostCard
                 id={0}
-                username="@alitariksahin"
+                username="#alitariksahin"
                 title={title}
                 content={content}
                 tags={[...selectedTags, ...(diffTag ? [diffTag] : [])]}
                 likeCount={0}
                 timePassed="Just now"
+                initialIsLiked={false}
+                initialIsBookmarked={false}
               />
             </ModalContent>
           </Modal>
