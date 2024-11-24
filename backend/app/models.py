@@ -95,6 +95,7 @@ class QuizProgress(models.Model):
 class QuizResults(models.Model):
     id = models.AutoField(primary_key=True)
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='results')
+    quiz_progress = models.ForeignKey(QuizProgress, on_delete=models.CASCADE, related_name='results')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='results')
     score = models.FloatField()
     time_taken = models.IntegerField()
