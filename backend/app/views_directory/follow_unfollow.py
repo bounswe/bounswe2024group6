@@ -17,7 +17,6 @@ def follow_user(request):
 
     if user_to_follow != current_user_profile:
         current_user_profile.following.add(user_to_follow)
-        user_to_follow.followers.add(current_user_profile)
 
         ActivityStream.objects.create(
             actor=request.user,
@@ -27,7 +26,15 @@ def follow_user(request):
             affected_username=user_to_follow.user.username 
         )
 
-        return JsonResponse({"message": f"Successfully followed {username_to_follow}"}, status=200)
+        follower_count = user_to_follow.followers.count()
+
+        return JsonResponse(
+            {
+                "message": f"Successfully followed {username_to_follow}",
+                "follower_count": follower_count
+            },
+            status=200
+        )
     return JsonResponse({"error": "Cannot follow yourself."}, status=400)
 
 
@@ -44,7 +51,14 @@ def unfollow_user(request):
 
     if user_to_unfollow != current_user_profile:
         current_user_profile.following.remove(user_to_unfollow)
-        user_to_unfollow.followers.remove(current_user_profile)
 
-        return JsonResponse({"message": f"Successfully unfollowed {username_to_unfollow}"}, status=200)
+        follower_count = user_to_unfollow.followers.count()
+
+        return JsonResponse(
+            {
+                "message": f"Successfully unfollowed {username_to_unfollow}",
+                "follower_count": follower_count
+            },
+            status=200
+        )
     return JsonResponse({"error": "Cannot unfollow yourself."}, status=400)
