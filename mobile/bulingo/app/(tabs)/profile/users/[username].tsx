@@ -6,32 +6,17 @@ import { QuizInfo, isQuizInfo } from '..';
 import QuizCard from '@/app/components/quizCard';
 import TokenManager from '@/app/TokenManager';
 
-const debugUserInfo: OtherUserInfo = {
-  name: 'ygz2',
-  bio: "Hello, I am another user.",
-  level: 'C2',
-  follower_count: 2,
-  following_count: 5,
+const emptyUserInfo: OtherUserInfo = {
+  name: '',
+  bio: "",
+  level: 'NA',
+  follower_count: 0,
+  following_count: 0,
   is_followed: false,
-  isFollowingUser: true,
-  createdQuizzes: [
-    { id: 1, title: 'Food', description: 'Learn about foods', author: 'Oguz', level: 'A2', likes: 135, liked: true },
-    { id: 2, title: 'Animals', description: 'Our furry friends!', author: 'Aras', level: 'A2', likes: 12, liked: false },
-    { id: 3, title: 'Furniture', description: 'Essential furniture', author: 'Kaan', level: 'A2', likes: 3, liked: false },
-    { id: 4, title: 'Plants', description: 'Test your plant knowledge', author: 'Halil', level: 'A2', likes: 300, liked: false },
-    { id: 5, title: 'Transport', description: 'Types of transport', author: 'Alex', level: 'B1', likes: 45, liked: false },
-  ],  
-  solvedQuizzes: [
-    { id: 13, title: 'Furniture', description: 'Essential furniture', author: 'Kaan', level: 'A2', likes: 3, liked: false },
-    { id: 14, title: 'Plants', description: 'Test your plant knowledge', author: 'Halil', level: 'A2', likes: 300, liked: false },
-    { id: 15, title: 'Transport', description: 'Types of transport', author: 'Alex', level: 'B1', likes: 45, liked: false },
-    { id: 16, title: 'Food', description: 'Learn about foods', author: 'Oguz', level: 'A2', likes: 135, liked: false },
-    { id: 17, title: 'Animals', description: 'Our furry friends!', author: 'Aras', level: 'A2', likes: 12, liked: false },
-    { id: 18, title: 'Furniture', description: 'Essential furniture', author: 'Kaan', level: 'A2', likes: 3, liked: false },
-    { id: 19, title: 'Plants', description: 'Test your plant knowledge', author: 'Halil', level: 'A2', likes: 300, liked: false },
-    { id: 20, title: 'Transport', description: 'Types of transport', author: 'Alex', level: 'B1', likes: 45, liked: false},
-  ],
-  postsAndComments: [{id: 1, desc: 'Post 1'}, {id: 2, desc: 'Post 2'}],
+  createdQuizzes: [],  
+  solvedQuizzes: [],
+  posts: [],
+  comments: [],
 };
 
 type OtherUserInfo = {
@@ -40,17 +25,17 @@ type OtherUserInfo = {
   level: string,
   follower_count: number,
   following_count: number,
-  isFollowingUser: boolean,
   is_followed: boolean,
   createdQuizzes: QuizInfo[], 
   solvedQuizzes: QuizInfo[],
-  postsAndComments: {id: number, desc: string}[],  // Placeholder
+  posts: [],
+  comments: [],
 };
 
 export default function Profile() {
   const navigation = useNavigation();
   const { username } = useLocalSearchParams();
-  const [userInfo, setUserInfo] = useState<OtherUserInfo>(debugUserInfo);
+  const [userInfo, setUserInfo] = useState<OtherUserInfo>(emptyUserInfo);
   const [tab, setTab] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -85,7 +70,6 @@ export default function Profile() {
           },
         });
         const createdQuizResponse = await createdQuizRequest.json()
-        console.log("createdQuizResponse: ", createdQuizResponse)
         if (createdQuizRequest.ok){
           updatedUserInfo = {...updatedUserInfo, createdQuizzes: createdQuizResponse}
         } else {
@@ -98,12 +82,12 @@ export default function Profile() {
           },
         });
         const solvedQuizResponse = await solvedQuizRequest.json()
-        console.log("solvedQuizResponse: ", solvedQuizResponse)
         if (solvedQuizRequest.ok){
           setUserInfo({...updatedUserInfo, solvedQuizzes: solvedQuizResponse});
         } else {
           console.log(createdQuizResponse.status)
         };
+        console.log(updatedUserInfo);
         setUserInfo(updatedUserInfo);
       } catch (error) {
         console.error(error);
@@ -114,8 +98,7 @@ export default function Profile() {
     fetchProfileInfo();
   }, []);
 
-
-  const tabData: any = [userInfo.createdQuizzes, userInfo.solvedQuizzes, userInfo.postsAndComments]
+  const tabData = [userInfo.createdQuizzes, userInfo.solvedQuizzes, userInfo.posts.concat(userInfo.comments)]
 
   if(isLoading){
     return (
@@ -141,7 +124,7 @@ export default function Profile() {
         else{
           return (
             <View style={{height: 100, borderWidth: 3, borderColor: 'black', borderRadius: 15, justifyContent: 'center', alignItems: 'center', marginHorizontal: 15, marginVertical: 5,}}>
-              <Text>Placeholder Item {item.id}: {item.desc}</Text>
+              <Text>Placeholder Item</Text>
             </View>
           );
         }
