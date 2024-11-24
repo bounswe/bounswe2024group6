@@ -230,8 +230,10 @@ def get_question(request):
 def get_quiz(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
     serializer = QuizSerializer(quiz, context = {'request': request})
-    
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    data = {'quiz': serializer.data}
+    data['is_solved'] = QuizProgress.objects.filter(quiz=quiz, user=request.user, completed=True).exists()
+    data['quiz_result_id'] = QuizResults.objects.filter(quiz=quiz, user=request.user).order_by('-id').first().id if data['is_solved'] else None
+    return Response(data, status=status.HTTP_200_OK)
 
 
 
