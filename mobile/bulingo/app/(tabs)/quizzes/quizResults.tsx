@@ -26,6 +26,16 @@ const QuizResults = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [recommendedQuiz, setRecommendedQuiz] = useState<{
+    id: number;
+    title: string;
+    description: string;
+    author : string;
+    level: string;
+    likes: number;
+    liked: boolean;
+  } | null>(null);
+
   useEffect(() => {
     const fetchQuizResult = async () => {
       console.log(resultUrl);
@@ -54,6 +64,49 @@ const QuizResults = () => {
     fetchQuizResult();
   }, [resultUrl]);
 
+
+  useEffect(() => {
+    const fetchQuizzes = async () => {    
+      try {
+        const response = await TokenManager.authenticatedFetch(`/feed/quiz/`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+    
+        const data = await response.json();
+        console.log(data);
+        if (response.ok) {
+          const formattedResults = data.map((quiz: any) => ({
+            id: Number(quiz.id),
+            title: quiz.title,
+            description: quiz.description,
+            author: quiz.author.username,
+            level: quiz.level,
+            likes: quiz.like_count,
+            liked: quiz.is_liked,
+          }));
+          let randomInt = 0
+          let retryCount = 3;
+
+          while(formattedResults[randomInt].id === Number(quizId) && retryCount > 0) {
+            randomInt = Math.floor(Math.random() * formattedResults.length);
+            retryCount--;
+          };
+
+          setRecommendedQuiz(formattedResults[randomInt]);
+          setError(null);
+        } else {
+          setError('Failed to fetch quizzes. Please try again. Error: ' + data.message || JSON.stringify(data));
+        }
+      } catch (error: any) {
+        setError('An error occurred while fetching quizzes. Please try again. Error: ' + (error.message || 'Unknown error'));
+      }
+    };
+
+          fetchQuizzes(); 
+      }, []);
 
   return (
     <View style={styles.container}>
