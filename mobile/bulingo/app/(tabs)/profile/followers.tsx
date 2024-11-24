@@ -64,8 +64,8 @@ export default function Followers() {
             username={item.username} 
             profilePictureUri={item.profilePictureUri} 
             level={item.level}
-            buttonText={'Unfollow'}
-            buttonStyleNo={1}
+            buttonText={'Follow'}
+            buttonStyleNo={2}
           />
         );
       }}
