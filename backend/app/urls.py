@@ -1,7 +1,7 @@
 from django.urls import path
 from app.views import *
+from app.views_directory.wordviews import get_turkish_translation, get_lexvo_info, get_word_meanings, fetch_english_words
 from app.views_directory.profileviews import view_profile, update_profile, view_other_profile, view_followers, view_following
-from app.views_directory.wordviews import get_word_info, get_turkish_translation, get_similar_level_and_part_of_speech, get_word_details
 from app.views_directory.follow_unfollow import follow_user, unfollow_user 
 from app.views_directory.authentication_endpoints import RegisterView, LoginView, LogoutView, RefreshTokenView
 from app.views_directory.comments import add_comment, delete_comment, like_comment, unlike_comment, get_comment_by_id
@@ -35,17 +35,15 @@ urlpatterns = [
     path('quiz/solved/<str:username>/', quiz_views.view_solved_quizzes, name="view_solved_quizzes"),
     path('quiz/review/<int:quiz_result_id>/', quiz_views.get_quiz_review, name="review_quiz"),
     path('quiz/recommend/<int:quiz_id>/', quiz_views.get_quiz_recommendations, name="recommend_quiz"),
-
-
     path('create-post/',create_post, name='create_post'),
     path('signup/', RegisterView.as_view(), name='auth_register'),
     path('login/', LoginView.as_view(), name='auth_login'),
     path('logout/', LogoutView.as_view(), name='auth_logout'),
     path('refresh/', RefreshTokenView.as_view(), name='token_refresh'),
-    path('get-word-info/<str:word>/', get_word_info, name='get_word_info'),
-    path('get-word-details/<str:word>/', get_word_details, name='get_word_details'),
-    path('get-translation/<str:word>/', get_turkish_translation, name='get_turkish_translation'),
-    path('get-related-words/<str:word>/', get_similar_level_and_part_of_speech, name='get_similar_level_and_part_of_speech'),
+    path('get-lexvo-info/<str:word>/', get_lexvo_info, name='get_lexvo_info'),
+    path('get-turkish/<str:word>/', get_turkish_translation, name='get_turkish_translation'),
+    path('get-meaning/<str:word>/', get_word_meanings,name='get_word_meanings'),
+    path('get-english/<str:turkish_word>/', fetch_english_words, name='fetch_english_word'),
     path('profile/follow/', follow_user, name='follow_user'),
     path('profile/unfollow/', unfollow_user, name='unfollow_user'),
     path('post/', get_post_details, name='get_post_details'),
