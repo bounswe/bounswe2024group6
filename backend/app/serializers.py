@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Profile, Quiz, Post, QuizResults, QuizProgress, QuestionProgress, Question, Comment, Tags
+from .models import Profile, Quiz, Post, QuizResults, QuizProgress, QuestionProgress, Question, Comment, Tags,Bookmark
 
 
 
@@ -219,15 +219,32 @@ class QuestionProgressSerializer(serializers.ModelSerializer):
 
 class PostSerializer(serializers.ModelSerializer):
     comments = serializers.SerializerMethodField()
+    is_bookmarked = serializers.SerializerMethodField()
+    is_liked = serializers.SerializerMethodField()
+    author = serializers.CharField(source='author.username')
 
     class Meta:
         model = Post
-        fields = ['id', 'title', 'description', 'author', 'tags', 'created_at', 'like_count', 'comments']
+        fields = [
+            'id', 'title', 'description', 'author', 'tags', 'created_at',
+            'like_count', 'is_bookmarked', 'is_liked', 'comments'
+        ]
 
+    def get_is_bookmarked(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return Bookmark.objects.filter(user=request.user, post=obj).exists()
+        return False
+
+    def get_is_liked(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.liked_by.filter(id=request.user.id).exists()
+        return False
 
     def get_comments(self, obj):
-        comments = Comment.objects.filter(post=obj)  # Fetch all comments for the post
-        return CommentSerializer(comments, many=True).data
+        comments = Comment.objects.filter(post=obj)
+        return CommentSerializer(comments, many=True, context=self.context).data
 
 class CommentSerializer(serializers.ModelSerializer):
     replies = serializers.SerializerMethodField()  # Fetch nested replies

@@ -130,7 +130,7 @@ class Post(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
     like_count = models.IntegerField(default=0)
-    bookmarked_by = models.ManyToManyField(User, related_name='bookmarked_posts', blank=True)  # Manages bookmarks
+    bookmarked_by = models.ManyToManyField(User, related_name='bookmarked_posts', blank=True)  
     liked_by = models.ManyToManyField(User, related_name='liked_posts', blank=True)
 
     def __str__(self):
