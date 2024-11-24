@@ -63,7 +63,7 @@ export default function Profile() {
       .post(
         `${BASE_URL}/profile/${isFollowing ? "unfollow" : "follow"}/`,
         {
-          user_id: profile?.id,
+          username: profile?.username,
         },
         {
           headers: {
