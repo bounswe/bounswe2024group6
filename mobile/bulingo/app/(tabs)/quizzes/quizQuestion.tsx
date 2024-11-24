@@ -108,7 +108,7 @@ const QuizQuestion = () => {
         },
         body: JSON.stringify({
           quiz_progress_id: quizProgressId,
-          question_number: questionNumber,
+          question_number: questionNumber + 1,
           answer: answer + 1,
         }),
       });
@@ -135,8 +135,8 @@ const QuizQuestion = () => {
     console.log(currentAnswer);
     const success = await submitAnswer(
       quizData.quiz_progress_id,
-      currentQuestionIndex + 1,
-      currentAnswer + 1
+      currentQuestionIndex,
+      currentAnswer
     );
 
     if (success) {
@@ -158,8 +158,8 @@ const QuizQuestion = () => {
     console.log(currentQuestionIndex);
     const success = await submitAnswer(
       quizData.quiz_progress_id,
-      currentQuestionIndex + 1,
-      currentAnswer + 1
+      currentQuestionIndex,
+      currentAnswer 
     );
 
   
