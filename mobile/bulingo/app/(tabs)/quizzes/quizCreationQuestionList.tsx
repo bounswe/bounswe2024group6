@@ -4,6 +4,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { Shadow } from 'react-native-shadow-2';
 import { getQuizDetails, clearQuizDetails } from './AsyncStorageHelpers';
 import { saveQuestions, getQuestions, clearQuestions } from './AsyncStorageHelpers';
+import TokenManager from '@/app/TokenManager';
 
 type Question = {
   id: number;
@@ -13,12 +14,24 @@ type Question = {
   type: string;
 };
 
+type QuizDetails = {
+  title: string;
+  description: string;
+  level: string;
+  tags: string[];
+};
+
 let uniqueQuestionKey = 0;
 
 const QuizCreationQuestionList = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
   
-  const [quizDetails, setQuizDetails] = useState(null);
+  const [quizDetails, setQuizDetails] = useState<QuizDetails>({
+    title: "",
+    description: "",
+    level: "",
+    tags: []
+  });
 
   useEffect(() => {
     const fetchStoredQuestions = async () => {
@@ -59,19 +72,18 @@ const QuizCreationQuestionList = () => {
         answers: parsedAnswers,
         type: Array.isArray(selectedType) ? selectedType[0] : selectedType 
       };
+      console.log(newQuestion);
 
       if (index !== undefined) {
         setQuestions((prevQuestions) => {
           const updatedQuestions = [...prevQuestions];
           updatedQuestions[Number(index)] = newQuestion;
-          console.log(questions);
           saveQuestions(questions);
           return updatedQuestions;
         });
         return;
       }
       uniqueQuestionKey++;
-      console.log(questions);
       setQuestions((prevQuestions) => [...prevQuestions, newQuestion]);
       saveQuestions(questions);
     }
@@ -85,9 +97,73 @@ const QuizCreationQuestionList = () => {
     router.navigate({pathname: '/(tabs)/quizzes/quizCreationInfo', params: { "initialQuestion": questions[index].name , "initialAnswers": JSON.stringify(questions[index].answers), "initialCorrectAnswer": questions[index].correctAnswer, "type": questions[index].type, "index": index}});
   };
 
-  const handleCreateQuiz = () => {
+  const handleCreateQuiz = async () => {
+    await createQuiz();
     router.navigate('/(tabs)/quizzes/');
   }
+
+  const prepareQuizData = () => {
+    if (quizDetails["title"] === '' || questions.length === 0) {
+      alert("Please complete quiz details and add questions before submission.");
+      return null;
+    }
+
+  const formattedTags = [{"name": quizDetails["level"]}];
+
+  console.log(formattedTags);
+
+    return {
+      quiz: {
+        title: quizDetails["title"],
+        description: quizDetails["description"],
+        level: quizDetails["level"],
+        tags: formattedTags || [], 
+      },
+      questions: questions.map((q, index) => ({
+        question_number: index + 1,
+        question_text: q.name,
+        choice1: q.answers[0],
+        choice2: q.answers[1],
+        choice3: q.answers[2],
+        choice4: q.answers[3],
+        correct_choice: q.answers.indexOf(q.correctAnswer) + 1,
+      })),
+    };
+  };
+
+  const createQuiz = async () => {
+    const quizData = prepareQuizData();
+    console.log('Quiz data:', quizData);
+    if (!quizData) return; // Ensure data is prepared
+  
+    try {
+      const response = await TokenManager.authenticatedFetch(`/quiz/create/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(quizData),
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Error creating quiz:', errorData);
+        alert('Failed to create quiz. Please try again.');
+      } else {
+        const result = await response.json();
+        console.log('Quiz created successfully:', result);
+        alert('Quiz created successfully!');
+        await clearQuizDetails();
+        await clearQuestions();
+        router.replace('/(tabs)/quizzes/');
+      }
+    } catch (error) {
+      console.error('Error creating quiz:', error);
+      alert('An error occurred while creating the quiz.');
+    }
+  };
+  
+  
 
   const handleCancel = async () => {
     await clearQuizDetails(); 

@@ -39,7 +39,7 @@ const QuizCreationInfo = () => {
 
   const selectCorrectAnswer = (index: any) => {
     setCorrectAnswerIndex(index);
-    setShowButtonIndex(null); // 
+    setShowButtonIndex(null); 
   };
 
   const handleLongPress = (index: any) => {
@@ -65,7 +65,7 @@ const QuizCreationInfo = () => {
   };
 
   const handleAddQuestion = () => {
-    router.navigate({ pathname: '/(tabs)/quizzes/quizCreationQuestionList', params: { question: question, answers: JSON.stringify(answers), correctAnswer: answers[correctAnswerIndex!], selectedType: selectedType, index: index } });
+    router.navigate({ pathname: '/(tabs)/quizzes/quizCreationQuestionList', params: { question: question, answers: JSON.stringify(answers), correctAnswer: correctAnswerIndex, selectedType: selectedType, index: index } });
   };
 
   const handleTypeSelect = (type: string) => {
