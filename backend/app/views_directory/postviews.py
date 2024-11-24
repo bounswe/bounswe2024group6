@@ -90,7 +90,7 @@ def create_post(request):
     post = Post.objects.create(
         title=title,
         description=description,
-        author=request.user.username,
+        author=request.user,
         tags=tags,  # Directly assign the list of tags
         created_at=timezone.now()
     )
