@@ -10,6 +10,7 @@ import { BASE_URL } from "../lib/baseURL";
 import type { Post, PostResponse } from "../types.ts";
 import { AuthActions } from "../components/auth/utils.tsx";
 import { convertPostResponseToPost } from "../components/common/utils.tsx";
+import { usePageTitle } from "../components/common/usePageTitle.ts";
 
 const Tags = [
   "#Vocabulary",
@@ -27,6 +28,7 @@ const DifficultyTags = ["#A1", "#A2", "#B1", "#B2", "#C1", "#C2",];
 const SortFilters = ["Most Recent", "Most Liked", "Most Commented"];
 
 export default function Forum() {
+  usePageTitle('Forum');
   const [posts, setPosts] = useState<Post[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const { getToken } = AuthActions();
