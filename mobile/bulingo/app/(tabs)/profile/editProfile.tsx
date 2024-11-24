@@ -8,8 +8,8 @@ import TokenManager from '@/app/TokenManager';
 
 type UserInfo = {
   name: string,
-  about: string,
-  level: 'NA' | 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2'
+  bio: string,
+  level: string,
 }
 
 const levels = [
@@ -26,7 +26,7 @@ export default function EditProfile() {
   const [image, setImage] = useState<string | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [userInfo, setUserInfo] = useState<UserInfo>({name: '', about: '', level: 'NA'});
+  const [userInfo, setUserInfo] = useState<UserInfo>({name: '', bio: '', level: 'NA'});
 
 
   // Removes the highlight from the text input fields if the keyboard is hidden.
@@ -46,17 +46,28 @@ export default function EditProfile() {
 
   useEffect(() => {
     const fetchProfileInfo = async () => {
+
+      const username = TokenManager.getUsername()
+      if (username === null){
+        console.error("username is null")
+        return
+      }
       const params = {
-        'user': TokenManager.getUsername(),
+        'user': username,
        };
-       console.log(await TokenManager.getAccessToken());
+
+      const baseUrl = 'profile/'; // Replace with your API endpoint
+
+      // Convert the parameters to a query string
+      const queryString = new URLSearchParams(params).toString();
+      const urlWithParams = `${baseUrl}?${queryString}`;
+      console.log(`URL = ${urlWithParams}`)
       try {
-        const response = await TokenManager.authenticatedFetch('profile/', {
-          method: 'POST',
+        const response = await TokenManager.authenticatedFetch(urlWithParams, {
+          method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(params),
         });
         const res = await response.json();
         console.log(res);
@@ -112,20 +123,23 @@ export default function EditProfile() {
 
   const onSaveChanges = async () => {
     const params = {
-      'user': TokenManager.getUsername(),
-      'name': userInfo.name,
+      'username': TokenManager.getUsername(),
+      'avatar': "https://nextui.org/avatars/avatar-1.png",
       'level': userInfo.level,
+      'bio': userInfo.bio,
      };
+    console.log(userInfo);
+    console.log(params);
     try {
       const response = await TokenManager.authenticatedFetch('profile/update/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(params),
+        body: JSON.stringify(params)
       });
       const res = await response.json();
-      console.log(res);
+      console.log("On Save Changes", res);
       if (response.ok){
         setUserInfo(res);
       } else {
@@ -168,9 +182,12 @@ export default function EditProfile() {
         </TouchableOpacity>
       </View>
       <View style={styles.editableFieldsContainer}>
-        <EditableField customHeight={RFPercentage(5)} maxLength={40} ref={inputRefs[0]} name='Name' defaultValue={userInfo.name}/>
-        <EditableField customHeight={RFPercentage(10)} maxLength={120} ref={inputRefs[1]} name='About Me' defaultValue={userInfo.about}/>
-        <DropdownField label='Level' options={levels} defaultValue={userInfo.level}/>
+        <EditableField customHeight={RFPercentage(5)} maxLength={40} ref={inputRefs[0]} name='Name' defaultValue={userInfo.name} 
+          onChangeText={(name) => setUserInfo({...userInfo, name:name})}/>
+        <EditableField customHeight={RFPercentage(10)} maxLength={120} ref={inputRefs[1]} name='About Me' defaultValue={userInfo.bio} 
+          onChangeText={(bio) => setUserInfo({...userInfo, bio:bio})}/>
+        <DropdownField label='Level' options={levels} defaultValue={userInfo.level}
+          onChange={(item) => setUserInfo({...userInfo, level:item.label})}/>
       </View>
       <View style={styles.saveButtonContainer}>
         <TouchableOpacity style={styles.saveButton} onPress={onSaveChanges}>
@@ -183,7 +200,6 @@ export default function EditProfile() {
         <ImageSourceOverlay closeModal={closeModal} onLeftOption={takePicture} onRightOption={pickImage}/>
     )}
     </>
-    
   );
 }
 

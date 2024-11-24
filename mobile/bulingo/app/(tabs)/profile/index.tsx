@@ -7,7 +7,7 @@ import TokenManager from '@/app/TokenManager';
 
 const debugUserInfo: UserInfo = {
   name: 'Yagiz Guldal',
-  about: "Hello, I am an avid language learner. I am trying my best to learn English.",
+  bio: "Hello, I am an avid language learner. I am trying my best to learn English.",
   level: 'B1',
   follower_count: 20,
   following_count: 25,
@@ -33,13 +33,15 @@ const debugUserInfo: UserInfo = {
 
 type UserInfo = {
   name: string,
-  about: string,
+  bio: string,
   level: string,
   follower_count: number,
   following_count: number,
   createdQuizzes: QuizInfo[],  // Placeholder
   solvedQuizzes: QuizInfo[],  // Placeholder
   postsAndComments: {id: number, desc: string}[],  // Placeholder
+  comments: any[],
+  posts: any[],
 };
 
 export type QuizInfo = {
@@ -110,6 +112,7 @@ export default function Profile() {
         console.log(res);
         if (response.ok){
           setUserInfo(res);
+          console.log('User Info: \n', userInfo)
         } else {
           console.log(response.status)
         };
@@ -160,7 +163,7 @@ export default function Profile() {
           <ProfileInfo
             name={userInfo.name}
             level={userInfo.level}
-            about={userInfo.about}
+            about={userInfo.bio}
             followerCount={userInfo.follower_count}
             followingCount={userInfo.following_count}
           />
