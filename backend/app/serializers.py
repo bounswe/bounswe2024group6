@@ -122,6 +122,7 @@ class QuizResultsSerializer(serializers.ModelSerializer):
         representation['question_count'] = instance.quiz.question_count
         representation['user'] = { 'id' : instance.user.id, 'username' : instance.user.username }
         representation['author'] = { 'id' : instance.quiz.author.id, 'username' : instance.quiz.author.username }
+        representation['level'] = instance.quiz.level
         return representation
 
 
