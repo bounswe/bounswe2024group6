@@ -68,11 +68,6 @@ const getStyles = (colorScheme: any) => {
   const isDark = colorScheme === 'dark';
 
   return StyleSheet.create({
-    buttonContainer: {
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginVertical: 20,
-    },
     container: {
       flex: 1,
       padding: 20,
@@ -141,7 +136,6 @@ const getStyles = (colorScheme: any) => {
       marginVertical: 20,
     },
     elevation: {
-      elevation: 50,
       elevation: 10,
       shadowColor: isDark ? '#ffffff' : 'black',
     },
@@ -168,7 +162,6 @@ const getStyles = (colorScheme: any) => {
       width: 24,
       height: 24,
       tintColor: isDark ? 'white' : 'black',
-
     },
   });
 };
