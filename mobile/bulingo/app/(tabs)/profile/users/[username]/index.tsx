@@ -157,6 +157,8 @@ type ProfileInfoProps = {
 }
 
 const ProfileInfo = (props:ProfileInfoProps) => {
+  const [isFollowedByUser, setIsFollowedByUser] = useState(props.isFollowedByUser);
+  
   const handleFollowersPress = () => {
     router.push(`/(tabs)/profile/users/${props.username}/followers`)
     console.log("Followers button pressed.")
@@ -166,7 +168,7 @@ const ProfileInfo = (props:ProfileInfoProps) => {
     console.log("Following button pressed.")
   };
   const handleButtonPress = async () => {
-    const url = props.isFollowedByUser ? `profile/unfollow/`: "profile/follow/";
+    const url = isFollowedByUser ? `profile/unfollow/`: "profile/follow/";
     const params = {
       'username': props.username,
     }
@@ -179,6 +181,7 @@ const ProfileInfo = (props:ProfileInfoProps) => {
         body: JSON.stringify(params),
       });
       const res = await response.json()
+      setIsFollowedByUser(!isFollowedByUser)
     } catch (error) {
       console.error(error);
     }
@@ -213,7 +216,7 @@ const ProfileInfo = (props:ProfileInfoProps) => {
       </View>
       <View style={styles.profileInfoButtonContainer}>
         <TouchableOpacity style={styles.profileInfoButton} onPress={handleButtonPress}>
-          <Text style={styles.profileInfoButtonText}>{props.isFollowedByUser ? "Unfollow" : "Follow"}</Text>
+          <Text style={styles.profileInfoButtonText}>{isFollowedByUser ? "Unfollow" : "Follow"}</Text>
         </TouchableOpacity>
       </View>
     </View>
