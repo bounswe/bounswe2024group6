@@ -164,7 +164,7 @@ def get_post_details(request):
     is_liked = post.liked_by.filter(id=request.user.id).exists()
     is_bookmarked = Bookmark.objects.filter(user=request.user, post=post).exists() 
 
-    comments = post.comments.prefetch_related('liked_by').order_by("-created_at")
+    comments = post.comments.all().order_by("-created_at")
     comments_data = CommentSerializer(comments, many=True, context={'request': request}).data
 
 
