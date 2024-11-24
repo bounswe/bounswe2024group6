@@ -4,7 +4,7 @@ import {router} from 'expo-router'
 import TokenManager from './TokenManager'; // Import the TokenManager
 
 
-const LOGIN_URL = "http://3.74.151.33:8000/login/";
+const LOGIN_URL = "http://3.70.214.28:8000/login/";
 
 export default function Home() {
   const [username, setUsername] = useState('');    // State for username
