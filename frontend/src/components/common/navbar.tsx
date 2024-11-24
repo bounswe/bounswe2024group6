@@ -8,9 +8,8 @@ import {
   Button,
   Divider,
   Badge,
-  Link,
 } from "@nextui-org/react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { IconBell } from "@tabler/icons-react";
 import { ThemeSwitcher } from "./theme-switcher";
 import { AuthActions } from "../auth/utils";
@@ -69,12 +68,12 @@ export default function Navbar() {
     <div className="w-screen p-2 shadow-none" data-testid="navbar">
       <Card className="flex flex-row w-full px-5 py-3 rounded-full shadow-md">
         <div className="flex-1 flex flex-row gap-6 items-center">
-          <div
-            className="text-blue-800 text-3xl font-semibold"
-            onClick={() => navigate("/")}
+          <Link
+            className="text-blue-800 text-3xl font-semibold transition-transform duration-300 hover:scale-105 inline-block"
+            to="/forum"
           >
             bu<span className="text-blue-600">lingo</span>
-          </div>
+          </Link>
           <Input
             type="text"
             placeholder="Browse..."

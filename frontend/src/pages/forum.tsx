@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Select, SelectItem } from "@nextui-org/react";
 import axios from "axios";
 
@@ -31,6 +31,7 @@ export default function Forum() {
   usePageTitle("Forum");
   const [posts, setPosts] = useState<Post[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const { getToken } = AuthActions();
   const token = getToken("access");
 
@@ -48,6 +49,7 @@ export default function Forum() {
   };
 
   useEffect(() => {
+    setIsLoading(true);
     axios
       .get(`${BASE_URL}/feed/`, {
         headers: {
@@ -61,6 +63,9 @@ export default function Forum() {
       })
       .catch((error) => {
         console.log(error);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   }, []);
 
@@ -130,21 +135,26 @@ export default function Forum() {
       </div>
 
       <div className="flex flex-col gap-6 m-6">
-        {sortedPosts.map((post) => (
-          <Suspense key={post.id} fallback={<PostCardSkeleton />}>
-            <PostCard
-              id={post.id}
-              username={post.author.username}
-              title={post.post.title}
-              content={post.post.content}
-              timePassed={post.post.timestamp}
-              likeCount={post.engagement.likes}
-              tags={post.post.tags}
-              initialIsLiked={post.engagement.is_liked}
-              initialIsBookmarked={post.engagement.is_bookmarked}
-            />
-          </Suspense>
-        ))}
+        {isLoading
+          ? // Show multiple skeletons while loading
+            Array(2)
+              .fill(0)
+              .map((_, index) => <PostCardSkeleton key={index} />)
+          : // Show actual posts when loaded
+            sortedPosts.map((post) => (
+              <PostCard
+                key={post.id}
+                id={post.id}
+                username={post.author.username}
+                title={post.post.title}
+                content={post.post.content}
+                timePassed={post.post.timestamp}
+                likeCount={post.engagement.likes}
+                tags={post.post.tags}
+                initialIsLiked={post.engagement.is_liked}
+                initialIsBookmarked={post.engagement.is_bookmarked}
+              />
+            ))}
       </div>
     </div>
   );
