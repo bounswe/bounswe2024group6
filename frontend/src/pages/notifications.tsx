@@ -1,43 +1,61 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "../components/common/navbar.tsx";
 import NotificationCard from "../components/notification/notification-card.tsx";
 import axios from "axios";
 import { BASE_URL } from "../lib/baseURL";
 import { AuthActions } from "../components/auth/utils.tsx";
+import { formatTimeAgo } from "../components/common/utils.tsx";
 
 export default function Notifications() {
   const { getToken } = AuthActions();
   const token = getToken("access");
-  const notifications = [
-    {
-      id: "1233",
-      content: "alitariksahin liked your post.",
-      timePassed: "1h ago",
-    },
-    {
-      id: "1245",
-      content: "elifndeniz solved your quiz.",
-      timePassed: "2h ago",
-    },
-    {
-      id: "1257",
-      content: "oktayozel started following you.",
-      timePassed: "1d ago",
-    },
-  ];
+  const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
     axios
-      .get(
-        `${BASE_URL}/user-activities-as-object/`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
+      .get(`${BASE_URL}/user-activities-as-object/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       .then((response) => {
-        console.log(response.data);
+        console.log(response.data.activities);
+        setNotifications(
+          response.data.activities.map((activity, i) => ({
+            id: i,
+            content:
+              activity.verb == "followed" ? (
+                <div>
+                  <a
+                    href={`/profile/${activity.actor}`}
+                    className="text-blue-500"
+                  >
+                    {activity.actor}
+                  </a>{" "}
+                  followed you
+                </div>
+              ) : activity.verb == "liked" ? (
+                <div>
+                  <a
+                    href={`/profile/${activity.actor}`}
+                    className="text-blue-500"
+                  >
+                    {activity.actor}
+                  </a>{" "}
+                  liked your{" "}
+                  <a
+                    href={`/post/${activity.object_id}`}
+                    className="text-blue-500"
+                  >
+                    post
+                  </a>
+                </div>
+              ) : (
+                <div>Unknown activity</div>
+              ),
+            timePassed: formatTimeAgo(activity.timestamp),
+          }))
+        );
       })
       .catch((error) => {
         console.log(error);
