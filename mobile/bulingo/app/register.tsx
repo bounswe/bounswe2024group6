@@ -4,7 +4,7 @@ import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
 import {router} from 'expo-router';
 
-const SIGNUP_URL = "http://3.70.214.28:8000/signup/";
+const SIGNUP_URL = "http://54.93.52.38:8000/signup/";
 
 const Register = () => {
   const [email, setEmail] = useState('');
