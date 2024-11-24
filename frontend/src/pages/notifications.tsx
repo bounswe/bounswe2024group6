@@ -5,6 +5,8 @@ import axios from "axios";
 import { BASE_URL } from "../lib/baseURL";
 import { AuthActions } from "../components/auth/utils.tsx";
 import { formatTimeAgo } from "../components/common/utils.tsx";
+import { Card } from "@nextui-org/react";
+import { IconChevronDown } from "@tabler/icons-react";
 
 export default function Notifications() {
   const { getToken } = AuthActions();
@@ -65,6 +67,14 @@ export default function Notifications() {
   return (
     <div className="flex flex-col items-center">
       <Navbar />
+      <div className="flex justify-center">
+        <Card className="py-1 pl-4 pr-3 rounded-full">
+          <div className="flex gap-1 items-center text-default-600">
+            <div>Notifications</div>
+            <IconChevronDown size={20} />
+          </div>
+        </Card>
+      </div>
       <div className="flex flex-col gap-2 mt-2">
         {notifications.map((notification) => (
           <NotificationCard
