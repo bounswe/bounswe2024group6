@@ -1,6 +1,6 @@
 from django.urls import path
 from app.views import *
-from app.views_directory.profileviews import view_profile, update_profile, view_other_profile
+from app.views_directory.profileviews import view_profile, update_profile, view_other_profile, view_followers, view_following
 from app.views_directory.wordviews import get_word_info, get_turkish_translation, get_similar_level_and_part_of_speech, get_word_details
 from app.views_directory.follow_unfollow import follow_user, unfollow_user 
 from app.views_directory.authentication_endpoints import RegisterView, LoginView, LogoutView, RefreshTokenView
@@ -64,5 +64,7 @@ urlpatterns = [
     path('unbookmark/', unbookmark_post, name='unbookmark_post'), 
     path('get_bookmarked_posts/', get_bookmarked_posts, name='get_bookmarked_posts'),  
     path('profile/<str:username>/', view_other_profile, name='view_other_profile'),
+    path('profile/followers/<str:username>/', view_followers, name='view_followers'),
+    path('profile/following/<str:username>/', view_following, name='view_following'),
 ]
 

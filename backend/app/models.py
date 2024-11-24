@@ -25,7 +25,8 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     name = models.CharField(max_length=100,null=True, blank=True)
     bio = models.TextField(null=True, blank=True)
-    following = models.ManyToManyField("self", symmetrical=False, related_name="followers", blank=True)
+    following = models.ManyToManyField("self", symmetrical=False, related_name="profile_following", blank=True)
+    followers = models.ManyToManyField("self", symmetrical=False, related_name="profile_followers", blank=True)
     level = models.CharField(max_length=2, choices=LEVEL_CHOICES, default='A1')
 
     def __str__(self):
