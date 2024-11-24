@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
-import flicker from "./flicker.png";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -23,7 +22,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   // Show a loading state until authentication is verified
   if (isAuthenticated === null) {
-    return <img src={flicker} alt="flicker" className="w-screen h-screen" />;
+    return <></>;
   }
 
   // Render the children once authentication is verified

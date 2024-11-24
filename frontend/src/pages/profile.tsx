@@ -1,5 +1,5 @@
 import Navbar from "../components/common/navbar.tsx";
-import { Tabs, Tab, Avatar, Button, Divider, Card } from "@nextui-org/react";
+import { Tabs, Tab, Avatar, Button, Divider } from "@nextui-org/react";
 import { Suspense, useState, useEffect } from "react";
 import PostCard from "../components/post/post-card.tsx";
 import PostCardSkeleton from "../components/post/post-card-skeleton.tsx";
@@ -14,15 +14,12 @@ import {
   IconClipboardText,
 } from "@tabler/icons-react";
 import { AuthActions } from "../components/auth/utils.tsx";
-import {
-  convertPostResponseToPost,
-  convertProfileResponseToProfile,
-} from "../components/common/utils.tsx";
+import { convertProfileResponseToProfile } from "../components/common/utils.tsx";
 import Cookies from "js-cookie";
-import { usePageTitle } from '../components/common/usePageTitle.ts';
+import { usePageTitle } from "../components/common/usePageTitle.ts";
 
 export default function Profile() {
-  usePageTitle('Profile');
+  usePageTitle("Profile");
   const { username } = useParams<{ username: string }>();
   const [activeSection, setActiveSection] = useState("posts");
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -219,3 +216,4 @@ export default function Profile() {
     </div>
   );
 }
+

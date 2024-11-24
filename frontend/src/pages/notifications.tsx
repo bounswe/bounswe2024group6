@@ -10,7 +10,7 @@ import { IconChevronDown } from "@tabler/icons-react";
 import { usePageTitle } from "../components/common/usePageTitle.ts";
 
 export default function Notifications() {
-  usePageTitle('Notifications');
+  usePageTitle("Notifications");
   const { getToken } = AuthActions();
   const token = getToken("access");
   const [notifications, setNotifications] = useState([]);
@@ -89,3 +89,4 @@ export default function Notifications() {
     </div>
   );
 }
+

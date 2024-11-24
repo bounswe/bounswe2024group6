@@ -24,22 +24,20 @@ const Tags = [
   "#General",
   "#Fun",
 ];
-const DifficultyTags = ["#A1", "#A2", "#B1", "#B2", "#C1", "#C2",];
+const DifficultyTags = ["#A1", "#A2", "#B1", "#B2", "#C1", "#C2"];
 const SortFilters = ["Most Recent", "Most Liked", "Most Commented"];
 
 export default function Forum() {
-  usePageTitle('Forum');
+  usePageTitle("Forum");
   const [posts, setPosts] = useState<Post[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const { getToken } = AuthActions();
-  const token = getToken("access"); 
+  const token = getToken("access");
 
   const [sortFilter, setSortFilter] = useState<string>("Most Recent");
   const handleSelectionChange = (e) => {
     setSortFilter(e.target.value);
   };
-
-
 
   const handleTagClick = (tag: string) => {
     if (selectedTags.includes(tag)) {
@@ -47,7 +45,6 @@ export default function Forum() {
     } else {
       setSelectedTags([...selectedTags, tag]);
     }
-
   };
 
   useEffect(() => {
@@ -70,7 +67,7 @@ export default function Forum() {
   const filteredPosts = posts.filter((post) => {
     // Show all posts if no tags are selected
     if (selectedTags.length === 0) return true;
-  
+
     // Check if the post has at least one tag from the selectedTags
     return post.post.tags.some((tag) => selectedTags.includes(tag));
   });
@@ -78,11 +75,14 @@ export default function Forum() {
   const sortedPosts = [...filteredPosts].sort((a, b) => {
     switch (sortFilter) {
       case "Most Recent":
-        return new Date(b.post.created_at).getTime() - new Date(a.post.created_at).getTime();
+        return (
+          new Date(b.post.created_at).getTime() -
+          new Date(a.post.created_at).getTime()
+        );
       case "Most Liked":
         return b.engagement.likes - a.engagement.likes;
       // case "Most Commented":
-      //   return b.engagement.comments - a.engagement.comments; 
+      //   return b.engagement.comments - a.engagement.comments;
       default:
         return 0;
     }
@@ -93,7 +93,12 @@ export default function Forum() {
       <Navbar />
       <ComposePostButton />
       <div className="flex w-[740px] justify-between items-center  mt-4">
-        <Select onChange={handleSelectionChange} placeholder="Sort By" defaultSelectedKeys={["Most Recent"]} className="w-44 text-black">
+        <Select
+          onChange={handleSelectionChange}
+          placeholder="Sort By"
+          defaultSelectedKeys={["Most Recent"]}
+          className="w-44 text-black"
+        >
           {SortFilters.map((sortFilter) => (
             <SelectItem key={sortFilter}>{sortFilter}</SelectItem>
           ))}
@@ -105,8 +110,9 @@ export default function Forum() {
             className="w-32 text-black"
           >
             {DifficultyTags.map((tag) => (
-              <SelectItem onPress={() => handleTagClick(tag)} key={tag}>{tag}</SelectItem>
-
+              <SelectItem onPress={() => handleTagClick(tag)} key={tag}>
+                {tag}
+              </SelectItem>
             ))}
           </Select>
           <Select
@@ -115,16 +121,16 @@ export default function Forum() {
             className="w-32 text-black"
           >
             {Tags.map((tag) => (
-              <SelectItem onPress={() => handleTagClick(tag)} key={tag}>{tag}</SelectItem>
+              <SelectItem onPress={() => handleTagClick(tag)} key={tag}>
+                {tag}
+              </SelectItem>
             ))}
           </Select>
         </div>
-
       </div>
 
       <div className="flex flex-col gap-6 m-6">
         {sortedPosts.map((post) => (
-
           <Suspense key={post.id} fallback={<PostCardSkeleton />}>
             <PostCard
               id={post.id}
@@ -143,3 +149,4 @@ export default function Forum() {
     </div>
   );
 }
+
