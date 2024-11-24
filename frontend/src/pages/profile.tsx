@@ -86,7 +86,7 @@ export default function Profile() {
       <Navbar />
       {profile && (
         <div className="flex justify-center gap-6 items-center w-full px-32 py-3">
-          <div className="flex items-center px-2 bg-white rounded-lg">
+          <div className="flex items-center px-2 rounded-lg">
             <Avatar
               src="https://nextui.org/avatars/avatar-1.png"
               className="mr-2 w-24 h-24"
