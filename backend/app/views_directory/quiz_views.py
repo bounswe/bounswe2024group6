@@ -90,7 +90,7 @@ def submit_quiz(request):
     quiz.times_taken += 1
     quiz.total_score += score
     quiz.save()
-    result_url = f"/quiz/result/{quiz_result.id}"
+    result_url = f"/quiz/result/{quiz_progress.id}"
 
     return Response({'result_url': result_url}, status=status.HTTP_200_OK)
 
