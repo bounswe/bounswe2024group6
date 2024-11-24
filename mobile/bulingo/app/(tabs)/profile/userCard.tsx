@@ -39,7 +39,6 @@ const UserCard = (props: UserCardProps) => {
     }
   };
   const handleCardPress = () => {
-    console.log("Card Pressed: " + props.username)
     if (props.onCardPress){ 
       props.onCardPress();
     }

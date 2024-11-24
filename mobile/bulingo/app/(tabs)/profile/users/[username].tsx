@@ -8,11 +8,11 @@ import TokenManager from '@/app/TokenManager';
 
 const debugUserInfo: OtherUserInfo = {
   name: 'ygz2',
-  about: "Hello, I am another user.",
+  bio: "Hello, I am another user.",
   level: 'C2',
   follower_count: 2,
   following_count: 5,
-  isFollowedByUser: false,
+  is_followed: false,
   isFollowingUser: true,
   createdQuizzes: [
     { id: 1, title: 'Food', description: 'Learn about foods', author: 'Oguz', level: 'A2', likes: 135, liked: true },
@@ -36,12 +36,12 @@ const debugUserInfo: OtherUserInfo = {
 
 type OtherUserInfo = {
   name: string,
-  about: string,
+  bio: string,
   level: string,
   follower_count: number,
   following_count: number,
   isFollowingUser: boolean,
-  isFollowedByUser: boolean,
+  is_followed: boolean,
   createdQuizzes: QuizInfo[], 
   solvedQuizzes: QuizInfo[],
   postsAndComments: {id: number, desc: string}[],  // Placeholder
@@ -57,8 +57,12 @@ export default function Profile() {
   useEffect(() => {
     navigation.setOptions({title: username});
     const fetchProfileInfo = async () => {
+
       const url = `profile/${username}/`;
-      console.log("url=", url)
+      const createdQuizUrl = `quiz/created/${username}/`;
+      const solvedQuizUrl = `quiz/solved/${username}/`;
+      let updatedUserInfo;
+      
       try {
         const response = await TokenManager.authenticatedFetch(url, {
           method: 'GET',
@@ -69,11 +73,38 @@ export default function Profile() {
         const res = await response.json()
         console.log('res=', res);
         if (response.ok){
-          setUserInfo(res);
+          updatedUserInfo = res
         } else {
           console.log(response.status)
         };
-        setUserInfo
+
+        const createdQuizRequest = await TokenManager.authenticatedFetch(createdQuizUrl, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        const createdQuizResponse = await createdQuizRequest.json()
+        console.log("createdQuizResponse: ", createdQuizResponse)
+        if (createdQuizRequest.ok){
+          updatedUserInfo = {...updatedUserInfo, createdQuizzes: createdQuizResponse}
+        } else {
+          console.log(createdQuizResponse.status)
+        };
+        const solvedQuizRequest = await TokenManager.authenticatedFetch(solvedQuizUrl, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        const solvedQuizResponse = await solvedQuizRequest.json()
+        console.log("solvedQuizResponse: ", solvedQuizResponse)
+        if (solvedQuizRequest.ok){
+          setUserInfo({...updatedUserInfo, solvedQuizzes: solvedQuizResponse});
+        } else {
+          console.log(createdQuizResponse.status)
+        };
+        setUserInfo(updatedUserInfo);
       } catch (error) {
         console.error(error);
       }
@@ -103,7 +134,8 @@ export default function Profile() {
       renderItem={({item}) => {
         if (isQuizInfo(item)){
           return (
-            <QuizCard {...item}/>
+            <QuizCard id={item.id} author={item.author.username} title={item.title} level={item.level} 
+              description={item.description} liked={item.is_liked} likes={item.like_count}/>
           );
         }
         else{
@@ -120,7 +152,7 @@ export default function Profile() {
           <ProfileInfo
             name={userInfo.name}
             level={userInfo.level}
-            about={userInfo.about}
+            about={userInfo.bio}
             followerCount={userInfo.follower_count}
             followingCount={userInfo.following_count}
             isFollowedByUser={true}
