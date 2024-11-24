@@ -126,7 +126,7 @@ class Post(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField()
     created_at = models.DateTimeField(default=timezone.now)
-    author = models.CharField(max_length=100)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
     like_count = models.IntegerField(default=0)
     bookmarked_by = models.ManyToManyField(User, related_name='bookmarked_posts', blank=True)  # Manages bookmarks
     liked_by = models.ManyToManyField(User, related_name='liked_posts', blank=True)
