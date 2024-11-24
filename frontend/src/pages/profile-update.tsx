@@ -61,11 +61,9 @@ export default function EditProfile() {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleLevelChange = (e) => {
-        console.log(e.target.value);
-        setFormData({ ...formData, level: e.target.value });
+    const handleLevelChange = (level: string) => {
+        setFormData({ ...formData, level });
     };
-
     const handleSubmit = () => {
         axios
             .post(
@@ -132,8 +130,8 @@ export default function EditProfile() {
                             Level
                         </label>
                         <Select
-                            defaultSelectedKeys={formData.level}
-                            onChange={handleLevelChange}
+                            selectedKeys={new Set([formData.level])} // Use `selectedKeys` with a Set for controlled component
+                            onSelectionChange={(keys) => handleLevelChange([...keys][0])} // Convert the Set to an array and get the first value
                             className="w-full mb-1"
                         >
                             {tags.map((tag) => (
