@@ -20,11 +20,13 @@ export default function Post() {
   const [post, setPost] = useState<Post | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [comment, setComment] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
   const { getToken } = AuthActions();
   const token = getToken("access");
   const username = Cookies.get("username");
 
   useEffect(() => {
+    setIsLoading(true);
     axios
       .post(
         `${BASE_URL}/post/`,
@@ -44,6 +46,9 @@ export default function Post() {
       })
       .catch((error) => {
         console.log(error);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   }, [postID]);
 
@@ -89,20 +94,24 @@ export default function Post() {
     <div className="flex flex-col items-center">
       <Navbar />
       <div className="flex flex-col gap-6">
-        {post && (
-          <Suspense key={post.id} fallback={<PostCardSkeleton />}>
-            <PostCard
-              id={post.id}
-              username={post.author.username}
-              title={post.post.title}
-              content={post.post.content}
-              timePassed={post.post.timestamp}
-              likeCount={post.engagement.likes}
-              tags={post.post.tags}
-              initialIsLiked={post.engagement.is_liked}
-              initialIsBookmarked={post.engagement.is_bookmarked}
-            />
-          </Suspense>
+        {isLoading ? (
+          <PostCardSkeleton />
+        ) : (
+          post && (
+            <Suspense key={post.id} fallback={<PostCardSkeleton />}>
+              <PostCard
+                id={post.id}
+                username={post.author.username}
+                title={post.post.title}
+                content={post.post.content}
+                timePassed={post.post.timestamp}
+                likeCount={post.engagement.likes}
+                tags={post.post.tags}
+                initialIsLiked={post.engagement.is_liked}
+                initialIsBookmarked={post.engagement.is_bookmarked}
+              />
+            </Suspense>
+          )
         )}
         <div className="flex justify-center">
           <Card className="py-1 pl-4 pr-3 rounded-full">
@@ -131,19 +140,25 @@ export default function Post() {
             </div>
           </div>
         </Card>
-        {comments.map((comment) => (
-          <Suspense key={comment.id} fallback={<PostCardSkeleton />}>
-            <PostCard
-              id={comment.id}
-              username={comment.author}
-              content={comment.content}
-              timePassed={formatTimeAgo(comment.created_at)}
-              likeCount={comment.like_count}
-              initialIsLiked={comment.is_liked}
-              initialIsBookmarked={false}
-            />
-          </Suspense>
-        ))}
+        {isLoading ? (
+          Array(2).fill(0).map((_, index) => (
+            <PostCardSkeleton key={index} />
+          ))
+        ) : (
+          comments.map((comment) => (
+            <Suspense key={comment.id} fallback={<PostCardSkeleton />}>
+              <PostCard
+                id={comment.id}
+                username={comment.author}
+                content={comment.content}
+                timePassed={formatTimeAgo(comment.created_at)}
+                likeCount={comment.like_count}
+                initialIsLiked={comment.is_liked}
+                initialIsBookmarked={false}
+              />
+            </Suspense>
+          ))
+        )}
       </div>
     </div>
   );
