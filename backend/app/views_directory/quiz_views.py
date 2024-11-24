@@ -107,7 +107,7 @@ def get_quiz_results(request):
 @permission_classes([IsAuthenticated])
 def get_specific_quiz_result(request, quiz_progress_id):
 
-    quiz_result = get_object_or_404(QuizResults, id=quiz_progress_id, user=request.user)
+    quiz_result = get_object_or_404(QuizResults, quiz_progress_id=quiz_progress_id, user=request.user)
 
     serializer = QuizResultsSerializer(quiz_result)
     return Response(serializer.data, status=status.HTTP_200_OK)
