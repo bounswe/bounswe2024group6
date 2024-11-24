@@ -65,24 +65,26 @@ const QuizDetails = () => {
       
 
       const data = await response.json();
-  
+      
       if (response.ok) {
         const formattedQuizDetails = {
-          id: data.id,
-          title: data.title,
-          description: data.description,
-          author: data.author.username,
-          tags: data.tags,
-          level: data.level,
-          question_count: data.question_count,
-          created_at: data.created_at,
-          times_taken: data.times_taken,
-          like_count: data.like_count,
-          average_score: data.average_score,
-          is_bookmarked: data.is_bookmarked,
-          is_liked: data.is_liked,
+          id: data.quiz.id,
+          title: data.quiz.title,
+          description: data.quiz.description,
+          author: data.quiz.author.username,
+          tags: data.quiz.tags,
+          level: data.quiz.level,
+          question_count: data.quiz.question_count,
+          created_at: data.quiz.created_at,
+          times_taken: data.quiz.times_taken,
+          like_count: data.quiz.like_count,
+          average_score: data.quiz.average_score,
+          is_bookmarked: data.quiz.is_bookmarked,
+          is_liked: data.quiz.is_liked,
+          is_solved: data.is_solved,
+          quiz_result_id: data.quiz_result_id, // This could be null
         };
-  
+        
         setQuizDetails(formattedQuizDetails);
         setError(null);
       } else {
@@ -128,11 +130,10 @@ const QuizDetails = () => {
       <View style={[styles.elevation, styles.quizDetailsBox]}>
         <Text style={styles.quizTitle}>{quizDetails.title}</Text>
         <Text style={styles.quizDescription}>
-          Stats {'\n'}
           Times Taken: {quizDetails.times_taken || 0} {'\n'}
           Number of Questions: {quizDetails.question_count || 0} {'\n'}
           Average Score: {quizDetails.average_score || 'N/A'} {'\n'}
-          Tags: {quizDetails.level || 'N/A'}
+          Level: {quizDetails.level || 'N/A'}
         </Text>
 
         {/* Bookmark button in the bottom right corner */}
@@ -143,8 +144,6 @@ const QuizDetails = () => {
 
       <View style={styles.buttonContainer}>
       <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
-        <TouchableOpacity style={styles.quizButton}
-          onPress={() => router.navigate('/(tabs)/quizzes/quizQuestion')}
         <TouchableOpacity style={styles.quizButton} onPress={() => router.push({ pathname: '/(tabs)/quizzes/quizQuestion', params: { quizId: id } })}
         >
           <Text style={styles.buttonText}>Take Quiz</Text>
