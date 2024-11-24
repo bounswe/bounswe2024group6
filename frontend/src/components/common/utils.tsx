@@ -45,7 +45,7 @@ export const convertPostResponseToPost = (postResponse: PostResponse): Post => {
       is_liked: postResponse.is_liked,
       is_bookmarked: postResponse.is_bookmarked,
     },
-    comments: [],
+    comments: postResponse.comments || [],
   };
 };
 

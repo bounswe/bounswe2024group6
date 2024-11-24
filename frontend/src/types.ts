@@ -1,14 +1,10 @@
 export type Comment = {
     id: number;
-    author: {
-      username: string;
-      profile_image: string;
-    };
-    comment: string;
-    timestamp: string;
-    likes: number;
+    author: string;
+    content: string;
+    created_at: string;
+    like_count: number;
     is_liked: boolean;
-    is_bookmarked: boolean;
   };
   
   export type Post = {
@@ -43,6 +39,7 @@ export type Comment = {
     title: string;
     is_liked: boolean;
     is_bookmarked: boolean;
+    comments?: Comment[]; // TODO: to be made required
   };
   
   export type Quiz = {

@@ -91,7 +91,7 @@ export default function Forum() {
       <Navbar />
       <ComposePostButton />
       <div className="flex w-[740px] justify-between items-center  mt-4">
-        <Select onChange={handleSelectionChange} placeholder="Sort By" defaultSelectedKeys={["Most Recent"]} className="w-32 text-black">
+        <Select onChange={handleSelectionChange} placeholder="Sort By" defaultSelectedKeys={["Most Recent"]} className="w-44 text-black">
           {SortFilters.map((sortFilter) => (
             <SelectItem key={sortFilter}>{sortFilter}</SelectItem>
           ))}
