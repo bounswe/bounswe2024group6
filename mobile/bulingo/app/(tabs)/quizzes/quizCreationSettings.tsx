@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { TouchableOpacity, StyleSheet, Text, TextInput, View, useColorScheme } from 'react-native';
 import { router } from 'expo-router';
 import { Shadow } from 'react-native-shadow-2';
+import { saveQuizDetails } from './AsyncStorageHelpers';
 
 const QuizCreationSettings = () => {
   const [quizTitle, setQuizTitle] = useState('');
   const [quizDescription, setQuizDescription] = useState(''); 
   const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
-  const [selectedAudience, setSelectedAudience] = useState<string | null>(null);
 
   const colorScheme = useColorScheme();
   const styles = getStyles(colorScheme);
@@ -22,7 +22,15 @@ const QuizCreationSettings = () => {
 
   
 
-  const handleAddQuestions = () => {
+  const handleAddQuestions = async () => {
+    const details = {
+      title: quizTitle,
+      description: quizDescription,
+      level: selectedLevel,
+    };
+
+    await saveQuizDetails(details);
+
     router.push('/(tabs)/quizzes/quizCreationQuestionList');
   };
 

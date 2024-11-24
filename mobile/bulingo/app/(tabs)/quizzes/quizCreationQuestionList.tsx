@@ -2,18 +2,62 @@ import React, { useState, useEffect } from 'react';
 import { TouchableOpacity, StyleSheet, Text, View, FlatList, Image, useColorScheme } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Shadow } from 'react-native-shadow-2';
+import { getQuizDetails, clearQuizDetails } from './AsyncStorageHelpers';
+import { saveQuestions, getQuestions, clearQuestions } from './AsyncStorageHelpers';
+import TokenManager from '@/app/TokenManager';
+
+type Question = {
+  id: number;
+  name: string;
+  correctAnswer: string;
+  answers: string[]; 
+  type: string;
+};
+
+type QuizDetails = {
+  title: string;
+  description: string;
+  level: string;
+  tags: string[];
+};
+
+let uniqueQuestionKey = 0;
+
 const QuizCreationQuestionList = () => {
-  const [questions, setQuestions] = useState([
-    {id: 1, name: 'Pasta', correctAnswer: 'makarna', answers: ['makarna', 'pizza', 'hamburger', 'sushi'], type: 'Type II'},
-    {id: 2, name: 'Salt', correctAnswer: 'tuz', answers: ['tuz', 'seker', 'un', 'sut'], type: 'Type II'},
-    {id: 3, name: 'Beef', correctAnswer: 'dana eti', answers: ['dana eti', 'kuzu eti', 'tavuk eti', 'balik'], type: 'Type II'},
-    {id: 4, name:'Lettuce', correctAnswer: 'marul', answers: ['marul', 'domates', 'salatalik', 'biber'], type: 'Type II'},
-  ]);
+  const [questions, setQuestions] = useState<Question[]>([]);
   
-  
+  const [quizDetails, setQuizDetails] = useState<QuizDetails>({
+    title: "",
+    description: "",
+    level: "",
+    tags: []
+  });
+
+  useEffect(() => {
+    const fetchStoredQuestions = async () => {
+      const storedQuestions = await getQuestions();
+      setQuestions(storedQuestions);
+    };
+    fetchStoredQuestions();
+  }, []);
+
+  useEffect(() => {
+    const fetchQuizDetails = async () => {
+      const details = await getQuizDetails();
+      setQuizDetails(details);
+    };
+
+    fetchQuizDetails();
+  }, []);
+
+  useEffect(() => {
+    saveQuestions(questions);
+  }
+  , [questions]);
+
+
   const colorScheme = useColorScheme();
   const styles = getStyles(colorScheme);
-
   
   const { question, answers, correctAnswer, selectedType, index } = useLocalSearchParams();
 
@@ -22,24 +66,26 @@ const QuizCreationQuestionList = () => {
   useEffect(() => {
     if (question && answers && correctAnswer && selectedType) {
       const newQuestion = {
-        id: questions.length + 1,
-        name: Array.isArray(question) ? question[0] : question, // Handle case if question is an array
-        correctAnswer: Array.isArray(correctAnswer) ? correctAnswer[0] : correctAnswer, // Handle case if correctAnswer is an array
-        answers: parsedAnswers, // This should now be an array
-        type: Array.isArray(selectedType) ? selectedType[0] : selectedType // Convert selectedType to a string
+        id: index !== undefined ? questions[Number(index)].id : uniqueQuestionKey,
+        name: Array.isArray(question) ? question[0] : question,
+        correctAnswer: Array.isArray(correctAnswer) ? correctAnswer[0] : correctAnswer,
+        answers: parsedAnswers,
+        type: Array.isArray(selectedType) ? selectedType[0] : selectedType 
       };
+      console.log(newQuestion);
 
       if (index !== undefined) {
         setQuestions((prevQuestions) => {
           const updatedQuestions = [...prevQuestions];
           updatedQuestions[Number(index)] = newQuestion;
+          saveQuestions(questions);
           return updatedQuestions;
         });
         return;
       }
-
-      // Update the state to add the new question
+      uniqueQuestionKey++;
       setQuestions((prevQuestions) => [...prevQuestions, newQuestion]);
+      saveQuestions(questions);
     }
   }, [question, answers, correctAnswer, selectedType]);
 
@@ -51,19 +97,87 @@ const QuizCreationQuestionList = () => {
     router.navigate({pathname: '/(tabs)/quizzes/quizCreationInfo', params: { "initialQuestion": questions[index].name , "initialAnswers": JSON.stringify(questions[index].answers), "initialCorrectAnswer": questions[index].correctAnswer, "type": questions[index].type, "index": index}});
   };
 
-  const handleCreateQuiz = () => {
+  const handleCreateQuiz = async () => {
+    await createQuiz();
     router.navigate('/(tabs)/quizzes/');
   }
 
-  const handleCancel = () => {
+  const prepareQuizData = () => {
+    if (quizDetails["title"] === '' || questions.length === 0) {
+      alert("Please complete quiz details and add questions before submission.");
+      return null;
+    }
+
+  const formattedTags = [{"name": quizDetails["level"]}];
+
+  console.log(formattedTags);
+
+    return {
+      quiz: {
+        title: quizDetails["title"],
+        description: quizDetails["description"],
+        level: quizDetails["level"],
+        tags: formattedTags || [], 
+      },
+      questions: questions.map((q, index) => ({
+        question_number: index + 1,
+        question_text: q.name,
+        choice1: q.answers[0],
+        choice2: q.answers[1],
+        choice3: q.answers[2],
+        choice4: q.answers[3],
+        correct_choice: q.answers.indexOf(q.correctAnswer) + 1,
+      })),
+    };
+  };
+
+  const createQuiz = async () => {
+    const quizData = prepareQuizData();
+    console.log('Quiz data:', quizData);
+    if (!quizData) return; // Ensure data is prepared
+  
+    try {
+      const response = await TokenManager.authenticatedFetch(`/quiz/create/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(quizData),
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Error creating quiz:', errorData);
+        alert('Failed to create quiz. Please try again.');
+      } else {
+        const result = await response.json();
+        console.log('Quiz created successfully:', result);
+        alert('Quiz created successfully!');
+        await clearQuizDetails();
+        await clearQuestions();
+        router.replace('/(tabs)/quizzes/');
+      }
+    } catch (error) {
+      console.error('Error creating quiz:', error);
+      alert('An error occurred while creating the quiz.');
+    }
+  };
+  
+  
+
+  const handleCancel = async () => {
+    await clearQuizDetails(); 
+    await clearQuestions();
     router.navigate("/(tabs)/quizzes/");
+
   }
 
 
 
-  const handleDeleteQuestion = (index: number) => {
+  const handleDeleteQuestion = async (index: number) => {
     const updatedQuestions = questions.filter((_, i) => i !== index);
     setQuestions(updatedQuestions);
+    await saveQuestions(updatedQuestions);
   };
 
   const renderQuestionItem = ({ item, index }: { item: any; index: number }) => (
@@ -81,13 +195,15 @@ const QuizCreationQuestionList = () => {
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
-        <Text style={styles.headerText}>Food</Text>
+      <Text style={styles.headerText}>
+        {quizDetails && quizDetails["title"] ? quizDetails["title"] : "Default Title"}
+        </Text>
         <TouchableOpacity style={styles.addButton} onPress={handleAddQuestion}>
         <Image source={require('@/assets/images/add-icon.png')} style={styles.icon} />
         </TouchableOpacity>
       </View>
 
-      {/* Questions List */}
+
       <FlatList
         data={questions}
         renderItem={renderQuestionItem}
@@ -95,7 +211,6 @@ const QuizCreationQuestionList = () => {
         style={styles.questionList}
       />
 
-      {/* Footer Buttons */}
       <View style={styles.footer}>
       <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
         <TouchableOpacity style={styles.cancelButton} onPress={() => handleCancel()}>

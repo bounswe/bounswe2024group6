@@ -1,7 +1,7 @@
 import * as SecureStore from "expo-secure-store";
 
 
-const BASE_URL = "http://3.74.151.33:8000";
+const BASE_URL = "http://3.70.214.28:8000";
 
 class TokenManager {
   private username: string | null;
