@@ -1,6 +1,13 @@
 import Navbar from "../components/common/navbar.tsx";
-import { Tabs, Tab, Avatar, Button, Divider } from "@nextui-org/react";
-import { useState, useEffect } from "react";
+import {
+  Tabs,
+  Tab,
+  Avatar,
+  Button,
+  Divider,
+  Skeleton,
+} from "@nextui-org/react";
+import { useState, useEffect, Suspense } from "react";
 import PostCard from "../components/post/post-card.tsx";
 import PostCardSkeleton from "../components/post/post-card-skeleton.tsx";
 import axios from "axios";
@@ -85,30 +92,31 @@ export default function Profile() {
     setIsFollowing(!isFollowing);
   };
 
+  const ProfileSkeleton = () => (
+    <div className="flex justify-center gap-6 items-center w-full px-32 py-3">
+      <div className="flex items-center px-2 rounded-lg">
+        <Skeleton className="rounded-full w-24 h-24" />
+        <div className="mx-4 max-w-52">
+          <Skeleton className="h-6 w-16 rounded-lg mb-2" />
+          <Skeleton className="h-4 w-12 rounded-lg mb-2" />
+          <Skeleton className="h-4 w-24 rounded-lg" />
+        </div>
+      </div>
+      <div className="flex flex-row pl-32 gap-6">
+        <Skeleton className="h-14 w-36 rounded-lg" />
+        <Skeleton className="h-14 w-36 rounded-lg" />
+        <Skeleton className="h-14 w-36 rounded-lg" />
+      </div>
+    </div>
+  );
+
   return (
     <div className="h-full w-full items-center overflow-hidden flex flex-col">
       <Navbar />
       {isLoading ? (
-        <div className="flex justify-center gap-6 items-center w-full px-32 py-3">
-          <div className="flex items-center px-2 rounded-lg">
-            <div className="w-24 h-24 rounded-full bg-gray-200 animate-pulse" />
-            <div className="mx-4 max-w-52">
-              <div className="h-6 w-32 bg-gray-200 rounded animate-pulse mb-2" />
-              <div className="h-4 w-24 bg-gray-200 rounded animate-pulse mb-2" />
-              <div className="h-4 w-48 bg-gray-200 rounded animate-pulse" />
-            </div>
-          </div>
-          <div className="flex flex-row pl-32 gap-6">
-            {Array(3)
-              .fill(0)
-              .map((_, index) => (
-                <div
-                  key={index}
-                  className="h-14 w-36 bg-gray-200 rounded-lg animate-pulse"
-                />
-              ))}
-          </div>
-        </div>
+        <>
+          <ProfileSkeleton />
+        </>
       ) : (
         profile && (
           <div className="flex justify-center gap-6 items-center w-full px-32 py-3">
@@ -183,17 +191,14 @@ export default function Profile() {
           >
             {profile && (
               <div className="flex flex-col p-5 items-center">
-                {activeSection === "posts" && (
-                  <div className="flex flex-col gap-4 items-center">
-                    {isLoading
-                      ? Array(3)
-                          .fill(0)
-                          .map((_, index) => <PostCardSkeleton key={index} />)
-                      : sortedPosts.map((post) => (
+                <div className="flex flex-col gap-4 items-center">
+                  {profile &&
+                    sortedPosts.map((post) => {
+                      return (
+                        <Suspense key={post.id} fallback={<PostCardSkeleton />}>
                           <PostCard
-                            key={post.id}
                             id={post.id}
-                            username={post.author.username}
+                            username={profile.username}
                             title={post.post.title}
                             content={post.post.content}
                             timePassed={post.post.timestamp}
@@ -202,9 +207,10 @@ export default function Profile() {
                             initialIsLiked={post.engagement.is_liked}
                             initialIsBookmarked={post.engagement.is_bookmarked}
                           />
-                        ))}
-                  </div>
-                )}
+                        </Suspense>
+                      );
+                    })}
+                </div>
               </div>
             )}
           </Tab>
