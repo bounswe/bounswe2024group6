@@ -249,17 +249,17 @@ def like_quiz(request):
     quiz.save()
     return Response({'message': 'Quiz liked'}, status=status.HTTP_200_OK)
 
-api_view(['GET'])
+@api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def view_liked_quizzes(request):
-    quizzes = Quiz.objects.filter(liked_by=request.user)
+    quizzes = Quiz.objects.filter(liked_by=request.user.id)
     serializer = QuizSerializer(quizzes, many=True, context = {'request': request})
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def view_bookmarked_quizzes(request):
-    quizzes = Quiz.objects.filter(bookmarked_by=request.user)
+    quizzes = Quiz.objects.filter(bookmarked_by=request.user.id)
     serializer = QuizSerializer(quizzes, many=True, context = {'request': request})
     return Response(serializer.data, status=status.HTTP_200_OK)
 

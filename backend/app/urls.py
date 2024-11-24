@@ -30,8 +30,8 @@ urlpatterns = [
     path('quiz/bookmark/', quiz_views.bookmark_quiz, name="bookmark_quiz"),
     path('quiz/result/<int:quiz_progress_id>/', quiz_views.get_specific_quiz_result, name="get_specific_quiz_result"),
     path('quiz/bookmarks/', quiz_views.view_bookmarked_quizzes, name="view_bookmarked_quizzes"),
-    path('quiz/likes/', quiz_views.view_bookmarked_quizzes, name="view_bookmarked_quizzes"),
-    path('quiz/created/', quiz_views.view_created_quizzes, name="view_created_quizzes"),w
+    path('quiz/likes/', quiz_views.view_liked_quizzes, name="view_bookmarked_quizzes"),
+    path('quiz/created/', quiz_views.view_created_quizzes, name="view_created_quizzes"),
     path('quiz/solved/', quiz_views.view_solved_quizzes, name="view_solved_quizzes"),
 
 
