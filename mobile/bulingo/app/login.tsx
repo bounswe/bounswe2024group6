@@ -35,7 +35,7 @@ export default function Home() {
         const { access, refresh } = json;
         TokenManager.saveTokens(access, refresh);
         TokenManager.setUsername(username);
-        router.navigate('/');
+        router.replace('/');
       } else {
         setIsErrorVisible(true);
       };

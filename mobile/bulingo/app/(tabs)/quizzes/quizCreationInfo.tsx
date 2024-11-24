@@ -116,9 +116,8 @@ const QuizCreationInfo = () => {
                 {row.map((answer, colIndex) => {
                   const answerIndex = rowIndex * 2 + colIndex;
                   return (
-                    <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
+                    <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]} key={colIndex}>
                     <TouchableOpacity
-                      key={colIndex}
                       style={[
                         styles.answerBox,
                         correctAnswerIndex === answerIndex
