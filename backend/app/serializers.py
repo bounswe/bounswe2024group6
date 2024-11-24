@@ -21,12 +21,13 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     def get_posts(self, obj):
         """Get posts created by the user, similar to get_post_details."""
-        posts = Post.objects.filter(author=obj.user)
 
         request = self.context.get('request')
 
         if not request or not request.user.is_authenticated:
             return []
+        
+        posts = Post.objects.filter(author=obj.user)
 
         user = request.user
 
