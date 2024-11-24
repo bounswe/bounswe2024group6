@@ -78,7 +78,6 @@ export default function Register({
             />
           </div>
           <div className="mb-4">
-            
             <Input
               defaultValue=""
               type="email"
