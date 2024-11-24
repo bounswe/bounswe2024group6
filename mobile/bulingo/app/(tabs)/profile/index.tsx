@@ -68,21 +68,10 @@ export function isQuizInfo(object: any){
 };
 
 export default function Profile() {
-  /* 
-  Things we need to fetch for this page:
-  Send the access token, refresh token (maybe) and userId for this user. Get:
-   - Name
-   - Follower Count
-   - Following Count
-   - Created Quizzes
-   - Solved Quizzes
-   - Posts and Comments
-  */
-
   const [userInfo, setUserInfo] = useState<UserInfo>(debugUserInfo);
   const [tab, setTab] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
-
+  
   useEffect(() => {
     const fetchProfileInfo = async () => {
       const username = TokenManager.getUsername()
@@ -99,7 +88,6 @@ export default function Profile() {
       // Convert the parameters to a query string
       const queryString = new URLSearchParams(params).toString();
       const urlWithParams = `${baseUrl}?${queryString}`;
-      console.log(`URL = ${urlWithParams}`)
 
       try {
         const response = await TokenManager.authenticatedFetch(urlWithParams, {
@@ -109,10 +97,8 @@ export default function Profile() {
           },
         });
         const res = await response.json();
-        console.log(res);
         if (response.ok){
           setUserInfo(res);
-          console.log('User Info: \n', userInfo)
         } else {
           console.log(response.status)
         };
@@ -159,7 +145,7 @@ export default function Profile() {
       }}
       style={{backgroundColor: 'white'}}
       ListHeaderComponent={
-        <>
+        <View>
           <ProfileInfo
             name={userInfo.name}
             level={userInfo.level}
@@ -168,7 +154,7 @@ export default function Profile() {
             followingCount={userInfo.following_count}
           />
           <Tabs tab={tab} setTab={setTab}/>
-        </>
+        </View>
       }
     />
   );
@@ -186,15 +172,12 @@ const ProfileInfo = (props:ProfileInfoProps) => {
 
   const handleFollowersPress = () => {
     router.push('/(tabs)/profile/followers')
-    console.log("Followers button pressed.")
   };
   const handleFollowingPress = () => {
     router.push('/(tabs)/profile/following')
-    console.log("Following button pressed.")
   };
   const handleEditProfilePress = () => {
     router.push('/(tabs)/profile/editProfile')
-    console.log("Edit Profile button pressed.")
   };
 
   return (

@@ -5,6 +5,7 @@ import { RFPercentage } from 'react-native-responsive-fontsize';
 import { ImageSourceOverlay } from './imageSourceOverlay';
 import { Dropdown } from 'react-native-element-dropdown';
 import TokenManager from '@/app/TokenManager';
+import {router} from 'expo-router';
 
 type UserInfo = {
   name: string,
@@ -61,7 +62,6 @@ export default function EditProfile() {
       // Convert the parameters to a query string
       const queryString = new URLSearchParams(params).toString();
       const urlWithParams = `${baseUrl}?${queryString}`;
-      console.log(`URL = ${urlWithParams}`)
       try {
         const response = await TokenManager.authenticatedFetch(urlWithParams, {
           method: 'GET',
@@ -70,7 +70,6 @@ export default function EditProfile() {
           },
         });
         const res = await response.json();
-        console.log(res);
         if (response.ok){
           setUserInfo(res);
         } else {
@@ -97,8 +96,6 @@ export default function EditProfile() {
       quality: 1,
     });
 
-    console.log(result);
-
     if (!result.canceled) {
       setImage(result.assets[0].uri);
       closeModal();
@@ -113,7 +110,6 @@ export default function EditProfile() {
       quality: 1,
     });
 
-    console.log(result);
 
     if (!result.canceled) {
       setImage(result.assets[0].uri);
@@ -128,8 +124,6 @@ export default function EditProfile() {
       'level': userInfo.level,
       'bio': userInfo.bio,
      };
-    console.log(userInfo);
-    console.log(params);
     try {
       const response = await TokenManager.authenticatedFetch('profile/update/', {
         method: 'POST',
@@ -139,9 +133,9 @@ export default function EditProfile() {
         body: JSON.stringify(params)
       });
       const res = await response.json();
-      console.log("On Save Changes", res);
       if (response.ok){
         setUserInfo(res);
+        router.navigate({pathname: '/(tabs)/profile', params: {key: Date.now()}})
       } else {
         console.log(response.status)
       };

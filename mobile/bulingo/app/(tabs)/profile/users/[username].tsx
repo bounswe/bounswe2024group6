@@ -65,22 +65,19 @@ export default function Profile() {
 
   useEffect(() => {
     navigation.setOptions({title: username});
-    const ENDPOINT_URL = `http://161.35.208.249:8000/users/${username}`;  // Placeholder
     const fetchProfileInfo = async () => {
-      const params = {
-        // TODO
-       };
+      const url = `profile/${username}/`;
       try {
-        const response = await fetch(ENDPOINT_URL, {
-          method: 'POST',
+        const response = await fetch(url, {
+          method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(params),
         });
-
+        const res = await response.json()
+        console.log(res);
         if (response.ok){
-          setUserInfo(await response.json());
+          setUserInfo(res);
         } else {
           console.log(response.status)
         };
