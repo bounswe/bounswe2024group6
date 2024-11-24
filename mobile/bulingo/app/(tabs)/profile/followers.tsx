@@ -12,13 +12,7 @@ type UserInfoCompact = {
 export default function Followers() {
   const [isLoading, setIsLoading] = useState(true);
   const [followers, setFollowers] = useState<UserInfoCompact[]>([
-    {username: 'ygz1', name: 'Yagiz Guldal', level: 'A1', profilePictureUri:"https://static.vecteezy.com/system/resources/thumbnails/024/646/930/small_2x/ai-generated-stray-cat-in-danger-background-animal-background-photo.jpg"},
-    {username: 'ygz2', name: 'Yagiz Guldal', level: 'A1', profilePictureUri:"https://static.vecteezy.com/system/resources/thumbnails/024/646/930/small_2x/ai-generated-stray-cat-in-danger-background-animal-background-photo.jpg"},
-    {username: 'ygz3', name: 'Yagiz Guldal', level: 'A1', profilePictureUri:"https://static.vecteezy.com/system/resources/thumbnails/024/646/930/small_2x/ai-generated-stray-cat-in-danger-background-animal-background-photo.jpg"},
-    {username: 'ygz4', name: 'Yagiz Guldal', level: 'A1', profilePictureUri:"https://static.vecteezy.com/system/resources/thumbnails/024/646/930/small_2x/ai-generated-stray-cat-in-danger-background-animal-background-photo.jpg"},
-    {username: 'ygz5', name: 'Yagiz Guldal', level: 'A1', profilePictureUri:"https://static.vecteezy.com/system/resources/thumbnails/024/646/930/small_2x/ai-generated-stray-cat-in-danger-background-animal-background-photo.jpg"},
-    {username: 'ygz6', name: 'Yagiz Guldal', level: 'A1', profilePictureUri:"https://static.vecteezy.com/system/resources/thumbnails/024/646/930/small_2x/ai-generated-stray-cat-in-danger-background-animal-background-photo.jpg"},
-    {username: 'ygz7', name: 'Yagiz Guldal', level: 'A1', profilePictureUri:"https://static.vecteezy.com/system/resources/thumbnails/024/646/930/small_2x/ai-generated-stray-cat-in-danger-background-animal-background-photo.jpg"},
+    {username: 'yunus', name: 'Yunus Emre', level: 'C2', profilePictureUri:"https://static.vecteezy.com/system/resources/thumbnails/024/646/930/small_2x/ai-generated-stray-cat-in-danger-background-animal-background-photo.jpg"},
   ])
 
   useEffect(() => {

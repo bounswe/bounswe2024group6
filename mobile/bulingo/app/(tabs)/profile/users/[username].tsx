@@ -4,13 +4,14 @@ import { RFPercentage } from 'react-native-responsive-fontsize';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { QuizInfo, isQuizInfo } from '..';
 import QuizCard from '@/app/components/quizCard';
+import TokenManager from '@/app/TokenManager';
 
 const debugUserInfo: OtherUserInfo = {
   name: 'ygz2',
   about: "Hello, I am another user.",
   level: 'C2',
-  followerCount: 2,
-  followingCount: 5,
+  follower_count: 2,
+  following_count: 5,
   isFollowedByUser: false,
   isFollowingUser: true,
   createdQuizzes: [
@@ -37,8 +38,8 @@ type OtherUserInfo = {
   name: string,
   about: string,
   level: string,
-  followerCount: number,
-  followingCount: number,
+  follower_count: number,
+  following_count: number,
   isFollowingUser: boolean,
   isFollowedByUser: boolean,
   createdQuizzes: QuizInfo[], 
@@ -47,16 +48,6 @@ type OtherUserInfo = {
 };
 
 export default function Profile() {
-  /* 
-  Things we need to fetch for this page:
-  Send the access token, refresh token (maybe) and userId for this user. Get:
-   - Name
-   - Follower Count
-   - Following Count
-   - Created Quizzes
-   - Solved Quizzes
-   - Posts and Comments
-  */
   const navigation = useNavigation();
   const { username } = useLocalSearchParams();
   const [userInfo, setUserInfo] = useState<OtherUserInfo>(debugUserInfo);
@@ -67,15 +58,16 @@ export default function Profile() {
     navigation.setOptions({title: username});
     const fetchProfileInfo = async () => {
       const url = `profile/${username}/`;
+      console.log("url=", url)
       try {
-        const response = await fetch(url, {
+        const response = await TokenManager.authenticatedFetch(url, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
         });
         const res = await response.json()
-        console.log(res);
+        console.log('res=', res);
         if (response.ok){
           setUserInfo(res);
         } else {
@@ -129,8 +121,8 @@ export default function Profile() {
             name={userInfo.name}
             level={userInfo.level}
             about={userInfo.about}
-            followerCount={userInfo.followerCount}
-            followingCount={userInfo.followingCount}
+            followerCount={userInfo.follower_count}
+            followingCount={userInfo.following_count}
             isFollowedByUser={true}
           />
           <Tabs tab={tab} setTab={setTab}/>
