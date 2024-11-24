@@ -8,15 +8,17 @@ const { width, height } = Dimensions.get('window');
 
 export default function Home() {
   const handleRegister = () => {
-    router.navigate("/register")
+    router.navigate("/register");
   };
   const username = TokenManager.getUsername();
+  const [logoutTrigger, setLogoutTrigger] = useState(false);
 
   const handleLogOut = () => {
     console.log("logout pressed");
     TokenManager.setUsername(null);
     TokenManager.clearTokens();
-    router.navigate('/')
+    router.replace('/login');
+    router.replace('/');
   }
 
 
