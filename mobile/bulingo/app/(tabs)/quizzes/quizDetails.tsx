@@ -78,6 +78,37 @@ const getStyles = (colorScheme: any) => {
       padding: 20,
       backgroundColor: isDark ? '#121212' : 'white',
     },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: isDark ? '#121212' : 'white',
+    },
+    loadingText: {
+      marginTop: 10,
+      fontSize: 16,
+      color: isDark ? '#ffffff' : '#333',
+    },
+    errorContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    errorText: {
+      fontSize: 16,
+      color: 'red',
+      textAlign: 'center',
+    },
+    retryButton: {
+      marginTop: 20,
+      backgroundColor: '#3944FD',
+      padding: 10,
+      borderRadius: 5,
+    },
+    retryButtonText: {
+      color: '#ffffff',
+      fontWeight: 'bold',
+    },
     quizDetailsBox: {
       backgroundColor: isDark ? '#1e1e1e' : 'white',
       borderRadius: 5,
@@ -104,8 +135,14 @@ const getStyles = (colorScheme: any) => {
       alignItems: 'center',
       alignSelf: 'center',
     },
+    buttonContainer: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginVertical: 20,
+    },
     elevation: {
       elevation: 50,
+      elevation: 10,
       shadowColor: isDark ? '#ffffff' : 'black',
     },
     goBackButton: {
