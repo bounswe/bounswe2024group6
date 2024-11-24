@@ -263,3 +263,17 @@ def view_bookmarked_quizzes(request):
     serializer = QuizSerializer(quizzes, many=True, context = {'request': request})
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def view_created_quizzes(request):
+    quizzes = Quiz.objects.filter(author=request.user)
+    serializer = QuizSerializer(quizzes, many=True, context = {'request': request})
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def view_solved_quizzes(request):
+    quiz_progresses = QuizProgress.objects.filter(user=request.user, completed=True)
+    quizzes = [quiz_progress.quiz for quiz_progress in quiz_progresses]
+    serializer = QuizSerializer(quizzes, many=True, context = {'request': request})
+    return Response(serializer.data, status=status.HTTP_200_OK)

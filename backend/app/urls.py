@@ -29,9 +29,11 @@ urlpatterns = [
     path('quiz/like/', quiz_views.like_quiz, name="like_quiz"),
     path('quiz/bookmark/', quiz_views.bookmark_quiz, name="bookmark_quiz"),
     path('quiz/result/<int:quiz_progress_id>/', quiz_views.get_specific_quiz_result, name="get_specific_quiz_result"),
-    path('quiz/bookmarks/', quiz_views.get_bookmarked_quizzes, name="get_bookmarked_quizzes"),
-    path('quiz/likes/', quiz_views.get_liked_quizzes, name="get_liked_quizzes"),
-    
+    path('quiz/bookmarks/', quiz_views.view_bookmarked_quizzes, name="view_bookmarked_quizzes"),
+    path('quiz/likes/', quiz_views.view_bookmarked_quizzes, name="view_bookmarked_quizzes"),
+    path('quiz/created/', quiz_views.view_created_quizzes, name="view_created_quizzes"),w
+    path('quiz/solved/', quiz_views.view_solved_quizzes, name="view_solved_quizzes"),
+
 
     path('create-post/',create_post, name='create_post'),
     path('signup/', RegisterView.as_view(), name='auth_register'),
