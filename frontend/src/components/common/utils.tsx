@@ -60,5 +60,6 @@ export const convertProfileResponseToProfile = (profileResponse: ProfileResponse
     image: profileResponse.image || '',
     posts: profileResponse.posts.map(convertPostResponseToPost),
     quizzes: profileResponse.quizzes || [],
+    is_followed: profileResponse.is_followed,
   };
 };
