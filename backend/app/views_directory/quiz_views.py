@@ -321,3 +321,25 @@ def get_quiz_recommendations(request, quiz_id):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     return Response({'error': 'No recommendations found'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_latest_quiz_review(request, quiz_id):
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+    quiz_progresses = QuizProgress.objects.filter(quiz=quiz, completed=True).order_by('-id')
+    print(quiz_progresses)
+    if quiz_progresses.count() == 0:
+        return Response({'error': 'No reviews found'}, status=status.HTTP_400_BAD_REQUEST)
+    quiz_progress = quiz_progresses.first()
+    question_progresses = QuestionProgress.objects.filter(quiz_progress=quiz_progress)
+    data = {'questions': []}
+    for question_progress in question_progresses:
+        question = get_object_or_404(Question, id=question_progress.question.id)
+        data['questions'].append({'question': question.question_text, 
+                    'choices': [question.choice1, question.choice2, 
+                    question.choice3, question.choice4], 
+                    'question_number': question.question_number,
+                    'correct_choice': question.correct_choice,
+                    'previous_answer': question_progress.answer})
+    return Response(data, status=status.HTTP_200_OK)
