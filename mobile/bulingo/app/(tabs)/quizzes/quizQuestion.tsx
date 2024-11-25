@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { TouchableOpacity, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import TokenManager from '@/app/TokenManager';
-import { Shadow } from 'react-native-shadow-2';
 import { Dimensions, useColorScheme } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
@@ -196,11 +195,9 @@ const QuizQuestion = () => {
     <View style={styles.container}>
       <View style={styles.page}>
         <View style={styles.topContainer}>
-          <Shadow distance={8} startColor={isDark ? "#FFFFFF1A" : "#00000020"} endColor={isDark ? "#FFFFFF00" : "#00000000"} offset={[0, 2]}>
             <TouchableOpacity style={styles.cancelQuizButton} onPress={handleCancel}>
               <Text style={styles.cancelQuizText}>Cancel Quiz</Text>
             </TouchableOpacity>
-          </Shadow>
           <View style={styles.progressContainer}>
             <Text style={styles.progressText}>
               {currentQuestionIndex + 1}/{questionCount}
@@ -216,7 +213,6 @@ const QuizQuestion = () => {
           <View style={styles.optionsContainer}>
             {currentQuestion?.choices.map((choice, index) => (
               <View key={index} style={styles.optionWrapper}>
-                <Shadow distance={8} startColor={isDark ? "#FFFFFF1A" : "#00000020"} endColor={isDark ? "#FFFFFF00" : "#00000000"} offset={[0, 4]}>
                   <TouchableOpacity
                     style={[
                       styles.optionButton,
@@ -226,14 +222,12 @@ const QuizQuestion = () => {
                   >
                     <Text style={styles.optionText}>{choice}</Text>
                   </TouchableOpacity>
-                </Shadow>
               </View>
             ))}
           </View>
         </View>
 
         <View style={styles.navigationContainer}>
-          <Shadow distance={8} startColor={isDark ? "#FFFFFF1A" : "#00000020"} endColor={isDark ? "#FFFFFF00" : "#00000000"} offset={[0, 4]}>
             <TouchableOpacity
               style={[styles.navigationButton, currentQuestionIndex === 0 ? styles.disabledNavigationButton : null]}
               onPress={() => setCurrentQuestionIndex((prev) => prev - 1)}
@@ -241,20 +235,16 @@ const QuizQuestion = () => {
             >
               <Text style={styles.navigationText}>Previous</Text>
             </TouchableOpacity>
-          </Shadow>
 
           {currentQuestionIndex === questionCount - 1 ? (
-            <Shadow distance={8} startColor={isDark ? "#FFFFFF1A" : "#00000020"} endColor={isDark ? "#FFFFFF00" : "#00000000"} offset={[0, 4]}>
               <TouchableOpacity style={styles.navigationButton} onPress={handleFinish}>
                 <Text style={styles.navigationText}>Finish</Text>
               </TouchableOpacity>
-            </Shadow>
           ) : (
-            <Shadow distance={8} startColor={isDark ? "#FFFFFF1A" : "#00000020"} endColor={isDark ? "#FFFFFF00" : "#00000000"} offset={[0, 4]}>
               <TouchableOpacity style={styles.navigationButton} onPress={handleNext}>
                 <Text style={styles.navigationText}>Next</Text>
               </TouchableOpacity>
-            </Shadow>
+
           )}
         </View>
       </View>
@@ -348,9 +338,10 @@ export const getStyles = (colorScheme: any) => {
       borderRadius: 10,
       padding: 10,
       width: width * 0.35,
+      borderWidth: 2,
       justifyContent: 'center',
       alignItems: 'center',
-      borderColor: isDark ? '#444' : 'transparent',
+      borderColor: isDark ? '#444' : 'black',
     },
     selectedOption: {
       backgroundColor: isDark ? '#3944FD' : 'lightblue',
@@ -358,7 +349,7 @@ export const getStyles = (colorScheme: any) => {
     optionText: {
       fontSize: 18,
       fontWeight: 'bold',
-      color: isDark ? 'white' : '#000',
+      color: isDark ? 'white' : 'black',
     },
     navigationContainer: {
       flexDirection: 'row',

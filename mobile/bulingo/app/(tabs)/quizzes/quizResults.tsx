@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Image, StyleSheet, Text, View, TouchableOpacity, useColorScheme } from 'react-native';
 import { useLocalSearchParams } from "expo-router";
 import { router } from "expo-router";
-import { Shadow } from 'react-native-shadow-2';
 import { Dimensions } from 'react-native';
 import TokenManager from '@/app/TokenManager';
 
@@ -148,7 +147,6 @@ const QuizResults = () => {
           )}
         </View>
         <View style={styles.buttonContainer}>
-        <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
           <TouchableOpacity style={styles.retakeQuizButton} onPress={() => {router.push(
         {
         pathname:'/(tabs)/quizzes/quizQuestion',
@@ -156,19 +154,15 @@ const QuizResults = () => {
       });}}>
             <Text style={styles.retakeQuizText}>Retake Quiz</Text>
           </TouchableOpacity>
-          </Shadow>
           </View>
 
           <View style={styles.buttonContainer}>
-        <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
           <TouchableOpacity style={styles.mainMenuButton} onPress={() => {router.navigate("/")}}>
             <Text style={styles.mainMenuText}>Main Menu</Text>
           </TouchableOpacity>
-          </Shadow>
           </View>
 
           <View style={styles.buttonContainer}>
-              <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
                 <TouchableOpacity
                   style={[styles.mainMenuButton, { backgroundColor: '#FFA500' }]}
                   onPress={() =>
@@ -177,7 +171,6 @@ const QuizResults = () => {
                 >
               <Text style={styles.mainMenuText}>Review Quiz</Text>
             </TouchableOpacity>
-          </Shadow>
         </View>
 
 
