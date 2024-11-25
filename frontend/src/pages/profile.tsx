@@ -7,7 +7,6 @@ import {
   Button,
   Divider,
   Skeleton,
-  user
 } from "@nextui-org/react";
 import { useState, useEffect, Suspense } from "react";
 
@@ -24,15 +23,16 @@ import {
   IconClipboardText,
 } from "@tabler/icons-react";
 import { AuthActions } from "../components/auth/utils.tsx";
-import { convertPostResponseToPost, convertProfileResponseToProfile } from "../components/common/utils.tsx";
+import {
+  convertPostResponseToPost,
+  convertProfileResponseToProfile,
+} from "../components/common/utils.tsx";
 import Cookies from "js-cookie";
 import { usePageTitle } from "../components/common/usePageTitle.ts";
-import { set } from "react-hook-form";
 
 export default function Profile() {
   usePageTitle("Profile");
   const { username } = useParams<{ username: string }>();
-  const [activeSection, setActiveSection] = useState("posts");
   const [profile, setProfile] = useState<Profile | null>(null);
   const { getToken } = AuthActions();
   const token = getToken("access");
@@ -79,15 +79,17 @@ export default function Profile() {
     if (username === Cookies.get("username")) {
       console.log("Fetching bookmarked posts");
       axios
-        .post(`${BASE_URL}/get_bookmarked_posts/`, 
+        .post(
+          `${BASE_URL}/get_bookmarked_posts/`,
           {
             username: profile?.username,
           },
           {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
         .then((response) => {
           console.log(response);
           const bookmarked = response.data.map(convertPostResponseToPost);
@@ -161,7 +163,9 @@ export default function Profile() {
               <div className="mx-4 max-w-52">
                 <h3 className="text-xl font-semibold">{profile.username}</h3>
                 <p className="text-gray-500">@{profile.level}</p>
-                <p className="text-zinc-800 break-words">{profile.bio || "Hey, new learner here!"}</p>
+                <p className="text-zinc-800 break-words">
+                  {profile.bio || "Hey, new learner here!"}
+                </p>
               </div>
             </div>
             <div

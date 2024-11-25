@@ -6,6 +6,7 @@ const ComposePostButton = () => {
   return (
     <div
       onClick={() => navigate("/compose-post")}
+      data-testid="compose-button"
       color="primary"
       aria-label="Post"
       className="flex items-center justify-center shadow-xl fixed right-6 bottom-6 rounded-full p-4 bg-blue-600 hover:bg-blue-500 cursor-pointer"
