@@ -12,6 +12,7 @@ import {
   useDisclosure,
   Select,
   SelectItem,
+  Selection,
 } from "@nextui-org/react";
 
 import PostCard from "./post-card.tsx";
@@ -21,8 +22,8 @@ import { AuthActions } from "../auth/utils.tsx";
 import { useNavigate } from "react-router-dom";
 
 const Tags = [
-  "#Vocabulary",
   "#Grammar",
+  "#Vocabulary",
   "#Vocabulary Tips",
   "#Cultural Insights",
   "#Idioms & Expressions",
@@ -32,43 +33,44 @@ const Tags = [
   "#General",
   "#Fun",
 ];
-const DifficultyTags = ["#A1", "#A2", "#B1", "#B2", "#C1", "#C2",];
-
+const DifficultyTags = ["#A1", "#A2", "#B1", "#B2", "#C1", "#C2"];
 
 export default function ComposePostForm() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [diffTag, setDiffTag] = useState<string>("");
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const navigate = useNavigate();
 
-  const handleTagClick = (tag: string) => {
-    if (selectedTags.includes(tag)) {
-      setSelectedTags(selectedTags.filter((t) => t !== tag));
-    } else {
-      setSelectedTags([...selectedTags, tag]);
-    }
-  };
-  const [diffTag, setDiffTag] = useState<string>("");
-  const handleDiffTagClick = (tag: string) => {
-    setDiffTag((prevTag) => (prevTag === tag ? "" : tag)); // Toggle diffTag
+  const handleCategorySelection = (keys: Selection) => {
+    setSelectedTags(Array.from(keys) as string[]);
   };
 
-  const handleSubmit = () => {  
+  const handleDifficultySelection = (keys: Selection) => {
+    const selectedKey = Array.from(keys)[0] as string;
+    setDiffTag(selectedKey || "");
+  };
+
+  const handleSubmit = () => {
     const { getToken } = AuthActions();
-    const token = getToken("access"); 
-    
+    const token = getToken("access");
+
     axios
-      .post(`${BASE_URL}/post/create/`, {
-        title: title,
-        description: content,
-        tags: [...selectedTags, ...(diffTag ? [diffTag] : [])],
-      }, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
+      .post(
+        `${BASE_URL}/post/create/`,
+        {
+          title: title,
+          description: content,
+          tags: [...selectedTags, ...(diffTag ? [diffTag] : [])],
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         }
-      })
+      )
       .then((response) => {
         navigate("/forum");
         console.log(response.data);
@@ -76,7 +78,7 @@ export default function ComposePostForm() {
       .catch((error) => {
         console.log(error);
       });
-    }
+  };
 
   return (
     <div className="flex justify-center items-center h-full overflow-hidden">
@@ -89,6 +91,7 @@ export default function ComposePostForm() {
             Title
           </label>
           <Input
+            data-testid="post-title-input"
             placeholder="Enter the post title"
             value={title}
             onValueChange={setTitle}
@@ -99,6 +102,7 @@ export default function ComposePostForm() {
             Content
           </label>
           <Textarea
+            data-testid="post-content-input"
             placeholder="Write your post content here..."
             value={content}
             onValueChange={setContent}
@@ -113,23 +117,39 @@ export default function ComposePostForm() {
             </label>
             <div className="flex flex-row justify-between mb-3">
               <Select
+                data-testid="difficulty-select"
                 label="Difficulty"
                 placeholder="Optional"
                 className="w-48 text-black"
+                selectedKeys={diffTag ? [diffTag] : []}
+                onSelectionChange={handleDifficultySelection}
               >
                 {DifficultyTags.map((tag) => (
-                  <SelectItem onPress={() => handleDiffTagClick(tag)} key={tag}>{tag}</SelectItem>
+                  <SelectItem
+                    data-testid={`difficulty-option-${tag}`}
+                    key={tag}
+                  >
+                    {tag}
+                  </SelectItem>
                 ))}
               </Select>
               <Select
+                data-testid="category-select"
                 isRequired
                 label="Categories"
                 placeholder="Required Field"
                 selectionMode="multiple"
                 className="w-48 text-black"
+                selectedKeys={new Set(selectedTags)}
+                onSelectionChange={handleCategorySelection}
               >
                 {Tags.map((tag) => (
-                  <SelectItem onPress={() => handleTagClick(tag)} key={tag}>{tag}</SelectItem>
+                  <SelectItem
+                    key={tag}
+                    data-testid={`category-option-${tag.replace("#", "")}`}
+                  >
+                    {tag}
+                  </SelectItem>
                 ))}
               </Select>
             </div>
@@ -138,6 +158,7 @@ export default function ComposePostForm() {
 
         <div className="flex justify-end gap-4">
           <Button
+            data-testid="preview-button"
             onPress={onOpen}
             color="default"
             isDisabled={!title || !content || selectedTags.length === 0}
@@ -167,6 +188,7 @@ export default function ComposePostForm() {
             </ModalContent>
           </Modal>
           <Button
+            data-testid="submit-post-button"
             color="primary"
             onPress={handleSubmit}
             isDisabled={!title || !content || selectedTags.length === 0}
