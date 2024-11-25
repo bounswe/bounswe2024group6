@@ -1,10 +1,20 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 import UserCard from '../app/(tabs)/profile/userCard';
+import TokenManager from '@/app/TokenManager';
 
-test('renders the user card and handles presses', () => {
+test('renders the user card and handles presses', async () => {
   const mockFn1 = jest.fn();
   const mockFn2 = jest.fn();
+
+  const mockFetch = jest
+    .spyOn(TokenManager, 'authenticatedFetch')
+    .mockResolvedValueOnce(
+      new Response(JSON.stringify({ data: 'Test Data' }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    );
 
   const { getByTestId } = render(
   <UserCard 
@@ -21,7 +31,7 @@ test('renders the user card and handles presses', () => {
   const button1 = getByTestId('button');
 
   fireEvent.press(button1);
-
+  await new Promise(resolve => setTimeout(resolve, 2000));
   expect(mockFn1).toHaveBeenCalled();
 });
 
