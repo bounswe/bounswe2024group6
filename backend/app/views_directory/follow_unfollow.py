@@ -8,31 +8,59 @@ from rest_framework.permissions import IsAuthenticated
 @permission_classes([IsAuthenticated])
 def follow_user(request):
     current_user_profile = request.user.profile
-    user_id = request.data.get("user_id")  # Get the user_id from the request body
-    user_to_follow = get_object_or_404(Profile, user__id=user_id)
+    username_to_follow = request.data.get("username") 
+
+    if not username_to_follow:
+        return JsonResponse({"error": "Username is required."}, status=400)
+
+    user_to_follow = get_object_or_404(Profile, user__username=username_to_follow)
 
     if user_to_follow != current_user_profile:
         current_user_profile.following.add(user_to_follow)
+        user_to_follow.followers.add(current_user_profile)  # Add this line
 
         ActivityStream.objects.create(
             actor=request.user,
             verb="followed",
             object_type="Profile",
             object_id=user_to_follow.user.id,
-            target=None  # Optional: could be used for specific contexts
+            affected_username=user_to_follow.user.username 
         )
 
-        return JsonResponse({"message": "Followed successfully"}, status=200)
-    return JsonResponse({"error": "Cannot follow yourself"}, status=400)
+        follower_count = user_to_follow.followers.count()
+
+        return JsonResponse(
+            {
+                "message": f"Successfully followed {username_to_follow}",
+                "follower_count": follower_count
+            },
+            status=200
+        )
+    return JsonResponse({"error": "Cannot follow yourself."}, status=400)
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def unfollow_user(request):
     current_user_profile = request.user.profile
-    user_id = request.data.get("user_id")  # Get the user_id from the request body
-    user_to_unfollow = get_object_or_404(Profile, user__id=user_id)
+    username_to_unfollow = request.data.get("username")  
+
+    if not username_to_unfollow:
+        return JsonResponse({"error": "Username is required."}, status=400)
+
+    user_to_unfollow = get_object_or_404(Profile, user__username=username_to_unfollow)
 
     if user_to_unfollow != current_user_profile:
         current_user_profile.following.remove(user_to_unfollow)
-        return JsonResponse({"message": "Unfollowed successfully"}, status=200)
-    return JsonResponse({"error": "Cannot unfollow yourself"}, status=400)
+        user_to_unfollow.followers.remove(current_user_profile)  
+
+        follower_count = user_to_unfollow.followers.count()
+
+        return JsonResponse(
+            {
+                "message": f"Successfully unfollowed {username_to_unfollow}",
+                "follower_count": follower_count
+            },
+            status=200
+        )
+    return JsonResponse({"error": "Cannot unfollow yourself."}, status=400)
