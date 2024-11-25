@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableWithoutFeedback, Image, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
 import { RFPercentage } from 'react-native-responsive-fontsize';
-import {router} from 'expo-router';
+import {router, useFocusEffect} from 'expo-router';
 import QuizCard from '@/app/components/quizCard';
 import TokenManager from '@/app/TokenManager';
 
@@ -74,78 +74,95 @@ export default function Profile() {
   const [userInfo, setUserInfo] = useState<UserInfo>(debugUserInfo);
   const [tab, setTab] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+
+  useFocusEffect(
+    useCallback(() => {
+      console.log('Page is focused!');
+
+      // Trigger your re-fetching or re-rendering logic here.
+      // For example, fetch new data:
+      const fetchProfileInfo = async () => {
+        setIsLoading(true);
+        const username = TokenManager.getUsername()
+        if (username === null){
+          console.error("username is null")
+          return
+        }
+        const params = {
+          'user': username,
+         };
   
-  useEffect(() => {
-    const fetchProfileInfo = async () => {
-      const username = TokenManager.getUsername()
-      if (username === null){
-        console.error("username is null")
-        return
-      }
-      const params = {
-        'user': username,
-       };
+        const baseUrl = 'profile/'; // Replace with your API endpoint
+  
+        // Convert the parameters to a query string
+        const queryString = new URLSearchParams(params).toString();
+        const profileUrl = `${baseUrl}?${queryString}`;
+  
+        const createdQuizUrl = `quiz/created/${username}/`;
+        const solvedQuizUrl = `quiz/solved/${username}/`;
+        let updatedUserInfo;
+  
+        try {
+          const profileRequest = await TokenManager.authenticatedFetch(profileUrl, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+          const profileResponse = await profileRequest.json();
+          if (profileRequest.ok){
+            updatedUserInfo = profileResponse
+          } else {
+            console.log(profileRequest.status)
+          };
+  
+          const createdQuizRequest = await TokenManager.authenticatedFetch(createdQuizUrl, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+          const createdQuizResponse = await createdQuizRequest.json()
+          if (createdQuizRequest.ok){
+            updatedUserInfo = {...updatedUserInfo, createdQuizzes: createdQuizResponse}
+          } else {
+            console.log(createdQuizResponse.status)
+          };
+          
+          const solvedQuizRequest = await TokenManager.authenticatedFetch(solvedQuizUrl, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+          const solvedQuizResponse = await solvedQuizRequest.json()
+          if (solvedQuizRequest.ok){
+            setUserInfo({...updatedUserInfo, solvedQuizzes: solvedQuizResponse});
+          } else {
+            console.log(createdQuizResponse.status)
+          };
+  
+  
+        } catch (error) {
+          console.error(error);
+        }
+        setIsLoading(false);
+      };
 
-      const baseUrl = 'profile/'; // Replace with your API endpoint
+      fetchProfileInfo();
 
-      // Convert the parameters to a query string
-      const queryString = new URLSearchParams(params).toString();
-      const profileUrl = `${baseUrl}?${queryString}`;
+      // Optional cleanup (runs when page loses focus)
+      return () => {
+        console.log('Page is no longer focused.');
+      };
+    }, [])
+  );
+  
+  // useEffect(() => {
+    
 
-      const createdQuizUrl = `quiz/created/${username}/`;
-      const solvedQuizUrl = `quiz/solved/${username}/`;
-      let updatedUserInfo;
-
-      try {
-        const profileRequest = await TokenManager.authenticatedFetch(profileUrl, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-        const profileResponse = await profileRequest.json();
-        if (profileRequest.ok){
-          updatedUserInfo = profileResponse
-        } else {
-          console.log(profileRequest.status)
-        };
-
-        const createdQuizRequest = await TokenManager.authenticatedFetch(createdQuizUrl, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-        const createdQuizResponse = await createdQuizRequest.json()
-        if (createdQuizRequest.ok){
-          updatedUserInfo = {...updatedUserInfo, createdQuizzes: createdQuizResponse}
-        } else {
-          console.log(createdQuizResponse.status)
-        };
-        
-        const solvedQuizRequest = await TokenManager.authenticatedFetch(solvedQuizUrl, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-        const solvedQuizResponse = await solvedQuizRequest.json()
-        console.log(solvedQuizResponse);
-        if (solvedQuizRequest.ok){
-          setUserInfo({...updatedUserInfo, solvedQuizzes: solvedQuizResponse});
-        } else {
-          console.log(createdQuizResponse.status)
-        };
-
-
-      } catch (error) {
-        console.error(error);
-      }
-      setIsLoading(false);
-    };
-
-    fetchProfileInfo();
-  }, []);
+  //   fetchProfileInfo();
+  // }, []);
 
 
   const tabData: any = [userInfo.createdQuizzes, userInfo.solvedQuizzes, userInfo.postsAndComments]
