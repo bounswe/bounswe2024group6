@@ -293,7 +293,7 @@ def view_created_quizzes(request, username):
 def view_solved_quizzes(request, username):
     user = get_object_or_404(User, username=username)
     quiz_progresses = QuizProgress.objects.filter(user=user, completed=True)
-    quizzes = [quiz_progress.quiz for quiz_progress in quiz_progresses]
+    quizzes = list({quiz_progress.quiz for quiz_progress in quiz_progresses})
     serializer = QuizSerializer(quizzes, many=True, context = {'request': request})
     return Response(serializer.data, status=status.HTTP_200_OK)
 
