@@ -5,7 +5,7 @@ from rest_framework.test import APITestCase, APIClient
 from django.contrib.auth.models import User
 from app.models import Profile
 from rest_framework import status
-from app.models import Post
+from app.models import Post, Quiz, QuizProgress, Question
 from django.utils import timezone
 
 class UserRegistrationTest(APITestCase):
@@ -305,3 +305,95 @@ class PostTests(APITestCase):
         response = self.client.get(self.get_user_posts_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['posts']), 0)
+
+
+class QuizViewTests(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='testuser', password='testpassword')
+        self.client = APIClient()
+        self.client.login(username='testuser', password='testpassword')
+
+        self.quiz = Quiz.objects.create(
+            title='English Vocabulary Quiz',
+            description='A quiz to test your English skills.',
+            level='A1',
+            author=self.user,
+            question_count=2
+        )
+        self.question1 = Question.objects.create(
+            quiz=self.quiz, question_text='What is the English word for "elma"?',
+            choice1='Banana', choice2='Apple', choice3='Orange', choice4='Pineapple', correct_choice=2
+        )
+        self.question2 = Question.objects.create(
+            quiz=self.quiz, question_text='What is the English word for "kedi"?',
+            choice1='Cat', choice2='Dog', choice3='Bird', choice4='Fish', correct_choice=1
+        )
+
+    def test_create_quiz(self):
+        quiz_data = {
+            'quiz': {
+                'title': 'Basic English Quiz',
+                'description': 'A simple quiz for learning English basics.',
+                'level': 'A1'
+            },
+            'questions': [
+                {'question_text': 'Translate "merhaba" to English.', 'choice1': 'Hello', 'choice2': 'Hi', 'choice3': 'Goodbye', 'choice4': 'Thanks', 'correct_choice': 1},
+                {'question_text': 'Translate "kitap" to English.', 'choice1': 'Notebook', 'choice2': 'Book', 'choice3': 'Pen', 'choice4': 'Desk', 'correct_choice': 2}
+            ]
+        }
+
+        response = self.client.post('/quiz/create/', quiz_data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIn('title', response.data)
+        self.assertEqual(response.data['title'], quiz_data['quiz']['title'])
+
+        quiz = Quiz.objects.get(title=quiz_data['quiz']['title'])
+        self.assertEqual(quiz.author, self.user)
+        self.assertEqual(quiz.question_count, len(quiz_data['questions']))
+
+    def test_submit_quiz(self):
+        quiz_progress = QuizProgress.objects.create(quiz=self.quiz, user=self.user, completed=False)
+
+        self.client.post('/quiz/question/solve/', {'quiz_progress_id': quiz_progress.id, 'question_number': self.question1.question_number, 'answer': 2})
+        self.client.post('/quiz/question/solve/', {'quiz_progress_id': quiz_progress.id, 'question_number': self.question2.question_number, 'answer': 1})
+
+        response = self.client.post('/quiz/submit/', {'quiz_progress_id': quiz_progress.id}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('result_url', response.data)
+
+        quiz_progress.refresh_from_db()
+        self.assertTrue(quiz_progress.completed)
+        self.assertEqual(self.quiz.total_score, 2)
+
+    def test_get_quiz(self):
+        response = self.client.get(f'/quiz/{self.quiz.id}/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('quiz', response.data)
+        self.assertEqual(response.data['quiz']['title'], self.quiz.title)
+        self.assertFalse(response.data['is_solved'])
+
+    def test_start_quiz(self):
+        response = self.client.post('/quiz/start/', {'quiz_id': self.quiz.id}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('questions', response.data)
+        self.assertEqual(response.data['quiz_title'], self.quiz.title)
+        self.assertEqual(response.data['question_count'], self.quiz.question_count)
+
+        quiz_progress = QuizProgress.objects.filter(user=self.user, quiz=self.quiz).first()
+        self.assertIsNotNone(quiz_progress)
+        self.assertEqual(quiz_progress.quiz, self.quiz)
+
+    def test_like_quiz(self):
+        response = self.client.post('/quiz/like/', {'quiz_id': self.quiz.id}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['message'], 'Quiz liked')
+
+        self.quiz.refresh_from_db()
+        self.assertIn(self.user, self.quiz.liked_by.all())
+
+        response = self.client.post('/quiz/like/', {'quiz_id': self.quiz.id}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['message'], 'Quiz unliked')
+
+        self.quiz.refresh_from_db()
+        self.assertNotIn(self.user, self.quiz.liked_by.all())
