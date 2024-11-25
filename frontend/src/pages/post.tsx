@@ -93,7 +93,7 @@ export default function Post() {
       });
   };
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center overflow-hidden mb-4">
       <Navbar />
       <div className="flex flex-col gap-6 mt-4">
         {isLoading ? (
@@ -147,7 +147,6 @@ export default function Post() {
               .fill(0)
               .map((_, index) => <CommentSkeleton key={index} />)
           : comments.map((comment) => (
-            console.log(comment),
               <Suspense key={comment.id} fallback={<CommentSkeleton />}>
                 <PostCard
                   id={comment.id}

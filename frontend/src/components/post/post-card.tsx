@@ -144,7 +144,7 @@ export default function PostCard({
           <p className="text-default-400 text-small">{timePassed}</p>
         </div>
         <Divider className="mt-1.5 bg-zinc-200" />
-        <h4 className="text-lg font-semibold leading-none text-black">
+        <h4 className="text-lg font-semibold leading-none text-default-900">
           {title}
         </h4>
       </CardHeader>
