@@ -25,6 +25,7 @@ const QuizResults = () => {
 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [quizResultNum, setQuizResultNum] = useState<string>("-1");
 
   const [recommendedQuiz, setRecommendedQuiz] = useState<{
     id: number;
@@ -38,7 +39,6 @@ const QuizResults = () => {
 
   useEffect(() => {
     const fetchQuizResult = async () => {
-      console.log(resultUrl);
       try {
         const response = await TokenManager.authenticatedFetch(resultUrl, {
           method: 'GET',
@@ -46,6 +46,10 @@ const QuizResults = () => {
             'Content-Type': 'application/json',
           },
         });
+
+        const url = resultUrl.split('/');
+        const resultNum = url[url.length - 1];
+        setQuizResultNum(resultNum)
 
         if (response.ok) {
           const data = await response.json();
@@ -76,7 +80,6 @@ const QuizResults = () => {
         });
     
         const data = await response.json();
-        console.log(data);
         if (response.ok) {
           const formattedResults = data.map((quiz: any) => ({
             id: Number(quiz.id),
@@ -163,6 +166,21 @@ const QuizResults = () => {
           </TouchableOpacity>
           </Shadow>
           </View>
+
+          <View style={styles.buttonContainer}>
+              <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
+                <TouchableOpacity
+                  style={[styles.mainMenuButton, { backgroundColor: '#FFA500' }]}
+                  onPress={() =>
+                    router.push({pathname: '/(tabs)/quizzes/quizReview', params: { quizId: quizResultNum }})
+                  }
+                >
+              <Text style={styles.mainMenuText}>Review Quiz</Text>
+            </TouchableOpacity>
+          </Shadow>
+        </View>
+
+
           </View>
     )}
   </View>

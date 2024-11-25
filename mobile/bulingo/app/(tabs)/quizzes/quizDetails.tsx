@@ -22,6 +22,7 @@ type QuizDetails = {
   average_score: number;
   is_bookmarked: boolean;
   is_liked: boolean;
+  is_solved: boolean;
 };
 
 
@@ -151,10 +152,13 @@ const QuizDetails = () => {
         </Shadow>
       </View>
 
+
       {/* Go Back button */}
       <TouchableOpacity style={styles.goBackButton} onPress={() => router.back()}>
         <Text style={styles.buttonText}>Go Back</Text>
       </TouchableOpacity>
+      
+
     </View>
   );
 };
