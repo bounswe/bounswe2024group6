@@ -130,6 +130,7 @@ useEffect(() => {
                         isUserAnswer && !isCorrectAnswer && styles.wrongAnswer,
                         ]}
                         onPress={() => handleOptionSelect(index)}
+                        testID='button'
                     >
                         <Text style={styles.optionText}>{choice}</Text>
                     </TouchableOpacity>
