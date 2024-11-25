@@ -1,5 +1,5 @@
 import Forum from "./forum";
-import { getByTestId, render, waitFor } from "@testing-library/react";
+import { render, waitFor } from "@testing-library/react";
 import { screen } from "@testing-library/dom";
 
 vi.mock("react-router-dom", () => ({
