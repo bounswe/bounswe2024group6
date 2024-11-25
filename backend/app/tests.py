@@ -313,11 +313,21 @@ class PostTests(APITestCase):
         self.assertEqual(len(response.data['posts']), 0)
 
 
+from rest_framework.test import APITestCase, APIClient
+from rest_framework import status
+from django.contrib.auth.models import User
+from rest_framework_simplejwt.tokens import RefreshToken
+from app.models import Quiz, Question, QuizProgress
+
 class QuizViewTests(APITestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='testuser', password='testpassword')
+
+        refresh = RefreshToken.for_user(self.user)
+        self.access_token = str(refresh.access_token)
+
         self.client = APIClient()
-        self.client.login(username='testuser', password='testpassword')
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.access_token}')
 
         self.quiz = Quiz.objects.create(
             title='English Vocabulary Quiz',
@@ -327,13 +337,17 @@ class QuizViewTests(APITestCase):
             question_count=2
         )
         self.question1 = Question.objects.create(
-            quiz=self.quiz, question_text='What is the English word for "elma"?',
+            quiz=self.quiz, question_number=1,
+            question_text='What is the English word for "elma"?',
             choice1='Banana', choice2='Apple', choice3='Orange', choice4='Pineapple', correct_choice=2
         )
         self.question2 = Question.objects.create(
-            quiz=self.quiz, question_text='What is the English word for "kedi"?',
+            quiz=self.quiz, question_number=2,
+            question_text='What is the English word for "kedi"?',
             choice1='Cat', choice2='Dog', choice3='Bird', choice4='Fish', correct_choice=1
         )
+
+
 
     def test_create_quiz(self):
         quiz_data = {
