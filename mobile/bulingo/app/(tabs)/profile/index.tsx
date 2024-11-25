@@ -5,30 +5,16 @@ import {router, useFocusEffect} from 'expo-router';
 import QuizCard from '@/app/components/quizCard';
 import TokenManager from '@/app/TokenManager';
 
-const debugUserInfo: UserInfo = {
+const defaultUserInfo: UserInfo = {
   name: 'Yagiz Guldal',
   bio: "Hello, I am an avid language learner. I am trying my best to learn English.",
   level: 'B1',
-  follower_count: 20,
-  following_count: 25,
-  createdQuizzes: [
-    { id: 1, title: 'Food', description: 'Learn about foods', author: 'Oguz', level: 'A2', likes: 135, liked: true },
-    { id: 2, title: 'Animals', description: 'Our furry friends!', author: 'Aras', level: 'A2', likes: 12, liked: false },
-    { id: 3, title: 'Furniture', description: 'Essential furniture', author: 'Kaan', level: 'A2', likes: 3, liked: false },
-    { id: 4, title: 'Plants', description: 'Test your plant knowledge', author: 'Halil', level: 'A2', likes: 300, liked: false },
-    { id: 5, title: 'Transport', description: 'Types of transport', author: 'Alex', level: 'B1', likes: 45, liked: false },
-  ],  
-  solvedQuizzes: [
-    { id: 13, title: 'Furniture', description: 'Essential furniture', author: 'Kaan', level: 'A2', likes: 3, liked: false },
-    { id: 14, title: 'Plants', description: 'Test your plant knowledge', author: 'Halil', level: 'A2', likes: 300, liked: false },
-    { id: 15, title: 'Transport', description: 'Types of transport', author: 'Alex', level: 'B1', likes: 45, liked: false },
-    { id: 16, title: 'Food', description: 'Learn about foods', author: 'Oguz', level: 'A2', likes: 135, liked: false },
-    { id: 17, title: 'Animals', description: 'Our furry friends!', author: 'Aras', level: 'A2', likes: 12, liked: false },
-    { id: 18, title: 'Furniture', description: 'Essential furniture', author: 'Kaan', level: 'A2', likes: 3, liked: false },
-    { id: 19, title: 'Plants', description: 'Test your plant knowledge', author: 'Halil', level: 'A2', likes: 300, liked: false },
-    { id: 20, title: 'Transport', description: 'Types of transport', author: 'Alex', level: 'B1', likes: 45, liked: false},
-  ],
-  postsAndComments: [{id: 1, desc: 'Post 1'}, {id: 2, desc: 'Post 2'}],
+  follower_count: 0,
+  following_count: 0,
+  createdQuizzes: [],  
+  solvedQuizzes: [],
+  posts: [],
+  comments: [],
 };
 
 type UserInfo = {
@@ -39,7 +25,6 @@ type UserInfo = {
   following_count: number,
   createdQuizzes: QuizInfo[],  // Placeholder
   solvedQuizzes: QuizInfo[],  // Placeholder
-  postsAndComments: {id: number, desc: string}[],  // Placeholder
   comments: any[],
   posts: any[],
 };
@@ -71,7 +56,7 @@ export function isQuizInfo(object: any){
 };
 
 export default function Profile() {
-  const [userInfo, setUserInfo] = useState<UserInfo>(debugUserInfo);
+  const [userInfo, setUserInfo] = useState<UserInfo>(defaultUserInfo);
   const [tab, setTab] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -138,10 +123,10 @@ export default function Profile() {
           const solvedQuizResponse = await solvedQuizRequest.json()
           if (solvedQuizRequest.ok){
             setUserInfo({...updatedUserInfo, solvedQuizzes: solvedQuizResponse});
+            console.log({...updatedUserInfo, solvedQuizzes: solvedQuizResponse});
           } else {
             console.log(createdQuizResponse.status)
           };
-  
   
         } catch (error) {
           console.error(error);
@@ -157,15 +142,8 @@ export default function Profile() {
       };
     }, [])
   );
-  
-  // useEffect(() => {
-    
 
-  //   fetchProfileInfo();
-  // }, []);
-
-
-  const tabData: any = [userInfo.createdQuizzes, userInfo.solvedQuizzes, userInfo.postsAndComments]
+  const tabData: any = [userInfo.createdQuizzes, userInfo.solvedQuizzes, userInfo.posts.concat(userInfo.comments)]
 
   if(isLoading){
     return (
