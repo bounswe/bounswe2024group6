@@ -8,13 +8,14 @@ from django.contrib.auth.models import User
 from app.models import Profile
 
 
-@api_view(['POST'])
+@api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def view_profile(request):
     user = request.user
     profile = get_object_or_404(Profile, user=user)
-    serializer = ProfileSerializer(profile)
+    serializer = ProfileSerializer(profile, context={'request': request})
     return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 
 @api_view(['POST'])
@@ -22,129 +23,42 @@ def view_profile(request):
 def update_profile(request):
     user = request.user
     profile = get_object_or_404(Profile, user=user)
-    serializer = ProfileSerializer(profile, data=request.data, partial=True)
+    serializer = ProfileSerializer(profile, data=request.data, partial=True, context={'request': request})
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(['GET'])
-def view_profile_mock(request):
-    mock_profile = {
-  "@context": "https://www.w3.org/ns/activitystreams",
-  "type": "Person",
-  "id": "https://example.com/profiles/oktay_ozel",
-  "name": "oktay_ozel",
-  "image": {
-    "type": "Image",
-    "url": "https://private-user-images.githubusercontent.com/24993956/309188090-69afd5bb-8258-4995-939c-4600b6ecce12.jpg"
-  },
-  "followers": {
-    "type": "Collection",
-    "totalItems": 100
-  },
-  "following": {
-    "type": "Collection",
-    "totalItems": 50
-  },
-  "level": "B2",
-  "activity": [
-    {
-      "type": "Create",
-      "id": "https://example.com/posts/2",
-      "actor": {
-        "type": "Person",
-        "name": "oktay_ozel",
-        "image": {
-          "type": "Image",
-          "url": "https://private-user-images.githubusercontent.com/57640531/310137517-cbe7aa9f-3457-4f64-b37b-c3e46d4e448b.png"
-        }
-      },
-      "object": {
-        "type": "Note",
-        "name": "Petrichor: The Smell of Rain",
-        "content": "Petrichor is the pleasant, earthy smell that comes after rain. Example: 'She loved the petrichor that filled the air after the storm.'",
-        "tag": [
-          {
-            "type": "Hashtag",
-            "name": "Vocabulary"
-          }
-        ],
-        "published": "2024-11-05T17:00:00Z",
-        "replies": {
-          "type": "Collection",
-          "totalItems": 3
-        },
-        "likes": {
-          "type": "Collection",
-          "totalItems": 90
-        }
-      }
-    },
-    {
-      "type": "Create",
-      "id": "https://example.com/posts/3",
-      "actor": {
-        "type": "Person",
-        "name": "oktay_ozel",
-        "image": {
-          "type": "Image",
-          "url": "https://private-user-images.githubusercontent.com/57640531/310137517-cbe7aa9f-3457-4f64-b37b-c3e46d4e448b.png"
-        }
-      },
-      "object": {
-        "type": "Note",
-        "name": "Serendipity: A Fortunate Discovery",
-        "content": "Serendipity is the occurrence of events by chance in a happy or beneficial way. Example: 'They met by serendipity and became lifelong friends.'",
-        "tag": [
-          {
-            "type": "Hashtag",
-            "name": "Vocabulary"
-          }
-        ],
-        "published": "2024-11-05T20:00:00Z",
-        "replies": {
-          "type": "Collection",
-          "totalItems": 5
-        },
-        "likes": {
-          "type": "Collection",
-          "totalItems": 75
-        }
-      }
-    }
-  ],
-  "quizzes": [
-    {
-      "type": "Quiz",
-      "id": "https://example.com/quizzes/1",
-      "name": "Basic Vocabulary Quiz",
-      "summary": "Test your knowledge on basic vocabulary words!",
-      "attributedTo": {
-        "type": "Person",
-        "name": "oktay_ozel"
-      },
-      "audienceLevel": "Beginner",
-      "likes": {
-        "type": "Collection",
-        "totalItems": 5
-      }
-    },
-    {
-      "type": "Quiz",
-      "id": "https://example.com/quizzes/2",
-      "name": "Advanced Vocabulary Quiz",
-      "summary": "Challenge yourself with advanced vocabulary words.",
-      "attributedTo": {
-        "type": "Person",
-        "name": "oktay_ozel"
-      },
-      "audienceLevel": "Advanced",
-      "likes": {
-        "type": "Collection",
-        "totalItems": 9
-      }
-    }
-  ]
-}
-    return Response(mock_profile, status=status.HTTP_200_OK)
+@permission_classes([IsAuthenticated])
+def view_other_profile(request, username):
+    """
+    View a user's profile by their username.
+    """
+    user = get_object_or_404(User, username=username)
+    profile = get_object_or_404(Profile, user=user)
+    serializer = ProfileSerializer(profile, context={'request': request})
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def view_followers(request, username):
+    user = get_object_or_404(User, username=username)
+    profile = get_object_or_404(Profile, user=user)
+    followers = profile.followers.all()
+    serializer = ProfileSerializer(followers, many=True, context={'request': request})
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def view_following(request, username):
+    user = get_object_or_404(User, username=username)
+    profile = get_object_or_404(Profile, user=user)
+    following = profile.following.all()
+    serializer = ProfileSerializer(following, many=True, context={'request': request})
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+

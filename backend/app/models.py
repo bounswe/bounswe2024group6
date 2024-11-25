@@ -1,50 +1,71 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.utils.timezone import now
+from django.contrib.postgres.fields import ArrayField
 
-
-
-class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    bio = models.TextField(blank=True, null=True)
-    location = models.CharField(max_length=100, blank=True, null=True)
-    birth_date = models.DateField(null=True, blank=True)
-    following = models.ManyToManyField('self', symmetrical=False, related_name='followers', blank=True)
-
-    def __str__(self):
-        return self.user.username
-
+LEVEL_CHOICES = [
+    ('A1', 'A1'),
+    ('A2', 'A2'),
+    ('B1', 'B1'),
+    ('B2', 'B2'),
+    ('C1', 'C1'),
+    ('C2', 'C2'),
+    ('NA', 'NA')
+]
 
 class Tags(models.Model):
-    name = models.CharField(max_length=30, unique=True)
+    name = models.CharField(max_length=50)
 
     def __str__(self):
         return self.name
 
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
+    name = models.CharField(max_length=100,null=True, blank=True)
+    bio = models.TextField(null=True, blank=True)
+    following = models.ManyToManyField("self", symmetrical=False, related_name="profile_following", blank=True)
+    followers = models.ManyToManyField("self", symmetrical=False, related_name="profile_followers", blank=True)
+    level = models.CharField(max_length=2, choices=LEVEL_CHOICES, default='A1')
+
+    def __str__(self):
+        return self.name
+
+
 class Quiz(models.Model):
-    id = models.AutoField(primary_key=True)
+    LEVEL_CHOICES = [
+        ('A1', 'A1'),
+        ('A2', 'A2'),
+        ('B1', 'B1'),
+        ('B2', 'B2'),
+        ('C1', 'C1'),
+        ('C2', 'C2'),
+    ]
+
     title = models.CharField(max_length=100)
     description = models.TextField()
-    # TODO: switch the below line to the following when we have a working user model
-    # author = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='posts')
-    author = models.CharField(max_length=100)
-    tags = models.ManyToManyField(Tags, related_name='quizzes')
-    created_at = models.DateTimeField(default=timezone.now)
+    author = models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='quizzes')
+    tags = models.ManyToManyField('Tags', related_name='quizzes')
+    level = models.CharField(max_length=2, choices=LEVEL_CHOICES)
+    question_count = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
     times_taken = models.IntegerField(default=0)
     total_score = models.FloatField(default=0)
-    time_limit = models.IntegerField(default=0)
     like_count = models.IntegerField(default=0)
+    liked_by = models.ManyToManyField(User, related_name='liked_quizzes', blank=True)
+    bookmarked_by = models.ManyToManyField(User, related_name='bookmarked_quizzes', blank=True)
 
     def __str__(self):
         return self.title
-    
+
 
 class Question(models.Model):
+    LEVEL_CHOICES = Quiz.LEVEL_CHOICES
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='questions')
-    id = models.AutoField(primary_key=True)
+    question_number = models.IntegerField()
     question_text = models.TextField()
+    level = models.CharField(max_length=2, choices=LEVEL_CHOICES)
     choice1 = models.CharField(max_length=100)
     choice2 = models.CharField(max_length=100)
     choice3 = models.CharField(max_length=100)
@@ -53,38 +74,138 @@ class Question(models.Model):
 
     def __str__(self):
         return self.question_text
+
+
+class QuizProgress(models.Model):
+    id = models.AutoField(primary_key=True)
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='progress')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='quiz_progress')
+    score = models.FloatField(default=0)
+    quiz_attempt = models.IntegerField(default=0)
+    date_started = models.DateTimeField(default=timezone.now)
+    completed = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('quiz', 'user', "quiz_attempt")  # Enforce unique combination of quiz and user
+
     
+    def __str__(self):
+        return self.quiz.title + ' - ' + self.user.username
+
+class QuizResults(models.Model):
+    id = models.AutoField(primary_key=True)
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='results')
+    quiz_progress = models.ForeignKey(QuizProgress, on_delete=models.CASCADE, related_name='results')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='results')
+    score = models.FloatField()
+    time_taken = models.IntegerField()
+    
+    def __str__(self):
+        return self.quiz.title + ' - ' + self.user.username
+
+    
+class QuestionProgress(models.Model):
+    id = models.AutoField(primary_key=True)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='progress')
+    answer = models.IntegerField(default=0)
+    time_taken = models.IntegerField(default=0)
+    quiz_progress = models.ForeignKey(QuizProgress, on_delete=models.CASCADE, related_name='question_progress')
+
+    class Meta:
+        unique_together = ('question', 'quiz_progress')  # Enforce unique combination of question and user
+
+    def __str__(self):
+        return self.question.question_text + ' - ' + self.user.username
+
 class Post(models.Model):
     id = models.AutoField(primary_key=True)
-    tags = models.ManyToManyField(Tags, related_name='posts')
+    tags = ArrayField(
+        models.CharField(max_length=50),
+        blank=True,
+        default=list,
+        help_text="List of tags associated with the post."
+    )
     title = models.CharField(max_length=100)
     description = models.TextField()
     created_at = models.DateTimeField(default=timezone.now)
-    author = models.CharField(max_length=100)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
     like_count = models.IntegerField(default=0)
-    liked_by = models.ManyToManyField(User, related_name='liked_posts', blank=True)  
+    bookmarked_by = models.ManyToManyField(User, related_name='bookmarked_posts', blank=True)  
+
+    liked_by = models.ManyToManyField(User, related_name='liked_posts', blank=True)
 
     def __str__(self):
         return self.title
 
-class QuizProgress(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='quiz_progress')
-    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='progress')
-    current_question = models.ForeignKey(Question, on_delete=models.SET_NULL, null=True, blank=True)
-    answers = models.JSONField(default=dict)  
-    completed = models.BooleanField(default=False)
+class Word(models.Model):
+    word = models.CharField(max_length=255)
+    language = models.CharField(max_length=10000, default='eng')  # e.g., 'eng' for English
+    level = models.CharField(max_length=10000, blank=True, null=True)  # e.g., 'A1', 'B2'
+    part_of_speech = models.CharField(max_length=20000, blank=True, null=True)
+    meaning = models.CharField(max_length=10000, default="Meaning not available")
+    sentence = models.CharField(max_length=10000, default="Sentence not available")
 
     def __str__(self):
-        return f"{self.user.username}'s progress on {self.quiz.title}"
+        return self.word
     
+class Relationship(models.Model):
+    word = models.ForeignKey(Word, on_delete=models.CASCADE, related_name="relationships")
+    related_word = models.ForeignKey(Word, on_delete=models.CASCADE, related_name="related_to")
+    relation_type = models.CharField(max_length=50)  # e.g., 'broader', 'narrower', 'synonym'
+
+
+    def __str__(self):
+        return f"{self.word} - {self.relation_type} -> {self.related_word}"
     
+class Translation(models.Model):
+    word = models.ForeignKey(Word, on_delete=models.CASCADE, related_name="translations")
+    translation = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"{self.translation} (Translation of {self.word})"
 
 class ActivityStream(models.Model):
-    actor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='activities')  
-    verb = models.CharField(max_length=50)  # liked, created, followed
-    object_type = models.CharField(max_length=50)  # Quiz, Post
-    object_id = models.IntegerField()  #Quiz ID Post ID
-    timestamp = models.DateTimeField(default=now)  # timestamp
+    actor = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='activities'
+    )  
+    verb = models.CharField(max_length=50) 
+    object_type = models.CharField(max_length=50) 
+    object_id = models.IntegerField()
+    timestamp = models.DateTimeField(default=now)  
+    target = models.CharField(max_length=100, null=True, blank=True)  
+    affected_username = models.CharField(
+        max_length=150, null=True, blank=True
+    )  
 
     def __str__(self):
-        return f"{self.actor.username} {self.verb} {self.object_type}:{self.object_id} at {self.timestamp}"
+        affected = f" affecting {self.affected_username}" if self.affected_username else ""
+        return (
+            f"{self.actor.username} {self.verb} {self.object_type}:{self.object_id} "
+            f"at {self.timestamp}{affected}"
+        )
+    
+class Comment(models.Model):
+    post = models.ForeignKey('Post', on_delete=models.CASCADE, related_name='comments')  # Assuming a Post model exists
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
+    body = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, related_name='replies', null=True, blank=True)
+    like_count = models.IntegerField(default=0)
+    liked_by = models.ManyToManyField(User, related_name='liked_comments', blank=True)
+
+    def __str__(self):
+        return f'Comment by {self.author.username} on {self.post}'
+    
+
+class Bookmark(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookmarks')
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='post_bookmarks') 
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'post')  # Ensure one bookmark per user per post
+        ordering = ['-created_at']  # Latest bookmarks first
+
+    def __str__(self):
+        return f"{self.user.username} bookmarked {self.post.title}"
+    
