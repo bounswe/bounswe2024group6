@@ -1,7 +1,8 @@
 import csv
 from django.core.management.base import BaseCommand
-from  ...models import Word, Translation, Relationship
+from ...models import Word, Translation, Relationship
 import re
+from collections import defaultdict
 
 class Command(BaseCommand):
     help = 'Populate the database with Words, Translations, and Relationships from CSV files'
@@ -29,112 +30,101 @@ class Command(BaseCommand):
         with open(file_path, newline='', encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile)
 
-            word_dict = {}
+            word_dict = defaultdict(list)
 
             for row in reader:
-                word_list = word_dict.get(row['word'], list())
                 info_dict = {
-                        'language': row.get('language', 'eng'),
-                        'level': row.get('level'),
-                        'part_of_speech': row.get('part_of_speech'),
-                        'meaning': row.get('explanation', 'Meaning not available'),
-                        'sentence': row.get('sentence', 'Sentence not available')
-
+                    'language': row.get('language', 'eng'),
+                    'level': row.get('level'),
+                    'part_of_speech': row.get('part_of_speech'),
+                    'meaning': row.get('explanation', 'Meaning not available'),
+                    'sentence': row.get('sentence', 'Sentence not available'),
                 }
+                word_dict[row['word']].append(info_dict)
 
-                word_list.append(info_dict)
+            existing_words = set(Word.objects.values_list('word', flat=True))
+            words_to_create = []
 
-                word_dict[row['word']] = word_list
-
-
-            
-            for word in word_dict.keys():
-                defaults={
-                    'language': '', 
-                    'level': '',
-                    'part_of_speech': '',
-                    'meaning': '',
-                    'sentence': ''
+            for word, infos in word_dict.items():
+                if word not in existing_words:
+                    defaults = {
+                        'language': ', '.join(set(info['language'] for info in infos)),
+                        'level': ', '.join(set(info['level'] for info in infos if info['level'])),
+                        'part_of_speech': ', '.join(set(info['part_of_speech'] for info in infos if info['part_of_speech'])),
+                        'meaning': ', '.join(set(info['meaning'] for info in infos if info['meaning'])),
+                        'sentence': ', '.join(set(info['sentence'] for info in infos if info['sentence'])),
                     }
-                for key in defaults.keys():
-                    parts = [info[key] for info in word_dict[word]]
-                    defaults[key] = parts
-                    
-                
+                    words_to_create.append(Word(word=word, **defaults))
 
-                result = Word.objects.get_or_create(
-                    word=word,
-                    defaults=defaults
-                )
-
-                
+            # Bulk create new words
+            if words_to_create:
+                Word.objects.bulk_create(words_to_create)
+                self.stdout.write(f"Created {len(words_to_create)} new words.")
 
     def populate_translations(self, file_path):
         with open(file_path, newline='', encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile)
+
+            existing_translations = set(Translation.objects.values_list('word__word', 'translation'))
+            words = {w.word: w for w in Word.objects.all()}
+            translations_to_create = []
+
             for row in reader:
-                # Ensure the Word exists, creating it if necessary
-                word, created = Word.objects.get_or_create(
-                    word=row['word'],
-                    defaults={
-                        'language': 'eng',  # Default values for missing words
-                        'level': 'unknown',
-                        'part_of_speech': 'unknown',
-                        'meaning': 'Auto-created for missing translation',
-                        'sentence': 'No example provided'
-                    }
-                )
+                word = row['word']
+                translation = row['turkish_translation']
 
-                # Create or get the Translation
-                Translation.objects.get_or_create(
-                    word=word,
-                    translation=row['turkish_translation']
-                )
+                if (word, translation) not in existing_translations:
+                    if word not in words:
+                        words[word] = Word.objects.create(
+                            word=word,
+                            language='eng',
+                            level='unknown',
+                            part_of_speech='unknown',
+                            meaning='Auto-created for missing translation',
+                            sentence='No example provided',
+                        )
+                    translations_to_create.append(
+                        Translation(word=words[word], translation=translation)
+                    )
 
-
-
+            # Bulk create translations
+            if translations_to_create:
+                Translation.objects.bulk_create(translations_to_create)
+                self.stdout.write(f"Created {len(translations_to_create)} new translations.")
 
     def populate_relationships(self, file_path):
         with open(file_path, newline='', encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile)
+
+            words = {w.word: w for w in Word.objects.all()}
+            relationships_to_create = []
+
             for row in reader:
-                try:
-                    # Check if related_word is valid (not a number and allows hyphen, apostrophe)
-                    related_word = row['related_word']
-                    # Allow alphabetic characters, hyphens, and apostrophes in the related word
-                    if not re.match(r"^[a-zA-Z-']+$", related_word):
-                        self.stderr.write(
-                            f"Skipping invalid related word '{related_word}'."
-                        )
-                        continue
+                word = row['word']
+                related_word = row['related_word']
+                relation_type = row['relation_type']
 
-                    # Fetch the word
-                    word = Word.objects.get(word=row['word'])
+                if not re.match(r"^[a-zA-Z-']+$", related_word):
+                    self.stderr.write(f"Skipping invalid related word '{related_word}'.")
+                    continue
 
-                    # Fetch or create the related word in the Word table
-                    related_word_obj, created = Word.objects.get_or_create(
+                if word not in words:
+                    self.stderr.write(f"Word '{word}' not found. Skipping relationship.")
+                    continue
+
+                if related_word not in words:
+                    words[related_word] = Word.objects.create(
                         word=related_word,
-                        defaults={
-                            'language': 'eng',  # Default language, or pull from 'word' if needed
-                            'level': word.level,  # Use the level of the main word
-                            'part_of_speech': word.part_of_speech  # Use the part of speech of the main word
-                        }
+                        language='eng',
+                        level=words[word].level,
+                        part_of_speech=words[word].part_of_speech,
                     )
 
+                relationships_to_create.append(
+                    Relationship(word=words[word], related_word=words[related_word], relation_type=relation_type)
+                )
 
-                    # Create the relationship in the Relationship table
-                    Relationship.objects.get_or_create(
-                        word=word,
-                        related_word=related_word_obj,
-                        defaults={'relation_type': row['relation_type']}
-                    )
-
-                except Word.DoesNotExist:
-                    self.stderr.write(f"Word '{row['word']}' not found. Skipping relationship.")
-        
-
-
-
-
-
-    
+            # Bulk create relationships
+            if relationships_to_create:
+                Relationship.objects.bulk_create(relationships_to_create)
+                self.stdout.write(f"Created {len(relationships_to_create)} new relationships.")
