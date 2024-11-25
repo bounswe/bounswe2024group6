@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
-import PostCard from './postcard';
+import PostCard from '../app/components/postcard';
 
 test('renders the post card and handles presses', () => {
   const mockFn1 = jest.fn();

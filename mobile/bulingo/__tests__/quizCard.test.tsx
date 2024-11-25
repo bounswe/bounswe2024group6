@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
-import QuizCard from './quizCard';
+import QuizCard from '../app/components/quizCard';
 
 test('renders the quiz card and handles presses', () => {
   const mockFn1 = jest.fn();

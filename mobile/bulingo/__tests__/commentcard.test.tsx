@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
-import CommentCard from './commentcard';
+import CommentCard from '../app/components/commentcard';
 
 test('renders the commentcard and handles press', () => {
   const mockFn = jest.fn();
