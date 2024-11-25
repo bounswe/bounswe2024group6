@@ -65,6 +65,7 @@ export default function Login({
             <Input
               type="username"
               label="Username"
+              variant="bordered"
               defaultValue={Cookies.get("username") || ""}
               {...register("username", { required: true })}
               onChange={(e) => setUsername(e.target.value)}
@@ -118,7 +119,7 @@ export default function Login({
         </form>
 
         <div className="text-center mt-6">
-          <span className="text-sm">Need to create an account? </span>
+          <span className="text-sm ">Need to create an account? </span>
           <button
             onClick={() => {
               setIsRegister(true);

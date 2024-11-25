@@ -47,6 +47,7 @@ export default function QuizCard(props: QuizCardProps){
     <TouchableOpacity
       style={[styles.quizItem, styles.elevation]}
       onPress={() => handleQuizPress(props.id)}
+      testID='quiz'
     >
       <View style={styles.quizTop}>
         <Text style={styles.quizTitle}>{props.title}</Text>
@@ -57,14 +58,14 @@ export default function QuizCard(props: QuizCardProps){
           <Text style={styles.quizAuthor}>by {props.author}</Text>
           <Text style={styles.quizLevel}>{props.level}</Text>
         </View>
-        <TouchableOpacity style={styles.likeButton} onPress={() => handleLikePress(props.id)}>
+        <TouchableOpacity style={styles.likeButton} onPress={() => handleLikePress(props.id)} testID='likeButton'>
           <Text style={styles.quizLikes}>
           <Image source={liked ? require('@/assets/images/like-2.png') : require('@/assets/images/like-1.png')}style={styles.icon} /> {likes}
           </Text>
         </TouchableOpacity>
 
         {/* Touchable Bookmark Icon at the bottom right */}
-        <TouchableOpacity style={styles.bookmarkButton} onPress={() => handleBookmarkPress(props.id)}>
+        <TouchableOpacity style={styles.bookmarkButton} onPress={() => handleBookmarkPress(props.id)} testID='bookmarkButton'>
           <Image source={require('@/assets/images/bookmark-icon.png')} style={styles.icon} />
         </TouchableOpacity>
       </View>

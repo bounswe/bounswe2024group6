@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import { useNavigation } from '@react-navigation/native';
 import {router} from 'expo-router';
 
 const SIGNUP_URL = "http://54.93.52.38:8000/signup/";
@@ -48,6 +47,7 @@ const Register = () => {
       'password': password,
       'email': email,
     };
+    console.log(params);
     try {
       const response = await fetch(SIGNUP_URL, {
         method: 'POST',
@@ -59,7 +59,7 @@ const Register = () => {
       const json = await response.json();
       console.log(json)
       if (json){
-        router.navigate('/');
+        router.navigate('/?notification=register_success');
       }
     } catch (error) {
       console.error(error);

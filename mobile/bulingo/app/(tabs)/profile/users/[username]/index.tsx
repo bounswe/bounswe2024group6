@@ -2,89 +2,91 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableWithoutFeedback, Image, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
-import { QuizInfo, isQuizInfo } from '..';
+import { QuizInfo, isQuizInfo } from '../..';
 import QuizCard from '@/app/components/quizCard';
+import TokenManager from '@/app/TokenManager';
 
-const debugUserInfo: OtherUserInfo = {
-  name: 'ygz2',
-  about: "Hello, I am another user.",
-  level: 'C2',
-  followerCount: 2,
-  followingCount: 5,
-  isFollowedByUser: false,
-  isFollowingUser: true,
-  createdQuizzes: [
-    { id: 1, title: 'Food', description: 'Learn about foods', author: 'Oguz', level: 'A2', likes: 135, liked: true },
-    { id: 2, title: 'Animals', description: 'Our furry friends!', author: 'Aras', level: 'A2', likes: 12, liked: false },
-    { id: 3, title: 'Furniture', description: 'Essential furniture', author: 'Kaan', level: 'A2', likes: 3, liked: false },
-    { id: 4, title: 'Plants', description: 'Test your plant knowledge', author: 'Halil', level: 'A2', likes: 300, liked: false },
-    { id: 5, title: 'Transport', description: 'Types of transport', author: 'Alex', level: 'B1', likes: 45, liked: false },
-  ],  
-  solvedQuizzes: [
-    { id: 13, title: 'Furniture', description: 'Essential furniture', author: 'Kaan', level: 'A2', likes: 3, liked: false },
-    { id: 14, title: 'Plants', description: 'Test your plant knowledge', author: 'Halil', level: 'A2', likes: 300, liked: false },
-    { id: 15, title: 'Transport', description: 'Types of transport', author: 'Alex', level: 'B1', likes: 45, liked: false },
-    { id: 16, title: 'Food', description: 'Learn about foods', author: 'Oguz', level: 'A2', likes: 135, liked: false },
-    { id: 17, title: 'Animals', description: 'Our furry friends!', author: 'Aras', level: 'A2', likes: 12, liked: false },
-    { id: 18, title: 'Furniture', description: 'Essential furniture', author: 'Kaan', level: 'A2', likes: 3, liked: false },
-    { id: 19, title: 'Plants', description: 'Test your plant knowledge', author: 'Halil', level: 'A2', likes: 300, liked: false },
-    { id: 20, title: 'Transport', description: 'Types of transport', author: 'Alex', level: 'B1', likes: 45, liked: false},
-  ],
-  postsAndComments: [{id: 1, desc: 'Post 1'}, {id: 2, desc: 'Post 2'}],
+const emptyUserInfo: OtherUserInfo = {
+  name: '',
+  bio: "",
+  level: 'NA',
+  follower_count: 0,
+  following_count: 0,
+  is_followed: false,
+  createdQuizzes: [],  
+  solvedQuizzes: [],
+  posts: [],
+  comments: [],
 };
 
 type OtherUserInfo = {
   name: string,
-  about: string,
+  bio: string,
   level: string,
-  followerCount: number,
-  followingCount: number,
-  isFollowingUser: boolean,
-  isFollowedByUser: boolean,
+  follower_count: number,
+  following_count: number,
+  is_followed: boolean,
   createdQuizzes: QuizInfo[], 
   solvedQuizzes: QuizInfo[],
-  postsAndComments: {id: number, desc: string}[],  // Placeholder
+  posts: [],
+  comments: [],
 };
 
 export default function Profile() {
-  /* 
-  Things we need to fetch for this page:
-  Send the access token, refresh token (maybe) and userId for this user. Get:
-   - Name
-   - Follower Count
-   - Following Count
-   - Created Quizzes
-   - Solved Quizzes
-   - Posts and Comments
-  */
   const navigation = useNavigation();
   const { username } = useLocalSearchParams();
-  const [userInfo, setUserInfo] = useState<OtherUserInfo>(debugUserInfo);
+  const [userInfo, setUserInfo] = useState<OtherUserInfo>(emptyUserInfo);
   const [tab, setTab] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     navigation.setOptions({title: username});
-    const ENDPOINT_URL = `http://161.35.208.249:8000/users/${username}`;  // Placeholder
     const fetchProfileInfo = async () => {
-      const params = {
-        // TODO
-       };
+
+      const url = `profile/${username}/`;
+      const createdQuizUrl = `quiz/created/${username}/`;
+      const solvedQuizUrl = `quiz/solved/${username}/`;
+      let updatedUserInfo;
+      
       try {
-        const response = await fetch(ENDPOINT_URL, {
-          method: 'POST',
+        const response = await TokenManager.authenticatedFetch(url, {
+          method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(params),
         });
-
+        const res = await response.json()
         if (response.ok){
-          setUserInfo(await response.json());
+          updatedUserInfo = res
         } else {
           console.log(response.status)
         };
-        setUserInfo
+
+        const createdQuizRequest = await TokenManager.authenticatedFetch(createdQuizUrl, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        const createdQuizResponse = await createdQuizRequest.json()
+        if (createdQuizRequest.ok){
+          updatedUserInfo = {...updatedUserInfo, createdQuizzes: createdQuizResponse}
+        } else {
+          console.log(createdQuizResponse.status)
+        };
+        const solvedQuizRequest = await TokenManager.authenticatedFetch(solvedQuizUrl, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        const solvedQuizResponse = await solvedQuizRequest.json()
+        if (solvedQuizRequest.ok){
+          setUserInfo({...updatedUserInfo, solvedQuizzes: solvedQuizResponse});
+        } else {
+          console.log(createdQuizResponse.status)
+        };
+        setUserInfo(updatedUserInfo);
       } catch (error) {
         console.error(error);
       }
@@ -94,8 +96,7 @@ export default function Profile() {
     fetchProfileInfo();
   }, []);
 
-
-  const tabData: any = [userInfo.createdQuizzes, userInfo.solvedQuizzes, userInfo.postsAndComments]
+  const tabData = [userInfo.createdQuizzes, userInfo.solvedQuizzes, userInfo.posts.concat(userInfo.comments)]
 
   if(isLoading){
     return (
@@ -114,13 +115,14 @@ export default function Profile() {
       renderItem={({item}) => {
         if (isQuizInfo(item)){
           return (
-            <QuizCard {...item}/>
+            <QuizCard id={item.id} author={item.author.username} title={item.title} level={item.level} 
+              description={item.description} liked={item.is_liked} likes={item.like_count}/>
           );
         }
         else{
           return (
             <View style={{height: 100, borderWidth: 3, borderColor: 'black', borderRadius: 15, justifyContent: 'center', alignItems: 'center', marginHorizontal: 15, marginVertical: 5,}}>
-              <Text>Placeholder Item {item.id}: {item.desc}</Text>
+              <Text>Placeholder Item</Text>
             </View>
           );
         }
@@ -129,12 +131,13 @@ export default function Profile() {
       ListHeaderComponent={
         <>
           <ProfileInfo
+            username={username}
             name={userInfo.name}
             level={userInfo.level}
-            about={userInfo.about}
-            followerCount={userInfo.followerCount}
-            followingCount={userInfo.followingCount}
-            isFollowedByUser={true}
+            about={userInfo.bio}
+            followerCount={userInfo.follower_count}
+            followingCount={userInfo.following_count}
+            isFollowedByUser={userInfo.is_followed}
           />
           <Tabs tab={tab} setTab={setTab}/>
         </>
@@ -150,18 +153,39 @@ type ProfileInfoProps = {
   name: string,
   about: string,
   level: string,
+  username: string,
 }
 
 const ProfileInfo = (props:ProfileInfoProps) => {
+  const [isFollowedByUser, setIsFollowedByUser] = useState(props.isFollowedByUser);
+  
   const handleFollowersPress = () => {
-    router.push('/(tabs)/profile/followers')
+    router.push(`/(tabs)/profile/users/${props.username}/followers`)
     console.log("Followers button pressed.")
   };
   const handleFollowingPress = () => {
-    router.push('/(tabs)/profile/following')
+    router.push(`/(tabs)/profile/users/${props.username}/following`)
     console.log("Following button pressed.")
   };
-  const handleButtonPress = () => {
+  const handleButtonPress = async () => {
+    const url = isFollowedByUser ? `profile/unfollow/`: "profile/follow/";
+    const params = {
+      'username': props.username,
+    }
+    try {
+      const response = await TokenManager.authenticatedFetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(params),
+      });
+      const res = await response.json()
+      setIsFollowedByUser(!isFollowedByUser)
+    } catch (error) {
+      console.error(error);
+    }
+    console.log("Button Pressed: " + props.username);
     console.log("Another user's follow/unfollow button pressed.")
   };
 
@@ -192,7 +216,7 @@ const ProfileInfo = (props:ProfileInfoProps) => {
       </View>
       <View style={styles.profileInfoButtonContainer}>
         <TouchableOpacity style={styles.profileInfoButton} onPress={handleButtonPress}>
-          <Text style={styles.profileInfoButtonText}>{props.isFollowedByUser ? "Unfollow" : "Follow"}</Text>
+          <Text style={styles.profileInfoButtonText}>{isFollowedByUser ? "Unfollow" : "Follow"}</Text>
         </TouchableOpacity>
       </View>
     </View>

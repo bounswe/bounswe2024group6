@@ -34,9 +34,8 @@ export default function Forum() {
   const [isLoading, setIsLoading] = useState(true);
   const { getToken } = AuthActions();
   const token = getToken("access");
-
   const [sortFilter, setSortFilter] = useState<string>("Most Recent");
-  const handleSelectionChange = (e) => {
+  const handleSelectionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSortFilter(e.target.value);
   };
 

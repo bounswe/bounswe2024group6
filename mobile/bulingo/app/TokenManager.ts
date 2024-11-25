@@ -75,7 +75,7 @@ class TokenManager {
     }
   
     const fetchWithToken = async (token: string) => {
-      return await fetch(`${BASE_URL}${endpoint}`, {
+      return await fetch(`${BASE_URL}/${endpoint}`, {
         ...options,
         headers: {
           ...options.headers,
@@ -83,7 +83,7 @@ class TokenManager {
         },
       });
     };
-  
+
     let response = await fetchWithToken(accessToken);
   
     if (response.status === 401) {

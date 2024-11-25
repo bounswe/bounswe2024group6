@@ -1,10 +1,15 @@
 import Forum from "./forum";
-import { getByTestId, render, waitFor } from "@testing-library/react";
+import { render, waitFor } from "@testing-library/react";
 import { screen } from "@testing-library/dom";
 
 vi.mock("react-router-dom", () => ({
   useNavigate: () => vi.fn(),
   useLocation: () => ({ pathname: "/forum" }),
+  Link: ({ children, to }: { children: React.ReactNode; to: string }) => (
+    <a href={to} data-testid="link">
+      {children}
+    </a>
+  ),
 }));
 
 describe("Forum", () => {
@@ -51,3 +56,4 @@ describe("Forum", () => {
     });
   });
 });
+

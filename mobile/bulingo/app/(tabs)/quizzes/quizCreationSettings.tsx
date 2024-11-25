@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { TouchableOpacity, StyleSheet, Text, TextInput, View, useColorScheme } from 'react-native';
 import { router } from 'expo-router';
-import { Shadow } from 'react-native-shadow-2';
 import { saveQuizDetails } from './AsyncStorageHelpers';
 
 const QuizCreationSettings = () => {
@@ -66,7 +65,6 @@ const QuizCreationSettings = () => {
         <View style={styles.optionsContainer}>
           {quizLevels.map((level, index) => (
             <View style={styles.optionWrapper} key={index}>
-            <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
             <TouchableOpacity
               style={[
                 styles.optionButton,
@@ -76,13 +74,11 @@ const QuizCreationSettings = () => {
             >
               <Text style={styles.optionText}>{level}</Text>
             </TouchableOpacity>
-            </Shadow>
             </View>
           ))}
         </View>
           
           <View style={styles.addButtonWrapper}>
-        <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
         <TouchableOpacity
           style={[styles.addButton, isButtonDisabled && styles.disabledButton]} 
           onPress={handleAddQuestions}
@@ -90,7 +86,6 @@ const QuizCreationSettings = () => {
         >
           <Text style={styles.addButtonText}>Add Questions</Text>
         </TouchableOpacity>
-        </Shadow>
         </View>
       </View>
     </View>
@@ -161,8 +156,10 @@ const getStyles = (colorScheme: any) => {
       borderRadius: 10,
       padding: 10,
       width: 100,
+      borderWidth: 2,
       justifyContent: 'center',
       alignItems: 'center',
+      borderColor: isDark ? '#444' : 'black',
     },
     selectedOption: {
       backgroundColor: isDark ? '#3944FD' : 'lightblue',

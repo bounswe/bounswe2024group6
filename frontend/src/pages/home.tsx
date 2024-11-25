@@ -11,7 +11,7 @@ export default function Home() {
   usePageTitle(isRegister ? "Register" : "Login");
   
   return (
-    <div className="min-h-screen flex flex-col md:flex-row items-center bg-zinc-50">
+    <div className="min-h-screen flex flex-col md:flex-row items-center bg-default-50">
       {/* Logo Section */}
       <div className="w-full md:w-2/3 flex justify-center items-center p-8">
         <div className="text-blue-800 text-7xl md:text-9xl font-semibold">
@@ -23,7 +23,7 @@ export default function Home() {
       </div>
 
       {/* Auth Section */}
-      <div className="w-full md:w-1/3 h-full bg-white shadow-xl">
+      <div className="w-full md:w-1/3 h-full bg-default-50 shadow-xl">
         <div className="flex justify-center items-center min-h-screen p-8">
           {isRegister ? (
             <Register setIsRegister={setIsRegister} />

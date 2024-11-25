@@ -111,8 +111,8 @@ export default function PostCard({
         <div className="w-[500px] flex flex-col justify-between h-full pt-4">
           <CardBody className="px-3 py-0 text-small text-default-600 text-justify leading-relaxed overflow-hidden">
             <div className="flex flex-row justify-between w-full">
-              <h2 className="text-2xl font-semibold leading-none text-black mb-1">
-                <Link to={`/quiz/${id}/details`} className="text-black hover:underline">
+              <h2 className="text-2xl font-semibold leading-none text-default-800 mb-1">
+                <Link to={`/quiz/${id}/details`} className="text-default-800 hover:underline">
                   {title}
                 </Link>
               </h2>

@@ -2,37 +2,28 @@ import React, { useState, useEffect } from 'react';
 import {Text, StyleSheet, FlatList, View, TouchableWithoutFeedback, ActivityIndicator } from 'react-native';
 import QuizCard from '@/app/components/quizCard';
 import { QuizInfo } from '.';
+import TokenManager from '@/app/TokenManager';
 
 
 export default function Followers() {
   const [isLoading, setIsLoading] = useState(true);
-  const [likedQuizzes, setLikedQuizzes] = useState<QuizInfo[]>([
-    { id: 4, title: 'Plants', description: 'Test your plant knowledge', author: 'Halil', level: 'A2', likes: 300, liked: true },
-    { id: 5, title: 'Transport', description: 'Types of transport', author: 'Alex', level: 'B1', likes: 45, liked: true },
-    { id: 6, title: 'Food', description: 'Learn about foods', author: 'Oguz', level: 'A2', likes: 135, liked: true },
-    { id: 7, title: 'Animals', description: 'Our furry friends!', author: 'Aras', level: 'A2', likes: 12, liked: true },
-    { id: 8, title: 'Furniture', description: 'Essential furniture', author: 'Kaan', level: 'A2', likes: 3, liked: true },
-    { id: 9, title: 'Plants', description: 'Test your plant knowledge', author: 'Halil', level: 'A2', likes: 300, liked: true },
-    { id: 10, title: 'Transport', description: 'Types of transport', author: 'Alex', level: 'B1', likes: 45, liked: true },
-  ])
+  const [likedQuizzes, setLikedQuizzes] = useState<QuizInfo[]>([])
 
   useEffect(() => {
-    const ENDPOINT_URL = "http://161.35.208.249:8000/likedquizzes";  // Placeholder
+
     const fetchFollowers = async () => {
-      const params = {
-        // TODO
-       };
+      const url = 'quiz/likes';
       try {
-        const response = await fetch(ENDPOINT_URL, {
-          method: 'POST',
+        const response = await TokenManager.authenticatedFetch(url, {
+          method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(params),
         });
 
         if (response.ok){
-          setLikedQuizzes(await response.json());
+          const result = await response.json();
+          setLikedQuizzes(result);
         } else {
           console.log(response.status)
         };
@@ -63,7 +54,9 @@ export default function Followers() {
       data={likedQuizzes}
       renderItem={({item}) => { 
         return (
-          <QuizCard {...item} onLikePress={remove_from_liked(item.id)}/>
+          <QuizCard id={item.id} author={item.author.username} title={item.title} level={item.level} 
+              description={item.description} liked={item.is_liked} likes={item.like_count}
+              onLikePress={remove_from_liked(item.id)}/>
         );
       }}
       ListHeaderComponent={

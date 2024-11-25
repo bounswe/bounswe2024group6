@@ -1,27 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import {Text, StyleSheet, FlatList, View, TouchableWithoutFeedback, ActivityIndicator } from 'react-native';
-
-type BookmarkedPostsAndCommentsInfoPlaceholder = {  // Placeholder, remove when post/comment Card is ready.
-  name: string,
-};
+import TokenManager from '@/app/TokenManager';
 
 export default function Followers() {
   const [isLoading, setIsLoading] = useState(true);
-  const [bookmarkedPostsAndComments, setBoormarkedPostAndComments] = useState<BookmarkedPostsAndCommentsInfoPlaceholder[]>([
-    {name: 'Post 1'},  // Placeholder
-    {name: 'Post 2'},  // Placeholder
-    {name: 'Comment 1'},  // Placeholder
-    {name: 'Comment 2'},  // Placeholder
-  ])
+  const [bookmarkedPostsAndComments, setBoormarkedPostAndComments] = useState<any[]>([])
 
   useEffect(() => {
-    const ENDPOINT_URL = "http://161.35.208.249:8000/bookmarkedpostsandcomments";  // Placeholder
     const fetchFollowers = async () => {
+      const username = TokenManager.getUsername();
+      if(username === undefined){
+        console.error('username is undefined!');
+        return
+      }
       const params = {
-        // TODO
-       };
+        'user': username,
+      }
       try {
-        const response = await fetch(ENDPOINT_URL, {
+        const response = await TokenManager.authenticatedFetch("get_bookmarked_posts/", {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -30,7 +26,8 @@ export default function Followers() {
         });
 
         if (response.ok){
-          setBoormarkedPostAndComments(await response.json());
+          const result = await response.json();
+          setBoormarkedPostAndComments(result);
         } else {
           console.log(response.status)
         };

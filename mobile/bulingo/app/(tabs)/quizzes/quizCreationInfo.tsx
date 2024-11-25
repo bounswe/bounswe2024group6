@@ -1,7 +1,6 @@
 import React, { useState, useEffect} from 'react';
 import { Keyboard, StyleSheet, Text, TextInput, View, TouchableWithoutFeedback, TouchableOpacity, useColorScheme } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Shadow } from 'react-native-shadow-2';
 
 const QuizCreationInfo = () => {
   const [question, setQuestion] = useState('Pasta');
@@ -119,7 +118,6 @@ const QuizCreationInfo = () => {
                 {row.map((answer, colIndex) => {
                   const answerIndex = rowIndex * 2 + colIndex;
                   return (
-                    <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]} key={colIndex}>
                     <TouchableOpacity
                       style={[
                         styles.answerBox,
@@ -153,7 +151,6 @@ const QuizCreationInfo = () => {
                     )}
 
                     </TouchableOpacity>
-                    </Shadow>
                     );
                 })}
               </View>
@@ -187,13 +184,10 @@ const QuizCreationInfo = () => {
 
         {/* Navigation Buttons */}
         <View style={styles.navButtonsContainer}>
-        <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
           <TouchableOpacity style={styles.backButton} onPress={() => handleGoBack()}>
             
             <Text style={styles.navButtonText}>Go Back</Text>
           </TouchableOpacity>
-        </Shadow>
-          <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
           <TouchableOpacity 
             style={[styles.navButton, isButtonDisabled() && styles.disabledButton]} 
             disabled={isButtonDisabled()}
@@ -201,7 +195,6 @@ const QuizCreationInfo = () => {
           >
           <Text style={styles.navButtonText}>Add Question</Text>
         </TouchableOpacity>
-        </Shadow>
         </View>
       </View>
     </View>
@@ -278,6 +271,7 @@ const getStyles = (colorScheme: any) => {
       borderRadius: 10,
       width: 150,
       padding: 10,
+      borderWidth: 2,
       justifyContent: 'center',
       alignItems: 'center',
     },

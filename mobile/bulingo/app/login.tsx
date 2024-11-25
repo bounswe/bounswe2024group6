@@ -2,7 +2,7 @@ import React, {useState, createContext, useContext} from 'react';
 import {Pressable, StyleSheet, Text, View, TextInput, TouchableWithoutFeedback, ActivityIndicator} from 'react-native';
 import {router} from 'expo-router'
 import TokenManager from './TokenManager'; // Import the TokenManager
-
+import Notification from './components/topNotification';
 
 const LOGIN_URL = "http://54.93.52.38:8000/login/";
 
@@ -11,6 +11,9 @@ export default function Home() {
   const [password, setPassword] = useState('');  // State for password
   const [isLoading, setIsLoading] = useState(false);
   const [isErrorVisible, setIsErrorVisible] = useState(false);
+  const [notification, setNotification] = useState<string | null>(null);
+
+  
   const handleRegister = () => {
     router.navigate('/register')
   };
@@ -35,8 +38,9 @@ export default function Home() {
         const { access, refresh } = json;
         TokenManager.saveTokens(access, refresh);
         TokenManager.setUsername(username);
-        router.replace('/');
+        router.replace('/?notification=login_success');
       } else {
+        setNotification("Incorrect Login information.")
         setIsErrorVisible(true);
       };
     } catch (error) {
@@ -54,6 +58,14 @@ export default function Home() {
             <ActivityIndicator size="large" color="#fff" />
           </View>
         </TouchableWithoutFeedback>
+      )}
+
+      {notification && (
+          <Notification
+              message={notification}
+              onHide={() => setNotification(null)} // Clear notification after hiding
+              color='red'
+          />
       )}
 
         <View style={styles.page}>

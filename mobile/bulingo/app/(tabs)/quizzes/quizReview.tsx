@@ -1,23 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { TouchableOpacity, StyleSheet, Text, View } from 'react-native';
+import { TouchableOpacity, StyleSheet, Text, View, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import TokenManager from '@/app/TokenManager';
 import { Dimensions, useColorScheme } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
-export type QuizQuestion = {
-  question_number: number;
-  question: string;
-  choices: string[];
-  previous_answer: number | null;
-};
+export type QuizQuestionReview = {
+    question_number: number;       
+    question: string;              
+    choices: string[];             
+    correct_choice: number;        
+    previous_answer: number;
+  };
+  
 
 export type QuizData = {
   quiz_progress_id: number;
   quiz_title: string;
   question_count: number;
-  questions: QuizQuestion[];
+  questions: QuizQuestionReview[];
 };
 
 const QuizQuestion = () => {
@@ -32,37 +34,43 @@ const QuizQuestion = () => {
   const [error, setError] = useState<string | null>(null);
   
 
-  useEffect(() => {
-    const fetchQuiz = async () => {
+useEffect(() => {
+    const fetchQuizReview = async () => {
       try {
-        if (error) 
-        { return; }
-          
         setLoading(true);
-        const response = await TokenManager.authenticatedFetch(`/quiz/start/`, {
-          method: 'POST',
+        const response = await TokenManager.authenticatedFetch(`/quiz/review/${quizId}`, {
+          method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ quiz_id: Number(quizId) }),
         });
-        
+
         const data = await response.json();
         if (response.ok) {
           setQuizData(data);
-          setSelectedChoices(Array(data.question_count).fill(null));
+          setError(null);
         } else {
-          setError(data.error || 'Failed to fetch quiz data');
+          setError(data.error || 'Failed to fetch quiz review.');
         }
-      } catch (error: any) {
-        setError(error.message || 'Unknown error');
+      } catch (err: any) {
+        setError(err.message || 'Unknown error occurred.');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchQuiz();
+    fetchQuizReview();
   }, [quizId]);
+
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#3944FD" />
+        <Text style={styles.loadingText}>Loading Quiz Review...</Text>
+      </View>
+    );
+  }
 
   const handleCancel = () => {
     router.back();
@@ -74,115 +82,13 @@ const QuizQuestion = () => {
     setSelectedChoices(updatedChoices);
   };
 
-  const submitQuiz = async (quizProgressId: number): Promise<{ success: boolean; resultUrl?: string; error?: string }> => {
-    try {
-      const response = await TokenManager.authenticatedFetch(`/quiz/submit/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ quiz_progress_id: quizProgressId }),
-      });
-  
-      const data = await response.json();
-  
-      if (response.ok) {
-        return { success: true, resultUrl: data.result_url };
-      } else {
-        return { success: false, error: data.error || 'Failed to submit quiz.' };
-      }
-    } catch (error: any) {
-      console.error('Unexpected error:', error.message);
-      return { success: false, error: error.message || 'Unknown error occurred' };
-    }
-  };
-  
-
-  const submitAnswer = async (quizProgressId: number, questionNumber: number, answer: number) => {
-    try {
-      const response = await TokenManager.authenticatedFetch(`/quiz/question/solve/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          quiz_progress_id: quizProgressId,
-          question_number: questionNumber + 1,
-          answer: answer + 1,
-        }),
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        return true;
-      } else {
-        console.error('Error submitting answer:', data);
-        return false;
-      }
-    } catch (error: any) {
-      console.error('Unexpected error:', error.message);
-      return false;
-    }
-  };
-
   const handleNext = async () => {
-    const currentAnswer = selectedChoices[currentQuestionIndex];
-
-    if (currentAnswer === null || quizData === null) {
-      return;
-    }
-    console.log(currentAnswer);
-    const success = await submitAnswer(
-      quizData.quiz_progress_id,
-      currentQuestionIndex,
-      currentAnswer
-    );
-
-    if (success) {
       setCurrentQuestionIndex((prev) => prev + 1);
-    } else {
-      console.error('Failed to submit answer. Check logs.');
-    }
   };
 
   const handleFinish = async () => {
-    const currentAnswer = selectedChoices[currentQuestionIndex];
-
-    if (currentAnswer === null || quizData === null) {
-      alert('Please select an answer before finishing the quiz.');
-      return;
-    }
-
-    console.log(currentAnswer);
-    console.log(currentQuestionIndex);
-    const success = await submitAnswer(
-      quizData.quiz_progress_id,
-      currentQuestionIndex,
-      currentAnswer 
-    );
-
-  
-
-    if (success) {
-      const result = await submitQuiz(quizData.quiz_progress_id);
-      if (result.success) {
-        router.push(
-          {
-          pathname:'/(tabs)/quizzes/quizResults',
-          params: { resultUrl: result.resultUrl, quizId: quizId }, 
-        });
-      } else {
-        console.error('Failed to submit quiz:', result.error);
-        alert('Failed to submit quiz.' + result.error);
-      }
       router.push(
-        {
-        pathname:'/(tabs)/quizzes/quizResults',
-        params: { resultUrl: result.resultUrl, quizId: quizId }, 
-      });
-    } else {
-      console.error('Failed to submit answer. Check logs.');
-    }
+        {pathname:'/(tabs)/quizzes/',});
   };
 
   if (loading) return <Text style={styles.loadingText}>Loading...</Text>;
@@ -211,20 +117,26 @@ const QuizQuestion = () => {
           </View>
 
           <View style={styles.optionsContainer}>
-            {currentQuestion?.choices.map((choice, index) => (
-              <View key={index} style={styles.optionWrapper}>
-                  <TouchableOpacity
-                    style={[
-                      styles.optionButton,
-                      selectedChoices[currentQuestionIndex] === index ? styles.selectedOption : null,
-                    ]}
-                    onPress={() => handleOptionSelect(index)}
-                  >
-                    <Text style={styles.optionText}>{choice}</Text>
-                  </TouchableOpacity>
-              </View>
-            ))}
-          </View>
+            {currentQuestion?.choices.map((choice, index) => {
+                const isCorrectAnswer = currentQuestion.correct_choice === index + 1; // Assuming correct_choice is 1-based
+                const isUserAnswer = currentQuestion.previous_answer === index + 1; // Assuming previous_answer is 1-based
+
+                return (
+                <View key={index} style={styles.optionWrapper}>
+                    <TouchableOpacity
+                        style={[
+                        styles.optionButton,
+                        isCorrectAnswer && styles.correctAnswer,
+                        isUserAnswer && !isCorrectAnswer && styles.wrongAnswer,
+                        ]}
+                        onPress={() => handleOptionSelect(index)}
+                    >
+                        <Text style={styles.optionText}>{choice}</Text>
+                    </TouchableOpacity>
+                </View>
+                );
+  })}
+</View>
         </View>
 
         <View style={styles.navigationContainer}>
@@ -244,7 +156,6 @@ const QuizQuestion = () => {
               <TouchableOpacity style={styles.navigationButton} onPress={handleNext}>
                 <Text style={styles.navigationText}>Next</Text>
               </TouchableOpacity>
-
           )}
         </View>
       </View>
@@ -349,7 +260,7 @@ export const getStyles = (colorScheme: any) => {
     optionText: {
       fontSize: 18,
       fontWeight: 'bold',
-      color: isDark ? 'white' : 'black',
+      color: isDark ? 'white' : '#000',
     },
     navigationContainer: {
       flexDirection: 'row',
@@ -395,7 +306,21 @@ export const getStyles = (colorScheme: any) => {
       textAlign: 'center',
       marginBottom: 16,
     },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: isDark ? '#121212' : 'white',
+      },
+      correctAnswer: {
+        backgroundColor: 'lightgreen',
+      },
+      wrongAnswer: {
+        backgroundColor: 'lightcoral',
+      },
+      
   });
+  
 };
 
 

@@ -1,8 +1,8 @@
-import React, {useState} from 'react';
+import React, {useState, useCallback} from 'react';
 import {Image, TouchableOpacity, StyleSheet, Text, View, Dimensions} from 'react-native';
-import { router } from "expo-router";
+import { router, useLocalSearchParams, useFocusEffect } from "expo-router";
 import TokenManager from '../TokenManager';
-import { Shadow } from 'react-native-shadow-2';
+import Notification from '../components/topNotification';
 
 const { width, height } = Dimensions.get('window');
 
@@ -10,8 +10,22 @@ export default function Home() {
   const handleRegister = () => {
     router.navigate("/register");
   };
+  const searchParams = useLocalSearchParams();
   const username = TokenManager.getUsername();
   const [logoutTrigger, setLogoutTrigger] = useState(false);
+  const [notification, setNotification] = useState<string | null>(null);
+
+
+
+  useFocusEffect(
+    useCallback(() => {
+      if (searchParams?.notification == 'login_success'){
+        setNotification("Login Successful!");
+      } else if (searchParams?.notification == 'register_success'){
+        setNotification("Registration Successful!");
+      }
+    }, [])
+  );
 
   const handleLogOut = () => {
     console.log("logout pressed");
@@ -24,6 +38,12 @@ export default function Home() {
 
   return (
     <View style={styles.container}>
+      {notification && (
+          <Notification
+              message={notification}
+              onHide={() => setNotification(null)} // Clear notification after hiding
+          />
+      )}
       <View style={styles.page}>
       <View style={styles.profilePictureContainer}>
       <Image
@@ -43,17 +63,13 @@ export default function Home() {
         </View> :
         
         <View style={styles.buttonsContainer}>
-          <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
           <TouchableOpacity style={[styles.rectangularButton]} onPress={handleRegister}>
             <Text style={styles.buttonText}>Register</Text>
           </TouchableOpacity>
-          </Shadow>
         
-          <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
           <TouchableOpacity style={styles.rectangularButton} onPress={() => { router.navigate("/login") }}>
             <Text style={styles.buttonText}>Log In</Text>
           </TouchableOpacity>
-          </Shadow>
         </View>
 
       }

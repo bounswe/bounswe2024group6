@@ -47,7 +47,7 @@ const CommentCard: React.FC<CommentCardProps> = ({ id, isBookmarked: initialBook
                     </TouchableOpacity>
                     <Text style={styles.upvoteCount}>{upvoteCount}</Text> */}
 
-            <TouchableOpacity style={styles.likeButton} onPress={() => onUpvote(id)}>
+            <TouchableOpacity style={styles.likeButton} onPress={() => onUpvote(id)} testID='likeButton'>
                         <Text style={styles.quizLikes}>
                         <Image source={liked ? require('../../assets/images/like-2.png') : require('../../assets/images/like-1.png')}style={styles.icon} /> 
                                           {/* <Image source={ require('../../assets/images/like-2.png')}style={styles.icon} />  */}

@@ -1,31 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import {Text, StyleSheet, FlatList, View, Image, TouchableWithoutFeedback, ActivityIndicator } from 'react-native';
-import UserCard from './userCard';
+import UserCard from '../../userCard';
 import TokenManager from '@/app/TokenManager';
-
+import { useLocalSearchParams, useNavigation } from 'expo-router';
 
 type UserInfoCompact = {
   username: string,
   name: string,
   level: string,
   profilePictureUri: string,
-  is_followed: boolean,
 };
 
-export default function Following() {
+export default function Followers() {
+  const navigation = useNavigation();
+  const { username } = useLocalSearchParams();
   const [isLoading, setIsLoading] = useState(true);
-  const [following, setFollowing] = useState<UserInfoCompact[]>([])
+  const [followers, setFollowers] = useState<UserInfoCompact[]>([
+    {username: 'oguz', name: 'Oguz', level: 'NA', profilePictureUri:"https://static.vecteezy.com/system/resources/thumbnails/024/646/930/small_2x/ai-generated-stray-cat-in-danger-background-animal-background-photo.jpg"},
+  ])
 
   useEffect(() => {
-    const ENDPOINT_URL = "http://161.35.208.249:8000/following";  // Placeholder
-    const fetchFollowing = async () => {
-      const username = TokenManager.getUsername();
-      if (username === undefined){
-        console.error("Username not defined!");
-        return;
-      }
-      const url = `profile/following/${username}/`
-
+    navigation.setOptions({
+      title: `${username}'s Followers`, // Set the custom text here
+    });
+    const fetchFollowers = async () => {
+      const url = `profile/followers/${username}/`
       try {
         const response = await TokenManager.authenticatedFetch(url, {
           method: 'GET',
@@ -35,8 +34,9 @@ export default function Following() {
         });
 
         if (response.ok){
-          const result = await response.json()
-          setFollowing(result);
+          const result = await response.json();
+          console.log("Followers:", result);
+          setFollowers(result);
         } else {
           console.log(response.status)
         };
@@ -45,7 +45,7 @@ export default function Following() {
       }
       setIsLoading(false);
     };
-    fetchFollowing();
+    fetchFollowers();
   }, []);
 
   if(isLoading){
@@ -60,7 +60,7 @@ export default function Following() {
 
   return (
     <FlatList
-      data={following}
+      data={followers}
       keyExtractor={(item) => item.username}
       renderItem={({item}) => {
         return (
@@ -69,14 +69,14 @@ export default function Following() {
             username={item.username} 
             profilePictureUri={item.profilePictureUri} 
             level={item.level}
-            buttonText={item.is_followed ? 'Unfollow' : 'Follow'}
-            buttonStyleNo={item.is_followed ? 1 : 2}
+            buttonText={'Follow'}
+            buttonStyleNo={2}
           />
         );
       }}
       ListHeaderComponent={
         <View style={styles.headerContainer}>
-          <Text style={styles.headerText}>Following</Text>
+          <Text style={styles.headerText}>Followers</Text>
         </View>
       }
       style={styles.list}
