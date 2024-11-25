@@ -2,6 +2,7 @@ import React from 'react';
 import { TouchableOpacity, View, Image, StyleSheet, Text } from 'react-native';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import { router } from 'expo-router';
+import TokenManager from '@/app/TokenManager';
 
 type UserCardProps = {
   profilePictureUri: string,
@@ -15,14 +16,29 @@ type UserCardProps = {
 };
 
 const UserCard = (props: UserCardProps) => {
-  const handleButtonPress = () => {
+  const handleButtonPress = async () => {
+    const url = `profile/${props.buttonText.toLowerCase()}/`;
+    const params = {
+      'username': props.username,
+    }
+    try {
+      const response = await TokenManager.authenticatedFetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(params),
+      });
+      const res = await response.json()
+    } catch (error) {
+      console.error(error);
+    }
     console.log("Button Pressed: " + props.username);
     if (props.onButtonPress){
       props.onButtonPress();
     }
   };
   const handleCardPress = () => {
-    console.log("Card Pressed: " + props.username)
     if (props.onCardPress){ 
       props.onCardPress();
     }
@@ -53,12 +69,22 @@ const UserCard = (props: UserCardProps) => {
   return (
     <TouchableOpacity style={styles.followerContainer} onPress={handleCardPress} testID='card'>
       <View style={styles.profilePictureContainer}>
-        <Image 
-          source={{
-            uri: props.profilePictureUri,
-          }} 
-          style={styles.profilePicture}
-        />
+        {props.profilePictureUri 
+          ? (
+            <Image 
+              source={{
+                uri: props.profilePictureUri,
+              }} 
+              style={styles.profilePicture}
+            />
+          )
+          : (
+            <Image 
+              source={require('@/assets/images/profile-icon.png')}
+              style={styles.profilePicture}
+            />
+          )}
+        
       </View>
       <View style={styles.usernameContainer}>
         <Text style={styles.usernameText}>{props.username}</Text>

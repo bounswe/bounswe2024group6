@@ -11,6 +11,7 @@ export default function Home() {
   const [password, setPassword] = useState('');  // State for password
   const [isLoading, setIsLoading] = useState(false);
   const [isErrorVisible, setIsErrorVisible] = useState(false);
+  
   const handleRegister = () => {
     router.navigate('/register')
   };

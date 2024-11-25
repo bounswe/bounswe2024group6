@@ -3,13 +3,14 @@ import { View, Text, StyleSheet, TouchableWithoutFeedback, Image, TouchableOpaci
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import {router} from 'expo-router';
 import QuizCard from '@/app/components/quizCard';
+import TokenManager from '@/app/TokenManager';
 
 const debugUserInfo: UserInfo = {
   name: 'Yagiz Guldal',
-  about: "Hello, I am an avid language learner. I am trying my best to learn English.",
+  bio: "Hello, I am an avid language learner. I am trying my best to learn English.",
   level: 'B1',
-  followerCount: 20,
-  followingCount: 25,
+  follower_count: 20,
+  following_count: 25,
   createdQuizzes: [
     { id: 1, title: 'Food', description: 'Learn about foods', author: 'Oguz', level: 'A2', likes: 135, liked: true },
     { id: 2, title: 'Animals', description: 'Our furry friends!', author: 'Aras', level: 'A2', likes: 12, liked: false },
@@ -32,23 +33,31 @@ const debugUserInfo: UserInfo = {
 
 type UserInfo = {
   name: string,
-  about: string,
+  bio: string,
   level: string,
-  followerCount: number,
-  followingCount: number,
+  follower_count: number,
+  following_count: number,
   createdQuizzes: QuizInfo[],  // Placeholder
   solvedQuizzes: QuizInfo[],  // Placeholder
   postsAndComments: {id: number, desc: string}[],  // Placeholder
+  comments: any[],
+  posts: any[],
 };
 
 export type QuizInfo = {
+  author: {id: number, username: string},
+  average_score: number,
+  created_at: string,
   id: number,
   title: string,
   description: string,
-  author: string,
   level: string,
-  likes: number,
-  liked: boolean,
+  like_count: number,
+  is_liked: boolean,
+  is_bookmarked: boolean
+  question_count: number,
+  tags: string[],
+  times_taken: number,
 }
 
 export function isQuizInfo(object: any){
@@ -57,50 +66,78 @@ export function isQuizInfo(object: any){
     asQuizInfo.author !== undefined && 
     asQuizInfo.description !== undefined && 
     asQuizInfo.id !== undefined &&
-    asQuizInfo.level !== undefined && 
-    asQuizInfo.liked !== undefined && 
-    asQuizInfo.title !== undefined && 
-    asQuizInfo.likes !== undefined
+    asQuizInfo.level !== undefined
   );
 };
 
 export default function Profile() {
-  /* 
-  Things we need to fetch for this page:
-  Send the access token, refresh token (maybe) and userId for this user. Get:
-   - Name
-   - Follower Count
-   - Following Count
-   - Created Quizzes
-   - Solved Quizzes
-   - Posts and Comments
-  */
-
   const [userInfo, setUserInfo] = useState<UserInfo>(debugUserInfo);
   const [tab, setTab] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
-
+  
   useEffect(() => {
-    const ENDPOINT_URL = "http://161.35.208.249:8000/userInfo";  // Placeholder
     const fetchProfileInfo = async () => {
+      const username = TokenManager.getUsername()
+      if (username === null){
+        console.error("username is null")
+        return
+      }
       const params = {
-        // TODO
+        'user': username,
        };
+
+      const baseUrl = 'profile/'; // Replace with your API endpoint
+
+      // Convert the parameters to a query string
+      const queryString = new URLSearchParams(params).toString();
+      const profileUrl = `${baseUrl}?${queryString}`;
+
+      const createdQuizUrl = `quiz/created/${username}/`;
+      const solvedQuizUrl = `quiz/solved/${username}/`;
+      let updatedUserInfo;
+
       try {
-        const response = await fetch(ENDPOINT_URL, {
-          method: 'POST',
+        const profileRequest = await TokenManager.authenticatedFetch(profileUrl, {
+          method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(params),
         });
-
-        if (response.ok){
-          setUserInfo(await response.json());
+        const profileResponse = await profileRequest.json();
+        if (profileRequest.ok){
+          updatedUserInfo = profileResponse
         } else {
-          console.log(response.status)
+          console.log(profileRequest.status)
         };
-        setUserInfo
+
+        const createdQuizRequest = await TokenManager.authenticatedFetch(createdQuizUrl, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        const createdQuizResponse = await createdQuizRequest.json()
+        if (createdQuizRequest.ok){
+          updatedUserInfo = {...updatedUserInfo, createdQuizzes: createdQuizResponse}
+        } else {
+          console.log(createdQuizResponse.status)
+        };
+        
+        const solvedQuizRequest = await TokenManager.authenticatedFetch(solvedQuizUrl, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        const solvedQuizResponse = await solvedQuizRequest.json()
+        console.log(solvedQuizResponse);
+        if (solvedQuizRequest.ok){
+          setUserInfo({...updatedUserInfo, solvedQuizzes: solvedQuizResponse});
+        } else {
+          console.log(createdQuizResponse.status)
+        };
+
+
       } catch (error) {
         console.error(error);
       }
@@ -130,7 +167,8 @@ export default function Profile() {
       renderItem={({item}) => {
         if (isQuizInfo(item)){
           return (
-            <QuizCard {...item}/>
+            <QuizCard id={item.id} author={item.author.username} title={item.title} level={item.level} 
+              description={item.description} liked={item.is_liked} likes={item.like_count}/>
           );
         }
         else{
@@ -143,16 +181,16 @@ export default function Profile() {
       }}
       style={{backgroundColor: 'white'}}
       ListHeaderComponent={
-        <>
+        <View>
           <ProfileInfo
             name={userInfo.name}
             level={userInfo.level}
-            about={userInfo.about}
-            followerCount={userInfo.followerCount}
-            followingCount={userInfo.followingCount}
+            about={userInfo.bio}
+            followerCount={userInfo.follower_count}
+            followingCount={userInfo.following_count}
           />
           <Tabs tab={tab} setTab={setTab}/>
-        </>
+        </View>
       }
     />
   );
@@ -170,15 +208,12 @@ const ProfileInfo = (props:ProfileInfoProps) => {
 
   const handleFollowersPress = () => {
     router.push('/(tabs)/profile/followers')
-    console.log("Followers button pressed.")
   };
   const handleFollowingPress = () => {
     router.push('/(tabs)/profile/following')
-    console.log("Following button pressed.")
   };
   const handleEditProfilePress = () => {
     router.push('/(tabs)/profile/editProfile')
-    console.log("Edit Profile button pressed.")
   };
 
   return (
@@ -189,7 +224,7 @@ const ProfileInfo = (props:ProfileInfoProps) => {
         </View>
         <View style={styles.profileInfoTopFollowContainer}>
           <View style={styles.profileInfoTopFollowItemContainer}>
-            <Text style={styles.followItemNumberText}>{props.level}</Text>
+            <Text style={styles.followItemNumberText}>{props.level == 'NA' ? 'N/A' : props.level}</Text>
             <Text style={styles.followItemDescriptionText}>Level</Text>
           </View>
           <TouchableOpacity style={styles.profileInfoTopFollowItemContainer} onPress={handleFollowersPress}>

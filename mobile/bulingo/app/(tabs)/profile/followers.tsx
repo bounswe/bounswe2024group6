@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {Text, StyleSheet, FlatList, View, Image, TouchableWithoutFeedback, ActivityIndicator } from 'react-native';
 import UserCard from './userCard';
+import TokenManager from '@/app/TokenManager';
 
 type UserInfoCompact = {
   username: string,
@@ -12,32 +13,29 @@ type UserInfoCompact = {
 export default function Followers() {
   const [isLoading, setIsLoading] = useState(true);
   const [followers, setFollowers] = useState<UserInfoCompact[]>([
-    {username: 'ygz1', name: 'Yagiz Guldal', level: 'A1', profilePictureUri:"https://static.vecteezy.com/system/resources/thumbnails/024/646/930/small_2x/ai-generated-stray-cat-in-danger-background-animal-background-photo.jpg"},
-    {username: 'ygz2', name: 'Yagiz Guldal', level: 'A1', profilePictureUri:"https://static.vecteezy.com/system/resources/thumbnails/024/646/930/small_2x/ai-generated-stray-cat-in-danger-background-animal-background-photo.jpg"},
-    {username: 'ygz3', name: 'Yagiz Guldal', level: 'A1', profilePictureUri:"https://static.vecteezy.com/system/resources/thumbnails/024/646/930/small_2x/ai-generated-stray-cat-in-danger-background-animal-background-photo.jpg"},
-    {username: 'ygz4', name: 'Yagiz Guldal', level: 'A1', profilePictureUri:"https://static.vecteezy.com/system/resources/thumbnails/024/646/930/small_2x/ai-generated-stray-cat-in-danger-background-animal-background-photo.jpg"},
-    {username: 'ygz5', name: 'Yagiz Guldal', level: 'A1', profilePictureUri:"https://static.vecteezy.com/system/resources/thumbnails/024/646/930/small_2x/ai-generated-stray-cat-in-danger-background-animal-background-photo.jpg"},
-    {username: 'ygz6', name: 'Yagiz Guldal', level: 'A1', profilePictureUri:"https://static.vecteezy.com/system/resources/thumbnails/024/646/930/small_2x/ai-generated-stray-cat-in-danger-background-animal-background-photo.jpg"},
-    {username: 'ygz7', name: 'Yagiz Guldal', level: 'A1', profilePictureUri:"https://static.vecteezy.com/system/resources/thumbnails/024/646/930/small_2x/ai-generated-stray-cat-in-danger-background-animal-background-photo.jpg"},
+    {username: 'oguz', name: 'Oguz', level: 'NA', profilePictureUri:"https://static.vecteezy.com/system/resources/thumbnails/024/646/930/small_2x/ai-generated-stray-cat-in-danger-background-animal-background-photo.jpg"},
   ])
 
   useEffect(() => {
-    const ENDPOINT_URL = "http://161.35.208.249:8000/followers";  // Placeholder
     const fetchFollowers = async () => {
-      const params = {
-        // TODO
-       };
+      const username = TokenManager.getUsername();
+      if (username === undefined){
+        console.error("Username not defined!");
+        return;
+      }
+
+      const url = `profile/followers/${username}/`
       try {
-        const response = await fetch(ENDPOINT_URL, {
-          method: 'POST',
+        const response = await TokenManager.authenticatedFetch(url, {
+          method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(params),
         });
 
         if (response.ok){
-          setFollowers(await response.json());
+          const result = await response.json();
+          setFollowers(result);
         } else {
           console.log(response.status)
         };
@@ -70,8 +68,8 @@ export default function Followers() {
             username={item.username} 
             profilePictureUri={item.profilePictureUri} 
             level={item.level}
-            buttonText={'Unfollow'}
-            buttonStyleNo={1}
+            buttonText={'Follow'}
+            buttonStyleNo={2}
           />
         );
       }}

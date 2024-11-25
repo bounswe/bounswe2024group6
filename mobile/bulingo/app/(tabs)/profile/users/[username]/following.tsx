@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import {Text, StyleSheet, FlatList, View, Image, TouchableWithoutFeedback, ActivityIndicator } from 'react-native';
-import UserCard from './userCard';
+import UserCard from '../../userCard';
 import TokenManager from '@/app/TokenManager';
+import { useLocalSearchParams, useNavigation } from 'expo-router';
+
 
 
 type UserInfoCompact = {
@@ -13,17 +15,16 @@ type UserInfoCompact = {
 };
 
 export default function Following() {
+  const navigation = useNavigation();
+  const { username } = useLocalSearchParams();
   const [isLoading, setIsLoading] = useState(true);
   const [following, setFollowing] = useState<UserInfoCompact[]>([])
 
   useEffect(() => {
-    const ENDPOINT_URL = "http://161.35.208.249:8000/following";  // Placeholder
+    navigation.setOptions({
+      title: `${username}'s Following`, // Set the custom text here
+    });
     const fetchFollowing = async () => {
-      const username = TokenManager.getUsername();
-      if (username === undefined){
-        console.error("Username not defined!");
-        return;
-      }
       const url = `profile/following/${username}/`
 
       try {

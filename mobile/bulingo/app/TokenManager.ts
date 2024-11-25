@@ -75,7 +75,7 @@ class TokenManager {
     }
   
     const fetchWithToken = async (token: string) => {
-      return await fetch(`${BASE_URL}${endpoint}`, {
+      return await fetch(`${BASE_URL}/${endpoint}`, {
         ...options,
         headers: {
           ...options.headers,

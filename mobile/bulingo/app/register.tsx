@@ -48,6 +48,7 @@ const Register = () => {
       'password': password,
       'email': email,
     };
+    console.log(params);
     try {
       const response = await fetch(SIGNUP_URL, {
         method: 'POST',
