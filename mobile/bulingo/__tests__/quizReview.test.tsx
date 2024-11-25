@@ -1,17 +1,23 @@
 import React from 'react';
-import { render, waitFor, fireEvent } from '@testing-library/react-native';
+import { render, waitFor, fireEvent, act } from '@testing-library/react-native';
 import QuizReviewQuestion from '@/app/(tabs)/quizzes/quizReview';
 import TokenManager from '@/app/TokenManager';
-import { TouchableOpacity } from 'react-native';
 
-jest.mock('@/app/TokenManager', () => ({
-  authenticatedFetch: jest.fn(),
-}));
+jest.useFakeTimers();
+
+jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper');
 
 jest.mock('expo-router', () => ({
-  useLocalSearchParams: jest.fn(() => ({ quizId: '123' })),
+  useLocalSearchParams: jest.fn(() => ({ quizId: '1' })),
   router: { back: jest.fn(), push: jest.fn() },
 }));
+
+jest.mock('@/app/TokenManager', () => ({
+    __esModule: true,
+    default: {
+      authenticatedFetch: jest.fn(), 
+    },
+  }));
 
 describe('QuizReviewQuestion Component', () => {
   const mockQuizData = {
@@ -23,21 +29,21 @@ describe('QuizReviewQuestion Component', () => {
         question_number: 1,
         question: 'Mercimek',
         choices: ['Lentils', 'Tomato', 'Potato', 'Peas'],
-        correct_choice: 1, 
+        correct_choice: 1,
         previous_answer: 3,
       },
       {
         question_number: 2,
         question: 'Elma',
         choices: ['Apple', 'Orange', 'Banana', 'Grape'],
-        correct_choice: 1, 
-        previous_answer: 2, 
+        correct_choice: 1,
+        previous_answer: 2,
       },
       {
         question_number: 3,
         question: 'Kedi',
         choices: ['Cat', 'Dog', 'Bird', 'Fish'],
-        correct_choice: 1, 
+        correct_choice: 1,
         previous_answer: 4,
       },
     ],
@@ -53,7 +59,7 @@ describe('QuizReviewQuestion Component', () => {
       json: jest.fn().mockResolvedValue(mockQuizData),
     });
 
-    const { getByText, getAllByTestId } = render(<QuizReviewQuestion />);
+    const { getByText } = render(<QuizReviewQuestion />);
 
     await waitFor(() => {
       expect(getByText('Mercimek')).toBeTruthy();
@@ -61,22 +67,6 @@ describe('QuizReviewQuestion Component', () => {
       expect(getByText('Tomato')).toBeTruthy();
       expect(getByText('Potato')).toBeTruthy();
       expect(getByText('Peas')).toBeTruthy();
-
-      const buttons = getAllByTestId("button");
-      const correctAnswerButton = buttons.find((button) => {
-        const textElement = button.findByType('Text');
-        return textElement.props.children === 'Lentils';
-      });
-      expect(correctAnswerButton.props.style).toEqual(
-        expect.objectContaining({ backgroundColor: 'lightgreen' })
-      );
-      const wrongAnswerButton = buttons.find((button) => {
-        const textElement = button.findByType('Text');
-        return textElement.props.children === 'Potato';
-      });
-      expect(wrongAnswerButton.props.style).toEqual(
-        expect.objectContaining({ backgroundColor: 'lightcoral' })
-      );
     });
   });
 
@@ -101,11 +91,14 @@ describe('QuizReviewQuestion Component', () => {
 
     const { getByText } = render(<QuizReviewQuestion />);
 
-    await waitFor(() => {
-      expect(getByText('Mercimek')).toBeTruthy();
-    });
+    await act(async () => {
+      await waitFor(() => {
+        expect(getByText('Mercimek')).toBeTruthy();
+      });
 
-    fireEvent.press(getByText('Next'));
+      fireEvent.press(getByText('Next')); 
+      jest.advanceTimersByTime(1000); 
+    });
 
     await waitFor(() => {
       expect(getByText('Elma')).toBeTruthy();
@@ -120,22 +113,54 @@ describe('QuizReviewQuestion Component', () => {
 
     const { getByText } = render(<QuizReviewQuestion />);
 
-    await waitFor(() => {
-      expect(getByText('Mercimek')).toBeTruthy();
-    });
+    await act(async () => {
+      await waitFor(() => {
+        expect(getByText('Mercimek')).toBeTruthy();
+      });
 
-    fireEvent.press(getByText('Next'));
+      fireEvent.press(getByText('Next')); 
+      jest.advanceTimersByTime(1000);
+    });
 
     await waitFor(() => {
       expect(getByText('Elma')).toBeTruthy();
     });
 
-    fireEvent.press(getByText('Previous'));
+    await act(async () => {
+      fireEvent.press(getByText('Previous')); 
+      jest.advanceTimersByTime(1000);
+    });
 
     await waitFor(() => {
       expect(getByText('Mercimek')).toBeTruthy();
     });
   });
 
+  it('styles correct and wrong answer buttons correctly', async () => {
+    (TokenManager.authenticatedFetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: jest.fn().mockResolvedValue(mockQuizData),
+    });
 
+    const { getAllByTestId } = render(<QuizReviewQuestion />);
+
+    await waitFor(() => {
+      const buttons = getAllByTestId('button');
+      const correctAnswerButton = buttons.find((button) => {
+        const textElement = button.findByType('Text');
+        return textElement.props.children === 'Lentils';
+      });
+      expect(correctAnswerButton.props.style).toEqual(
+        expect.objectContaining({ backgroundColor: 'lightgreen' })
+      );
+
+      const wrongAnswerButton = buttons.find((button) => {
+        const textElement = button.findByType('Text');
+        return textElement.props.children === 'Potato';
+      });
+      expect(wrongAnswerButton.props.style).toEqual(
+        expect.objectContaining({ backgroundColor: 'lightcoral' })
+      );
+    });
+  });
 });
