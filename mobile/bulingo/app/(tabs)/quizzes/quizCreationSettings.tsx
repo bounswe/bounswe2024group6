@@ -156,8 +156,10 @@ const getStyles = (colorScheme: any) => {
       borderRadius: 10,
       padding: 10,
       width: 100,
+      borderWidth: 2,
       justifyContent: 'center',
       alignItems: 'center',
+      borderColor: isDark ? '#444' : 'black',
     },
     selectedOption: {
       backgroundColor: isDark ? '#3944FD' : 'lightblue',

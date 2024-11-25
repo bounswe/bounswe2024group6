@@ -338,9 +338,10 @@ export const getStyles = (colorScheme: any) => {
       borderRadius: 10,
       padding: 10,
       width: width * 0.35,
+      borderWidth: 2,
       justifyContent: 'center',
       alignItems: 'center',
-      borderColor: isDark ? '#444' : 'transparent',
+      borderColor: isDark ? '#444' : 'black',
     },
     selectedOption: {
       backgroundColor: isDark ? '#3944FD' : 'lightblue',
@@ -348,7 +349,7 @@ export const getStyles = (colorScheme: any) => {
     optionText: {
       fontSize: 18,
       fontWeight: 'bold',
-      color: isDark ? 'white' : '#000',
+      color: isDark ? 'white' : 'black',
     },
     navigationContainer: {
       flexDirection: 'row',

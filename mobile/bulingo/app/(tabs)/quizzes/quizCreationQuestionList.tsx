@@ -279,11 +279,11 @@ const getStyles = (colorScheme: any) => {
       flexDirection: 'row',
       justifyContent: 'space-between',
       marginTop: 20,
-      flex: 0.15,
+      flex: 0.09,
     },
     footerButton: {
       backgroundColor: '#3944FD',
-      padding: 15,
+      padding: 12,
       borderRadius: 10,
       justifyContent: 'center',
       width: 170,

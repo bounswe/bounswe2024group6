@@ -271,6 +271,7 @@ const getStyles = (colorScheme: any) => {
       borderRadius: 10,
       width: 150,
       padding: 10,
+      borderWidth: 2,
       justifyContent: 'center',
       alignItems: 'center',
     },
