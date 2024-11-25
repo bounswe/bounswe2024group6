@@ -3,7 +3,7 @@ import { Keyboard, StyleSheet, Text, TextInput, View, TouchableWithoutFeedback, 
 import { router, useLocalSearchParams } from 'expo-router';
 
 const QuizCreationInfo = () => {
-  const [question, setQuestion] = useState('Pasta');
+  const [question, setQuestion] = useState('');
   const [answers, setAnswers] = useState(['', '', '', '']);
   const [showButtonIndex, setShowButtonIndex] = useState(null); // Track which tile should show the button
   const [newAnswer, setNewAnswer] = useState('');
@@ -123,13 +123,14 @@ const QuizCreationInfo = () => {
                         styles.answerBox,
                         correctAnswerIndex === answerIndex
                           ? styles.correctAnswer
-                          : null, // Highlight correct answer
+                          : null, 
                         selectedAnswerIndex === answerIndex
                         ? styles.selectedAnswer
                         : null,
                       ]}
                       onPress={() => handleAnswerClick(answerIndex)}
                       onLongPress={() => handleLongPress(answerIndex)}
+                      key={answerIndex}
                     >
                       <Text style={styles.answerText}
                         numberOfLines={1} 
