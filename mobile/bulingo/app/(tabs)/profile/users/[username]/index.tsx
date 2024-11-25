@@ -137,7 +137,7 @@ export default function Profile() {
             about={userInfo.bio}
             followerCount={userInfo.follower_count}
             followingCount={userInfo.following_count}
-            isFollowedByUser={true}
+            isFollowedByUser={userInfo.is_followed}
           />
           <Tabs tab={tab} setTab={setTab}/>
         </>
@@ -157,6 +157,8 @@ type ProfileInfoProps = {
 }
 
 const ProfileInfo = (props:ProfileInfoProps) => {
+  const [isFollowedByUser, setIsFollowedByUser] = useState(props.isFollowedByUser);
+  
   const handleFollowersPress = () => {
     router.push(`/(tabs)/profile/users/${props.username}/followers`)
     console.log("Followers button pressed.")
@@ -165,7 +167,25 @@ const ProfileInfo = (props:ProfileInfoProps) => {
     router.push(`/(tabs)/profile/users/${props.username}/following`)
     console.log("Following button pressed.")
   };
-  const handleButtonPress = () => {
+  const handleButtonPress = async () => {
+    const url = isFollowedByUser ? `profile/unfollow/`: "profile/follow/";
+    const params = {
+      'username': props.username,
+    }
+    try {
+      const response = await TokenManager.authenticatedFetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(params),
+      });
+      const res = await response.json()
+      setIsFollowedByUser(!isFollowedByUser)
+    } catch (error) {
+      console.error(error);
+    }
+    console.log("Button Pressed: " + props.username);
     console.log("Another user's follow/unfollow button pressed.")
   };
 
@@ -196,7 +216,7 @@ const ProfileInfo = (props:ProfileInfoProps) => {
       </View>
       <View style={styles.profileInfoButtonContainer}>
         <TouchableOpacity style={styles.profileInfoButton} onPress={handleButtonPress}>
-          <Text style={styles.profileInfoButtonText}>{props.isFollowedByUser ? "Unfollow" : "Follow"}</Text>
+          <Text style={styles.profileInfoButtonText}>{isFollowedByUser ? "Unfollow" : "Follow"}</Text>
         </TouchableOpacity>
       </View>
     </View>
