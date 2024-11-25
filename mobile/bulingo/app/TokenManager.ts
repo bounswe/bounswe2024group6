@@ -1,7 +1,7 @@
 import * as SecureStore from "expo-secure-store";
 
 
-const BASE_URL = "http://3.70.214.28:8000";
+const BASE_URL = "http://54.93.52.38:8000";
 
 class TokenManager {
   private username: string | null;
@@ -24,7 +24,7 @@ class TokenManager {
   
     if (!refreshToken) throw new Error("No refresh token found");
   
-    const response = await fetch("http://3.70.214.28:8000/refresh", {
+    const response = await fetch("http://54.93.52.38:8000/refresh", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -75,7 +75,7 @@ class TokenManager {
     }
   
     const fetchWithToken = async (token: string) => {
-      return await fetch(`${BASE_URL}${endpoint}`, {
+      return await fetch(`${BASE_URL}/${endpoint}`, {
         ...options,
         headers: {
           ...options.headers,

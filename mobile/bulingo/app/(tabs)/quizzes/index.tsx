@@ -4,7 +4,7 @@ import { router } from 'expo-router';
 import QuizCard from '@/app/components/quizCard';
 import TokenManager from '@/app/TokenManager';
 
-const BASE_URL = 'http://3.70.214.28:8000';
+const BASE_URL = 'http://54.93.52.38:8000';
 
 const QuizFeed = () => {
   const [quizzes, setQuizzes] = useState<any>([]);
