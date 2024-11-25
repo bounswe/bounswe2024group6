@@ -38,6 +38,7 @@ const QuizResults = () => {
 
   useEffect(() => {
     const fetchQuizResult = async () => {
+      setLoading(true);
       try {
         const response = await TokenManager.authenticatedFetch(resultUrl, {
           method: 'GET',
@@ -60,7 +61,6 @@ const QuizResults = () => {
       } catch (err: any) {
         setError(err.message || 'Unknown error occurred');
       } finally {
-        setLoading(false);
       }
     };
 
@@ -71,16 +71,16 @@ const QuizResults = () => {
   useEffect(() => {
     const fetchQuizzes = async () => {    
       try {
-        const response = await TokenManager.authenticatedFetch(`/feed/quiz/`, {
+        const response = await TokenManager.authenticatedFetch(`/quiz/recommend/` + quizId, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
         });
     
-        const data = await response.json();
-        if (response.ok) {
-          const formattedResults = data.map((quiz: any) => ({
+        const quiz = await response.json();
+        if (response.ok && quiz) {
+          const formattedResults = {
             id: Number(quiz.id),
             title: quiz.title,
             description: quiz.description,
@@ -88,27 +88,24 @@ const QuizResults = () => {
             level: quiz.level,
             likes: quiz.like_count,
             liked: quiz.is_liked,
-          }));
-          let randomInt = 0
-          let retryCount = 3;
-
-          while(formattedResults[randomInt].id === Number(quizId) && retryCount > 0) {
-            randomInt = Math.floor(Math.random() * formattedResults.length);
-            retryCount--;
           };
-
-          setRecommendedQuiz(formattedResults[randomInt]);
+          
+          setRecommendedQuiz(formattedResults);
           setError(null);
         } else {
-          setError('Failed to fetch quizzes. Please try again. Error: ' + data.message || JSON.stringify(data));
+          setRecommendedQuiz(null); 
         }
       } catch (error: any) {
         setError('An error occurred while fetching quizzes. Please try again. Error: ' + (error.message || 'Unknown error'));
       }
+      finally {
+        setLoading(false);
+      }
     };
-
-          fetchQuizzes(); 
-      }, []);
+  
+    fetchQuizzes(); 
+  }, []);
+  
 
   return (
     <View style={styles.container}>
