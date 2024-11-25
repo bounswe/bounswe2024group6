@@ -72,6 +72,7 @@ export default function Register({
             <Input
               defaultValue=""
               type="text"
+              variant="bordered"
               isRequired
               label="Username"
               onChange={(e) => setUserName(e.target.value)}
@@ -81,6 +82,7 @@ export default function Register({
             <Input
               defaultValue=""
               type="email"
+              variant="bordered"
               isRequired
               label="Email"
               {...register("email", { required: "Email is required" })}
