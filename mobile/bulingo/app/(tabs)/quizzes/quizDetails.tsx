@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, useColorScheme, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Shadow } from 'react-native-shadow-2';
 import { useLocalSearchParams } from 'expo-router';
 import TokenManager from '@/app/TokenManager';
 
@@ -144,12 +143,10 @@ const QuizDetails = () => {
       </View>
 
       <View style={styles.buttonContainer}>
-      <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
         <TouchableOpacity style={styles.quizButton} onPress={() => router.push({ pathname: '/(tabs)/quizzes/quizQuestion', params: { quizId: id } })}
         >
           <Text style={styles.buttonText}>Take Quiz</Text>
         </TouchableOpacity>
-        </Shadow>
       </View>
 
 

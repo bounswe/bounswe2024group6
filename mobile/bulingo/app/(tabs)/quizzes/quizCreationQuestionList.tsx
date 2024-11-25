@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { TouchableOpacity, StyleSheet, Text, View, FlatList, Image, useColorScheme } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Shadow } from 'react-native-shadow-2';
 import { getQuizDetails, clearQuizDetails } from './AsyncStorageHelpers';
 import { saveQuestions, getQuestions, clearQuestions } from './AsyncStorageHelpers';
 import TokenManager from '@/app/TokenManager';
@@ -209,16 +208,12 @@ const QuizCreationQuestionList = () => {
       />
 
       <View style={styles.footer}>
-      <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
         <TouchableOpacity style={styles.cancelButton} onPress={() => handleCancel()}>
           <Text style={styles.footerButtonText}>Cancel</Text>
         </TouchableOpacity>
-        </Shadow>
-        <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
         <TouchableOpacity style={styles.footerButton} onPress={() => handleCreateQuiz()}>
           <Text style={styles.footerButtonText}>Create Quiz</Text>
         </TouchableOpacity>
-        </Shadow>
       </View>
     </View>
   );

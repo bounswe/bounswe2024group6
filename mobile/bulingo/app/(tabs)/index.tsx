@@ -2,7 +2,6 @@ import React, {useState, useCallback} from 'react';
 import {Image, TouchableOpacity, StyleSheet, Text, View, Dimensions} from 'react-native';
 import { router, useLocalSearchParams, useFocusEffect } from "expo-router";
 import TokenManager from '../TokenManager';
-import { Shadow } from 'react-native-shadow-2';
 import Notification from '../components/topNotification';
 
 const { width, height } = Dimensions.get('window');
@@ -64,17 +63,13 @@ export default function Home() {
         </View> :
         
         <View style={styles.buttonsContainer}>
-          <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
           <TouchableOpacity style={[styles.rectangularButton]} onPress={handleRegister}>
             <Text style={styles.buttonText}>Register</Text>
           </TouchableOpacity>
-          </Shadow>
         
-          <Shadow distance={8} startColor="#00000020" endColor="#00000000" offset={[0, 4]}>
           <TouchableOpacity style={styles.rectangularButton} onPress={() => { router.navigate("/login") }}>
             <Text style={styles.buttonText}>Log In</Text>
           </TouchableOpacity>
-          </Shadow>
         </View>
 
       }
