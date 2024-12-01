@@ -1,10 +1,10 @@
 import React, {useState} from 'react';
 import { View, Pressable, Text, StyleSheet, Modal} from 'react-native';
+import ModalDictionary from './components/modalDictionary';
 
 
 type PressableTextProps = {
   text: string,
-  getWordInfo: (word: string) => string;
 };
 
 export default function PressableText(props: PressableTextProps){
@@ -35,24 +35,8 @@ export default function PressableText(props: PressableTextProps){
       ))}
 
       {/* Modal for additional information */}
-      {selectedWord && (
-        <Modal
-          // animationType="slide"
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={closeModal}
-        >
-          <View style={styles.modalBackground}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalText}>
-                {props.getWordInfo(selectedWord)}
-              </Text>
-              <Pressable onPress={closeModal} style={styles.closeButton}>
-                <Text style={styles.closeButtonText}>Close</Text>
-              </Pressable>
-            </View>
-          </View>
-        </Modal>
+      {selectedWord && modalVisible && (
+        <ModalDictionary onClose={closeModal} word={selectedWord}/>
       )}
     </View>
   );
@@ -69,30 +53,5 @@ const styles = StyleSheet.create({
   wordText: {
     fontSize: 16,
     color: 'blue',
-  },
-  modalBackground: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    padding: 20,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  modalText: {
-    fontSize: 18,
-    marginBottom: 10,
-  },
-  closeButton: {
-    marginTop: 10,
-    padding: 10,
-    backgroundColor: 'grey',
-    borderRadius: 5,
-  },
-  closeButtonText: {
-    color: 'white',
   },
 });
