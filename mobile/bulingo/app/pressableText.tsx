@@ -1,10 +1,11 @@
 import React, {useState} from 'react';
-import { View, Pressable, Text, StyleSheet, Modal} from 'react-native';
+import { View, Pressable, Text, StyleSheet, StyleProp, TextStyle} from 'react-native';
 import ModalDictionary from './components/modalDictionary';
 
 
 type PressableTextProps = {
   text: string,
+  style?: StyleProp<TextStyle>
 };
 
 export default function PressableText(props: PressableTextProps){
@@ -30,7 +31,7 @@ export default function PressableText(props: PressableTextProps){
           onLongPress={() => handleLongPress(word)}
           style={styles.wordPressable}
         >
-          <Text style={styles.wordText}>{word} </Text>
+          <Text style={props.style}>{word} </Text>
         </Pressable>
       ))}
 
