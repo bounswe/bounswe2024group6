@@ -29,7 +29,7 @@ export default function ModalDictionary(props: ModalDictionaryProps){
 
   useEffect(() => {
     const fetchWordInfo = async () => {
-      const url = `get-turkish/${getCorrectForm(props.word)}/`
+      const url = `get-lexvo-info/${getCorrectForm(props.word)}/`
       try {
         const response = await TokenManager.authenticatedFetch(url, {
           method: 'GET',
@@ -37,10 +37,10 @@ export default function ModalDictionary(props: ModalDictionaryProps){
             'Content-Type': 'application/json',
           },
         });
-
+        console.log("Hello")
         if (response.ok){
           const result = await response.json();
-          console.log(result.final_info)
+          console.log(result)
           const meanings: Meaning[] = []
           result.final_info.meanings.forEach((meaning: any) => {
             const [explanation, ...raw_examples] = meaning.comment.split(';')

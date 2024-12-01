@@ -47,9 +47,13 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 5,
   },
   wordPressable: {
-    margin: 2,
+    margin: -4,
+    marginRight: 0,
   },
   wordText: {
     fontSize: 16,
