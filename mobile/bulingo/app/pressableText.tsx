@@ -1,11 +1,12 @@
 import React, {useState} from 'react';
-import { View, Pressable, Text, StyleSheet, StyleProp, TextStyle} from 'react-native';
+import { View, Pressable, Text, StyleSheet, StyleProp, TextStyle, ViewStyle} from 'react-native';
 import ModalDictionary from './components/modalDictionary';
 
 
 type PressableTextProps = {
   text: string,
   style?: StyleProp<TextStyle>
+  containerStyle?: StyleProp<ViewStyle>
 };
 
 export default function PressableText(props: PressableTextProps){
@@ -23,7 +24,7 @@ export default function PressableText(props: PressableTextProps){
   };
 
   return (
-    <View style={styles.container}>
+    <View style={props.containerStyle ? props.containerStyle : styles.container}>
       {/* Render each word as a Pressable */}
       {props.text.split(' ').map((word, index) => (
         <Pressable
@@ -50,6 +51,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 5,
+    marginBottom: 5,
   },
   wordPressable: {
     margin: -4,

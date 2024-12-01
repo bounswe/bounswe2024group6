@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Text, View, StyleSheet, Modal, Pressable, ActivityIndicator, TouchableOpacity, Image, ScrollView } from 'react-native';
 import TokenManager from '../TokenManager';
+import PressableText from '../pressableText';
 
 
 type ModalDictionaryProps = {
@@ -72,7 +73,11 @@ export default function ModalDictionary(props: ModalDictionaryProps){
     return (
       <ScrollView>
         <Pressable style={styles.section}>
-          <Text style={[styles.sectionHeader, {color: 'rgba(8, 8, 186, 1)'}]}>Meanings</Text>
+          <PressableText 
+            style={[styles.sectionHeader, {color: 'rgba(8, 8, 186, 1)'}]} 
+            text="Meanings" 
+            containerStyle={styles.sectionPressableContainer}
+          />
         </Pressable>
         { renderMeanings() }
         <Pressable style={styles.section}>
@@ -90,9 +95,18 @@ export default function ModalDictionary(props: ModalDictionaryProps){
 
     return wordInfo.meanings.map((meaning, index) => (
       <Pressable key={index} style={styles.meaningContainer}>
-        <Text style={styles.normalText}>{index+1}. {meaning.explanation}</Text>
+        <PressableText 
+          style={styles.normalText}
+          containerStyle={styles.normalTextContainer}
+          text={`${index+1}. ${meaning.explanation}`}
+        />
         {meaning.examples.map((example, index) => (
-          <Text style={styles.exampleText} key={index}>{example}</Text>
+          <PressableText 
+            style={styles.exampleText} 
+            key={index}
+            containerStyle={styles.normalTextContainer}
+            text={example}
+          />
         ))}
       </Pressable>
     ));
@@ -152,6 +166,11 @@ const styles = StyleSheet.create(
       margin: 3,
       textAlign: 'left',
     },
+    normalTextContainer: {
+      marginVertical: 5,
+      flexDirection: 'row', 
+      flexWrap: 'wrap'
+    },
     exampleText: {
       fontSize: 14,
       color: "rgba(0, 50, 200, 0.8)",
@@ -186,6 +205,9 @@ const styles = StyleSheet.create(
     },
     section: {
       width: '100%',
+    },
+    sectionPressableContainer: {
+      margin: 6,
     },
     meaningContainer: {
       alignItems: 'flex-start',
