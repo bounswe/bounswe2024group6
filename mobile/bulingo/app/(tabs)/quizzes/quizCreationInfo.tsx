@@ -1,15 +1,17 @@
 import React, { useState, useEffect} from 'react';
-import { Keyboard, StyleSheet, Text, TextInput, View, TouchableWithoutFeedback, TouchableOpacity, useColorScheme } from 'react-native';
+import { Keyboard, StyleSheet, Text, TextInput, View, TouchableWithoutFeedback, Image, TouchableOpacity, useColorScheme, Modal } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 
 const QuizCreationInfo = () => {
   const [question, setQuestion] = useState('');
   const [answers, setAnswers] = useState(['', '', '', '']);
-  const [showButtonIndex, setShowButtonIndex] = useState(null); // Track which tile should show the button
+  const [showButtonIndex, setShowButtonIndex] = useState(null);
   const [newAnswer, setNewAnswer] = useState('');
   const [selectedAnswerIndex, setSelectedAnswerIndex] = useState<number | null>(null);
-  const [selectedType, setSelectedType] = useState('Type II');
+  const [selectedType, setSelectedType] = useState('Type I');
   const [correctAnswerIndex, setCorrectAnswerIndex] = useState<number | null>(null)
+  const [showInfoModal, setShowInfoModal] = useState(false);
+
 
   const isButtonDisabled = () => {
     const nonEmptyAnswers = answers.filter(answer => answer.trim() !== "");
@@ -20,7 +22,6 @@ const QuizCreationInfo = () => {
   const colorScheme = useColorScheme();
   const styles = getStyles(colorScheme);
 
-  // get params from the previous screen
   const { initialQuestion, initialAnswers, initialCorrectAnswer, type, index, trigger} = useLocalSearchParams();
 
 
@@ -83,9 +84,13 @@ const QuizCreationInfo = () => {
   return (
     <TouchableWithoutFeedback onPress={resetSelections} accessible={false}>
     <View style={styles.container}>
-
       <View style={styles.page}>
         {/* Type Selection Buttons */}
+      <View style={styles.topContainer}>
+                  
+      <TouchableOpacity style={styles.infoButton} onPress={() => setShowInfoModal(true)}>
+         <Image source={require('@/assets/images/info.png')} style={styles.icon}  />
+        </TouchableOpacity>
         <View style={styles.typeContainer}>
           {['Type I', 'Type II', 'Type III'].map((type, index) => (
             <TouchableOpacity
@@ -100,7 +105,7 @@ const QuizCreationInfo = () => {
             </TouchableOpacity>
           ))}
         </View>
-
+        </View>
         {/* Question and Answers Section */}
         <View style={[styles.questionAnswersContainer, styles.elevation]}>
           {/* Editable question title area */}
@@ -198,6 +203,34 @@ const QuizCreationInfo = () => {
         </TouchableOpacity>
         </View>
       </View>
+      <Modal
+        transparent={true}
+        visible={showInfoModal}
+        animationType="fade"
+        onRequestClose={() => setShowInfoModal(false)}
+      >
+        <TouchableWithoutFeedback onPress={() => setShowInfoModal(false)}>
+          <View style={styles.modalOverlay}>
+            <TouchableWithoutFeedback>
+              <View style={styles.modalContent}>
+                <Text style={styles.modalTitle}>Type Information</Text>
+                <Text style={styles.modalText}>
+                  {selectedType === 'Type I' && 'Type I -> English to Turkish'}
+                  {selectedType === 'Type II' && 'Type II -> Turkish to English'}
+                  {selectedType === 'Type III' && 'Type III -> Meaning of English Word'}
+                </Text>
+                <TouchableOpacity
+                  style={styles.modalCloseButton}
+                  onPress={() => setShowInfoModal(false)}
+                >
+                  <Text style={styles.modalCloseButtonText}>Close</Text>
+                </TouchableOpacity>
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+
     </View>
     </TouchableWithoutFeedback>
   );
@@ -218,18 +251,12 @@ const getStyles = (colorScheme: any) => {
       paddingTop: 50,
       justifyContent: 'flex-start',
     },
-    typeContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      marginBottom: 20,
-    },
     typeButton: {
       backgroundColor: isDark ? '#2e2e2e' : 'white',
       padding: 10,
       borderRadius: 10,
       borderWidth: 2,
       borderColor: isDark ? '#aaa' : '#000',
-      flex: 1,
       marginHorizontal: 5,
       justifyContent: 'center',
       alignItems: 'center',
@@ -377,6 +404,68 @@ const getStyles = (colorScheme: any) => {
       elevation: 30,
       shadowColor: isDark ? '#fff' : 'black',
     },
+    topContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: 10,
+      marginBottom: 20,
+    },
+    infoButton: {
+      width: 25, 
+      height: 25,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: 5, 
+    },
+    
+    icon: {
+      width: 25,
+      height: 25,
+    },
+    typeContainer: {
+      flexDirection: 'row',
+      flex: 1,
+      justifyContent: 'space-evenly',
+      alignItems: 'center',
+      marginHorizontal: 5,
+    },
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    modalContent: {
+      backgroundColor: 'white',
+      padding: 20,
+      borderRadius: 10,
+      width: '80%',
+      alignItems: 'center',
+    },
+    modalTitle: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      marginBottom: 10,
+    },
+    modalText: {
+      fontSize: 16,
+      textAlign: 'center',
+      marginBottom: 20,
+    },
+    modalCloseButton: {
+      backgroundColor: '#3944FD',
+      padding: 10,
+      borderRadius: 5,
+    },
+    modalCloseButtonText: {
+      color: 'white',
+      fontWeight: 'bold',
+    },
+    
+  
+    
+
   });
 };
 
