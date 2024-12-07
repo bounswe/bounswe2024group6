@@ -7,37 +7,58 @@ from app.serializers import QuizSerializer, QuizResultsSerializer, QuestionSeria
 from django.contrib.auth.models import User
 from app.models import Quiz, QuizResults, Question, QuizProgress, QuestionProgress
 
+from django.core.files.uploadedfile import UploadedFile
+import json
+from django.core.files.base import ContentFile
+import base64
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_quiz(request):
-    if request.data.get('quiz') is None or request.data.get('questions') is None:
-        return Response({'error': 'quiz and questions must be provided'}, status=status.HTTP_400_BAD_REQUEST)
-    data = request.data
-    data['quiz']['author'] = request.user.id
-    questions = data['questions']
-    data['quiz']['question_count'] = len(questions)
-    quizSerializer = QuizSerializer(data=data['quiz'], context = {'request': request})
-    quiz = None
-    if not quizSerializer.is_valid():
-        print("was")
-        return Response(quizSerializer.errors, status=status.HTTP_400_BAD_REQUEST) 
-    quiz = quizSerializer.save() 
-    question_serializers = []
-    for question in questions:
-        question['quiz'] = quiz.id
-        question['level'] = quiz.level # TODO: change this
-        questionSerializer = QuestionSerializer(data=question)
-        if questionSerializer.is_valid():
-            print(questionSerializer.validated_data['question_number'])
-            question_serializers.append(questionSerializer)
-        else:
-            quiz.delete()
-            return Response(questionSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-    # quizSerializer.save()
-    for question_serializer in question_serializers:
-        question_serializer.save()
-    return Response(quizSerializer.data, status=status.HTTP_201_CREATED)
+    try:
+        data = request.data
+        quiz_data = data['quiz']
+        questions_data = data['questions']
+        if 'title_image' in quiz_data:
+            format, imgstr = quiz_data['title_image'].split(';base64,')
+            ext = format.split('/')[-1]
+            quiz_data['title_image'] = ContentFile(
+                base64.b64decode(imgstr), 
+                name=f'quiz_title.{ext}'
+            )
+        quiz_data['author'] = request.user.id
+        quiz_data['question_count'] = len(questions_data)
+        quiz_serializer = QuizSerializer(data=quiz_data)
+        if not quiz_serializer.is_valid():
+            return Response(quiz_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        quiz = quiz_serializer.save()
+        for question in questions_data:
+            question['quiz'] = quiz.id
+            question['level'] = quiz.level
+            if 'question_image' in question:
+                format, imgstr = question['question_image'].split(';base64,')
+                ext = format.split('/')[-1]
+                question['question_image'] = ContentFile(
+                    base64.b64decode(imgstr), 
+                    name=f'question_{question["question_number"]}.{ext}'
+                )
+            for i in range(1, 5):
+                choice_image_key = f'choice{i}_image'
+                if choice_image_key in question:
+                    format, imgstr = question[choice_image_key].split(';base64,')
+                    ext = format.split('/')[-1]
+                    question[choice_image_key] = ContentFile(
+                        base64.b64decode(imgstr), 
+                        name=f'choice_{question["question_number"]}_{i}.{ext}'
+                    )
+            question_serializer = QuestionSerializer(data=question)
+            if not question_serializer.is_valid():
+                quiz.delete()
+                return Response(question_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            question_serializer.save()
+        return Response(quiz_serializer.data, status=status.HTTP_201_CREATED)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

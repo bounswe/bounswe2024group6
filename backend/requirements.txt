@@ -8,3 +8,4 @@ requests
 rdflib
 pandas
 python-dotenv
+Pillow

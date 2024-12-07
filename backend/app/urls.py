@@ -11,7 +11,8 @@ from app.views_directory.postviews import create_post, delete_post, get_posts_of
 from app.views_directory.feed_views import get_user_post_feed
 from app.views_directory.bookmark_views import bookmark_post, unbookmark_post, get_bookmarked_posts  
 from app.views_directory.searchview import SearchView
-
+from django.conf import settings
+from django.conf.urls.static import static
 import app.views_directory.quiz_views as quiz_views
 
 urlpatterns = [
@@ -36,8 +37,6 @@ urlpatterns = [
     path('quiz/review/<int:quiz_result_id>/', quiz_views.get_quiz_review, name="review_quiz"),
     path('quiz/recommend/<int:quiz_id>/', quiz_views.get_quiz_recommendations, name="recommend_quiz"),
     path('quiz/review_latest/<int:quiz_id>/', quiz_views.get_latest_quiz_review, name="review_latest_quiz"),
-
-
     path('create-post/',create_post, name='create_post'),
     path('signup/', RegisterView.as_view(), name='auth_register'),
     path('login/', LoginView.as_view(), name='auth_login'),
@@ -70,5 +69,5 @@ urlpatterns = [
     path('profile/followers/<str:username>/', view_followers, name='view_followers'),
     path('profile/following/<str:username>/', view_following, name='view_following'),
     path('search/', SearchView.as_view(), name='search'),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
