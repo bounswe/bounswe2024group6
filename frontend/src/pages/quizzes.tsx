@@ -37,6 +37,15 @@ export default function Quizzes() {
         setIsLoading(false);
       });
   }, []);
+
+
+  const sortedQuizzes = [...quizzes].sort((a, b) => {
+    return (
+      new Date(b.quiz.created_at).getTime() -
+      new Date(a.quiz.created_at).getTime()
+    );
+  });
+
   const quiz2 = {
     id: 1,
     author: "elifndeniz",
@@ -50,7 +59,7 @@ export default function Quizzes() {
   };
 
   return (
-    <div className=" w-screen items-center gap-4 flex flex-col">
+    <div className="items-center gap-4 flex flex-col overflow-hidden mb-4">
       <Navbar />
       <CreateQuizButton />
       {isLoading ?
@@ -59,7 +68,7 @@ export default function Quizzes() {
           .map((_, index) => <PostCardSkeleton key={index} />)
         :
         (
-          quizzes.map((quiz) => (
+          sortedQuizzes.map((quiz) => (
             <QuizCard
               key={quiz.id}
               id={quiz.id}
