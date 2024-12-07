@@ -3,6 +3,7 @@ import {Image, TouchableOpacity, StyleSheet, Text, View, Dimensions} from 'react
 import { router, useLocalSearchParams, useFocusEffect } from "expo-router";
 import TokenManager from '../TokenManager';
 import Notification from '../components/topNotification';
+import PressableText from '../pressableText';
 
 const { width, height } = Dimensions.get('window');
 
@@ -52,8 +53,11 @@ export default function Home() {
         />
       </View>
       <View style={styles.messageContainer}>
-        <Text style={styles.bigText}>Welcome!</Text>
-        <Text style={username? styles.username : styles.text}>{username ? username :"You are not logged in. Register or Log In to access all features."}</Text>
+        <PressableText style={styles.bigText} text="Welcome!"/>
+        <PressableText 
+          style={username? styles.username : styles.text}
+          text={username ? username :"You are not logged in. Register or Log In to access all features."}
+        />
       </View>
       {username ?
         <View style={styles.buttonsContainer}>
