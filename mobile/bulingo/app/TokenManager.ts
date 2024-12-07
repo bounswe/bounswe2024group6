@@ -5,9 +5,11 @@ const BASE_URL = "http://64.226.76.231:8000";
 
 class TokenManager {
   private username: string | null;
+  private isAdmin: boolean;
 
   constructor() {
     this.username = null;
+    this.isAdmin = false
   }
 
   async saveTokens(accessToken: string, refreshToken: string){
@@ -54,10 +56,17 @@ class TokenManager {
     this.username = username;
   }
 
+  setIsAdmin(isAdmin: boolean): void {
+    this.isAdmin = isAdmin;
+  }
+
   getUsername(): string|null {
     return this.username;
   }
 
+  getIsAdmin(): boolean {
+    return this.isAdmin;
+  }
   // Method to clear tokens
   async clearTokens() {
     await SecureStore.deleteItemAsync("accessToken");

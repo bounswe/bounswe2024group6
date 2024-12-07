@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { TouchableOpacity, Image, Text, View, StyleSheet, useColorScheme } from 'react-native';
+import AdminOptions from './adminOptions';
+import TokenManager from '../TokenManager';
 import { FontAwesome } from '@expo/vector-icons';
 import PressableText from '../pressableText';
 
@@ -21,6 +23,7 @@ type QuizCardProps = {
 export default function QuizCard(props: QuizCardProps){
   const [likes, setLikes] = useState(props.likes);
   const [liked, setLiked] = useState(props.liked);
+  const [isAdminOptionsVisible, setIsAdminOptionsVisible] = useState(false);
 
   const colorScheme = useColorScheme();
   const styles = getStyles(colorScheme);
@@ -47,28 +50,42 @@ export default function QuizCard(props: QuizCardProps){
   };
 
   return (
-    <TouchableOpacity
-      style={[styles.quizItem, styles.elevation]}
-      onPress={() => handleQuizPress(props.id)}
-      testID='quiz'
-    >
-      <View style={styles.quizTop}>
-                <PressableText style={styles.quizTitle} text={props.title}/>
-                <PressableText style={styles.quizDescription} text={props.description}/>
-        
+    <>
+      { isAdminOptionsVisible &&
+        <AdminOptions onClose={()=>setIsAdminOptionsVisible(false)} options={[
+          {
+            text: "Delete Quiz", 
+            onPress: ()=>{console.log("Delete Quiz Pressed") /* Placeholder until endpoint is ready */ }
+          }, 
+          {
+            text: "Change Quiz Tags", 
+            onPress: ()=>{console.log("Change Quiz Tags Pressed") /* Placeholder until endpoint is ready */ }
+          }, 
+        ]}
+        />
+      }
+      <TouchableOpacity
+        style={[styles.quizItem, styles.elevation]}
+        onPress={() => handleQuizPress(props.id)}
+        onLongPress={() => TokenManager.getIsAdmin() && setIsAdminOptionsVisible(true)}
+        testID='quiz'
+      >
+        <View style={styles.quizTop}>
+          <PressableText style={styles.quizTitle} text={props.title}/>
+          <PressableText style={styles.quizDescription} text={props.description}/>
         {/* <Text style={styles.quizTitle}>{props.title}</Text>
         <Text style={styles.quizDescription}>{props.description}</Text> */}
-      </View>
-      <View style={styles.quizBottom}>
-        <View style={styles.quizBottomLeft}>
-          <Text style={styles.quizAuthor}>by {props.author}</Text>
-          <Text style={styles.quizLevel}>{props.level}</Text>
         </View>
-        <TouchableOpacity style={styles.likeButton} onPress={() => handleLikePress(props.id)} testID='likeButton'>
-          <Text style={styles.quizLikes}>
-          <Image source={liked ? require('@/assets/images/like-2.png') : require('@/assets/images/like-1.png')}style={styles.icon} /> {likes}
-          </Text>
-        </TouchableOpacity>
+        <View style={styles.quizBottom}>
+          <View style={styles.quizBottomLeft}>
+            <Text style={styles.quizAuthor}>by {props.author}</Text>
+            <Text style={styles.quizLevel}>{props.level}</Text>
+          </View>
+          <TouchableOpacity style={styles.likeButton} onPress={() => handleLikePress(props.id)} testID='likeButton'>
+            <Text style={styles.quizLikes}>
+            <Image source={liked ? require('@/assets/images/like-2.png') : require('@/assets/images/like-1.png')}style={styles.icon} /> {likes}
+            </Text>
+          </TouchableOpacity>
 
         {/* Touchable Bookmark Icon at the bottom right */}
         <TouchableOpacity style={styles.bookmarkButton} onPress={() => handleBookmarkPress(props.id)} testID='bookmarkButton'>
