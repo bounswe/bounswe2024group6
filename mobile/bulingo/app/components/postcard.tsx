@@ -1,6 +1,8 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
+import TokenManager from '../TokenManager';
+import AdminOptions from './adminOptions';
 import PressableText from '../pressableText';
 
 interface PostCardProps {
@@ -31,49 +33,69 @@ const PostCard: React.FC<PostCardProps> = ({
   onBookmark,
   onPress,
 }) => {
+  const [isAdminOptionsVisible, setIsAdminOptionsVisible] = useState(false);
 
 
   return (
-    <TouchableOpacity onPress={onPress} testID='card'>
-      <View style={styles.cardContainer}>
-        <View style={styles.header}>
-          {/* <PressableText style={styles.title}</> */}
-        <PressableText style={styles.title} text={title}/>
-          {/* <Text style={styles.title}>{title}</Text> */}
-          <Text style={styles.author}>by {author}</Text>
-        </View>
-        <View style={styles.tagsContainer}>
-          {tags && tags.map((tag, index) => (
-            <View key={index} style={styles.levelBadge}>
-              <Text style={styles.levelText}>{tag}</Text>
-            </View>
-          ))}
-        </View>
-        <View style={styles.footer}>
-          <View style={styles.actionsContainer}>
-            {/* <TouchableOpacity onPress={onUpvote} style={styles.upvoteButton}>
-              <FontAwesome name="arrow-up" size={20} color="green" />
-              <Text style={styles.upvoteCount}>{likes}</Text>
-            </TouchableOpacity>
-             */}
-            <TouchableOpacity style={styles.likeButton} onPress={() => onUpvote(id)} testID={'likeButton'}>
-             <Text style={styles.quizLikes}>
-            <Image source={liked ? require('../../assets/images/like-2.png') : require('../../assets/images/like-1.png')}style={styles.icon} /> 
-            {likes}
-            </Text>
-            </TouchableOpacity>
+    <>
+      { isAdminOptionsVisible &&
+        <AdminOptions onClose={()=>setIsAdminOptionsVisible(false)} options={[
+          {
+            text: "Delete Post",
+            onPress: ()=>{console.log("Delete Post Pressed") /* Placeholder until endpoint is ready */ }
+          },
+          {
+            text: "Change Post Tags",
+            onPress: ()=>{console.log("Change Post Tags Pressed") /* Placeholder until endpoint is ready */ }
+          },
+        ]}
+        />
+      }
+      <TouchableOpacity 
+        onPress={onPress} 
+        onLongPress={() => TokenManager.getIsAdmin() && setIsAdminOptionsVisible(true)}
+        testID='card'
+      >
+        <View style={styles.cardContainer}>
+          <View style={styles.header}>
+            {/* <PressableText style={styles.title}</> */}
+          <PressableText style={styles.title} text={title}/>
+            {/* <Text style={styles.title}>{title}</Text> */}
+            <Text style={styles.author}>by {author}</Text>
+          </View>
+          <View style={styles.tagsContainer}>
+            {tags && tags.map((tag, index) => (
+              <View key={index} style={styles.levelBadge}>
+                <Text style={styles.levelText}>{tag}</Text>
+              </View>
+            ))}
+          </View>
+          <View style={styles.footer}>
+            <View style={styles.actionsContainer}>
+              {/* <TouchableOpacity onPress={onUpvote} style={styles.upvoteButton}>
+                <FontAwesome name="arrow-up" size={20} color="green" />
+                <Text style={styles.upvoteCount}>{likes}</Text>
+              </TouchableOpacity>
+                */}
+              <TouchableOpacity style={styles.likeButton} onPress={() => onUpvote(id)} testID={'likeButton'}>
+                <Text style={styles.quizLikes}>
+              <Image source={liked ? require('../../assets/images/like-2.png') : require('../../assets/images/like-1.png')}style={styles.icon} /> 
+              {likes}
+              </Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity onPress={onBookmark} style={styles.bookmarkButton} testID={'bookmarkButton'}>
-              <FontAwesome 
-                name={isBookmarked ? 'bookmark' : 'bookmark-o'} 
-                size={20} 
-                color="black" 
-              />
-            </TouchableOpacity>
+              <TouchableOpacity onPress={onBookmark} style={styles.bookmarkButton} testID={'bookmarkButton'}>
+                <FontAwesome 
+                  name={isBookmarked ? 'bookmark' : 'bookmark-o'} 
+                  size={20} 
+                  color="black" 
+                />
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-      </View>
-    </TouchableOpacity>
+      </TouchableOpacity>
+    </>
   );
 };
 
