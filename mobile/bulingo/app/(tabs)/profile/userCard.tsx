@@ -1,8 +1,9 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { TouchableOpacity, View, Image, StyleSheet, Text } from 'react-native';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import { router } from 'expo-router';
 import TokenManager from '@/app/TokenManager';
+import AdminOptions from '@/app/components/adminOptions';
 
 type UserCardProps = {
   profilePictureUri: string,
@@ -16,6 +17,8 @@ type UserCardProps = {
 };
 
 const UserCard = (props: UserCardProps) => {
+  const [isAdminOptionsVisible, setIsAdminOptionsVisible] = useState(false);
+
   const handleButtonPress = async () => {
     const url = `profile/${props.buttonText.toLowerCase()}/`;
     const params = {
@@ -70,8 +73,23 @@ const UserCard = (props: UserCardProps) => {
   
 
   return (
-    <TouchableOpacity style={styles.followerContainer} onPress={handleCardPress} testID='card'>
-      <View style={styles.profilePictureContainer}>
+    <>
+      { isAdminOptionsVisible &&
+        <AdminOptions onClose={()=>setIsAdminOptionsVisible(false)} options={[
+          {
+            text: "Ban User", 
+            onPress: ()=>{console.log("Ban User Pressed") /* Placeholder until endpoint is ready */ }
+          }, 
+        ]}
+        />
+      }
+      <TouchableOpacity 
+        style={styles.followerContainer} 
+        onPress={handleCardPress} 
+        onLongPress={() => TokenManager.getIsAdmin() && setIsAdminOptionsVisible(true)}
+        testID='card'
+      >
+        <View style={styles.profilePictureContainer}>
         {props.profilePictureUri 
           ? (
             <Image 
@@ -104,6 +122,7 @@ const UserCard = (props: UserCardProps) => {
         }
       </View>
     </TouchableOpacity>
+    </>
   );
 };
 
