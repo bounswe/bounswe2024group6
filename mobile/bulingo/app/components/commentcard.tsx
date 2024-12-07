@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image, Pressable } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
+import TokenManager from '../TokenManager';
+import AdminOptions from './adminOptions';
 import PressableText from '../pressableText';
 
 interface CommentCardProps {
@@ -14,25 +16,39 @@ interface CommentCardProps {
 }
 
 const CommentCard: React.FC<CommentCardProps> = ({ id, isBookmarked: initialBookmark, username, comment, onUpvote, liked, likes }) => {
-  const [isBookmarked, setIsBookmarked] = useState(initialBookmark);
+    const [isBookmarked, setIsBookmarked] = useState(initialBookmark);
+    const [isAdminOptionsVisible, setIsAdminOptionsVisible] = useState(false);
+
 
   const toggleBookmark = () => {
     setIsBookmarked(!isBookmarked);
   };
 
-  return (
-    <>
-      <View style={styles.cardContainer}>
-        <View style={styles.profileSection}>
-          <View style={styles.profileIcon}>
-            <FontAwesome name="user" size={24} color="#333" />
-          </View>
-          <Text style={styles.userName}>{username}</Text>
-        </View>
-
-        <View style={styles.commentSection}>
-          <PressableText style={styles.commentText} text={comment} />
-        </View>
+    return (
+        <>
+        { isAdminOptionsVisible &&
+            <AdminOptions onClose={()=>setIsAdminOptionsVisible(false)} options={[
+            {
+                text: "Delete Comment",
+                onPress: ()=>{console.log("Delete Comment Pressed") /* Placeholder until endpoint is ready */ }
+            },
+            ]}
+            />
+        }
+        <Pressable 
+            style={styles.cardContainer}
+            onLongPress={() => TokenManager.getIsAdmin() && setIsAdminOptionsVisible(true)}
+        >  
+            <View style={styles.profileSection}>
+                <View style={styles.profileIcon}>
+                    <FontAwesome name="user" size={24} color="#333" />
+                </View>
+                <Text style={styles.userName}>{username}</Text>
+            </View>
+            
+            <View style={styles.commentSection}>
+              <PressableText style={styles.commentText} text={comment} />
+            </View>
 
         <View style={styles.actionsContainer}>
           <TouchableOpacity style={styles.likeButton} onPress={() => onUpvote(id)} testID='likeButton'>
@@ -42,13 +58,17 @@ const CommentCard: React.FC<CommentCardProps> = ({ id, isBookmarked: initialBook
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={toggleBookmark} style={styles.bookmarkButton}>
-            <FontAwesome name={isBookmarked ? 'bookmark' : 'bookmark-o'} size={20} color="black" />
-          </TouchableOpacity>
-        </View>
-      </View>
-    </>
-  );
+
+
+                {/* Bookmark Button */}
+                <TouchableOpacity onPress={toggleBookmark} style={styles.bookmarkButton}>
+                    <FontAwesome name={isBookmarked ? 'bookmark' : 'bookmark-o'} size={20} color="black" />
+                </TouchableOpacity>
+            </View>
+            
+        </Pressable>
+        </>
+    );
 };
 
 const styles = StyleSheet.create({
