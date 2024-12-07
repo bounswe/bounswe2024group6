@@ -1,6 +1,6 @@
 import { Post } from "../../types";
 
-import type { PostResponse, Profile, ProfileResponse } from "../../types.ts";
+import type { PostResponse, Profile, ProfileResponse, Quiz, QuizResponse } from "../../types.ts";
 
 export const formatTimeAgo = (timestamp: string): string => {
   const now = new Date();
@@ -46,6 +46,30 @@ export const convertPostResponseToPost = (postResponse: PostResponse): Post => {
       is_bookmarked: postResponse.is_bookmarked,
     },
     comments: postResponse.comments || [],
+  };
+};
+
+export const convertQuizResponseToQuiz = (quizResponse: QuizResponse): Quiz => {
+  return {
+    id: quizResponse.id,
+    author: {
+      username: quizResponse.author.username,
+      profile_image: "", 
+    },
+    quiz: {
+      title: quizResponse.title,
+      description: quizResponse.description,
+      tags: quizResponse.tags,
+      timestamp: formatTimeAgo(quizResponse.created_at),
+      created_at: quizResponse.created_at,
+      level: quizResponse.level,
+      times_taken: quizResponse.times_taken,
+    },
+    engagement: {
+      like_count: quizResponse.like_count,
+      is_liked: quizResponse.is_liked,
+      is_bookmarked: quizResponse.is_bookmarked,
+    },
   };
 };
 
