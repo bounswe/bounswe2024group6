@@ -209,3 +209,22 @@ class Bookmark(models.Model):
     def __str__(self):
         return f"{self.user.username} bookmarked {self.post.title}"
     
+
+class WordChoices(models.Model):
+    QUIZ_TYPES = [
+        ('EN_TR', 'English to Turkish'),
+        ('TR_EN', 'Turkish to English'),
+        ('EN_DEF', 'English to Definition'),
+    ]
+    
+    word = models.CharField(max_length=100)
+    quiz_type = models.CharField(max_length=10, choices=QUIZ_TYPES)
+    correct_answer = models.CharField(max_length=255)
+    choices = models.JSONField()  # Stores the list of choices
+    category = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['word', 'quiz_type']),
+        ]

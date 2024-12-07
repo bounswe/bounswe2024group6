@@ -10,6 +10,7 @@ COPY requirements.txt ./
 # Install Python dependencies
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
+RUN python -c "import nltk; nltk.download('wordnet', download_dir='/usr/local/share/nltk_data'); nltk.download('omw-1.4', download_dir='/usr/local/share/nltk_data')"
 
 # Set environment variables for Django
 ENV PYTHONDONTWRITEBYTECODE 1

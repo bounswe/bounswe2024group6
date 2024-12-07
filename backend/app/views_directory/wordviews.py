@@ -17,9 +17,313 @@ from rest_framework import status
 from ..serializers import *
 from django.shortcuts import render
 from ..models import Tags
-from ..models import Quiz, Relationship, Word, Translation
+from ..models import Quiz, Relationship, Word, Translation, WordChoices
 from ..word_service import lexvo_manager
 import requests
+import nltk
+from nltk.corpus import wordnet
+from typing import List, Dict, Optional
+import random
+from django.core.cache import cache
+import os
+
+import nltk
+
+# Add this before your view functions
+nltk.download('wordnet')
+nltk.download('omw-1.4')
+
+
+
+def get_related_words(word: str, num_choices: int = 3):
+
+    related_words = set()
+    synsets = wordnet.synsets(word)
+    if synsets:
+        synset = synsets[0]
+        # Get words from same category
+        if synset.hypernyms():
+            for hyponym in synset.hypernyms()[0].hyponyms():
+                related_words.update(lemma.name() for lemma in hyponym.lemmas())
+
+        for similar in synset.similar_tos():
+            related_words.update(lemma.name() for lemma in similar.lemmas())
+
+    related_words = {w for w in related_words if '_' not in w and w != word}
+    return list(related_words)[:num_choices]
+
+@api_view(['GET'])
+def get_english_to_turkish_choices(request, word):
+    cache_key = f'en_tr_choices_{word}'
+    cached_result = cache.get(cache_key)
+    if cached_result:
+        return Response(cached_result)
+    
+    try:
+        word_obj = Word.objects.filter(word=word).first()
+        correct_translation = None
+
+        if word_obj:
+            translation = word_obj.translations.first()
+            if translation:
+                correct_translation = translation.translation
+
+        if not correct_translation:
+            word_info = lexvo_manager.get_final_info(word)
+            turkish_translations = word_info.get("turkish_translations", [])
+            if turkish_translations:
+                correct_translation = turkish_translations[0].split('/')[-1]
+
+        if not correct_translation:
+            return Response(
+                {'error': 'Translation not found'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        related_words = get_related_words(word)
+        wrong_choices = []
+
+        for related_word in related_words:
+            related_obj = Word.objects.filter(word=related_word).first()
+            if related_obj and related_obj.translations.first():
+                wrong_choices.append(related_obj.translations.first().translation)
+            else:
+                try:
+                    related_info = lexvo_manager.get_final_info(related_word)
+                    if related_info.get("turkish_translations"):
+                        wrong_choices.append(related_info["turkish_translations"][0].split('/')[-1])
+                except:
+                    continue
+
+        while len(wrong_choices) < 3:
+            random_translation = Translation.objects.order_by('?').first()
+            if random_translation and random_translation.translation != correct_translation:
+                wrong_choices.append(random_translation.translation)
+
+        choices = wrong_choices[:3] + [correct_translation]
+        random.shuffle(choices)
+
+        result = {
+            'word': word,
+            'correct_answer': correct_translation,
+            'choices': choices
+        }
+
+        cache.set(cache_key, result, 3600)
+        return Response(result)
+
+    except Exception as e:
+        return Response(
+            {'error': str(e)}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+    
+
+@api_view(['GET'])
+def get_turkish_to_english_choices(request, word):
+    """Generate multiple choices for Turkish to English translation"""
+    cache_key = f'tr_en_choices_{word}'
+    cached_result = cache.get(cache_key)
+    if cached_result:
+        return Response(cached_result)
+
+    try:
+        # Get correct English translation
+        translation = Translation.objects.filter(translation=word).select_related('word').first()
+        correct_word = None
+
+        if translation:
+            correct_word = translation.word.word
+        else:
+            try:
+                word_info = lexvo_manager.get_final_info(word)
+                english_words = word_info.get("english_words", [])
+                if english_words:
+                    correct_word = english_words[0]
+            except:
+                pass
+
+        if not correct_word:
+            return Response(
+                {'error': 'Translation not found'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        wrong_choices = set()
+        
+        # Get the word's synsets
+        synsets = wordnet.synsets(correct_word)
+        
+        if synsets:
+            # If it's an adverb (like 'maybe')
+            for synset in synsets:
+                if synset.pos() == wordnet.ADV:  # If it's an adverb
+                    # Get similar adverbs
+                    for similar in synset.similar_tos():
+                        for lemma in similar.lemmas():
+                            name = lemma.name()
+                            if (name != correct_word and 
+                                '_' not in name and 
+                                ' ' not in name and
+                                len(name) > 2 and  # Avoid very short words
+                                name.isalpha()):   # Only alphabetic words
+                                wrong_choices.add(name)
+                    
+                    # Get also_sees relationships
+                    for related in synset.also_sees():
+                        for lemma in related.lemmas():
+                            name = lemma.name()
+                            if (name != correct_word and 
+                                '_' not in name and 
+                                ' ' not in name and
+                                len(name) > 2 and
+                                name.isalpha()):
+                                wrong_choices.add(name)
+
+        # If we still don't have enough choices, add common adverbs
+        if len(wrong_choices) < 3:
+            common_adverbs = {
+                'maybe': ['probably', 'possibly', 'perhaps', 'sometimes', 'usually'],
+                'now': ['soon', 'today', 'already', 'currently', 'presently'],
+                'good': ['well', 'nicely', 'properly', 'right', 'correctly']
+            }
+            
+            # Get adverb synsets
+            adverb_synsets = wordnet.synsets('probably', pos=wordnet.ADV)
+            for synset in adverb_synsets:
+                for lemma in synset.lemmas():
+                    name = lemma.name()
+                    if (name != correct_word and 
+                        '_' not in name and 
+                        ' ' not in name and
+                        len(name) > 2 and
+                        name.isalpha()):
+                        wrong_choices.add(name)
+
+        # Ensure choices are appropriate words
+        wrong_choices = {word for word in wrong_choices 
+                        if len(word) > 2 and 
+                        word.isalpha() and 
+                        not word.isupper()}  # Exclude abbreviations
+
+        # If still not enough choices, get common related words from WordNet
+        if len(wrong_choices) < 3:
+            for synset in wordnet.all_synsets(pos=wordnet.ADV):
+                if len(wrong_choices) >= 5:
+                    break
+                name = synset.lemmas()[0].name()
+                if (name != correct_word and 
+                    '_' not in name and 
+                    ' ' not in name and
+                    len(name) > 2 and
+                    name.isalpha() and
+                    not name.isupper()):
+                    wrong_choices.add(name)
+
+        # Select final choices
+        wrong_choices = list(wrong_choices)
+        if len(wrong_choices) >= 3:
+            final_wrong_choices = random.sample(wrong_choices, 3)
+        else:
+            if correct_word == 'maybe':
+                final_wrong_choices = ['probably', 'perhaps', 'possibly']
+            else:
+                final_wrong_choices = ['often', 'usually', 'sometimes']
+
+        # Create final choices
+        choices = final_wrong_choices + [correct_word]
+        random.shuffle(choices)
+
+        result = {
+            'word': word,
+            'correct_answer': correct_word,
+            'choices': choices
+        }
+
+        # Cache result for 1 hour
+        cache.set(cache_key, result, 3600)
+        return Response(result)
+
+    except Exception as e:
+        print(f"Error in get_turkish_to_english_choices: {str(e)}")
+        return Response(
+            {'error': str(e)}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+    
+@api_view(['GET'])
+def get_english_to_meaning_choices(request, word):
+    """Generate multiple choices for English word to meaning"""
+    cache_key = f'en_meaning_choices_{word}'
+    cached_result = cache.get(cache_key)
+    if cached_result:
+        return Response(cached_result)
+
+    try:
+        word_obj = Word.objects.filter(word=word).first()
+        correct_meaning = None
+
+        if word_obj and word_obj.meaning and word_obj.meaning != "Meaning not available":
+            if isinstance(word_obj.meaning, list):
+                correct_meaning = word_obj.meaning[0]
+            elif isinstance(word_obj.meaning, str):
+                try:
+                    meanings = eval(word_obj.meaning)
+                    correct_meaning = meanings[0] if isinstance(meanings, list) else word_obj.meaning
+                except:
+                    correct_meaning = word_obj.meaning
+
+        if not correct_meaning:
+            synsets = wordnet.synsets(word)
+            if synsets:
+                correct_meaning = synsets[0].definition()
+
+        if not correct_meaning:
+            return Response(
+                {'error': 'Meaning not found'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        wrong_choices = []
+        related_words = get_related_words(word)
+
+        for related_word in related_words:
+            related_obj = Word.objects.filter(word=related_word).first()
+            if related_obj and related_obj.meaning and related_obj.meaning != "Meaning not available":
+                if isinstance(related_obj.meaning, list):
+                    wrong_choices.append(related_obj.meaning[0])
+                else:
+                    wrong_choices.append(related_obj.meaning)
+                continue
+
+            synsets = wordnet.synsets(related_word)
+            if synsets:
+                wrong_choices.append(synsets[0].definition())
+
+        while len(wrong_choices) < 3:
+            random_word = Word.objects.exclude(meaning="Meaning not available").order_by('?').first()
+            if random_word and random_word.meaning:
+                meaning = random_word.meaning[0] if isinstance(random_word.meaning, list) else random_word.meaning
+                if meaning not in wrong_choices and meaning != correct_meaning:
+                    wrong_choices.append(meaning)
+
+        choices = wrong_choices[:3] + [correct_meaning]
+        random.shuffle(choices)
+
+        result = {
+            'word': word,
+            'correct_answer': correct_meaning,
+            'choices': choices
+        }
+
+        cache.set(cache_key, result, 3600)
+        return Response(result)
+
+    except Exception as e:
+        return Response(
+            {'error': str(e)}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 
 @api_view(['GET'])

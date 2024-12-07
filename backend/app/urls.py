@@ -1,7 +1,12 @@
 from django.urls import path
 from app.views import *
+<<<<<<< HEAD
 from app.views_directory.wordviews import get_turkish_translation, get_lexvo_info, get_word_meanings, fetch_english_words
 from app.views_directory.profileviews import view_profile, update_profile, view_other_profile, view_followers, view_following
+=======
+from app.views_directory.profileviews import view_profile, update_profile, view_other_profile
+from app.views_directory.wordviews import get_turkish_translation, get_lexvo_info, get_word_meanings, fetch_english_words, get_english_to_meaning_choices , get_english_to_turkish_choices, get_turkish_to_english_choices
+>>>>>>> 1d436e1 (multiple choice but not enough)
 from app.views_directory.follow_unfollow import follow_user, unfollow_user 
 from app.views_directory.authentication_endpoints import RegisterView, LoginView, LogoutView, RefreshTokenView
 from app.views_directory.comments import add_comment, delete_comment, like_comment, unlike_comment, get_comment_by_id
@@ -44,6 +49,9 @@ urlpatterns = [
     path('get-turkish/<str:word>/', get_turkish_translation, name='get_turkish_translation'),
     path('get-meaning/<str:word>/', get_word_meanings,name='get_word_meanings'),
     path('get-english/<str:turkish_word>/', fetch_english_words, name='fetch_english_word'),
+    path('get-eng-tr/<str:word>/', get_english_to_turkish_choices, name='multiple_turkish_word'),
+    path('get-tr-eng/<str:word>/', get_turkish_to_english_choices, name='multiple_english_word'),
+    path('get-eng-mea/<str:word>/', get_english_to_meaning_choices, name='multiple_meanings'),
     path('profile/follow/', follow_user, name='follow_user'),
     path('profile/unfollow/', unfollow_user, name='unfollow_user'),
     path('post/', get_post_details, name='get_post_details'),
