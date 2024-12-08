@@ -100,6 +100,24 @@ const QuizCreationInfo = () => {
         setNewAnswer(translation);
         
       }
+      else if (selectedType === 'Type II') {
+      const response = await TokenManager.authenticatedFetch(`/get-english/${question}/`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (!response.ok) {
+        setNewAnswer('');
+        return;
+      }
+      const data = await response.json();
+      console.log(data);
+      const translation = data["english_word"];
+      setNewAnswer(translation);
+  
+    }
     } catch (error) {
       console.error('Error fetching word meaning:', error);
       setCurrentSuggestion('');
