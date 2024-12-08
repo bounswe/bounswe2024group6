@@ -11,7 +11,7 @@ from app.views_directory.postviews import create_post, delete_post, get_posts_of
 from app.views_directory.feed_views import get_user_post_feed
 from app.views_directory.bookmark_views import bookmark_post, unbookmark_post, get_bookmarked_posts  
 from app.views_directory.searchview import SearchView
-
+from app.views_directory.image_view import get_image_details, get_direct_image
 import app.views_directory.quiz_views as quiz_views
 
 urlpatterns = [
@@ -70,5 +70,8 @@ urlpatterns = [
     path('profile/followers/<str:username>/', view_followers, name='view_followers'),
     path('profile/following/<str:username>/', view_following, name='view_following'),
     path('search/', SearchView.as_view(), name='search'),
+    path('image-details/<str:query>/', get_image_details, name='image-search'),
+    path('image/<str:query>/', get_direct_image, name='direct-image')
+    
 ]
 
