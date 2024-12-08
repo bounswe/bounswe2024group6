@@ -98,7 +98,7 @@ export default function TagEdit(props: TagEditProps){
 
   const addTag = async () => {
     if (!tags.includes(addTagInput)) {
-      tags.push(addTagInput);
+      setTags([...tags, addTagInput])
 
       const username = TokenManager.getUsername()
       if (username === null){
