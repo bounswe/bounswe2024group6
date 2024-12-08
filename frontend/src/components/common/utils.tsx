@@ -1,6 +1,6 @@
 import { Post } from "../../types";
 
-import type { PostResponse, Profile, ProfileResponse, Quiz, QuizResponse } from "../../types.ts";
+import type { PostResponse, Profile, ProfileResponse, Quiz, QuizResponse, QuizDetail, QuizDetailsResponse } from "../../types.ts";
 
 export const formatTimeAgo = (timestamp: string): string => {
   const now = new Date();
@@ -72,6 +72,35 @@ export const convertQuizResponseToQuiz = (quizResponse: QuizResponse): Quiz => {
     },
   };
 };
+
+export const convertQuizDetailsResponseToQuizDetails = (
+  response: QuizDetailsResponse
+): QuizDetail => {
+  const { quiz, quiz_result_id, is_solved } = response;
+
+  return {
+    id: quiz.id,
+    title: quiz.title,
+    description: quiz.description,
+    author: {
+      username: quiz.author.username,
+      profile_image: "",
+    },
+    average_score: parseFloat(quiz.average_score.toFixed(2)),
+    created_at: quiz.created_at,
+    timestamp: formatTimeAgo(quiz.created_at),
+    is_liked: quiz.is_liked,
+    is_bookmarked: quiz.is_bookmarked,
+    like_count: quiz.like_count,
+    question_count: quiz.question_count,
+    level: quiz.level,
+    times_taken: quiz.times_taken,
+    tags: quiz.tags,
+    quiz_result_id: quiz_result_id,
+    is_solved: is_solved,
+  };
+};
+
 
 export const convertProfileResponseToProfile = (profileResponse: ProfileResponse): Profile => {
   return {

@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "../components/common/navbar.tsx";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
+import Cookies from "js-cookie";
 
 import {
     Card,
@@ -19,39 +20,101 @@ import {
     IconThumbUpFilled,
     IconPhotoOff,
 } from "@tabler/icons-react";
+import { BASE_URL } from "../lib/baseURL.ts";
+import axios from "axios";
+import { AuthActions } from "../components/auth/utils.tsx";
+import { convertQuizDetailsResponseToQuizDetails } from "../components/common/utils.tsx";
+import { QuizDetail } from "../types.ts";
 
 const quiz = {
-    id: 1,
-    author: "elifndeniz",
-    title: "Geographical Landforms",
-    content: "Different types of landforms.",
     picture: "https://nextui.org/avatars/avatar-1.png",
-    timestamp: "1h ago",
-    likeCount: 10,
-    attempts: 15,
-    questionCount: 10,
-    averageScore: 8,
-    timeLimit: "No Limit",
-    tags: ["other", "A2"],
 };
 
 export default function QuizDetails() {
+    const { quizID } = useParams<{ quizID: any }>();
+    const [quizData, setQuizData] = useState<QuizDetail>();
+    const [isLoading, setIsLoading] = useState(true);
+    const { getToken } = AuthActions();
+    const token = getToken("access");
     const navigate = useNavigate();
 
-    const [isLiked, setIsLiked] = useState(false);
-    const [likes, setLikes] = useState(quiz.likeCount);
-    const [isBookmarked, setIsBookmarked] = useState(false);
-    const [hasAttempted, setHasAttempted] = useState(true);
+    const [isLiked, setIsLiked] = useState(quizData?.is_liked);
+    const [likes, setLikes] = useState(quizData?.like_count);
+    const [isBookmarked, setIsBookmarked] = useState(quizData?.is_bookmarked);
+    const [hasAttempted, setHasAttempted] = useState(quizData?.is_solved);
+
+    useEffect(() => {
+        console.log(quizID)
+        if (quizID) {
+            setIsLoading(true);
+            axios
+                .get(`${BASE_URL}/quiz/${quizID}/`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                })
+                .then((response) => {
+                    console.log(response.data);
+                    setQuizData(convertQuizDetailsResponseToQuizDetails(response.data));
+                    setIsLiked(response.data.quiz.is_liked);
+                    setLikes(response.data.quiz.like_count);
+                    setIsBookmarked(response.data.quiz.is_bookmarked);
+                    setHasAttempted(response.data.quiz.is_solved);
+                })
+                .catch((error) => {
+                    console.error("Error fetching quiz data:", error);
+                })
+                .finally(() => {
+                    setIsLoading(false);
+                });
+        } else {
+            console.error("No quiz ID provided");
+        }
+    }, [quizID, token]);
+
 
 
     const toggleLike = () => {
+        axios
+          .post(
+            `${BASE_URL}/quiz/like/`,
+            { quiz_id: quizID },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          )
+          .then((response) => {
+            console.log(response.data);
+            if(isLiked) {
+              setLikes(likes - 1);
+            } else {
+              setLikes(likes + 1);
+            }
+          })
+          .catch((error) => {
+            console.log(error.response.data);
+          });
         setIsLiked(!isLiked);
-        setLikes(likes + (!isLiked ? 1 : -1));
-    };
+      };
 
-    const toggleBookmark = () => {
-        setIsBookmarked(!isBookmarked);
-    };
+      const toggleBookmark = () => {
+        axios
+          .post(
+            `${BASE_URL}/quiz/bookmark/`,
+            { quiz_id: quizID },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          )
+          .then((response) => {
+            console.log(response.data);
+            setIsBookmarked(!isBookmarked);
+          });
+      };
 
     return (
         <div className="h-screen w-screen items-center gap-2 flex flex-col">
@@ -69,29 +132,28 @@ export default function QuizDetails() {
                             />
                             <div className="flex flex-col gap-1 items-center justify-center">
                                 <h5 className="text-small tracking-tight text-default-400">
-                                    {quiz.author}
+                                    {quizData?.author.username}
                                 </h5>
                             </div>
                         </div>
-                        <p className="text-default-400 items-center text-small">{quiz.timestamp}</p>
+                        <p className="text-default-400 items-center text-small">{quizData?.timestamp}</p>
                     </div>
                     <Divider className="mt-1.5 bg-zinc-200" />
                 </CardHeader>
                 <CardBody className="flex flex-col justify-start rounded-lg shadow-zinc-200 w-[550px] h-[300px] overflow-hidden mb-2">
                     <div className="flex flex-row justify-between w-full mx-2 mb-4">
-                        <h2 className="text-3xl font-semibold leading-none text-black">
-                            {quiz.title}
+                        <h2 className="text-3xl font-semibold leading-none text-default-900">
+                            {quizData?.title}
                         </h2>
                     </div>
                     <div className="flex flex-col justify-center mx-3">
                         <div className="flex flex-row justify-between">
                             <div >
-                                <p className="w-full items-center text-lg mb-4">{quiz.content}</p>
+                                <p className="w-full items-center text-lg mb-4">{quizData?.description}</p>
                                 <div className="flex flex-col justify-center gap-1 my-4">
-                                    <p>Attempts: {quiz.attempts}</p>
-                                    <p>Question Count: {quiz.questionCount}</p>
-                                    <p>Average Score: {quiz.averageScore}</p>
-                                    <p>Time Limit: {quiz.timeLimit}</p>
+                                    <p>Attempts: {quizData?.times_taken}</p>
+                                    <p>Question Count: {quizData?.question_count}</p>
+                                    <p>Average Score: {quizData?.average_score}</p>
                                 </div>
                             </div>
                             {quiz.picture ? (
@@ -123,12 +185,12 @@ export default function QuizDetails() {
                         </div>
 
                         <div className="w-full flex flex-row justify-start gap-3 items-center">
-                            <Button color="primary" variant="solid" onClick={() => navigate(`/quiz/${quiz.id}`)}
+                            <Button color="primary" variant="solid" onClick={() => navigate(`/quiz/${quizData?.id}`)}
                                 className="w-1/3 items-center text-center mt-3">
                                 Start Quiz
                             </Button>
                             {hasAttempted && (
-                                <Button color="primary" variant="faded" onClick={() => navigate(`/quiz/${quiz.id}`)} className="w-1/4 items-center text-center mt-3">
+                                <Button color="primary" variant="faded" onClick={() => navigate(`/quiz/${quizData?.id}`)} className="w-1/4 items-center text-center mt-3">
                                     Resume Quiz
                                 </Button>
                             )}
@@ -144,7 +206,7 @@ export default function QuizDetails() {
                                     "font-semibold text-red-500": isLiked,
                                 })}
                             >
-                                {likes}
+                                {quizData?.like_count}
                             </p>
                             <Button
                                 isIconOnly
@@ -176,8 +238,8 @@ export default function QuizDetails() {
                         </Button>
                     </div>
                     <div className="flex gap-2">
-                        {quiz.tags &&
-                            quiz.tags.map((tag) => (
+                        {quizData?.tags &&
+                            quizData?.tags.map((tag) => (
                                 <Button
                                     key={tag}
                                     color="primary"
@@ -186,7 +248,7 @@ export default function QuizDetails() {
                                     size="sm"
                                     radius="full"
                                 >
-                                    {tag}
+                                    #{tag}
                                 </Button>
                             ))}
                     </div>
