@@ -2,10 +2,42 @@ import Navbar from "../components/common/navbar.tsx";
 import CreateQuizButton from "../components/post/create-quiz-button.tsx";
 import QuizCard from "../components/quiz/quiz-card.tsx";
 import { usePageTitle } from "../components/common/usePageTitle";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { BASE_URL } from "../lib/baseURL";
+import { AuthActions } from "../components/auth/utils.tsx";
+import PostCardSkeleton from "../components/post/post-card-skeleton.tsx";
+import { Quiz, QuizResponse } from "../types.ts";
+import { convertQuizResponseToQuiz } from "../components/common/utils.tsx";
 
-export default function Quiz() {
+export default function Quizzes() {
   usePageTitle("Quizzes");
-  const quiz = {
+  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { getToken } = AuthActions();
+  const token = getToken("access");
+
+  useEffect(() => {
+    setIsLoading(true);
+    axios
+      .get(`${BASE_URL}/feed/quiz/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        console.log(response.data);
+        const quizData: QuizResponse[] = response.data;
+        setQuizzes(quizData.map(convertQuizResponseToQuiz));
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, []);
+  const quiz2 = {
     id: 1,
     author: "elifndeniz",
     title: "Fruits",
@@ -18,32 +50,32 @@ export default function Quiz() {
   };
 
   return (
-    <div className="h-screen w-screen items-center gap-4 flex flex-col">
+    <div className=" w-screen items-center gap-4 flex flex-col">
       <Navbar />
       <CreateQuizButton />
-      <QuizCard
-        key={quiz.id}
-        id={quiz.id}
-        username={quiz.author}
-        title={"Vegetables"}
-        content={"Green and healthy"}
-        picture={""}
-        timePassed={quiz.timestamp}
-        likeCount={quiz.likes}
-        tags={quiz.tags}
-      />
-      <QuizCard
-        key={quiz.id}
-        id={quiz.id}
-        username={quiz.author}
-        title={quiz.title}
-        content={quiz.content}
-        picture={quiz.picture}
-        timePassed={quiz.timestamp}
-        likeCount={1000}
-        tags={quiz.tags} // if exists
-      />
+      {isLoading ?
+        Array(2)
+          .fill(0)
+          .map((_, index) => <PostCardSkeleton key={index} />)
+        :
+        (
+          quizzes.map((quiz) => (
+            <QuizCard
+              key={quiz.id}
+              id={quiz.id}
+              username={quiz.author.username}
+              title={quiz.quiz.title}
+              content={quiz.quiz.description}
+              picture={quiz2.picture}
+              timePassed={quiz.quiz.timestamp}
+              likeCount={quiz.engagement.like_count}
+              tags={quiz.quiz.tags}
+              initialIsLiked={quiz.engagement.is_liked}
+              initialIsBookmarked={quiz.engagement.is_bookmarked}
+              timesTaken={quiz.quiz.times_taken}
+            />
+          ))
+        )}
     </div>
   );
 }
-
