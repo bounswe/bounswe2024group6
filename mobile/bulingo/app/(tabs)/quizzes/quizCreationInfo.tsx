@@ -81,6 +81,30 @@ const QuizCreationInfo = () => {
     setShowButtonIndex(null);
   };
 
+  const handleNewSuggestions = async () => {
+    try {
+      if (selectedType === 'Type I') {
+        const response = await TokenManager.authenticatedFetch(`/get-turkish/${question}/`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (!response.ok) {
+          setNewAnswer('');
+          return;
+        }
+        const data = await response.json();
+        const translation = data["turkish_translation"];
+        setNewAnswer(translation);
+        
+      }
+    } catch (error) {
+      console.error('Error fetching word meaning:', error);
+      setCurrentSuggestion('');
+    }
+  };
   return (
     <TouchableWithoutFeedback onPress={resetSelections} accessible={false}>
     <View style={styles.container}>
