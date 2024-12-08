@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import TokenManager from '../TokenManager';
 import AdminOptions from './adminOptions';
+import TagEdit from './tagEdit';
 import PressableText from '../pressableText';
 
 interface PostCardProps {
@@ -34,10 +35,14 @@ const PostCard: React.FC<PostCardProps> = ({
   onPress,
 }) => {
   const [isAdminOptionsVisible, setIsAdminOptionsVisible] = useState(false);
+  const [isTagEditVisible, setIsTagEditVisible] = useState(false);
 
 
   return (
     <>
+      { isTagEditVisible && 
+        <TagEdit type="Quiz" id='placeholder' onClose={() => setIsTagEditVisible(false)}/>
+      }
       { isAdminOptionsVisible &&
         <AdminOptions onClose={()=>setIsAdminOptionsVisible(false)} options={[
           {
@@ -46,7 +51,10 @@ const PostCard: React.FC<PostCardProps> = ({
           },
           {
             text: "Change Post Tags",
-            onPress: ()=>{console.log("Change Post Tags Pressed") /* Placeholder until endpoint is ready */ }
+            onPress: ()=>{
+              setIsTagEditVisible(true);
+              console.log("Change Post Tags Pressed") /* Placeholder until endpoint is ready */ 
+            }
           },
         ]}
         />

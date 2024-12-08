@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { TouchableOpacity, Image, Text, View, StyleSheet, useColorScheme } from 'react-native';
 import AdminOptions from './adminOptions';
+import TagEdit from './tagEdit';
 import TokenManager from '../TokenManager';
 import { FontAwesome } from '@expo/vector-icons';
 import PressableText from '../pressableText';
@@ -24,6 +25,7 @@ export default function QuizCard(props: QuizCardProps){
   const [likes, setLikes] = useState(props.likes);
   const [liked, setLiked] = useState(props.liked);
   const [isAdminOptionsVisible, setIsAdminOptionsVisible] = useState(false);
+  const [isTagEditVisible, setIsTagEditVisible] = useState(false);
 
   const colorScheme = useColorScheme();
   const styles = getStyles(colorScheme);
@@ -51,6 +53,9 @@ export default function QuizCard(props: QuizCardProps){
 
   return (
     <>
+      { isTagEditVisible && 
+        <TagEdit type="Quiz" id='placeholder' onClose={() => setIsTagEditVisible(false)}/>
+      }
       { isAdminOptionsVisible &&
         <AdminOptions onClose={()=>setIsAdminOptionsVisible(false)} options={[
           {
@@ -59,7 +64,10 @@ export default function QuizCard(props: QuizCardProps){
           }, 
           {
             text: "Change Quiz Tags", 
-            onPress: ()=>{console.log("Change Quiz Tags Pressed") /* Placeholder until endpoint is ready */ }
+            onPress: ()=>{
+              setIsTagEditVisible(true);
+              console.log("Change Quiz Tags Pressed"); /* Placeholder until endpoint is ready */ 
+            }
           }, 
         ]}
         />
