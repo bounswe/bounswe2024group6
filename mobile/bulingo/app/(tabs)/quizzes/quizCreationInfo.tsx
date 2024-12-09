@@ -11,7 +11,9 @@ const QuizCreationInfo = () => {
   const [selectedType, setSelectedType] = useState('Type I');
   const [correctAnswerIndex, setCorrectAnswerIndex] = useState<number | null>(null)
   const [showInfoModal, setShowInfoModal] = useState(false);
-
+  const [prevWord, setPrevWord] = useState('');
+  const [meaningList, setMeaningList] = useState<any>([]);
+  const [meaningIndex, setMeaningIndex] = useState(0);
 
   const isButtonDisabled = () => {
     const nonEmptyAnswers = answers.filter(answer => answer.trim() !== "");
@@ -118,11 +120,74 @@ const QuizCreationInfo = () => {
       setNewAnswer(translation);
   
     }
+    else if (selectedType === 'Type III') {
+      if (prevWord !== question) {
+        setMeaningIndex(0);
+        setMeaningList([]);
+        const response = await TokenManager.authenticatedFetch(`/get-meaning/${question}/`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+      
+        setPrevWord(question);
+          
+        if (!response.ok) {
+          setNewAnswer('');
+          return;
+        }
+        const data = await response.json();
+        console.log(data);
+        let meaning = data["meaning"];
+
+        if (meaning === undefined) {
+          setNewAnswer('');
+          return;
+        }
+        let tempList = [];
+        if (meaning.includes(',')) {
+          tempList = meaning.split(',');
+        } 
+        else {
+          tempList.push(meaning);
+        }
+
+        for (let i = 0; i < tempList.length; i++) {
+          if (tempList[i] === 'None') {
+            tempList.splice(i, 1);
+          }
+        }
+        console.log(tempList);
+        setMeaningList(tempList); 
+        setNewAnswer(tempList[0]);
+    }
+    else{
+      let tempIndex = 0
+      if (meaningIndex >= meaningList.length - 1) {
+        setMeaningIndex(0);
+      }
+      else{
+        tempIndex = meaningIndex + 1;
+        setMeaningIndex(tempIndex);
+      }
+      if (meaningList.length > 0){
+        console.log(tempIndex);
+        setNewAnswer(meaningList[tempIndex]);
+      }
+      else{ 
+        setNewAnswer('');
+      }
+    }
+
+      
+    }
     } catch (error) {
       console.error('Error fetching word meaning:', error);
-      setCurrentSuggestion('');
+      setNewAnswer('');
     }
   };
+
   return (
     <TouchableWithoutFeedback onPress={resetSelections} accessible={false}>
     <View style={styles.container}>
