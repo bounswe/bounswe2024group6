@@ -1,6 +1,7 @@
 import React, { useState, useEffect} from 'react';
-import { Keyboard, StyleSheet, Text, TextInput, View, TouchableWithoutFeedback, Image, TouchableOpacity, useColorScheme, Modal } from 'react-native';
+import { ScrollView, Keyboard, Pressable, StyleSheet, Text, TextInput, View, TouchableWithoutFeedback, Image, TouchableOpacity, useColorScheme, Modal } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
+import TokenManager from '@/app/TokenManager';
 
 const QuizCreationInfo = () => {
   const [question, setQuestion] = useState('');
@@ -230,7 +231,7 @@ const QuizCreationInfo = () => {
                 {row.map((answer, colIndex) => {
                   const answerIndex = rowIndex * 2 + colIndex;
                   return (
-                    <TouchableOpacity
+                    <Pressable
                       style={[
                         styles.answerBox,
                         correctAnswerIndex === answerIndex
@@ -244,12 +245,20 @@ const QuizCreationInfo = () => {
                       onLongPress={() => handleLongPress(answerIndex)}
                       key={answerIndex}
                     >
-                      <Text style={styles.answerText}
-                        numberOfLines={1} 
-                        ellipsizeMode="tail"
-                      >{answer}</Text>
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        style={styles.textContainer}
+                      >
+                        <View onStartShouldSetResponder={() => true}>
+                           <Text style={styles.answerText}
+                           onPress={() => handleAnswerClick(answerIndex)}
+                           onLongPress={() => handleLongPress(answerIndex)}
+                          >{answer}</Text>
+                          
+                        </View>
+                    </ScrollView>
 
-                                      {/* Show the button if the user long-pressed this tile */}
                     {showButtonIndex === answerIndex && (
                       <TouchableOpacity
                         style={styles.selectButton}
@@ -263,7 +272,7 @@ const QuizCreationInfo = () => {
                       </TouchableOpacity>
                     )}
 
-                    </TouchableOpacity>
+                    </Pressable>
                     );
                 })}
               </View>
@@ -271,7 +280,6 @@ const QuizCreationInfo = () => {
           </View>
         </View>
 
-        {/* Add Answer Header */}
         <Text style={styles.label}>Add Answer:</Text>
         <View style={styles.addAnswerContainer}>
           <TextInput
@@ -285,17 +293,19 @@ const QuizCreationInfo = () => {
           </TouchableOpacity>
         </View>
 
-        {/* Suggestions Header */}
-        <Text style={styles.label}>Suggestions:</Text>
         <View style={styles.suggestionsContainer}>
-          {['makarna', 'pilav', 'kek','yogurt'].map((suggestion, index) => (
-            <TouchableOpacity key={index} style={styles.suggestionButton} onPress={() => setNewAnswer(suggestion)}>
-              <Text style={styles.suggestionText}>{suggestion}</Text>
-            </TouchableOpacity>
-          ))}
+          <TouchableOpacity
+            style={styles.newSuggestionButton}
+            onPress={() => 
+              {
+                handleNewSuggestions();
+              }
+          }
+          >
+            <Text style={styles.newSuggestionText}>New Suggestion!</Text>
+          </TouchableOpacity>
         </View>
 
-        {/* Navigation Buttons */}
         <View style={styles.navButtonsContainer}>
           <TouchableOpacity style={styles.backButton} onPress={() => handleGoBack()}>
             
@@ -447,15 +457,16 @@ const getStyles = (colorScheme: any) => {
       color: isDark ? '#fff' : '#000',
     },
     suggestionsContainer: {
-      flexDirection: 'row',
+      flexDirection: 'column',
       justifyContent: 'space-between',
-      marginBottom: 20,
+      marginBottom: 10,
     },
     suggestionButton: {
       backgroundColor: isDark ? '#444' : '#d1e7dd',
       padding: 5,
-      width: 80,
-      height: 40,
+      width: 250,
+      height: 150,
+      alignSelf: 'center',
       borderRadius: 10,
       justifyContent: 'center',
       alignItems: 'center',
@@ -569,10 +580,39 @@ const getStyles = (colorScheme: any) => {
       color: 'white',
       fontWeight: 'bold',
     },
+    textContainer: {
+      marginHorizontal: 5,
+    },
+    currentSuggestionText: {
+      fontSize: 15,
+      fontWeight: 'bold',
+      color: '#333',
+      textAlign: 'center',
+    },
+    newSuggestionButton: {
+      paddingVertical: 10,
+      marginVertical: 10,
+      paddingHorizontal: 6,
+      alignSelf: 'center',
+      width: 200,
+      backgroundColor: '#007BFF',
+      borderRadius: 5,
+    },
+    newSuggestionText: {
+      fontSize: 16,
+      color: '#fff',
+      textAlign: 'center',
+    },
     
-  
-    
-
+    scrollContainer: {
+      flexGrow: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    scrollViewStyle: {  
+      justifyContent: 'center', 
+      alignItems: 'center', 
+    },
   });
 };
 
