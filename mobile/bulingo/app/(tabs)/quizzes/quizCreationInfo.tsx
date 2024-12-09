@@ -15,6 +15,7 @@ const QuizCreationInfo = () => {
   const [prevWord, setPrevWord] = useState('');
   const [meaningList, setMeaningList] = useState<any>([]);
   const [meaningIndex, setMeaningIndex] = useState(0);
+  const [error, setError] = useState('');
 
   const isButtonDisabled = () => {
     const nonEmptyAnswers = answers.filter(answer => answer.trim() !== "");
@@ -96,11 +97,13 @@ const QuizCreationInfo = () => {
         
         if (!response.ok) {
           setNewAnswer('');
+          setError('Meaning not available.');
           return;
         }
         const data = await response.json();
         const translation = data["turkish_translation"];
         setNewAnswer(translation);
+        setError('');
         
       }
       else if (selectedType === 'Type II') {
@@ -113,12 +116,14 @@ const QuizCreationInfo = () => {
   
       if (!response.ok) {
         setNewAnswer('');
+        setError('Meaning not available.');
         return;
       }
       const data = await response.json();
       console.log(data);
       const translation = data["english_word"];
       setNewAnswer(translation);
+      setError('');
   
     }
     else if (selectedType === 'Type III') {
@@ -136,6 +141,7 @@ const QuizCreationInfo = () => {
           
         if (!response.ok) {
           setNewAnswer('');
+          setError('Meaning not available.');
           return;
         }
         const data = await response.json();
@@ -144,6 +150,7 @@ const QuizCreationInfo = () => {
 
         if (meaning === undefined) {
           setNewAnswer('');
+          setError('Meaning not available.');
           return;
         }
         let tempList = [];
@@ -175,6 +182,7 @@ const QuizCreationInfo = () => {
         console.log(tempList);
         setMeaningList(tempList); 
         setNewAnswer(tempList[0]);
+        setError('');
     }
     else{
       let tempIndex = 0
@@ -188,9 +196,11 @@ const QuizCreationInfo = () => {
       if (meaningList.length > 0){
         console.log(tempIndex);
         setNewAnswer(meaningList[tempIndex]);
+        setError('');
       }
       else{ 
         setNewAnswer('');
+        setError('Meaning not available.')
       }
     }
 
@@ -199,6 +209,7 @@ const QuizCreationInfo = () => {
     } catch (error) {
       console.error('Error fetching word meaning:', error);
       setNewAnswer('');
+      setError('Meaning not available.');
     }
   };
 
@@ -317,6 +328,9 @@ const QuizCreationInfo = () => {
           >
             <Text style={styles.newSuggestionText}>New Suggestion!</Text>
           </TouchableOpacity>
+          <View style={{ minHeight: 18 }}>
+          {error ? <Text style={styles.error}>{error}</Text> : null}
+          </View>
         </View>
 
         <View style={styles.navButtonsContainer}>
@@ -472,7 +486,7 @@ const getStyles = (colorScheme: any) => {
     suggestionsContainer: {
       flexDirection: 'column',
       justifyContent: 'space-between',
-      marginBottom: 10,
+      marginBottom: 20,
     },
     suggestionButton: {
       backgroundColor: isDark ? '#444' : '#d1e7dd',
@@ -625,6 +639,12 @@ const getStyles = (colorScheme: any) => {
     scrollViewStyle: {  
       justifyContent: 'center', 
       alignItems: 'center', 
+    },
+    error: {
+      color: '#FF0000',
+      fontSize: 13,
+      textAlign: 'center',
+      fontWeight: 'bold',
     },
   });
 };
