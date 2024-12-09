@@ -149,8 +149,21 @@ const QuizCreationInfo = () => {
         let tempList = [];
         if (meaning.includes(',')) {
           tempList = meaning.split(',');
+          for (let i = 0; i < tempList.length; i++) {
+            tempList[i] = tempList[i].trim();
+          }
+          for (let i = 0; i < tempList.length; i++) {
+            console.log(tempList[i].charAt(tempList[i].length - 1));
+            if (tempList[i].charAt(tempList[i].length - 1) === ';') {
+              tempList[i] = tempList[i].substring(0, tempList[i].length - 1);
+            }
+          }
         } 
         else {
+          meaning = meaning.trim();
+          if (meaning.charAt(meaning.length - 1) === ';') {
+            meaning = meaning.substring(0, meaning.length - 1);
+          }
           tempList.push(meaning);
         }
 
