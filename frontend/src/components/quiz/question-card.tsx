@@ -6,12 +6,18 @@ import {
   Divider,
   Button,
 } from "@nextui-org/react";
+import { option } from "framer-motion/client";
 
 type Props = {
   ques_count: number;
   cur_question: number;
   answers: Answer[];
   setAnswers: (answers: Answer[]) => void;
+  option_a: string;
+  option_b: string;
+  option_c: string;
+  option_d: string;
+  question: string;
 };
 enum Answer {
   None,
@@ -26,6 +32,11 @@ export default function App({
   cur_question,
   answers,
   setAnswers,
+  option_a,
+  option_b,
+  option_c,
+  option_d,
+  question,
 }: Props) {
   function handleClick(answer: Answer) {
     return () => {
@@ -50,7 +61,7 @@ export default function App({
       </CardHeader>
       <Divider />
       <CardBody className="flex flex-col justify-center shadow-lg rounded-lg w-[550px] h-[200px]">
-        <p className="text-center text-5xl text-blue-900">Lamb</p>
+        <p className="text-center text-5xl text-blue-900">{question}</p>
       </CardBody>
 
       <CardFooter className="w-[550px] h-[170px] py-6">
@@ -63,7 +74,7 @@ export default function App({
             }
             className=" flex items-center justify-center text-xl h-12 mx-3"
           >
-            Kuzu
+            {option_a}
           </Button>
           <Button
             color="primary"
@@ -73,7 +84,7 @@ export default function App({
             }
             className=" flex items-center justify-center text-xl h-12 mx-3"
           >
-            Lamba
+            {option_b}
           </Button>
           <Button
             color="primary"
@@ -83,7 +94,7 @@ export default function App({
             }
             className=" flex items-center justify-center text-xl h-12 mx-3"
           >
-            Koç
+            {option_c}
           </Button>
           <Button
             color="primary"
@@ -93,7 +104,7 @@ export default function App({
             }
             className=" flex items-center justify-center text-xl h-12 mx-3"
           >
-            Işık
+            {option_d}
           </Button>
         </div>
       </CardFooter>

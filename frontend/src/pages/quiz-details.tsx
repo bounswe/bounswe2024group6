@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import Navbar from "../components/common/navbar.tsx";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
-import Cookies from "js-cookie";
-
 import {
     Card,
     CardHeader,
@@ -44,7 +42,6 @@ export default function QuizDetails() {
     const [hasAttempted, setHasAttempted] = useState(quizData?.is_solved);
 
     useEffect(() => {
-        console.log(quizID)
         if (quizID) {
             setIsLoading(true);
             axios
