@@ -14,9 +14,13 @@ enum Answer {
   C,
   D,
 }
+import { BASE_URL } from "../../lib/baseURL.ts";
+import axios from "axios";
+import { AuthActions } from "../../components/auth/utils.tsx";
 
 const SidebarLayout = ({
   id,
+  quiz_progress_id,
   cur_question,
   setCurrentPage,
   answers,
@@ -27,6 +31,9 @@ const SidebarLayout = ({
   const sidebarClasses = `fixed top-32 right-0 w-[15vw] h-96 transition-transform duration-500 ease-in-out transform ${
     isOpen ? "translate-x-0" : "translate-x-full"
   }`;
+
+  const { getToken } = AuthActions();
+  const token = getToken("access");
 
   const buttonClasses = `fixed top-40 transition-transform duration-500 ease-in-out transform ${
     isOpen ? "translate-x-[-15vw] " : "translate-x-0"
@@ -65,10 +72,30 @@ const SidebarLayout = ({
           </CardBody>
           <Divider />
           <CardFooter className="flex items-center justify-center gap-2">
-            <Button color="primary" variant="faded" className="items-center">
+            <Button onClick={() => navigate(`/quiz/${id}/details`)} color="primary" variant="faded" className="items-center">
               Quit Quiz
             </Button>
-            <Button color="primary" onClick={() => navigate(`/quiz/${id}/end`)} variant="solid" className="items-center">
+            <Button color="primary" onClick={
+              async () => {
+                try {
+                  const response = await axios.post(
+                    `${BASE_URL}/quiz/submit/`,
+                    {
+                      quiz_progress_id: quiz_progress_id, 
+                    },
+                    {
+                      headers: {
+                        Authorization: `Bearer ${token}`,
+                      },
+                    }
+                  );
+                  console.log("Quiz Finished:", response.data);
+                  navigate(`/quiz/${id}/end`);
+                } catch (error) {
+                  console.error("Error finishing quiz:", error);
+                }
+              }}
+              variant="solid" className="items-center">
               Finish Quiz
             </Button>
           </CardFooter>

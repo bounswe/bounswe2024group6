@@ -22,7 +22,7 @@ export default function Quizzes() {
   const [quizData, setQuizData] = useState<any>(null);
   const [currentPage, setCurrentPage] = React.useState(1);
   const [answers, setAnswers] = useState(Array(10).fill(Answer.None));
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const { getToken } = AuthActions();
   const token = getToken("access");
@@ -46,9 +46,10 @@ export default function Quizzes() {
         .then((response) => {
           console.log(response.data);
           setQuizData(response.data); // Store response data
-          setAnswers(
-            Array(response.data.question_count).fill(Answer.None) // Initialize answers array based on question count
+          const initialAnswers = response.data.questions.map(
+            (question: any) => question.previous_answer || Answer.None
           );
+          setAnswers(initialAnswers);
         })
         .catch((error) => {
           console.log(error);
@@ -71,6 +72,7 @@ export default function Quizzes() {
 
       <SidebarLayout
         id={quizID}
+        quiz_progress_id={quizData?.quiz_progress_id}
         cur_question={currentPage}
         setCurrentPage={setCurrentPage}
         answers={answers}
@@ -83,6 +85,7 @@ export default function Quizzes() {
           </h1>
           <div className="flex flex-col items-center py-4">
             <QuestionCard
+              quiz_progress_id={quizData?.quiz_progress_id}
               ques_count={quizData?.question_count}
               answers={answers}
               setAnswers={setAnswers}
