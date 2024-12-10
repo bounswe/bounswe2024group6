@@ -1,6 +1,7 @@
 import React, { useState, useEffect} from 'react';
-import { Keyboard, StyleSheet, Text, TextInput, View, TouchableWithoutFeedback, Image, TouchableOpacity, useColorScheme, Modal } from 'react-native';
+import { ScrollView, Keyboard, Pressable, StyleSheet, Text, TextInput, View, TouchableWithoutFeedback, Image, TouchableOpacity, useColorScheme, Modal } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
+import TokenManager from '@/app/TokenManager';
 
 const QuizCreationInfo = () => {
   const [question, setQuestion] = useState('');
@@ -11,7 +12,10 @@ const QuizCreationInfo = () => {
   const [selectedType, setSelectedType] = useState('Type I');
   const [correctAnswerIndex, setCorrectAnswerIndex] = useState<number | null>(null)
   const [showInfoModal, setShowInfoModal] = useState(false);
-
+  const [prevWord, setPrevWord] = useState('');
+  const [meaningList, setMeaningList] = useState<any>([]);
+  const [meaningIndex, setMeaningIndex] = useState(0);
+  const [error, setError] = useState('');
 
   const isButtonDisabled = () => {
     const nonEmptyAnswers = answers.filter(answer => answer.trim() !== "");
@@ -81,6 +85,134 @@ const QuizCreationInfo = () => {
     setShowButtonIndex(null);
   };
 
+  const handleNewSuggestions = async () => {
+    try {
+      if (selectedType === 'Type I') {
+        const response = await TokenManager.authenticatedFetch(`/get-turkish/${question}/`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (!response.ok) {
+          setNewAnswer('');
+          setError('Meaning not available.');
+          return;
+        }
+        const data = await response.json();
+        const translation = data["turkish_translation"];
+        setNewAnswer(translation);
+        setError('');
+        
+      }
+      else if (selectedType === 'Type II') {
+      const response = await TokenManager.authenticatedFetch(`/get-english/${question}/`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (!response.ok) {
+        setNewAnswer('');
+        setError('Meaning not available.');
+        return;
+      }
+      const data = await response.json();
+      console.log(data);
+      const translation = data["english_word"];
+      setNewAnswer(translation);
+      setError('');
+  
+    }
+    else if (selectedType === 'Type III') {
+      if (prevWord !== question) {
+        setMeaningIndex(0);
+        setMeaningList([]);
+        const response = await TokenManager.authenticatedFetch(`/get-meaning/${question}/`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+      
+        setPrevWord(question);
+          
+        if (!response.ok) {
+          setNewAnswer('');
+          setError('Meaning not available.');
+          return;
+        }
+        const data = await response.json();
+        console.log(data);
+        let meaning = data["meaning"];
+
+        if (meaning === undefined) {
+          setNewAnswer('');
+          setError('Meaning not available.');
+          return;
+        }
+        let tempList = [];
+        if (meaning.includes(',')) {
+          tempList = meaning.split(',');
+          for (let i = 0; i < tempList.length; i++) {
+            tempList[i] = tempList[i].trim();
+          }
+          for (let i = 0; i < tempList.length; i++) {
+            console.log(tempList[i].charAt(tempList[i].length - 1));
+            if (tempList[i].charAt(tempList[i].length - 1) === ';') {
+              tempList[i] = tempList[i].substring(0, tempList[i].length - 1);
+            }
+          }
+        } 
+        else {
+          meaning = meaning.trim();
+          if (meaning.charAt(meaning.length - 1) === ';') {
+            meaning = meaning.substring(0, meaning.length - 1);
+          }
+          tempList.push(meaning);
+        }
+
+        for (let i = 0; i < tempList.length; i++) {
+          if (tempList[i] === 'None') {
+            tempList.splice(i, 1);
+          }
+        }
+        console.log(tempList);
+        setMeaningList(tempList); 
+        setNewAnswer(tempList[0]);
+        setError('');
+    }
+    else{
+      let tempIndex = 0
+      if (meaningIndex >= meaningList.length - 1) {
+        setMeaningIndex(0);
+      }
+      else{
+        tempIndex = meaningIndex + 1;
+        setMeaningIndex(tempIndex);
+      }
+      if (meaningList.length > 0){
+        console.log(tempIndex);
+        setNewAnswer(meaningList[tempIndex]);
+        setError('');
+      }
+      else{ 
+        setNewAnswer('');
+        setError('Meaning not available.')
+      }
+    }
+
+      
+    }
+    } catch (error) {
+      console.error('Error fetching word meaning:', error);
+      setNewAnswer('');
+      setError('Meaning not available.');
+    }
+  };
+
   return (
     <TouchableWithoutFeedback onPress={resetSelections} accessible={false}>
     <View style={styles.container}>
@@ -123,7 +255,7 @@ const QuizCreationInfo = () => {
                 {row.map((answer, colIndex) => {
                   const answerIndex = rowIndex * 2 + colIndex;
                   return (
-                    <TouchableOpacity
+                    <Pressable
                       style={[
                         styles.answerBox,
                         correctAnswerIndex === answerIndex
@@ -137,12 +269,20 @@ const QuizCreationInfo = () => {
                       onLongPress={() => handleLongPress(answerIndex)}
                       key={answerIndex}
                     >
-                      <Text style={styles.answerText}
-                        numberOfLines={1} 
-                        ellipsizeMode="tail"
-                      >{answer}</Text>
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        style={styles.textContainer}
+                      >
+                        <View onStartShouldSetResponder={() => true}>
+                           <Text style={styles.answerText}
+                           onPress={() => handleAnswerClick(answerIndex)}
+                           onLongPress={() => handleLongPress(answerIndex)}
+                          >{answer}</Text>
+                          
+                        </View>
+                    </ScrollView>
 
-                                      {/* Show the button if the user long-pressed this tile */}
                     {showButtonIndex === answerIndex && (
                       <TouchableOpacity
                         style={styles.selectButton}
@@ -156,7 +296,7 @@ const QuizCreationInfo = () => {
                       </TouchableOpacity>
                     )}
 
-                    </TouchableOpacity>
+                    </Pressable>
                     );
                 })}
               </View>
@@ -164,7 +304,6 @@ const QuizCreationInfo = () => {
           </View>
         </View>
 
-        {/* Add Answer Header */}
         <Text style={styles.label}>Add Answer:</Text>
         <View style={styles.addAnswerContainer}>
           <TextInput
@@ -178,17 +317,22 @@ const QuizCreationInfo = () => {
           </TouchableOpacity>
         </View>
 
-        {/* Suggestions Header */}
-        <Text style={styles.label}>Suggestions:</Text>
         <View style={styles.suggestionsContainer}>
-          {['makarna', 'pilav', 'kek','yogurt'].map((suggestion, index) => (
-            <TouchableOpacity key={index} style={styles.suggestionButton} onPress={() => setNewAnswer(suggestion)}>
-              <Text style={styles.suggestionText}>{suggestion}</Text>
-            </TouchableOpacity>
-          ))}
+          <TouchableOpacity
+            style={styles.newSuggestionButton}
+            onPress={() => 
+              {
+                handleNewSuggestions();
+              }
+          }
+          >
+            <Text style={styles.newSuggestionText}>New Suggestion!</Text>
+          </TouchableOpacity>
+          <View style={{ minHeight: 18 }}>
+          {error ? <Text style={styles.error}>{error}</Text> : null}
+          </View>
         </View>
 
-        {/* Navigation Buttons */}
         <View style={styles.navButtonsContainer}>
           <TouchableOpacity style={styles.backButton} onPress={() => handleGoBack()}>
             
@@ -340,15 +484,16 @@ const getStyles = (colorScheme: any) => {
       color: isDark ? '#fff' : '#000',
     },
     suggestionsContainer: {
-      flexDirection: 'row',
+      flexDirection: 'column',
       justifyContent: 'space-between',
       marginBottom: 20,
     },
     suggestionButton: {
       backgroundColor: isDark ? '#444' : '#d1e7dd',
       padding: 5,
-      width: 80,
-      height: 40,
+      width: 250,
+      height: 150,
+      alignSelf: 'center',
       borderRadius: 10,
       justifyContent: 'center',
       alignItems: 'center',
@@ -462,10 +607,45 @@ const getStyles = (colorScheme: any) => {
       color: 'white',
       fontWeight: 'bold',
     },
+    textContainer: {
+      marginHorizontal: 5,
+    },
+    currentSuggestionText: {
+      fontSize: 15,
+      fontWeight: 'bold',
+      color: '#333',
+      textAlign: 'center',
+    },
+    newSuggestionButton: {
+      paddingVertical: 10,
+      marginVertical: 10,
+      paddingHorizontal: 6,
+      alignSelf: 'center',
+      width: 200,
+      backgroundColor: '#007BFF',
+      borderRadius: 5,
+    },
+    newSuggestionText: {
+      fontSize: 16,
+      color: '#fff',
+      textAlign: 'center',
+    },
     
-  
-    
-
+    scrollContainer: {
+      flexGrow: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    scrollViewStyle: {  
+      justifyContent: 'center', 
+      alignItems: 'center', 
+    },
+    error: {
+      color: '#FF0000',
+      fontSize: 13,
+      textAlign: 'center',
+      fontWeight: 'bold',
+    },
   });
 };
 
