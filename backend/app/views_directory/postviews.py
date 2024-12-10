@@ -114,7 +114,7 @@ def delete_post(request):
 
     post = get_object_or_404(Post, id=post_id)
 
-    if post.author != request.user.username:
+    if post.author != request.user.username and not request.user.is_staff:
         return Response({"detail": "You do not have permission to delete this post."}, status=status.HTTP_403_FORBIDDEN)
 
     post.delete()
