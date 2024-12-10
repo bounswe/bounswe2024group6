@@ -13,9 +13,28 @@ from app.views_directory.bookmark_views import bookmark_post, unbookmark_post, g
 from app.views_directory.searchview import SearchView
 
 import app.views_directory.quiz_views as quiz_views
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+from rest_framework import permissions
+
+schema_view = get_schema_view(
+    openapi.Info(
+        title="Your API Title",
+        default_version='v1',
+        description="API documentation for your project.",
+        terms_of_service="https://www.yourapp.com/terms/",
+        contact=openapi.Contact(email="contact@yourapp.com"),
+        license=openapi.License(name="BSD License"),
+    ),
+    public=True,  # Set to False if you want to restrict access
+    permission_classes=(permissions.AllowAny,),  # Adjust permissions as needed
+)
+
 
 urlpatterns = [
     path('', index , name='index_page'),
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+
     path('profile/', view_profile, name='view_profile'),
     path('profile/update/', update_profile, name='update_profile'),
     path('quiz/<int:quiz_id>/', quiz_views.get_quiz, name="get_quiz"),
