@@ -44,9 +44,20 @@ INSTALLED_APPS = [
     'corsheaders', 
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
-
-
+    'drf_yasg',
 ]
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    },
+    'USE_SESSION_AUTH': False,
+}
+
 
 from datetime import timedelta
 
