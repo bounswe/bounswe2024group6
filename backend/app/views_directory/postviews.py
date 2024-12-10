@@ -114,7 +114,7 @@ def delete_post(request):
 
     post = get_object_or_404(Post, id=post_id)
 
-    if post.author != request.user.username:
+    if post.author != request.user.username and not request.user.is_staff:
         return Response({"detail": "You do not have permission to delete this post."}, status=status.HTTP_403_FORBIDDEN)
 
     post.delete()
@@ -147,6 +147,33 @@ def get_posts_of_user(request):
     ]
 
     return Response({"posts": posts_data}, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def update_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+
+    if post.author != request.user.username and not request.user.is_staff:
+        return Response({"detail": "You do not have permission to update this post."}, status=status.HTTP_403_FORBIDDEN)
+
+    tags = request.data.get("tags", [])
+    if not isinstance(tags, list):
+        return Response({"detail": "Tags must be a list of strings."}, status=status.HTTP_400_BAD_REQUEST)
+
+    post.tags = tags
+
+    title = request.data.get("title")
+    if title:
+        post.title = title
+    
+    description = request.data.get("description")
+    if description:
+        post.description = description
+    
+    post.save()
+
+    return Response({"detail": "Post updated successfully."}, status=status.HTTP_200_OK)
 
 
 
