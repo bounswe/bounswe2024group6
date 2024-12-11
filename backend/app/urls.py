@@ -36,6 +36,7 @@ urlpatterns = [
     path('quiz/review/<int:quiz_result_id>/', quiz_views.get_quiz_review, name="review_quiz"),
     path('quiz/recommend/<int:quiz_id>/', quiz_views.get_quiz_recommendations, name="recommend_quiz"),
     path('quiz/review_latest/<int:quiz_id>/', quiz_views.get_latest_quiz_review, name="review_latest_quiz"),
+    path('quiz/cancel/', quiz_views.cancel_quiz, name="cancel_quiz"),
 
 
     path('create-post/',create_post, name='create_post'),
