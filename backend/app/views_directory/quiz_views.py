@@ -40,7 +40,6 @@ def create_quiz(request):
     return Response(quizSerializer.data, status=status.HTTP_201_CREATED)
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
 def view_quizzes(request):
     quizzes = Quiz.objects.all()
     # TODO: paginate the results
@@ -226,13 +225,13 @@ def get_question(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
 def get_quiz(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
     serializer = QuizSerializer(quiz, context = {'request': request})
     data = {'quiz': serializer.data}
-    data['is_solved'] = QuizProgress.objects.filter(quiz=quiz, user=request.user, completed=True).exists()
-    data['quiz_result_id'] = QuizResults.objects.filter(quiz=quiz, user=request.user).order_by('-id').first().id if data['is_solved'] else None
+    if request.user.is_authenticated:    
+        data['is_solved'] = QuizProgress.objects.filter(quiz=quiz, user=request.user, completed=True).exists()
+        data['quiz_result_id'] = QuizResults.objects.filter(quiz=quiz, user=request.user).order_by('-id').first().id if data['is_solved'] else None
     return Response(data, status=status.HTTP_200_OK)
 
 
