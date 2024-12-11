@@ -37,8 +37,8 @@ urlpatterns = [
     path('quiz/recommend/<int:quiz_id>/', quiz_views.get_quiz_recommendations, name="recommend_quiz"),
     path('quiz/review_latest/<int:quiz_id>/', quiz_views.get_latest_quiz_review, name="review_latest_quiz"),
 
-    path('word/bookmark/', bookmark_word, name='bookmark_word'),
-    path('word/unbookmark/', unbookmark_word, name='unbookmark_word'),
+    path('word/bookmark/<str:word>/', bookmark_word, name='bookmark_word'),
+    path('word/unbookmark/<str:word>/', unbookmark_word, name='unbookmark_word'),
     path('word/bookmarks/', get_bookmarked_words, name='get_bookmarked_words'),
 
 

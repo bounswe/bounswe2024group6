@@ -24,12 +24,11 @@ import requests
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def bookmark_word(request):
+def bookmark_word(request, word):
     """
     Bookmark a word for the user.
     """
     try:
-        word = request.data.get('word')
         user = request.user
         bookmark, created = WordBookmark.objects.get_or_create(user=user, word=word)
         if not created:
@@ -43,12 +42,11 @@ def bookmark_word(request):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def unbookmark_word(request):
+def unbookmark_word(request, word):
     """
     Unbookmark a word for the user.
     """
     try:
-        word = request.data.get('word')
         user = request.user
         bookmark = WordBookmark.objects.filter(user=user, word=word).first()
         if not bookmark:
