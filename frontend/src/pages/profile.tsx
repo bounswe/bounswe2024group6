@@ -15,7 +15,7 @@ import PostCardSkeleton from "../components/post/post-card-skeleton.tsx";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { BASE_URL } from "../lib/baseURL";
-import type { Post, Profile, ProfileResponse } from "../types.ts";
+import type { Post, Profile, ProfileResponse, Quiz } from "../types.ts";
 import {
   IconBookmark,
   IconSquareRoundedCheck,
@@ -26,9 +26,11 @@ import { AuthActions } from "../components/auth/utils.tsx";
 import {
   convertPostResponseToPost,
   convertProfileResponseToProfile,
+  convertQuizResponseToQuiz,
 } from "../components/common/utils.tsx";
 import Cookies from "js-cookie";
 import { usePageTitle } from "../components/common/usePageTitle.ts";
+import QuizCard from "../components/quiz/quiz-card.tsx";
 
 export default function Profile() {
   usePageTitle("Profile");
@@ -40,6 +42,7 @@ export default function Profile() {
   const [isFollowing, setIsFollowing] = useState(false);
   const [followCount, setFollowCount] = useState(0);
   const [bookmarkedPosts, setBookmarkedPosts] = useState<Post[]>([]);
+  const [solvedQuizzes, setSolvedQuizzes] = useState<Quiz[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -101,6 +104,26 @@ export default function Profile() {
     } else {
       console.log("Not fetching bookmarked posts");
     }
+  }, [token]);
+
+  useEffect(() => {
+    axios
+        .get(
+          `${BASE_URL}/quiz/solved/${username}/`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+        .then((response) => {
+          console.log(response.data);
+          const solved = response.data.map(convertQuizResponseToQuiz);
+          setSolvedQuizzes(solved);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
   }, [token]);
 
   const toggleFollow = () => {
@@ -260,7 +283,24 @@ export default function Profile() {
               </div>
             }
           >
-            <p></p>
+            <div className="flex flex-col gap-4 items-center">
+                {solvedQuizzes.map((quiz) => (
+                  <Suspense key={quiz.id} fallback={<PostCardSkeleton />}>
+                    <QuizCard
+                      id={quiz.id}
+                      username={quiz.author.username}
+                      title={quiz.quiz.title}
+                      content={quiz.quiz.description}
+                      timePassed={quiz.quiz.timestamp}
+                      timesTaken={quiz.quiz.times_taken}
+                      likeCount={quiz.engagement.like_count}
+                      tags={quiz.quiz.tags}
+                      initialIsLiked={quiz.engagement.is_liked}
+                      initialIsBookmarked={quiz.engagement.is_bookmarked}
+                    />
+                  </Suspense>
+                ))}
+              </div>
           </Tab>
           {profile?.username === Cookies.get("username") && (
             <Tab
