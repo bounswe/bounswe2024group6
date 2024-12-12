@@ -186,9 +186,11 @@ def get_post_details(request):
         return Response({"detail": "Post ID is required."}, status=status.HTTP_400_BAD_REQUEST)
 
     post = get_object_or_404(Post, id=post_id)
-
-    is_liked = post.liked_by.filter(id=request.user.id).exists()
-    is_bookmarked = Bookmark.objects.filter(user=request.user, post=post).exists() 
+    is_liked = False
+    is_bookmarked = False
+    if request.user.is_authenticated:
+        is_liked = post.liked_by.filter(id=request.user.id).exists()
+        is_bookmarked = Bookmark.objects.filter(user=request.user, post=post).exists() 
 
     comments = post.comments.all().order_by("-created_at")
     comments_data = CommentSerializer(comments, many=True, context={'request': request}).data
