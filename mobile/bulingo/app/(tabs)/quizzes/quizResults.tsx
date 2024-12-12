@@ -5,6 +5,7 @@ import { router } from "expo-router";
 import { Dimensions } from 'react-native';
 import TokenManager from '@/app/TokenManager';
 import { FontAwesome } from '@expo/vector-icons';
+import PressableText from '@/app/pressableText';
 
 const { width, height } = Dimensions.get('window');
 
@@ -360,6 +361,80 @@ export type QuizResultsCardProps = {
   id?: number,
 }
 
+export const QuizResultsCard = (props: QuizResultsCardProps) => {
+    const { styles } = props.styles;
+  return (
+    <View style={[styles.resultsCard, styles.elevation]}>
+      <View style={styles.resultsTitleContainer}>
+        <Text style={styles.resultsTitle}>{props.quizName}</Text>
+      </View>
+      <View style={[styles.resultsScoreContainer, styles.elevation]}>
+        <Text style={styles.scoreText}>Score</Text>
+        <View style={[styles.scoreBox, styles.elevation]}>
+          <Text style={styles.scoreBoxText}>{props.score}/{props.maxScore}</Text>
+        </View>
+      </View>
+      <View style={styles.bottomMessageContainer}>
+          <Text style={styles.bottomMessage}>Congrats!</Text>
+          <Text style={styles.bottomMessage}>Keep it up!</Text>
+        </View>
+      <View style={styles.resultsBottomContainer}>
+      <View style={styles.resultsTagsContainer}>
+        {props.tags.map((item, index) => (
+            <View style={styles.tagBox} key={index}>
+              <Text style={styles.tagText}>{item}</Text>
+            </View>
+        ))}
+      </View>
+          <TouchableOpacity>
+              <Image style={styles.bottomButtonLike} source={require('@/assets/images/like-1.png')}/>
+          </TouchableOpacity>
+
+          <TouchableOpacity>
+            <Image style={[styles.bottomButtonBookmark, {borderWidth: 0}]} source={require('@/assets/images/bookmark-icon.png')}/>
+          </TouchableOpacity>
+        </View>
+    </View>
+  );
+};
+
+export const QuizCard = (props: {
+  name: string;
+  desc: string;
+  author: string;
+  tags: string[];
+  styles: any;
+  id?: number;
+}) => {
+  const { styles } = props.styles;
+  return (
+    <TouchableOpacity
+    style={[styles.quizItem, styles.elevation]}
+    onPress={() => router.navigate({
+      pathname: '/(tabs)/quizzes/quizDetails', 
+      params:{id : props?.id},})}
+  >
+    <View style={styles.quizInfo}>
+      <Text style={styles.quizTitle}>{props.name}</Text>
+      <PressableText style={styles.quizDescription} text={props.desc}/>
+      
+      {/* <Text style={styles.quizDescription}>{props.desc}</Text> */}
+      <Text style={styles.quizAuthor}>by {props.author}</Text>
+      <Text style={styles.quizLevel}>{props.tags}</Text>
+    </View>
+    <View style={styles.quizActions}>
+      <TouchableOpacity style={styles.likeButton}>
+        <Image source={require('@/assets/images/like-1.png')} style={styles.icon} />
+        
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.bookmarkButton}>
+        <Image source={require('@/assets/images/bookmark-icon.png')} style={styles.icon} />
+      </TouchableOpacity>
+    </View>
+  </TouchableOpacity>
+  );
+};
 
 const getStyles = (colorScheme: any) => {
   const isDark = colorScheme === 'dark';

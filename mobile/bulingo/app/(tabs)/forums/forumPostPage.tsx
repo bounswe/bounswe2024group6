@@ -116,20 +116,8 @@ const ForumPostPage = () => {
       }
     }
 
-    // // Fetch comments
-    // const fetchComments = async () => {
-    //   try {
-    //     const commentsData = await (id); // Call the API to get comments
-    //     setComments(commentsData || []); // Set comments data or an empty array if none found
-    //   } catch (error) {
-    //     console.error("Failed to fetch comments:", error);
-    //   } finally {
-    //     setLoading(false); // Stop loading indicator
-    //   }
-    // };
-
+   
     fetchPostandComments();
-    // fetchComments();
   }, [id]);
 
   const handleLikePost = async () => {
@@ -351,15 +339,7 @@ const ForumPostPage = () => {
 
   // Render each comment in a CommentCard component
   const renderComment = ({ item }) => (
-    // id: number;
-    // post: number;
-    // author: string;
-    // body: string;
-    // created_at: string;
-    // parent: number | null;
-    // replies: Comment[];
-    // is_liked: boolean;
-    // like_count: number;
+
   
     <CommentCard
       id = {item.id}
