@@ -10,6 +10,9 @@ import {
     Divider,
     Button,
     cn,
+    PopoverTrigger,
+    PopoverContent,
+    Popover,
 } from "@nextui-org/react";
 import {
     IconBookmark,
@@ -23,6 +26,7 @@ import axios from "axios";
 import { AuthActions } from "../components/auth/utils.tsx";
 import { convertQuizDetailsResponseToQuizDetails } from "../components/common/utils.tsx";
 import { QuizDetail } from "../types.ts";
+import { UserCard } from "../components/common/user-card.tsx";
 
 const quiz = {
     picture: "https://nextui.org/avatars/avatar-1.png",
@@ -73,45 +77,45 @@ export default function QuizDetails() {
 
     const toggleLike = () => {
         axios
-          .post(
-            `${BASE_URL}/quiz/like/`,
-            { quiz_id: quizID },
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          )
-          .then((response) => {
-            console.log(response.data);
-            if(isLiked) {
-              setLikes(likes - 1);
-            } else {
-              setLikes(likes + 1);
-            }
-          })
-          .catch((error) => {
-            console.log(error.response.data);
-          });
+            .post(
+                `${BASE_URL}/quiz/like/`,
+                { quiz_id: quizID },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            )
+            .then((response) => {
+                console.log(response.data);
+                if (isLiked) {
+                    setLikes(likes - 1);
+                } else {
+                    setLikes(likes + 1);
+                }
+            })
+            .catch((error) => {
+                console.log(error.response.data);
+            });
         setIsLiked(!isLiked);
-      };
+    };
 
-      const toggleBookmark = () => {
+    const toggleBookmark = () => {
         axios
-          .post(
-            `${BASE_URL}/quiz/bookmark/`,
-            { quiz_id: quizID },
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          )
-          .then((response) => {
-            console.log(response.data);
-            setIsBookmarked(!isBookmarked);
-          });
-      };
+            .post(
+                `${BASE_URL}/quiz/bookmark/`,
+                { quiz_id: quizID },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            )
+            .then((response) => {
+                console.log(response.data);
+                setIsBookmarked(!isBookmarked);
+            });
+    };
 
     return (
         <div className="h-screen w-screen items-center gap-2 flex flex-col">
@@ -121,17 +125,27 @@ export default function QuizDetails() {
                 <CardHeader className="flex flex-col items-start gap-2">
                     <div className="flex w-full justify-between items-center px-1">
                         <div className="flex items-center gap-3 my-2">
-                            <Avatar
-                                isBordered
-                                radius="full"
-                                className="w-6 h-6 text-tiny"
-                                src="https://nextui.org/avatars/avatar-1.png"
-                            />
-                            <div className="flex flex-col gap-1 items-center justify-center">
-                                <h5 className="text-small tracking-tight text-default-400">
-                                    {quizData?.author.username}
-                                </h5>
-                            </div>
+                            <Popover showArrow placement="bottom">
+                                <PopoverTrigger>
+                                    <div className="flex flex-row gap-3 items-center">
+                                        <Avatar
+                                            as="button"
+                                            isBordered
+                                            radius="full"
+                                            className="w-6 h-6 text-tiny"
+                                            src="https://nextui.org/avatars/avatar-1.png"
+                                        />
+                                        <div className="flex flex-col gap-1 items-start justify-center">
+                                            <h5 className="text-small tracking-tight text-default-400">
+                                                {quizData?.author.username}
+                                            </h5>
+                                        </div>
+                                    </div>
+                                </PopoverTrigger>
+                                <PopoverContent className="p-1">
+                                    <UserCard username={quizData?.author.username || ""} />
+                                </PopoverContent>
+                            </Popover>
                         </div>
                         <p className="text-default-400 items-center text-small">{quizData?.timestamp}</p>
                     </div>
