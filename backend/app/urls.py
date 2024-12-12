@@ -1,6 +1,6 @@
 from django.urls import path
 from app.views import *
-from app.views_directory.wordviews import get_turkish_translation, get_lexvo_info, get_word_meanings, fetch_english_words
+from app.views_directory.wordviews import get_turkish_translation, get_lexvo_info, get_word_meanings, fetch_english_words, bookmark_word, unbookmark_word, get_bookmarked_words
 from app.views_directory.profileviews import view_profile, update_profile, view_other_profile, view_followers, view_following
 from app.views_directory.follow_unfollow import follow_user, unfollow_user 
 from app.views_directory.authentication_endpoints import RegisterView, LoginView, LogoutView, RefreshTokenView
@@ -37,6 +37,10 @@ urlpatterns = [
     path('quiz/review/<int:quiz_result_id>/', quiz_views.get_quiz_review, name="review_quiz"),
     path('quiz/recommend/<int:quiz_id>/', quiz_views.get_quiz_recommendations, name="recommend_quiz"),
     path('quiz/review_latest/<int:quiz_id>/', quiz_views.get_latest_quiz_review, name="review_latest_quiz"),
+
+    path('word/bookmark/<str:word>/', bookmark_word, name='bookmark_word'),
+    path('word/unbookmark/<str:word>/', unbookmark_word, name='unbookmark_word'),
+    path('word/bookmarks/', get_bookmarked_words, name='get_bookmarked_words'),
 
 
     path('create-post/',create_post, name='create_post'),
