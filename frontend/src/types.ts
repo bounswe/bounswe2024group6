@@ -152,3 +152,14 @@ export type ProfileResponse = {
   image?: string; // TODO: to be made required
   quizzes?: Quiz[]; // TODO: to be made required
 };
+
+export type UserCardType = {
+  id: number;
+  username: string;
+  level: string;
+  bio: string;
+  followers: number;
+  following: number;
+  image: string;
+  is_followed: boolean;
+};
