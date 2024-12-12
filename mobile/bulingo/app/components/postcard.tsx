@@ -4,6 +4,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import TokenManager from '../TokenManager';
 import AdminOptions from './adminOptions';
 import TagEdit from './tagEdit';
+import { router } from 'expo-router';
 import PressableText from '../pressableText';
 
 interface PostCardProps {
@@ -37,6 +38,34 @@ const PostCard: React.FC<PostCardProps> = ({
   const [isAdminOptionsVisible, setIsAdminOptionsVisible] = useState(false);
   const [isTagEditVisible, setIsTagEditVisible] = useState(false);
 
+  const handleAdminDeletePost = async () => {
+    const url = 'post/delete/';
+    const params = {
+      'post_id': id,
+    }
+    console.log("in handleAdminDeletePost")
+    console.log(url)
+    console.log(params)
+    try{
+      const response = await TokenManager.authenticatedFetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(params),
+      })
+
+      if (response.ok){
+        console.log("Post Deletion successful")
+        router.replace('/?notification=Post Deleted Successfully');
+      } else {
+        console.log(response.status)
+      };
+    } catch(error) {
+      console.error(error)
+    }
+  }
+  
 
   return (
     <>
@@ -47,7 +76,7 @@ const PostCard: React.FC<PostCardProps> = ({
         <AdminOptions onClose={()=>setIsAdminOptionsVisible(false)} options={[
           {
             text: "Delete Post",
-            onPress: ()=>{console.log("Delete Post Pressed") /* Placeholder until endpoint is ready */ }
+            onPress: handleAdminDeletePost
           },
           {
             text: "Change Post Tags",

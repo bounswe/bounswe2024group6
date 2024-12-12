@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Image, Pressable } from 'reac
 import { FontAwesome } from '@expo/vector-icons';
 import TokenManager from '../TokenManager';
 import AdminOptions from './adminOptions';
+import { router } from 'expo-router';
 import PressableText from '../pressableText';
 
 interface CommentCardProps {
@@ -15,14 +16,44 @@ interface CommentCardProps {
   likes: number;
 }
 
+
+
 const CommentCard: React.FC<CommentCardProps> = ({ id, isBookmarked: initialBookmark, username, comment, onUpvote, liked, likes }) => {
     const [isBookmarked, setIsBookmarked] = useState(initialBookmark);
     const [isAdminOptionsVisible, setIsAdminOptionsVisible] = useState(false);
 
 
-  const toggleBookmark = () => {
-    setIsBookmarked(!isBookmarked);
-  };
+    const toggleBookmark = () => {
+        setIsBookmarked(!isBookmarked);
+    };
+
+    const handleAdminDeleteComment = async () => {
+        const url = 'post/comment/delete/';
+        const params = {
+          'comment_id': id,
+        }
+        console.log("in handleAdminDeleteComment")
+        console.log(url)
+        console.log(params)
+        try{
+          const response = await TokenManager.authenticatedFetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(params),
+          })
+    
+          if (response.ok){
+            console.log("Comment Deletion successful")
+          } else {
+            console.log(response.status)
+          };
+          router.replace('/?notification=Comment Deleted Successfully');
+        } catch(error) {
+          console.error(error)
+        }
+    }
 
     return (
         <>
@@ -30,7 +61,7 @@ const CommentCard: React.FC<CommentCardProps> = ({ id, isBookmarked: initialBook
             <AdminOptions onClose={()=>setIsAdminOptionsVisible(false)} options={[
             {
                 text: "Delete Comment",
-                onPress: ()=>{console.log("Delete Comment Pressed") /* Placeholder until endpoint is ready */ }
+                onPress: handleAdminDeleteComment
             },
             ]}
             />
