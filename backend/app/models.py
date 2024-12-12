@@ -116,6 +116,21 @@ class QuestionProgress(models.Model):
 
     def __str__(self):
         return self.question.question_text + ' - ' + self.user.username
+    
+
+class WrongQuestion(models.Model):
+    id = models.AutoField(primary_key=True)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='wrong_questions')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='wrong_questions')
+    time_taken = models.IntegerField(default=0)
+
+    class Meta:
+        unique_together = ('question', 'user') 
+
+    def __str__(self):
+        return self.question.question_text + ' - ' + self.user.username
+    
+
 
 class Post(models.Model):
     id = models.AutoField(primary_key=True)
@@ -152,7 +167,6 @@ class Relationship(models.Model):
     word = models.ForeignKey(Word, on_delete=models.CASCADE, related_name="relationships")
     related_word = models.ForeignKey(Word, on_delete=models.CASCADE, related_name="related_to")
     relation_type = models.CharField(max_length=50)  # e.g., 'broader', 'narrower', 'synonym'
-
 
     def __str__(self):
         return f"{self.word} - {self.relation_type} -> {self.related_word}"

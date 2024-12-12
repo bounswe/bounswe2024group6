@@ -140,7 +140,7 @@ class QuizResultsSerializer(serializers.ModelSerializer):
             representation['like_count'] = instance.quiz.like_count
 
         return representation
-
+    
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:

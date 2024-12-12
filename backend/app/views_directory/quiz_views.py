@@ -5,7 +5,8 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 from app.serializers import QuizSerializer, QuizResultsSerializer, QuestionSerializer, QuizProgressSerializer, QuestionProgressSerializer
 from django.contrib.auth.models import User
-from app.models import Quiz, QuizResults, Question, QuizProgress, QuestionProgress
+from app.models import Quiz, QuizResults, Question, QuizProgress, QuestionProgress, WrongQuestion
+from django.db import transaction
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -19,7 +20,6 @@ def create_quiz(request):
     quizSerializer = QuizSerializer(data=data['quiz'], context = {'request': request})
     quiz = None
     if not quizSerializer.is_valid():
-        print("was")
         return Response(quizSerializer.errors, status=status.HTTP_400_BAD_REQUEST) 
     quiz = quizSerializer.save() 
     question_serializers = []
@@ -61,13 +61,67 @@ def submit_quiz(request):
     question_progresses = []
 
     for question in questions:
-        print(question.id, request.user.id)
+        # print(question.id, request.user.id)
         question_progress = get_object_or_404(QuestionProgress, question=question.id, quiz_progress=quiz_progress)
         if question_progress.answer is 0:
             return Response({'error': 'Please answer all questions'}, status=status.HTTP_400_BAD_REQUEST)
         question_progresses.append(question_progress)
 
-    score = sum([1 for question_progress in question_progresses if question_progress.question.correct_choice == question_progress.answer])
+    score = 0
+    
+    for qp in question_progresses:
+        user_answer = qp.answer
+        question = qp.question
+        
+        if question.correct_choice == user_answer:
+            score += 1
+        else:
+            if not WrongQuestion.objects.filter(question=question, user=request.user).exists():
+                WrongQuestion.objects.create(question=question, user=request.user)
+
+    wrong_question_count = WrongQuestion.objects.filter(user=request.user).count()
+    if wrong_question_count > 5:
+        print('Creating review quiz')
+        # fetch the latest 5 wrong questions
+        # TODO: change this to a more clever algorithm
+        wrong_questions = WrongQuestion.objects.filter(user=request.user).order_by('-id')[:5]
+        
+        review_quiz_data = {
+            'title': 'Review Your Mistakes',
+            'description': 'A set of questions you answered incorrectly.',
+            'author': request.user.id,
+            'tags': ["for you"],  # TODO: add relevant tags if necessary
+            'level': 'B1',  # TODO: adjust the level from the wrong questions 
+            'question_count': wrong_questions.count(),
+        }
+        
+        quiz_serializer = QuizSerializer(data=review_quiz_data, context={'request': request})
+        if quiz_serializer.is_valid():
+            with transaction.atomic():
+                review_quiz = quiz_serializer.save()
+                
+                for wq in wrong_questions:
+                    original_question = wq.question
+                    question_data = {
+                        'quiz': review_quiz.id,
+                        'question_number': original_question.question_number,
+                        'question_text': original_question.question_text,
+                        'level': original_question.level,
+                        'choice1': original_question.choice1,
+                        'choice2': original_question.choice2,
+                        'choice3': original_question.choice3,
+                        'choice4': original_question.choice4,
+                        'correct_choice': original_question.correct_choice,
+                    }
+                    question_serializer = QuestionSerializer(data=question_data)
+                    if question_serializer.is_valid():
+                        question_serializer.save()
+                    else:
+                        raise ValueError(question_serializer.errors)
+                
+                wrong_question_ids = list(wrong_questions.values_list('id', flat=True))
+                WrongQuestion.objects.filter(id__in=wrong_question_ids).delete()
+
 
     quiz_result_serializer = QuizResultsSerializer(data={
         'quiz': quiz.id,
@@ -93,6 +147,7 @@ def submit_quiz(request):
     result_url = f"/quiz/result/{quiz_result.id}"
 
     return Response({'result_url': result_url}, status=status.HTTP_200_OK)
+
 
 
 @api_view(['GET'])
