@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Text, View, StyleSheet, Modal, Pressable, ActivityIndicator, TouchableOpacity, Image, ScrollView } from 'react-native';
 import TokenManager from '../TokenManager';
 import PressableText from '../pressableText';
+import { FontAwesome } from '@expo/vector-icons';
 
 
 type ModalDictionaryProps = {
@@ -27,6 +28,7 @@ function getCorrectForm(input: string) {
 export default function ModalDictionary(props: ModalDictionaryProps){
   const [isLoading, setIsLoading] = useState(true);
   const [wordInfo, setWordInfo] = useState<WordInfo>({meanings: [], translations: []});
+  const [isWordBookmarked, setIsWordBookmarked] = useState(false);
 
   useEffect(() => {
     const fetchWordInfo = async () => {
@@ -38,10 +40,8 @@ export default function ModalDictionary(props: ModalDictionaryProps){
             'Content-Type': 'application/json',
           },
         });
-        console.log("Hello")
         if (response.ok){
           const result = await response.json();
-          console.log(result)
           const meanings: Meaning[] = []
           result.final_info.meanings.forEach((meaning: any) => {
             const [explanation, ...raw_examples] = meaning.comment.split(';')
@@ -63,13 +63,35 @@ export default function ModalDictionary(props: ModalDictionaryProps){
   }, []);
 
 
+  const onBookmarkPress = async () => {
+    const wasWordBookmarked = isWordBookmarked;
+    setIsWordBookmarked(!isWordBookmarked);
+
+    try{
+      const url = `word/${wasWordBookmarked ? 'unbookmark' : 'bookmark'}/${getCorrectForm(props.word)}/`
+      const response = await TokenManager.authenticatedFetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok){
+        console.log("Word successfully (un)bookmarked")
+      } else {
+        console.log("Word could not be (un)bookmarked")
+        console.error(response.status)
+      };
+    } catch (error) {
+      console.error(error);
+    }
+  }
   
 
   const renderContent = () => {
     if (isLoading){
       return (<ActivityIndicator size={40} style={{margin: 40}}/>);
     }
-    console.log("here")
     return (
       <ScrollView>
         <Pressable style={styles.section}>
@@ -134,8 +156,9 @@ export default function ModalDictionary(props: ModalDictionaryProps){
         <Pressable style={styles.modalContent}>
           <View style={styles.header}>
             <Text style={styles.title}>{getCorrectForm(props.word)}</Text>
-            <TouchableOpacity style={styles.bookmarkButton}>
-              <Image source={require('@/assets/images/bookmark-icon.png')} style={styles.icon} />
+            <TouchableOpacity style={styles.bookmarkButton} onPress={onBookmarkPress}>
+              <FontAwesome name={isWordBookmarked ? "bookmark" : "bookmark-o"} size={30}/>
+              {/* <Image source={require('@/assets/images/bookmark-icon.png')} style={styles.icon} /> */}
             </TouchableOpacity>
           </View>
           {renderContent()}
