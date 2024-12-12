@@ -101,7 +101,7 @@ export default function Tab() {
           </View>
         </View>
         <View style={styles.optionsBar}>
-          <TouchableOpacity style={styles.optionBox} onPress={() => setSortByModalOpen(true)}>
+          {/* <TouchableOpacity style={styles.optionBox} onPress={() => setSortByModalOpen(true)}>
             <Text style={sortByOption == 'Sort by' ? styles.passiveOptionText : styles.activeOptionText}>{sortByOption}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.optionBox} onPress={() => setContentTypeModalOpen(true)}>
@@ -109,7 +109,7 @@ export default function Tab() {
           </TouchableOpacity>
           <TouchableOpacity style={styles.optionBox} onPress={() => setTagsModalOpen(true)}>
             <Text style={styles.passiveOptionText}>Tags</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </View>
       {renderSearchResults()}

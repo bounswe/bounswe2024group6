@@ -17,7 +17,7 @@ export default function Following() {
   const [following, setFollowing] = useState<UserInfoCompact[]>([])
 
   useEffect(() => {
-    const ENDPOINT_URL = "http://161.35.208.249:8000/following";  // Placeholder
+    const ENDPOINT_URL = "http://64.226.76.231:8000/following";  // Placeholder
     const fetchFollowing = async () => {
       const username = TokenManager.getUsername();
       if (username === undefined){
