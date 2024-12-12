@@ -99,7 +99,7 @@ def submit_quiz(request):
 @permission_classes([IsAuthenticated])
 def get_quiz_results(request):
     quizResults = QuizResults.objects.filter(user=request.user)
-    serializer = QuizResultsSerializer(quizResults, many=True)
+    serializer = QuizResultsSerializer(quizResults, many=True, context = {'request': request})
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
