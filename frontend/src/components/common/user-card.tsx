@@ -88,7 +88,7 @@ export const UserCard = ({
       };
 
     return (
-        <Card shadow="none" className="w-[300px] border-1 bg-transparent">
+        <Card shadow="none" className="w-[300px] bg-transparent">
             <CardHeader className="justify-between">
                 <div className="flex gap-3">
                     <Avatar isBordered radius="full" size="md" src="https://nextui.org/avatars/avatar-1.png" />

@@ -105,7 +105,7 @@ export default function Navbar() {
     <PopoverContent>
       <div className="px-2 pb-2">
         <div className="text-medium font-semibold px-5 py-2 text-center">
-          {username}
+          {username || "Guest"}
         </div>
         <Divider className="w-full bg-zinc-300" />
         <div className="flex flex-col">

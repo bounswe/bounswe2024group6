@@ -14,7 +14,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     const accessToken = Cookies.get("accessToken");
 
     if (!accessToken) {
-      navigate("/");
+      setIsAuthenticated(false); // User is not authenticated
+      Cookies.remove("username");
     } else {
       setIsAuthenticated(true); // User is authenticated
     }
