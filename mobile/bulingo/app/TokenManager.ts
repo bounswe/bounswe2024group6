@@ -9,7 +9,7 @@ class TokenManager {
 
   constructor() {
     this.username = null;
-    this.isAdmin = false
+    this.isAdmin = true;
   }
 
   async saveTokens(accessToken: string, refreshToken: string){

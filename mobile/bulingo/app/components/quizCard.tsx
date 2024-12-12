@@ -3,6 +3,7 @@ import { TouchableOpacity, Image, Text, View, StyleSheet, useColorScheme } from 
 import AdminOptions from './adminOptions';
 import TagEdit from './tagEdit';
 import TokenManager from '../TokenManager';
+import { router } from 'expo-router';
 import { FontAwesome } from '@expo/vector-icons';
 import PressableText from '../pressableText';
 
@@ -51,6 +52,34 @@ export default function QuizCard(props: QuizCardProps){
     props.onBookmarkPress && props.onBookmarkPress(id);
   };
 
+  const handleAdminDeleteQuiz = async () => {
+    const url = 'quiz/delete/';
+    const params = {
+      'quiz_id': props.id,
+    }
+    console.log("in handleAdminDeleteQuiz")
+    console.log(url)
+    console.log(params)
+    try{
+      const response = await TokenManager.authenticatedFetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(params),
+      })
+
+      if (response.ok){
+        console.log("Quiz Deletion successful")
+      } else {
+        console.log(response.status)
+      };
+      router.replace('/?notification=Quiz Deleted Successfully');
+    } catch(error) {
+      console.error(error)
+    }
+  }
+
   return (
     <>
       { isTagEditVisible && 
@@ -60,7 +89,7 @@ export default function QuizCard(props: QuizCardProps){
         <AdminOptions onClose={()=>setIsAdminOptionsVisible(false)} options={[
           {
             text: "Delete Quiz", 
-            onPress: ()=>{console.log("Delete Quiz Pressed") /* Placeholder until endpoint is ready */ }
+            onPress: handleAdminDeleteQuiz
           }, 
           {
             text: "Change Quiz Tags", 
