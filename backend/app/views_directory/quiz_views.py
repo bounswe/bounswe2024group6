@@ -38,6 +38,20 @@ def create_quiz(request):
     for question_serializer in question_serializers:
         question_serializer.save()
     return Response(quizSerializer.data, status=status.HTTP_201_CREATED)
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def delete_quiz(request):
+    quiz_id = request.data.get('quiz_id')
+    if quiz_id is None:
+        return Response({'error': 'quiz_id must be provided'}, status=status.HTTP_400_BAD_REQUEST)
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+    user = request.user
+    if user.is_staff:
+        quiz.delete()
+        return Response({'message': 'Quiz deleted'}, status=status.HTTP_200_OK)
+    
+    return Response({'error': 'You are not authorized to delete this quiz'}, status=status.HTTP_403_FORBIDDEN)
+    
 
 @api_view(['GET'])
 def view_quizzes(request):
@@ -263,6 +277,23 @@ def bookmark_quiz(request):
     quiz.bookmarked_by.add(request.user)  # Add bookmark
     return Response({'message': 'Quiz bookmarked'}, status=status.HTTP_200_OK)
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def update_quiz(request):
+    quiz = get_object_or_404(Quiz, id=request.data['quiz_id'])
+    if quiz.author != request.user and not request.user.is_staff:
+        return Response({'error': 'You are not authorized to update this quiz'}, status=status.HTTP_403_FORBIDDEN)
+    
+    data = request.data
+    tags = data['quiz']['tags']
+    data['quiz']['tags'] = [{'name': t} for t in tags]
+    data['quiz']['author'] = quiz.author.id
+    
+    quizSerializer = QuizSerializer(instance=quiz, data=data['quiz'], context = {'request': request})
+    if not quizSerializer.is_valid():
+        return Response(quizSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    quiz = quizSerializer.save()
+    return Response(quizSerializer.data, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

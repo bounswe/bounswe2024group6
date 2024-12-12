@@ -148,6 +148,7 @@ class TagSerializer(serializers.ModelSerializer):
         model = Tags
         fields = ['id', 'name']
 
+
 class QuizSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True)
     level = serializers.ChoiceField(choices=Quiz.LEVEL_CHOICES) 
@@ -179,6 +180,22 @@ class QuizSerializer(serializers.ModelSerializer):
             quiz.tags.add(tag)
 
         return quiz
+
+    def update(self, instance, validated_data):
+        tags_data = validated_data.pop('tags', None)
+        
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        
+        if tags_data is not None:
+            instance.tags.clear()
+            
+            for tag_data in tags_data:
+                tag, created = Tags.objects.get_or_create(name=tag_data['name'])
+                instance.tags.add(tag)
+        
+        return instance
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
