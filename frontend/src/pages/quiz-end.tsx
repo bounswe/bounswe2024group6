@@ -1,6 +1,6 @@
 import { Card, CardBody, CardHeader, CardFooter, Chip, Button, cn } from "@nextui-org/react";
 import Navbar from "../components/common/navbar.tsx";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
     IconBookmark,
     IconBookmarkFilled,
@@ -8,21 +8,56 @@ import {
     IconThumbUpFilled,
 } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
+import { BASE_URL } from "../lib/baseURL.ts";
+import axios from "axios";
+import { AuthActions } from "../components/auth/utils.tsx";
 
 export default function QuizEnd() {
+    const { quizID } = useParams<{ quizID: any }>();
+    const [quizData, setQuizData] = useState<any>();
     const navigate = useNavigate();
+    const { getToken } = AuthActions();
+    const token = getToken("access");
+    const [isLoading, setIsLoading] = useState(true);
+    const best_messages = ["Good job!", "Well done!", "Great work!", "Nice job!", "Keep it up!", "You're doing great!", "You're on fire!", "You're unstoppable!", "You're a genius!", "You're a master!"];
+    const medium_messages = ["Not bad!", "Nice try!", "Good effort!", "You're getting there!", "You're improving!", "You're on the right track!", "You're doing well!", "You're almost there!", "You're so close!"];
+    const bad_messages = ["Try again!", "Keep practicing!", "You can do better!", "You're getting closer!", "You're on the right path!", "Good luck next time!"];
+
+
+    useEffect(() => {
+        if (quizID) {
+            setIsLoading(true);
+            axios
+                .get(`${BASE_URL}/quiz/result/${quizID}/`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                })
+                .then((response) => {
+                    console.log(response.data);
+                    setQuizData(response.data);
+                    // setIsLiked(response.data.quiz.is_liked);
+                    // setLikes(response.data.quiz.like_count);
+                    // setIsBookmarked(response.data.quiz.is_bookmarked);
+                })
+                .catch((error) => {
+                    console.error("Error fetching quiz data:", error);
+                })
+                .finally(() => {
+                    setIsLoading(false);
+                });
+        } else {
+            console.error("No quiz ID provided");
+        }
+    }, [quizID, token]);
+    
     const id=1;
 
     const likeCount = 15;
     const score = 10;
     const total_questions = 10;
 
-    const scorePercentage = (score / total_questions) * 100;
-
-
-    const best_messages = ["Good job!", "Well done!", "Great work!", "Nice job!", "Keep it up!", "You're doing great!", "You're on fire!", "You're unstoppable!", "You're a genius!", "You're a master!"];
-    const medium_messages = ["Not bad!", "Nice try!", "Good effort!", "You're getting there!", "You're improving!", "You're on the right track!", "You're doing well!", "You're almost there!", "You're so close!"];
-    const bad_messages = ["Try again!", "Keep practicing!", "You can do better!", "You're getting closer!", "You're on the right path!", "Good luck next time!"];
+    const scorePercentage = (quizData.score / quizData.question_count) * 100;
 
     const getMessage = () => {
         let messageArray;
@@ -48,6 +83,8 @@ export default function QuizEnd() {
     const [likes, setLikes] = useState(likeCount);
     const [isBookmarked, setIsBookmarked] = useState(false); // Example state for bookmark
 
+
+
     const toggleLike = () => {
         setIsLiked(!isLiked);
         setLikes(likes + (!isLiked ? 1 : -1));
@@ -62,7 +99,7 @@ export default function QuizEnd() {
         <div className="h-screen w-screen flex flex-col">
             <Navbar />
             <div className="flex flex-col items-center overflow-hidden">
-                <h1 className="font-semibold text-4xl mt-3 mb-1 text-blue-900">Daily Words</h1>
+                <h1 className="font-semibold text-4xl mt-3 mb-1 text-blue-900">{quizData.quiz.title}</h1>
                 <div className="flex flex-col items-center py-4">
                     <Card className="max-w-[600px]">
                         <CardHeader className="flex justify-center items-center">
@@ -72,9 +109,9 @@ export default function QuizEnd() {
                                     : scorePercentage >= 40
                                         ? "warning"
                                         : "danger"
-                            } variant="shadow" className="mt-4 h-12">You got {score} out of {total_questions}</Chip>
+                            } variant="shadow" className="mt-4 h-12">You got {quizData.score} out of {quizData.question_count}</Chip>
                         </CardHeader>
-                        <CardBody className="flex flex-col justify-center shadow-lg rounded-lg shadow-zinc-200 pb-12 w-[550px] h-[200px]">
+                        <CardBody className="flex flex-col justify-center shadow-lg rounded-lg shadow-default-200 pb-12 w-[550px] h-[200px]">
                             <p className="text-center text-5xl text-blue-900">{message}</p>
                         </CardBody>
                         <CardFooter>
@@ -103,7 +140,7 @@ export default function QuizEnd() {
                                         )}
                                     </Button>
                                 </div>
-                                <Button color="primary" variant="flat" onClick={() => navigate(`/quiz/${id}`)} className="text-lg w-24 h-12">
+                                <Button color="primary" variant="flat" onClick={() => navigate(`/quiz/${quizData.quiz.id}`)} className="text-lg w-24 h-12">
                                     Retake
                                 </Button>
                                 <div className="ml-9">

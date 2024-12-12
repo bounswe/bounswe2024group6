@@ -28,20 +28,17 @@ const SidebarLayout = ({
   toggleSidebar,
   children,
 }) => {
-  const sidebarClasses = `fixed top-32 right-0 w-[15vw] h-96 transition-transform duration-500 ease-in-out transform ${
-    isOpen ? "translate-x-0" : "translate-x-full"
-  }`;
+  const sidebarClasses = `fixed top-32 right-0 w-[15vw] h-96 transition-transform duration-500 ease-in-out transform ${isOpen ? "translate-x-0" : "translate-x-full"
+    }`;
 
   const { getToken } = AuthActions();
   const token = getToken("access");
 
-  const buttonClasses = `fixed top-40 transition-transform duration-500 ease-in-out transform ${
-    isOpen ? "translate-x-[-15vw] " : "translate-x-0"
-  } right-4 z-20 flex items-center  justify-center w-12 h-12 bg-white rounded-full hover:scale-110 focus:scale-100 shadow-xl`;
+  const buttonClasses = `fixed top-40 transition-transform duration-500 ease-in-out transform ${isOpen ? "translate-x-[-15vw] " : "translate-x-0"
+    } right-4 z-20 flex items-center  justify-center w-12 h-12 bg-white rounded-full hover:scale-110 focus:scale-100 shadow-xl`;
 
-  const contentClasses = `ml-0 transition-all duration-500 ease-in-out ${
-    isOpen ? "mr-[15vw]" : ""
-  }`;
+  const contentClasses = `ml-0 transition-all duration-500 ease-in-out ${isOpen ? "mr-[15vw]" : ""
+    }`;
   const navigate = useNavigate();
 
   return (
@@ -81,7 +78,7 @@ const SidebarLayout = ({
                   const response = await axios.post(
                     `${BASE_URL}/quiz/submit/`,
                     {
-                      quiz_progress_id: quiz_progress_id, 
+                      quiz_progress_id: quiz_progress_id,
                     },
                     {
                       headers: {
@@ -90,7 +87,9 @@ const SidebarLayout = ({
                     }
                   );
                   console.log("Quiz Finished:", response.data);
-                  navigate(`/quiz/${id}/end`);
+                  const resultUrl = response.data.result_url;
+                  const resultId = resultUrl.split("/").pop(); 
+                  navigate(`/quiz/${resultId}/end`);
                 } catch (error) {
                   console.error("Error finishing quiz:", error);
                 }
@@ -109,9 +108,8 @@ const SidebarLayout = ({
         className={buttonClasses}
       >
         <svg
-          className={`w-6 h-6 text-blue-500 transition-transform duration-500 ease-in-out transform ${
-            isOpen ? "rotate-180 " : "rotate-0"
-          }`}
+          className={`w-6 h-6 text-blue-500 transition-transform duration-500 ease-in-out transform ${isOpen ? "rotate-180 " : "rotate-0"
+            }`}
           fill="none"
           viewBox="0 0 24 24"
           xmlns="http://www.w3.org/2000/svg"
