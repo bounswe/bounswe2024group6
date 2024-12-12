@@ -99,7 +99,7 @@ def submit_quiz(request):
 @permission_classes([IsAuthenticated])
 def get_quiz_results(request):
     quizResults = QuizResults.objects.filter(user=request.user)
-    serializer = QuizResultsSerializer(quizResults, many=True)
+    serializer = QuizResultsSerializer(quizResults, many=True, context = {'request': request})
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -109,7 +109,7 @@ def get_specific_quiz_result(request, quiz_result_id):
 
     quiz_result = get_object_or_404(QuizResults, id=quiz_result_id, user=request.user)
 
-    serializer = QuizResultsSerializer(quiz_result)
+    serializer = QuizResultsSerializer(quiz_result, context = {'request': request})
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])

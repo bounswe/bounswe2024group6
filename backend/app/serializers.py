@@ -132,6 +132,13 @@ class QuizResultsSerializer(serializers.ModelSerializer):
         representation['user'] = { 'id' : instance.user.id, 'username' : instance.user.username }
         representation['author'] = { 'id' : instance.quiz.author.id, 'username' : instance.quiz.author.username }
         representation['level'] = instance.quiz.level
+
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            representation['is_bookmarked'] = instance.quiz.bookmarked_by.filter(id=request.user.id).exists()
+            representation['is_liked'] = instance.quiz.liked_by.filter(id=request.user.id).exists()
+            representation['like_count'] = instance.quiz.like_count
+
         return representation
 
 
