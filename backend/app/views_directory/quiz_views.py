@@ -49,6 +49,13 @@ def view_quizzes(request):
     serializer = QuizSerializer(quizzes, many=True, context = {'request': request})
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_review_quizzes(request):
+    #  quizzes with for_user field null are public quizzes, so view them
+    quizzes = Quiz.objects.filter(for_user=request.user)
+    return Response(QuizSerializer(quizzes, many=True, context = {'request': request}).data, status=status.HTTP_200_OK)
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def submit_quiz(request):
