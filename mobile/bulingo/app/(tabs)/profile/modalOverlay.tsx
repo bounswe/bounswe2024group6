@@ -27,6 +27,11 @@ export function ModalOverlay(props:ModalOverlayProps) {
     router.push("/(tabs)/profile/bookmarkedPostsAndComments");
   };
 
+  const handleBookmarkedWords = () => {
+    props.closeModal();
+    router.push("/(tabs)/profile/bookmarkedWords");
+  };
+
   return (
     <TouchableWithoutFeedback onPress={props.closeModal}>
       <View style={styles.modalOverlay}>
@@ -34,7 +39,8 @@ export function ModalOverlay(props:ModalOverlayProps) {
           <Option text={'Liked Quizzes'} onPress={handleLikedQuizzesPress}/>
           <Option text={'Bookmarked Quizzes'} onPress={handleBookmarkedQuizzesPress}/>
           <Option text={'Liked Posts/Comments'} onPress={handleLikedPostsAndCommentsPress}/>   
-          <Option text={'Bookmarked Posts/Comments'} onPress={handleBookmarkedPostsAndCommentsPress}/>          
+          <Option text={'Bookmarked Posts/Comments'} onPress={handleBookmarkedPostsAndCommentsPress}/>    
+          <Option text={'Bookmarked Words'} onPress={handleBookmarkedWords}/>    
         </View>
       </View>
     </TouchableWithoutFeedback>
