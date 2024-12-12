@@ -11,12 +11,14 @@ from app.views_directory.postviews import create_post, delete_post, get_posts_of
 from app.views_directory.feed_views import get_user_post_feed
 from app.views_directory.bookmark_views import bookmark_post, unbookmark_post, get_bookmarked_posts  
 from app.views_directory.searchview import SearchView
+from app.views_directory.admin_views import ban_user
 from django.conf.urls.static import static
 from django.conf import settings
 import app.views_directory.quiz_views as quiz_views
 
 urlpatterns = [
     path('', index , name='index_page'),
+    path('admin-ban/', ban_user, name="ban_user"),
     path('profile/', view_profile, name='view_profile'),
     path('profile/update/', update_profile, name='update_profile'),
     path('quiz/<int:quiz_id>/', quiz_views.get_quiz, name="get_quiz"),
