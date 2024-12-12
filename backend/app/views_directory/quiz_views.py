@@ -263,6 +263,23 @@ def bookmark_quiz(request):
     quiz.bookmarked_by.add(request.user)  # Add bookmark
     return Response({'message': 'Quiz bookmarked'}, status=status.HTTP_200_OK)
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def update_quiz(request):
+    quiz = get_object_or_404(Quiz, id=request.data['quiz_id'])
+    if quiz.author != request.user and not request.user.is_staff:
+        return Response({'error': 'You are not authorized to update this quiz'}, status=status.HTTP_403_FORBIDDEN)
+    
+    data = request.data
+    tags = data['quiz']['tags']
+    data['quiz']['tags'] = [{'name': t} for t in tags]
+    data['quiz']['author'] = quiz.author.id
+    
+    quizSerializer = QuizSerializer(instance=quiz, data=data['quiz'], context = {'request': request})
+    if not quizSerializer.is_valid():
+        return Response(quizSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    quiz = quizSerializer.save()
+    return Response(quizSerializer.data, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
