@@ -11,12 +11,13 @@ class ProfileSerializer(serializers.ModelSerializer):
     follower_count = serializers.SerializerMethodField()
     following_count = serializers.SerializerMethodField()
     is_followed = serializers.SerializerMethodField()
+    profile_picture = serializers.ImageField(required=False)
 
     class Meta:
         model = Profile
         fields = [
             'username', 'name','bio','level', 'posts', 'comments',
-            'follower_count', 'following_count', 'is_followed'
+            'follower_count', 'following_count', 'is_followed','profile_picture'
         ]
 
     def get_posts(self, obj):

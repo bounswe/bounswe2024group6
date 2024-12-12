@@ -28,6 +28,7 @@ class Profile(models.Model):
     following = models.ManyToManyField("self", symmetrical=False, related_name="profile_following", blank=True)
     followers = models.ManyToManyField("self", symmetrical=False, related_name="profile_followers", blank=True)
     level = models.CharField(max_length=2, choices=LEVEL_CHOICES, default='A1')
+    profile_picture = models.ImageField(upload_to="profile_pictures/", null=True, blank=True)
 
     def __str__(self):
         return self.name
