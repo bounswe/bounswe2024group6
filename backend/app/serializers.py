@@ -11,12 +11,13 @@ class ProfileSerializer(serializers.ModelSerializer):
     follower_count = serializers.SerializerMethodField()
     following_count = serializers.SerializerMethodField()
     is_followed = serializers.SerializerMethodField()
+    profile_picture = serializers.ImageField(required=False)
 
     class Meta:
         model = Profile
         fields = [
             'username', 'name','bio','level', 'posts', 'comments',
-            'follower_count', 'following_count', 'is_followed'
+            'follower_count', 'following_count', 'is_followed','profile_picture'
         ]
 
     def get_posts(self, obj):
@@ -132,6 +133,13 @@ class QuizResultsSerializer(serializers.ModelSerializer):
         representation['user'] = { 'id' : instance.user.id, 'username' : instance.user.username }
         representation['author'] = { 'id' : instance.quiz.author.id, 'username' : instance.quiz.author.username }
         representation['level'] = instance.quiz.level
+
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            representation['is_bookmarked'] = instance.quiz.bookmarked_by.filter(id=request.user.id).exists()
+            representation['is_liked'] = instance.quiz.liked_by.filter(id=request.user.id).exists()
+            representation['like_count'] = instance.quiz.like_count
+
         return representation
 
 
@@ -197,12 +205,11 @@ class QuizSerializer(serializers.ModelSerializer):
         total_score = representation.pop('total_score')
         representation['average_score'] = total_score / instance.times_taken if instance.times_taken > 0 else 0
 
-        # Transform tags to a list of names
         representation['tags'] = [tag['name'] for tag in representation['tags']]
         representation['author'] = { 'id' : instance.author.id, 'username' : instance.author.username } 
 
         request = self.context.get('request')
-        if request and request.user.is_authenticated:
+        if request and request.user and request.user.is_authenticated:
             representation['is_bookmarked'] = instance.bookmarked_by.filter(id=request.user.id).exists()
             representation['is_liked'] = instance.liked_by.filter(id=request.user.id).exists()
 

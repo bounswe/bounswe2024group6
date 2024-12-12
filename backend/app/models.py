@@ -28,6 +28,7 @@ class Profile(models.Model):
     following = models.ManyToManyField("self", symmetrical=False, related_name="profile_following", blank=True)
     followers = models.ManyToManyField("self", symmetrical=False, related_name="profile_followers", blank=True)
     level = models.CharField(max_length=2, choices=LEVEL_CHOICES, default='A1')
+    profile_picture = models.ImageField(upload_to="profile_pictures/", null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -147,7 +148,18 @@ class Word(models.Model):
 
     def __str__(self):
         return self.word
+
+
+class WordBookmark(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookmarked_words')
+    word = models.CharField(max_length=255)
+    class Meta:
+        unique_together = ('user', 'word')
+
+    def __str__(self):
+        return f"{self.user.username} bookmarked {self.word.word}"
     
+
 class Relationship(models.Model):
     word = models.ForeignKey(Word, on_delete=models.CASCADE, related_name="relationships")
     related_word = models.ForeignKey(Word, on_delete=models.CASCADE, related_name="related_to")

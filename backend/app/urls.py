@@ -1,6 +1,6 @@
 from django.urls import path
 from app.views import *
-from app.views_directory.wordviews import get_turkish_translation, get_lexvo_info, get_word_meanings, fetch_english_words
+from app.views_directory.wordviews import get_turkish_translation, get_lexvo_info, get_word_meanings, fetch_english_words, bookmark_word, unbookmark_word, get_bookmarked_words
 from app.views_directory.profileviews import view_profile, update_profile, view_other_profile, view_followers, view_following
 from app.views_directory.follow_unfollow import follow_user, unfollow_user 
 from app.views_directory.authentication_endpoints import RegisterView, LoginView, LogoutView, RefreshTokenView
@@ -11,7 +11,8 @@ from app.views_directory.postviews import create_post, delete_post, get_posts_of
 from app.views_directory.feed_views import get_user_post_feed
 from app.views_directory.bookmark_views import bookmark_post, unbookmark_post, get_bookmarked_posts  
 from app.views_directory.searchview import SearchView
-
+from django.conf.urls.static import static
+from django.conf import settings
 import app.views_directory.quiz_views as quiz_views
 
 urlpatterns = [
@@ -38,6 +39,12 @@ urlpatterns = [
     path('quiz/review_latest/<int:quiz_id>/', quiz_views.get_latest_quiz_review, name="review_latest_quiz"),
     path('quiz/delete/', quiz_views.delete_quiz, name="delete_quiz"),
     path('quiz/update/', quiz_views.update_quiz, name="update_quiz"),
+    path('quiz/cancel/', quiz_views.cancel_quiz, name="cancel_quiz"),
+
+    path('word/bookmark/<str:word>/', bookmark_word, name='bookmark_word'),
+    path('word/unbookmark/<str:word>/', unbookmark_word, name='unbookmark_word'),
+    path('word/bookmarks/', get_bookmarked_words, name='get_bookmarked_words'),
+
 
     path('create-post/',create_post, name='create_post'),
     path('signup/', RegisterView.as_view(), name='auth_register'),
@@ -72,5 +79,5 @@ urlpatterns = [
     path('profile/followers/<str:username>/', view_followers, name='view_followers'),
     path('profile/following/<str:username>/', view_following, name='view_following'),
     path('search/', SearchView.as_view(), name='search'),
-]
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

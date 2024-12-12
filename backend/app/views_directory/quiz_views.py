@@ -54,7 +54,6 @@ def delete_quiz(request):
     
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
 def view_quizzes(request):
     quizzes = Quiz.objects.all()
     # TODO: paginate the results
@@ -109,11 +108,26 @@ def submit_quiz(request):
     return Response({'result_url': result_url}, status=status.HTTP_200_OK)
 
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def cancel_quiz(request):
+    # check if quiz progress is completed
+    quiz_progress = get_object_or_404(QuizProgress, id=request.data['quiz_progress_id'])
+    if quiz_progress.completed:
+        return Response({'error': 'Quiz already submitted.'}, status=status.HTTP_400_BAD_REQUEST)
+    # check if quiz progress is user's
+    if quiz_progress.user != request.user:
+        return Response({'error': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    quiz_progress.delete()
+    return Response({'message': 'Quiz progress deleted'}, status=status.HTTP_200_OK)
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_quiz_results(request):
     quizResults = QuizResults.objects.filter(user=request.user)
-    serializer = QuizResultsSerializer(quizResults, many=True)
+    serializer = QuizResultsSerializer(quizResults, many=True, context = {'request': request})
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -123,7 +137,7 @@ def get_specific_quiz_result(request, quiz_result_id):
 
     quiz_result = get_object_or_404(QuizResults, id=quiz_result_id, user=request.user)
 
-    serializer = QuizResultsSerializer(quiz_result)
+    serializer = QuizResultsSerializer(quiz_result, context = {'request': request})
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
@@ -240,13 +254,13 @@ def get_question(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
 def get_quiz(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
     serializer = QuizSerializer(quiz, context = {'request': request})
     data = {'quiz': serializer.data}
-    data['is_solved'] = QuizProgress.objects.filter(quiz=quiz, user=request.user, completed=True).exists()
-    data['quiz_result_id'] = QuizResults.objects.filter(quiz=quiz, user=request.user).order_by('-id').first().id if data['is_solved'] else None
+    if request.user.is_authenticated:    
+        data['is_solved'] = QuizProgress.objects.filter(quiz=quiz, user=request.user, completed=True).exists()
+        data['quiz_result_id'] = QuizResults.objects.filter(quiz=quiz, user=request.user).order_by('-id').first().id if data['is_solved'] else None
     return Response(data, status=status.HTTP_200_OK)
 
 
