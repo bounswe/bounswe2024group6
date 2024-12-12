@@ -94,6 +94,21 @@ def submit_quiz(request):
     return Response({'result_url': result_url}, status=status.HTTP_200_OK)
 
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def cancel_quiz(request):
+    # check if quiz progress is completed
+    quiz_progress = get_object_or_404(QuizProgress, id=request.data['quiz_progress_id'])
+    if quiz_progress.completed:
+        return Response({'error': 'Quiz already submitted.'}, status=status.HTTP_400_BAD_REQUEST)
+    # check if quiz progress is user's
+    if quiz_progress.user != request.user:
+        return Response({'error': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    quiz_progress.delete()
+    return Response({'message': 'Quiz progress deleted'}, status=status.HTTP_200_OK)
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_quiz_results(request):
