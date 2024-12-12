@@ -179,7 +179,6 @@ def update_post(request, post_id):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
 def get_post_details(request):
     post_id = request.data.get("post_id")  
 
