@@ -55,6 +55,7 @@ class Quiz(models.Model):
     like_count = models.IntegerField(default=0)
     liked_by = models.ManyToManyField(User, related_name='liked_quizzes', blank=True)
     bookmarked_by = models.ManyToManyField(User, related_name='bookmarked_quizzes', blank=True)
+    for_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_quizzes', null=True, blank=True)
 
     def __str__(self):
         return self.title

@@ -90,9 +90,10 @@ def submit_quiz(request):
             'title': 'Review Your Mistakes',
             'description': 'A set of questions you answered incorrectly.',
             'author': request.user.id,
-            'tags': ["for you"],  # TODO: add relevant tags if necessary
+            'tags': [{'name': 'for you'}],  # TODO: add relevant tags if necessary
             'level': 'B1',  # TODO: adjust the level from the wrong questions 
             'question_count': wrong_questions.count(),
+            'for_user': request.user.id
         }
         
         quiz_serializer = QuizSerializer(data=review_quiz_data, context={'request': request})
@@ -121,6 +122,10 @@ def submit_quiz(request):
                 
                 wrong_question_ids = list(wrong_questions.values_list('id', flat=True))
                 WrongQuestion.objects.filter(id__in=wrong_question_ids).delete()
+        else:
+            print("welp...")
+            return Response(quiz_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
     quiz_result_serializer = QuizResultsSerializer(data={
