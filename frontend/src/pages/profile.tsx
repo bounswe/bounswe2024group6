@@ -43,6 +43,7 @@ export default function Profile() {
   const [followCount, setFollowCount] = useState(0);
   const [bookmarkedPosts, setBookmarkedPosts] = useState<Post[]>([]);
   const [solvedQuizzes, setSolvedQuizzes] = useState<Quiz[]>([]);
+  const [createdQuizzes, setCreatedQuizzes] = useState<Quiz[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -117,9 +118,29 @@ export default function Profile() {
           }
         )
         .then((response) => {
-          console.log(response.data);
+          console.log("solved", response.data);
           const solved = response.data.map(convertQuizResponseToQuiz);
           setSolvedQuizzes(solved);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+  }, [token]);
+
+  useEffect(() => {
+    axios
+        .get(
+          `${BASE_URL}/quiz/created/${username}/`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+        .then((response) => {
+          console.log(response.data);
+          const createdquiz = response.data.map(convertQuizResponseToQuiz);
+          setCreatedQuizzes(createdquiz);
         })
         .catch((error) => {
           console.log(error);
@@ -186,7 +207,7 @@ export default function Profile() {
               <div className="mx-4 max-w-52">
                 <h3 className="text-xl font-semibold">{profile.username}</h3>
                 <p className="text-gray-500">@{profile.level}</p>
-                <p className="text-zinc-800 break-words">
+                <p className="text-zinc-600 break-words">
                   {profile.bio || "Hey, new learner here!"}
                 </p>
               </div>
@@ -272,7 +293,24 @@ export default function Profile() {
               </div>
             }
           >
-            <p></p>
+            <div className="flex flex-col gap-4 items-center">
+                {createdQuizzes.map((quiz) => (
+                  <Suspense key={quiz.id} fallback={<PostCardSkeleton />}>
+                    <QuizCard
+                      id={quiz.id}
+                      username={quiz.author.username}
+                      title={quiz.quiz.title}
+                      content={quiz.quiz.description}
+                      timePassed={quiz.quiz.timestamp}
+                      timesTaken={quiz.quiz.times_taken}
+                      likeCount={quiz.engagement.like_count}
+                      tags={quiz.quiz.tags}
+                      initialIsLiked={quiz.engagement.is_liked}
+                      initialIsBookmarked={quiz.engagement.is_bookmarked}
+                    />
+                  </Suspense>
+                ))}
+              </div>
           </Tab>
           <Tab
             key="solved"
