@@ -166,7 +166,8 @@ class QuizSerializer(serializers.ModelSerializer):
             'total_score',
             'like_count',
             'bookmarked_by',
-            'liked_by'
+            'liked_by',
+            'for_user'
         ]
 
     def create(self, validated_data):
@@ -183,6 +184,7 @@ class QuizSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         representation.pop('bookmarked_by')
         representation.pop('liked_by')
+        representation.pop('for_user')
         
         total_score = representation.pop('total_score')
         representation['average_score'] = total_score / instance.times_taken if instance.times_taken > 0 else 0

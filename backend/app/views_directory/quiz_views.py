@@ -42,7 +42,9 @@ def create_quiz(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def view_quizzes(request):
-    quizzes = Quiz.objects.all()
+    #  quizzes with for_user field null are public quizzes, so view them
+    quizzes = Quiz.objects.filter(for_user__isnull=True)
+
     # TODO: paginate the results
     serializer = QuizSerializer(quizzes, many=True, context = {'request': request})
     return Response(serializer.data, status=status.HTTP_200_OK)
