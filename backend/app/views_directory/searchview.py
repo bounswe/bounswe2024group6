@@ -1,14 +1,15 @@
 from django.db.models import Q
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
 from django.contrib.auth.models import User
 from app.models import Post, Comment, Quiz, Profile
 from app.serializers import PostSerializer, CommentSerializer
 
 
 class SearchView(APIView):
-    permission_classes = [IsAuthenticated]
+    # Allow any user, including unauthenticated guests, to access the search
+    permission_classes = [AllowAny]
 
     def get(self, request):
         query = request.query_params.get('q', None)
@@ -18,7 +19,7 @@ class SearchView(APIView):
         if not query:
             return Response({"error": "A search query is required."}, status=400)
 
-        user = request.user
+        user = request.user if request.user.is_authenticated else None
 
         # Search users
         if not filter_type or filter_type == "users":
@@ -28,7 +29,7 @@ class SearchView(APIView):
                     "username": u.username,
                     "email": u.email,
                     "level": u.profile.level if hasattr(u, 'profile') else None,
-                    "isFollowing": u.profile in user.profile.following.all() if hasattr(user, 'profile') else False,
+                    "isFollowing": user and u.profile in user.profile.following.all() if hasattr(user, 'profile') else False,
                 }
                 for u in users
             ]
@@ -49,7 +50,7 @@ class SearchView(APIView):
                     "author": comment.author.username,
                     "created_at": comment.created_at,
                     "like_count": comment.like_count,
-                    "isLiked": comment.liked_by.filter(id=user.id).exists(),
+                    "isLiked": user and comment.liked_by.filter(id=user.id).exists(),
                 }
                 for comment in comments
             ]
@@ -58,7 +59,7 @@ class SearchView(APIView):
         # Search quizzes
         if not filter_type or filter_type == "quizzes":
             quizzes = Quiz.objects.filter(Q(title__icontains=query))
-            bookmarked_quiz_ids = self._get_bookmarked_quiz_ids(user)
+            bookmarked_quiz_ids = self._get_bookmarked_quiz_ids(user) if user else []
             quiz_data = [
                 {
                     "id": quiz.id,
@@ -67,8 +68,9 @@ class SearchView(APIView):
                     "author": quiz.author.username,
                     "created_at": quiz.created_at,
                     "tags": [tag.name for tag in quiz.tags.all()],
-                    "isLiked": quiz.liked_by.filter(id=user.id).exists(),
+                    "isLiked": user and quiz.liked_by.filter(id=user.id).exists(),
                     "isBookmarked": quiz.id in bookmarked_quiz_ids,
+                    "likeCount": quiz.liked_by.count(),
                 }
                 for quiz in quizzes
             ]
@@ -78,6 +80,6 @@ class SearchView(APIView):
 
     @staticmethod
     def _get_bookmarked_quiz_ids(user):
-        """Retrieve IDs of quizzes bookmarked by the user using view_bookmarked_quizzes logic."""
+        """Retrieve IDs of quizzes bookmarked by the user."""
         from app.models import Quiz
         return list(Quiz.objects.filter(bookmarked_by=user).values_list('id', flat=True))
