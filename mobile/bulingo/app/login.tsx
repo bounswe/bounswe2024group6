@@ -6,7 +6,7 @@ import Notification from './components/topNotification';
 
 
 
-const LOGIN_URL = "http://161.35.208.249:8000/login/";
+const LOGIN_URL = "http://64.226.76.231:8000/login/";
 
 export default function Home() {
   const [username, setUsername] = useState('');    // State for username
