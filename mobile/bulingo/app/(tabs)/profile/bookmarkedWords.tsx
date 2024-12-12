@@ -21,22 +21,21 @@ export default function BookmarkedWords() {
 
   useEffect(() => {
     const fetchFollowers = async () => {
-      const url = "bookmarked-words/"  // Placeholder
+      const url = "word/bookmarks/"  // Placeholder
       try {
-        // const response = await TokenManager.authenticatedFetch(url, {
-        //   method: 'GET',
-        //   headers: {
-        //     'Content-Type': 'application/json',
-        //   },
-        // });
+        const response = await TokenManager.authenticatedFetch(url, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
 
-        // if (response.ok){
-        //   const result = await response.json()
-        //   setBookmarkedWords(result);  // Placeholder
-        // } else {
-        //   console.log(response.status)
-        // };
-        setBookmarkedWords(['plane', 'welcome', 'brother', 'mediocre'])  // Here for testing only
+        if (response.ok){
+          const result = await response.json()
+          setBookmarkedWords(result.bookmarked_words); 
+        } else {
+          console.log(response.status)
+        };
       } catch (error) {
         console.error(error);
       }
