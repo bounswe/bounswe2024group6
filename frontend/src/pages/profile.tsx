@@ -7,6 +7,11 @@ import {
   Button,
   Divider,
   Skeleton,
+  useDisclosure,
+  Modal,
+  ModalContent,
+  ModalBody,
+  ModalHeader,
 } from "@nextui-org/react";
 import { useState, useEffect, Suspense } from "react";
 
@@ -28,6 +33,7 @@ import {
   convertProfileResponseToProfile,
   convertQuizResponseToQuiz,
 } from "../components/common/utils.tsx";
+import { UserCard } from "../components/common/user-card.tsx";
 import Cookies from "js-cookie";
 import { usePageTitle } from "../components/common/usePageTitle.ts";
 import QuizCard from "../components/quiz/quiz-card.tsx";
@@ -44,7 +50,16 @@ export default function Profile() {
   const [bookmarkedPosts, setBookmarkedPosts] = useState<Post[]>([]);
   const [solvedQuizzes, setSolvedQuizzes] = useState<Quiz[]>([]);
   const [createdQuizzes, setCreatedQuizzes] = useState<Quiz[]>([]);
+  const [followers, setFollowers] = useState<any[]>([]);
+  const [followings, setFollowings] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [type, setType] = useState("following");
+
+  const handleOpen = (type) => {
+    setType(type);
+    onOpen();
+  };
 
   useEffect(() => {
     if (username) {
@@ -79,6 +94,8 @@ export default function Profile() {
     }
   }, [username, token]);
 
+
+
   useEffect(() => {
     if (username === Cookies.get("username")) {
       console.log("Fetching bookmarked posts");
@@ -109,43 +126,82 @@ export default function Profile() {
 
   useEffect(() => {
     axios
-        .get(
-          `${BASE_URL}/quiz/solved/${username}/`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        )
-        .then((response) => {
-          console.log("solved", response.data);
-          const solved = response.data.map(convertQuizResponseToQuiz);
-          setSolvedQuizzes(solved);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+      .get(
+        `${BASE_URL}/quiz/solved/${username}/`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      .then((response) => {
+        console.log("solved", response.data);
+        const solved = response.data.map(convertQuizResponseToQuiz);
+        setSolvedQuizzes(solved);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }, [token]);
 
   useEffect(() => {
     axios
-        .get(
-          `${BASE_URL}/quiz/created/${username}/`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        )
-        .then((response) => {
-          console.log(response.data);
-          const createdquiz = response.data.map(convertQuizResponseToQuiz);
-          setCreatedQuizzes(createdquiz);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+      .get(
+        `${BASE_URL}/quiz/created/${username}/`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      .then((response) => {
+        console.log(response.data);
+        const createdquiz = response.data.map(convertQuizResponseToQuiz);
+        setCreatedQuizzes(createdquiz);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }, [token]);
+
+  useEffect(() => {
+    axios
+      .get(
+        `${BASE_URL}/profile/followers/${username}/`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      .then((response) => {
+        console.log("followers", response.data);
+        setFollowers(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, [token]);
+
+  useEffect(() => {
+    axios
+      .get(
+        `${BASE_URL}/profile/following/${username}/`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      .then((response) => {
+        console.log("following", response.data);
+        setFollowings(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, [token]);
+
 
   const toggleFollow = () => {
     axios
@@ -213,24 +269,23 @@ export default function Profile() {
               </div>
             </div>
             <div
-              className={`flex flex-row ${
-                profile.username === Cookies.get("username") ? "pl-32" : "pl-0"
-              } gap-6`}
+              className={`flex flex-row ${profile.username === Cookies.get("username") ? "pl-32" : "pl-0"
+                } gap-6`}
             >
               {profile.username !== Cookies.get("username") && (
                 <Button
                   variant={isFollowing ? "faded" : "solid"}
                   color="primary"
                   onClick={toggleFollow}
-                  className={`border-2 rounded-lg min-w-36 font-bold px-8 py-6 ${
-                    isFollowing ? "text-blue-900" : ""
-                  }`}
+                  className={`border-2 rounded-lg min-w-36 font-bold px-8 py-6 ${isFollowing ? "text-blue-900" : ""
+                    }`}
                 >
                   {isFollowing ? "Unfollow" : "Follow"}
                 </Button>
               )}
               <Button
                 variant="faded"
+                onPress={() => handleOpen("following")}
                 color="primary"
                 className="border-2 rounded-lg font-bold text-blue-900 px-8 py-6 "
               >
@@ -238,11 +293,42 @@ export default function Profile() {
               </Button>
               <Button
                 variant="faded"
+                onPress={() => handleOpen("follower")}
                 color="primary"
                 className="border-2 rounded-lg font-bold text-blue-900 px-8 py-6 "
               >
                 {followCount} Followers
               </Button>
+              <Modal
+                isOpen={isOpen}
+                onOpenChange={onOpenChange}
+                placement="top-center"
+                className="max-w-[360px] flex flex-col items-center"
+                backdrop="blur"
+              >
+                <ModalContent className="pb-6 gap-3">
+                  <ModalHeader className="text-lg font-semibold">
+                    {type === "follower" ? "Followers" : "Following"}
+                  </ModalHeader>
+                  {(type === "follower" ? followers : followings).length > 0 ? (
+                    (type === "follower" ? followers : followings).map((user) => (
+                      <UserCard
+                        key={user.username} // Ensure a unique key for each UserCard
+                        username={user.username}
+                        bio={user.bio}
+                        follower_count={user.follower_count}
+                        following_count={user.following_count}
+                        is_followed={user.is_followed}
+                        level={user.level}
+                      />
+                    ))
+                  ) : (
+                    <p className="text-default-500">
+                      No {type === "follower" ? "followers" : "following"} found.
+                    </p>
+                  )}
+                </ModalContent>
+              </Modal>
             </div>
           </div>
         )
@@ -294,23 +380,23 @@ export default function Profile() {
             }
           >
             <div className="flex flex-col gap-4 items-center">
-                {createdQuizzes.map((quiz) => (
-                  <Suspense key={quiz.id} fallback={<PostCardSkeleton />}>
-                    <QuizCard
-                      id={quiz.id}
-                      username={quiz.author.username}
-                      title={quiz.quiz.title}
-                      content={quiz.quiz.description}
-                      timePassed={quiz.quiz.timestamp}
-                      timesTaken={quiz.quiz.times_taken}
-                      likeCount={quiz.engagement.like_count}
-                      tags={quiz.quiz.tags}
-                      initialIsLiked={quiz.engagement.is_liked}
-                      initialIsBookmarked={quiz.engagement.is_bookmarked}
-                    />
-                  </Suspense>
-                ))}
-              </div>
+              {createdQuizzes.map((quiz) => (
+                <Suspense key={quiz.id} fallback={<PostCardSkeleton />}>
+                  <QuizCard
+                    id={quiz.id}
+                    username={quiz.author.username}
+                    title={quiz.quiz.title}
+                    content={quiz.quiz.description}
+                    timePassed={quiz.quiz.timestamp}
+                    timesTaken={quiz.quiz.times_taken}
+                    likeCount={quiz.engagement.like_count}
+                    tags={quiz.quiz.tags}
+                    initialIsLiked={quiz.engagement.is_liked}
+                    initialIsBookmarked={quiz.engagement.is_bookmarked}
+                  />
+                </Suspense>
+              ))}
+            </div>
           </Tab>
           <Tab
             key="solved"
@@ -322,23 +408,23 @@ export default function Profile() {
             }
           >
             <div className="flex flex-col gap-4 items-center">
-                {solvedQuizzes.map((quiz) => (
-                  <Suspense key={quiz.id} fallback={<PostCardSkeleton />}>
-                    <QuizCard
-                      id={quiz.id}
-                      username={quiz.author.username}
-                      title={quiz.quiz.title}
-                      content={quiz.quiz.description}
-                      timePassed={quiz.quiz.timestamp}
-                      timesTaken={quiz.quiz.times_taken}
-                      likeCount={quiz.engagement.like_count}
-                      tags={quiz.quiz.tags}
-                      initialIsLiked={quiz.engagement.is_liked}
-                      initialIsBookmarked={quiz.engagement.is_bookmarked}
-                    />
-                  </Suspense>
-                ))}
-              </div>
+              {solvedQuizzes.map((quiz) => (
+                <Suspense key={quiz.id} fallback={<PostCardSkeleton />}>
+                  <QuizCard
+                    id={quiz.id}
+                    username={quiz.author.username}
+                    title={quiz.quiz.title}
+                    content={quiz.quiz.description}
+                    timePassed={quiz.quiz.timestamp}
+                    timesTaken={quiz.quiz.times_taken}
+                    likeCount={quiz.engagement.like_count}
+                    tags={quiz.quiz.tags}
+                    initialIsLiked={quiz.engagement.is_liked}
+                    initialIsBookmarked={quiz.engagement.is_bookmarked}
+                  />
+                </Suspense>
+              ))}
+            </div>
           </Tab>
           {profile?.username === Cookies.get("username") && (
             <Tab

@@ -11,10 +11,24 @@ import Cookies from "js-cookie";
 
 type Props = {
     username: string;
+    bio?: string;
+    follower_count?: number;
+    following_count?: number;
+    is_followed?: boolean;
+    name?: string;
+    level?: string;
+    profile_image?: string;
 };
 
 export const UserCard = ({
     username,
+    bio,
+    follower_count,
+    following_count,
+    is_followed,
+    name,
+    level,
+    profile_image,
 }: Props) => {
     const [isFollowed, setIsFollowed] = React.useState(false);
     const { getToken } = AuthActions();
@@ -24,7 +38,7 @@ export const UserCard = ({
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (username) {
+        if (username && (!follower_count)) {
             axios
                 .get(`${BASE_URL}/profile/${username}/`, {
                     headers: {
@@ -43,15 +57,18 @@ export const UserCard = ({
                 .catch((error) => {
                     console.log(error);
                 });
+        } else {
+            setFollowCount(follower_count || 0);
+            setIsFollowed(is_followed || false);
         }
-    }, [username, token]);
+    }, [username, token, bio, follower_count, following_count, is_followed, name, level, profile_image]);
 
     const toggleFollow = () => {
         axios
           .post(
             `${BASE_URL}/profile/${isFollowed ? "unfollow" : "follow"}/`,
             {
-              username: profile?.username,
+              username: profile?.username || username,
             },
             {
               headers: {
@@ -71,17 +88,17 @@ export const UserCard = ({
       };
 
     return (
-        <Card shadow="none" className="w-[300px] border-none bg-transparent">
+        <Card shadow="none" className="w-[300px] border-1 bg-transparent">
             <CardHeader className="justify-between">
                 <div className="flex gap-3">
                     <Avatar isBordered radius="full" size="md" src="https://nextui.org/avatars/avatar-1.png" />
                     <div className="flex flex-col items-start justify-center">
-                        <h4 className="text-small font-semibold leading-none text-default-600">{profile?.username}</h4>
-                        <h5 className="text-small tracking-tight text-default-500">@{profile?.level}</h5>
+                        <h4 className="text-small font-semibold leading-none text-default-600">{profile?.username || username}</h4>
+                        <h5 className="text-small tracking-tight text-default-500">@{profile?.level || level}</h5>
                     </div>
                 </div>
                 <div className="flex flex-row items-center gap-2">
-                    {profile && profile.username !== Cookies.get("username") &&
+                    {(profile || username) && (username !== Cookies.get("username")) &&
                         <Button
                             className={isFollowed ? "bg-transparent text-foreground border-default-200" : ""}
                             color="primary"
@@ -99,12 +116,12 @@ export const UserCard = ({
             </CardHeader>
             <CardBody className="px-3 py-0">
                 <p className="text-small pl-px text-default-500">
-                    {profile?.bio || "Hey, new learner here!"}
+                    {(profile?.bio || bio) || "Hey, new learner here!"}
                 </p>
             </CardBody>
             <CardFooter className="gap-3">
                 <div className="flex gap-1">
-                    <p className="font-semibold text-default-600 text-small">{profile?.following}</p>
+                    <p className="font-semibold text-default-600 text-small">{profile?.following || following_count}</p>
                     <p className=" text-default-500 text-small">Following</p>
                 </div>
                 <div className="flex gap-1">
