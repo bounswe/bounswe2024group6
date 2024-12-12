@@ -81,7 +81,7 @@ export type QuizResponse = {
   tags: string[];
 };
 
-export type QuizDetails = {
+export type QuizDetail = {
   id: number;
   title: string;
   description: string;
@@ -91,6 +91,7 @@ export type QuizDetails = {
   };
   average_score: number;
   created_at: string;
+  timestamp: string;
   is_liked: boolean;
   is_bookmarked: boolean;
   like_count: number;
@@ -98,6 +99,31 @@ export type QuizDetails = {
   level: string;
   times_taken: number;
   tags: string[];
+  quiz_result_id: number;
+  is_solved: boolean;
+};
+
+export type QuizDetailsResponse = {
+  quiz: {
+    id: number;
+    title: string;
+    description: string;
+    author: {
+      username: string;
+      id: number;
+    };
+    average_score: number;
+    created_at: string;
+    is_liked: boolean;
+    is_bookmarked: boolean;
+    like_count: number;
+    question_count: number;
+    level: string;
+    times_taken: number;
+    tags: string[];
+  }
+  quiz_result_id: number;
+  is_solved: boolean;
 };
 
 export type Profile = {

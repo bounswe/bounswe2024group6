@@ -16,7 +16,7 @@ import {
   IconThumbUp,
   IconThumbUpFilled,
 } from "@tabler/icons-react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { AuthActions } from "../auth/utils";
 import axios from "axios";
 import { BASE_URL } from "../../lib/baseURL";

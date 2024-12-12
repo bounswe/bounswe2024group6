@@ -6,12 +6,22 @@ import {
   Divider,
   Button,
 } from "@nextui-org/react";
+import { option } from "framer-motion/client";
+import { BASE_URL } from "../../lib/baseURL.ts";
+import axios from "axios";
+import { AuthActions } from "../../components/auth/utils.tsx";
 
 type Props = {
+  quiz_progress_id: number;
   ques_count: number;
   cur_question: number;
   answers: Answer[];
   setAnswers: (answers: Answer[]) => void;
+  option_a: string;
+  option_b: string;
+  option_c: string;
+  option_d: string;
+  question: string;
 };
 enum Answer {
   None,
@@ -21,25 +31,56 @@ enum Answer {
   D,
 }
 
-export default function App({
+export default function QuestionCard({
+  quiz_progress_id,
   ques_count,
   cur_question,
   answers,
   setAnswers,
+  option_a,
+  option_b,
+  option_c,
+  option_d,
+  question,
 }: Props) {
-  function handleClick(answer: Answer) {
-    return () => {
-      setAnswers((prev) => {
-        const newAnswers = [...prev];
-        if (newAnswers[cur_question - 1] === answer) {
-          newAnswers[cur_question - 1] = Answer.None;
-        } else {
-          newAnswers[cur_question - 1] = answer;
+  const { getToken } = AuthActions();
+  const token = getToken("access");
+
+  const handleClick = (answer: number) => async () => {
+    setAnswers((prevAnswers) => {
+      const updatedAnswers = [...prevAnswers];
+      if (updatedAnswers[cur_question - 1] === answer) {
+        updatedAnswers[cur_question - 1] = Answer.None;
+        answer = 0;
+      } else {
+        updatedAnswers[cur_question - 1] = answer;
+      }
+      console.log("Updated answers:", updatedAnswers);
+      return updatedAnswers;
+    });
+
+    // Send the answer to the backend
+    try {
+      console.log("Submitting answer:", answer);
+      const response = await axios.post(
+        `${BASE_URL}/quiz/question/solve/`,
+        {
+          quiz_progress_id: quiz_progress_id,
+          question_number: cur_question,
+          answer: answer,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-        return newAnswers;
-      });
-    };
-  }
+      );
+      console.log("Answer submitted:", response.data);
+    } catch (error) {
+      console.error("Error submitting answer:", error);
+      alert("Failed to submit answer. Please try again.");
+    }
+  };
 
   return (
     <Card className="max-w-[600px]">
@@ -50,50 +91,50 @@ export default function App({
       </CardHeader>
       <Divider />
       <CardBody className="flex flex-col justify-center shadow-lg rounded-lg w-[550px] h-[200px]">
-        <p className="text-center text-5xl text-blue-900">Lamb</p>
+        <p className="text-center text-5xl text-blue-900">{question}</p>
       </CardBody>
 
       <CardFooter className="w-[550px] h-[170px] py-6">
         <div className="grid grid-cols-2 grid-rows-2 gap-4 w-full h-full">
           <Button
             color="primary"
-            onClick={handleClick(Answer.A)}
+            onClick={handleClick(1)}
             variant={
               answers[cur_question - 1] === Answer.A ? "solid" : "bordered"
             }
             className=" flex items-center justify-center text-xl h-12 mx-3"
           >
-            Kuzu
+            {option_a}
           </Button>
           <Button
             color="primary"
-            onClick={handleClick(Answer.B)}
+            onClick={handleClick(2)}
             variant={
               answers[cur_question - 1] === Answer.B ? "solid" : "bordered"
             }
             className=" flex items-center justify-center text-xl h-12 mx-3"
           >
-            Lamba
+            {option_b}
           </Button>
           <Button
             color="primary"
-            onClick={handleClick(Answer.C)}
+            onClick={handleClick(3)}
             variant={
               answers[cur_question - 1] === Answer.C ? "solid" : "bordered"
             }
             className=" flex items-center justify-center text-xl h-12 mx-3"
           >
-            Koç
+            {option_c}
           </Button>
           <Button
             color="primary"
-            onClick={handleClick(Answer.D)}
+            onClick={handleClick(4)}
             variant={
               answers[cur_question - 1] === Answer.D ? "solid" : "bordered"
             }
             className=" flex items-center justify-center text-xl h-12 mx-3"
           >
-            Işık
+            {option_d}
           </Button>
         </div>
       </CardFooter>
