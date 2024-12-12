@@ -11,7 +11,8 @@ from app.views_directory.postviews import create_post, delete_post, get_posts_of
 from app.views_directory.feed_views import get_user_post_feed
 from app.views_directory.bookmark_views import bookmark_post, unbookmark_post, get_bookmarked_posts  
 from app.views_directory.searchview import SearchView
-
+from django.conf.urls.static import static
+from django.conf import settings
 import app.views_directory.quiz_views as quiz_views
 
 urlpatterns = [
