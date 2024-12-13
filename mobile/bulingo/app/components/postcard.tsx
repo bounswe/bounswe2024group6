@@ -43,9 +43,6 @@ const PostCard: React.FC<PostCardProps> = ({
     const params = {
       'post_id': id,
     }
-    console.log("in handleAdminDeletePost")
-    console.log(url)
-    console.log(params)
     try{
       const response = await TokenManager.authenticatedFetch(url, {
         method: 'POST',

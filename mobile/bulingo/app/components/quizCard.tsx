@@ -57,9 +57,6 @@ export default function QuizCard(props: QuizCardProps){
     const params = {
       'quiz_id': props.id,
     }
-    console.log("in handleAdminDeleteQuiz")
-    console.log(url)
-    console.log(params)
     try{
       const response = await TokenManager.authenticatedFetch(url, {
         method: 'POST',

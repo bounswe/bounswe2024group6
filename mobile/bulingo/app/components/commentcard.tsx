@@ -33,9 +33,6 @@ const CommentCard: React.FC<CommentCardProps> = ({ id, isBookmarked: initialBook
           'comment_id': id,
           'user': TokenManager.getUsername(),
         }
-        console.log("in handleAdminDeleteComment")
-        console.log(url)
-        console.log(params)
         try{
           const response = await TokenManager.authenticatedFetch(url, {
             method: 'DELETE',

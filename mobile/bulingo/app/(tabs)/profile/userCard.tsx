@@ -76,9 +76,6 @@ const UserCard = (props: UserCardProps) => {
     const params = {
       'username': props.username,
     }
-    console.log("in handleAdminBanUser")
-    console.log(url)
-    console.log(params)
     try{
       const response = await TokenManager.authenticatedFetch(url, {
         method: 'POST',
