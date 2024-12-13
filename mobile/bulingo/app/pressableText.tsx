@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
 import { View, Pressable, Text, StyleSheet, StyleProp, TextStyle, ViewStyle} from 'react-native';
-import ModalDictionary from './components/modalDictionary';
 
 
 type PressableTextProps = {
@@ -12,6 +11,9 @@ type PressableTextProps = {
 export default function PressableText(props: PressableTextProps){
   const [selectedWord, setSelectedWord] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);// Function to handle press and show modal
+  const ModalDictionary = React.lazy(() => import('./components/modalDictionary'));
+
+
   const handleLongPress = (word: string) => {
     setSelectedWord(word);
     setModalVisible(true);
@@ -38,7 +40,9 @@ export default function PressableText(props: PressableTextProps){
 
       {/* Modal for additional information */}
       {selectedWord && modalVisible && (
-        <ModalDictionary onClose={closeModal} word={selectedWord}/>
+        <React.Suspense>
+          <ModalDictionary onClose={closeModal} word={selectedWord} />
+        </React.Suspense>
       )}
     </View>
   );
