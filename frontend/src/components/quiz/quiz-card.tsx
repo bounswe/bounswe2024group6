@@ -114,7 +114,7 @@ export default function QuizCard({
       : `${content.slice(0, maxLength)}... `;
 
   return (
-    <Card className="w-[740px] px-2 pt-2">
+    <Card className="w-[740px] px-2 pt-2" isPressable>
       <CardHeader className="flex flex-col items-start gap-2">
         <div className="flex w-full justify-between">
           <div className="flex gap-3">
@@ -170,7 +170,7 @@ export default function QuizCard({
           <CardBody className="px-3 py-0 text-small text-default-600 text-justify leading-relaxed overflow-hidden">
             <div className="flex flex-row justify-between w-full">
               <h2 className="text-2xl font-semibold leading-none text-default-800 mb-1">
-                <h2 className="text-default-800 hover:underline">
+                <h2 className="text-default-800">
                   {title}
                 </h2>
               </h2>
