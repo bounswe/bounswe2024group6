@@ -67,7 +67,7 @@ const PostCard: React.FC<PostCardProps> = ({
   return (
     <>
       { isTagEditVisible && 
-        <TagEdit type="Quiz" id='placeholder' onClose={() => setIsTagEditVisible(false)}/>
+        <TagEdit type="Quiz" id={id} onClose={() => setIsTagEditVisible(false)} tags={tags}/>
       }
       { isAdminOptionsVisible &&
         <AdminOptions onClose={()=>setIsAdminOptionsVisible(false)} options={[

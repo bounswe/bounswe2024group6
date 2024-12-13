@@ -6,64 +6,21 @@ import TokenManager from '../TokenManager';
 type TagEditProps={
   type: 'Post'|'Quiz';
   id: string,  // The id of the post or quiz
+  tags: string[],
   onClose: ()=>void;
 }
 
 
 export default function TagEdit(props: TagEditProps){
-  const [tags, setTags] = useState<string[]>(['A1', 'tag1', 'tag2', 'tag3', 
-    'tag4', 'tag5', 'tag6', 'tag7', 'tag8', 'tag9', 'tag5', 'tag6', 'tag7', 'tag8', 'tag9']);
+  const [tags, setTags] = useState<string[]>(props.tags);
   const [filteredTags, setFilteredTags] = useState<string[]>(tags);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [isLoading, setIsLoading] = useState(true);
   const [addTagModalVisible, setAddTagModalVisible] = useState(false);
   const [addTagInput , setAddTagInput] = useState("");
 
   useEffect(() => {
     setFilteredTags(tags.filter((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase())));
   }, [tags, searchQuery]);
-
-
-  useEffect(() => {
-    const fetchTags = async () => { 
-      const username = TokenManager.getUsername()
-      if (username === null){
-        console.error("username is null")
-        return
-      }
-      const params = {
-        'user': username,
-       };
-
-      const url = 'fetch_tags/';  // Placeholder, change when endpoint is ready
-      try {
-        const response = await TokenManager.authenticatedFetch(url, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-        const res = await response.json();
-        if (response.ok){
-          setTags(res);
-        } else {
-          console.log(response.status)
-        };
-      } catch (error) {
-        console.error(error);
-      }
-      setIsLoading(false);
-    };
-    fetchTags();
-  }, []);
-
-  if (isLoading){
-    return (
-      <Modal transparent={true} onRequestClose={props.onClose}>
-        <ActivityIndicator size={20} color={'red'}/>
-      </Modal>
-    );
-  }
 
   const removeTag = (tag:string) => {
     return (async () => {
@@ -74,22 +31,33 @@ export default function TagEdit(props: TagEditProps){
         console.error("username is null")
         return
       }
-      const params = {
-        'user': username,
+      const params = props.type == 'Post' ? {
+        tags: tags.filter((item) => item !== tag),
+       } : {
+        quiz: {
+          tags: tags.filter((item) => item !== tag),
+        }
        };
 
-      const url = 'delete_tags/';  // Placeholder, change when endpoint is ready
+      const url = props.type == 'Post' ? `post/update/${props.id}/` : "quiz/update/";
+      console.log(url);
+      console.log(params);
+
       try {
         const response = await TokenManager.authenticatedFetch(url, {
-          method: 'GET',
+          method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
+          body: JSON.stringify(params),
         });
-        const res = await response.json();
-        if (!response.ok){
-          console.log(response.status)
-        };
+
+        if (response.ok){
+          const res = await response.json();
+          console.log(res);
+        } else {
+          console.log("removeTag failed: ", response.status)
+        }
       } catch (error) {
         console.error(error);
       }
@@ -105,22 +73,33 @@ export default function TagEdit(props: TagEditProps){
         console.error("username is null")
         return
       }
-      const params = {
-        'user': username,
+      const params = props.type == 'Post' ? {
+        'tags': [...tags, addTagInput],
+       } : {
+        quiz: {
+          tags: [...tags, addTagInput],
+        }
        };
 
-      const url = 'add_tags/';  // Placeholder, change when endpoint is ready
+      const url = props.type == 'Post' ? `post/update/${props.id}/` : "quiz/update/";      
+      console.log(url);
+      console.log(params);
+
       try {
         const response = await TokenManager.authenticatedFetch(url, {
-          method: 'GET',
+          method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
+          body: JSON.stringify(params),
         });
-        const res = await response.json();
-        if (!response.ok){
-          console.log(response.status)
-        };
+
+        if (response.ok){
+          const res = await response.json();
+          console.log(res);
+        } else {
+          console.log("addTag failed: ", response.status)
+        }
       } catch (error) {
         console.error(error);
       }
