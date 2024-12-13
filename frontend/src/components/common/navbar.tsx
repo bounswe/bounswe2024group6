@@ -38,6 +38,12 @@ export default function Navbar() {
   const [isNotificationsViewed, setIsNotificationsViewed] = useState(false);
 
   useEffect(() => {
+    if (!username) {
+      setIsNotificationsViewed(true);
+    }
+  }, [username]);
+
+  useEffect(() => {
     axios
       .get(`${BASE_URL}/user-activities-as-object/`, {
         headers: {
@@ -92,7 +98,7 @@ export default function Navbar() {
     logout()
       .res(() => {
         removeTokens();
-
+        Cookies.remove("username");
         navigate("/");
       })
       .catch(() => {
@@ -109,28 +115,40 @@ export default function Navbar() {
         </div>
         <Divider className="w-full bg-zinc-300" />
         <div className="flex flex-col">
-          <Button
-            variant="light"
-            onClick={() => navigate(`/profile/${username}`)}
-            className="text-medium mt-2"
-          >
-            Profile
-          </Button>
-          <Button
-            variant="light"
-            onClick={() => navigate(`/profile/${username}/edit`)}
-            className="text-medium w-full"
-          >
-            Edit Profile
-          </Button>
-          <Button
-            variant="light"
-            color="danger"
-            className="text-medium w-full"
-            onClick={handleLogout}
-          >
-            Log out
-          </Button>
+          {username ? (
+            <>
+              <Button
+                variant="light"
+                onClick={() => navigate(`/profile/${username}`)}
+                className="text-medium mt-2"
+              >
+                Profile
+              </Button>
+              <Button
+                variant="light"
+                onClick={() => navigate(`/profile/${username}/edit`)}
+                className="text-medium w-full"
+              >
+                Edit Profile
+              </Button>
+              <Button
+                variant="light"
+                color="danger"
+                className="text-medium w-full"
+                onClick={handleLogout}
+              >
+                Log out
+              </Button>
+            </>
+          ) : (
+            <Button
+              variant="light"
+              onClick={() => navigate("/")}
+              className="text-medium mt-2"
+            >
+              Login
+            </Button>
+          )}
         </div>
       </div>
     </PopoverContent>

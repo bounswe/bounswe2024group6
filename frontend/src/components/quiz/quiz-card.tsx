@@ -84,11 +84,11 @@ export default function QuizCard({
         } else {
           setLikes(likes + 1);
         }
+        setIsLiked(!isLiked);
       })
       .catch((error) => {
         console.log(error.response.data);
       });
-    setIsLiked(!isLiked);
   };
 
   const toggleBookmark = () => {

@@ -50,9 +50,6 @@ export default function QuizDetails() {
             setIsLoading(true);
             axios
                 .get(`${BASE_URL}/quiz/${quizID}/`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
                 })
                 .then((response) => {
                     console.log(response.data);
@@ -93,11 +90,11 @@ export default function QuizDetails() {
                 } else {
                     setLikes(likes + 1);
                 }
+                setIsLiked(!isLiked);
             })
             .catch((error) => {
                 console.log(error.response.data);
             });
-        setIsLiked(!isLiked);
     };
 
     const toggleBookmark = () => {

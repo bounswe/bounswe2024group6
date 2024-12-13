@@ -117,7 +117,6 @@ export default function Login({
             )}
           </div>
         </form>
-
         <div className="text-center mt-6">
           <span className="text-sm ">Need to create an account? </span>
           <button
@@ -127,6 +126,15 @@ export default function Login({
             className="text-blue-600 hover:underline"
           >
             Sign Up
+          </button>
+        </div>
+        <div className="text-center">
+          <span className="text-sm">Or continue as a </span>
+          <button
+            onClick={() => navigate("/forum")}
+            className="text-blue-600 hover:underline"
+          >
+            Guest
           </button>
         </div>
       </div>

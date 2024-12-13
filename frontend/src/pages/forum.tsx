@@ -51,9 +51,6 @@ export default function Forum() {
     setIsLoading(true);
     axios
       .get(`${BASE_URL}/feed/`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       })
       .then((response) => {
         console.log(response.data);
