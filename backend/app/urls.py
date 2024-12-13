@@ -42,12 +42,9 @@ urlpatterns = [
     path('quiz/delete/', quiz_views.delete_quiz, name="delete_quiz"),
     path('quiz/update/', quiz_views.update_quiz, name="update_quiz"),
     path('quiz/cancel/', quiz_views.cancel_quiz, name="cancel_quiz"),
-
     path('word/bookmark/<str:word>/', bookmark_word, name='bookmark_word'),
     path('word/unbookmark/<str:word>/', unbookmark_word, name='unbookmark_word'),
     path('word/bookmarks/', get_bookmarked_words, name='get_bookmarked_words'),
-
-
     path('create-post/',create_post, name='create_post'),
     path('signup/', RegisterView.as_view(), name='auth_register'),
     path('login/', LoginView.as_view(), name='auth_login'),
@@ -81,5 +78,4 @@ urlpatterns = [
     path('profile/followers/<str:username>/', view_followers, name='view_followers'),
     path('profile/following/<str:username>/', view_following, name='view_following'),
     path('search/', SearchView.as_view(), name='search'),
-]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

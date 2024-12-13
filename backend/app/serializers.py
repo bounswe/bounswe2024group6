@@ -158,6 +158,7 @@ class QuizSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'title',
+            'title_image',
             'description',
             'author',
             'tags',
@@ -222,7 +223,8 @@ class QuizProgressSerializer(serializers.ModelSerializer):
 
 
 class QuestionSerializer(serializers.ModelSerializer):
-    level = serializers.ChoiceField(choices=Question.LEVEL_CHOICES) 
+    level = serializers.ChoiceField(choices=Question.LEVEL_CHOICES)
+
     class Meta:
         model = Question
         fields = [
@@ -230,19 +232,31 @@ class QuestionSerializer(serializers.ModelSerializer):
             'id',
             'question_number',
             'question_text',
+            'question_image',
             'choice1',
+            'choice1_image',
             'choice2',
+            'choice2_image',
             'choice3',
+            'choice3_image',
             'choice4',
+            'choice4_image',
             'correct_choice',
             'level',
         ]
+        # Add this to explicitly specify which fields can be written to
+        extra_kwargs = {
+            'id': {'read_only': True},
+            'correct_choice': {'required': True},
+        }
 
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        representation.pop('quiz')
-        representation['quiz_id'] = instance.quiz.id
-        return representation 
+    def validate_correct_choice(self, value):
+        """
+        Check that correct_choice is between 1 and 4
+        """
+        if not (1 <= value <= 4):
+            raise serializers.ValidationError("Correct choice must be between 1 and 4")
+        return value
 
 class QuestionProgressSerializer(serializers.ModelSerializer):
     class Meta:
