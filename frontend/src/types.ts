@@ -153,6 +153,7 @@ export type ProfileResponse = {
   quizzes?: Quiz[]; // TODO: to be made required
 };
 
+
 export type QuizCreationModel = {
   quiz: QuizHeader;
   questions: Question[];
@@ -175,5 +176,16 @@ export type Question = {
   choice3: string;
   choice4: string;
   correct_choice: number;
+};
+
+export type UserCardType = {
+  id: number;
+  username: string;
+  level: string;
+  bio: string;
+  followers: number;
+  following: number;
+  image: string;
+  is_followed: boolean;
 };
 
