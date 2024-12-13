@@ -22,16 +22,23 @@ from ..word_service import lexvo_manager
 import requests
 from ..word_service.semantic_service import SemanticChoiceGenerator
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 def get_quiz_choices(request, word, quiz_type):
     """
-    Get quiz choices for a word with specified quiz type
-    quiz_type can be: EN_TO_TR, TR_TO_EN, EN_TO_MEANING
+    Get quiz choices for a word with specified quiz type and optional correct choice
     """
     try:
         generator = SemanticChoiceGenerator()
-        result = generator.generate_quiz_question(word, quiz_type)
-        
+        correct_choice=None
+        if request.method == 'POST':
+            correct_choice = request.data.get('correct_choice')
+            if not correct_choice:
+                return Response(
+                    {"error": "correct_choice is required in POST body"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        result = generator.generate_quiz_question(word, quiz_type, correct_choice)
+
         if not result:
             return Response(
                 {"error": f"Could not generate choices for word '{word}'"},
@@ -49,7 +56,6 @@ def get_quiz_choices(request, word, quiz_type):
             {"error": f"An error occurred: {str(e)}"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
-
 
 @api_view(['GET'])
 def get_lexvo_info(request,word):
