@@ -9,6 +9,9 @@ import {
   Divider,
   Button,
   cn,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
 } from "@nextui-org/react";
 import {
   IconBookmark,
@@ -20,6 +23,7 @@ import { useNavigate } from "react-router-dom";
 import { AuthActions } from "../auth/utils";
 import axios from "axios";
 import { BASE_URL } from "../../lib/baseURL";
+import { UserCard } from "../common/user-card";
 
 const maxLength = 250; // Maximum length of the content to be displayed
 
@@ -57,7 +61,7 @@ export default function QuizCard({
   const navigate = useNavigate();
   const { getToken } = AuthActions();
   const token = getToken("access");
-  
+
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
   };
@@ -75,16 +79,16 @@ export default function QuizCard({
       )
       .then((response) => {
         console.log(response.data);
-        if(isLiked) {
+        if (isLiked) {
           setLikes(likes - 1);
         } else {
           setLikes(likes + 1);
         }
+        setIsLiked(!isLiked);
       })
       .catch((error) => {
         console.log(error.response.data);
       });
-    setIsLiked(!isLiked);
   };
 
   const toggleBookmark = () => {
@@ -114,23 +118,33 @@ export default function QuizCard({
       <CardHeader className="flex flex-col items-start gap-2">
         <div className="flex w-full justify-between">
           <div className="flex gap-3">
-            <Avatar
-              isBordered
-              radius="full"
-              className="w-6 h-6 text-tiny"
-              src="https://nextui.org/avatars/avatar-1.png"
-            />
-            <div className="flex flex-col gap-1 items-start justify-center">
-              <h5 className="text-small tracking-tight text-default-400">
-                {username}
-              </h5>
-            </div>
+            <Popover showArrow placement="bottom">
+              <PopoverTrigger>
+                <div className="flex flex-row gap-3 items-center">
+                  <Avatar
+                    as="button"
+                    isBordered
+                    radius="full"
+                    className="w-6 h-6 text-tiny"
+                    src="https://nextui.org/avatars/avatar-1.png"
+                  />
+                  <div className="flex flex-col gap-1 items-start justify-center">
+                    <h5 className="text-small tracking-tight text-default-400">
+                      {username}
+                    </h5>
+                  </div>
+                </div>
+              </PopoverTrigger>
+              <PopoverContent className="p-1">
+                <UserCard username={username} />
+              </PopoverContent>
+            </Popover>
           </div>
           <p className="text-default-400 text-small">{timePassed}</p>
         </div>
         <Divider className="mt-1.5 bg-zinc-200" />
       </CardHeader>
-      <div className="flex flex-row justify-between items-center mb-5">
+      <div onClick={() => navigate(`/quiz/${id}/details`)} className="flex flex-row justify-between items-center mb-5">
         {picture ? (
           <img
             src={picture}
@@ -144,19 +158,19 @@ export default function QuizCard({
           />
         ) : (
           <div className="w-[200px] h-[200px] flex justify-center items-center p-8">
-          <div className="text-blue-800 text-7xl md:text-7xl font-semibold items-center mb-3 pb-6 pl-3">
-            <div className="relative">
-              <span className="inline-block transform -rotate-12 translate-y-2">bu</span>
-              <span className="text-blue-600 inline-block transform rotate-12 translate-y-2">lingo</span>
+            <div className="text-blue-800 text-7xl md:text-7xl font-semibold items-center mb-3 pb-6 pl-3">
+              <div className="relative">
+                <span className="inline-block transform -rotate-12 translate-y-2">bu</span>
+                <span className="text-blue-600 inline-block transform rotate-12 translate-y-2">lingo</span>
+              </div>
             </div>
           </div>
-        </div>
         )}
         <div className="w-[500px] h-[200px] flex flex-col justify-between pt-4">
           <CardBody className="px-3 py-0 text-small text-default-600 text-justify leading-relaxed overflow-hidden">
             <div className="flex flex-row justify-between w-full">
               <h2 className="text-2xl font-semibold leading-none text-default-800 mb-1">
-                <h2 onClick={() => navigate(`/quiz/${id}/details`)} className="text-default-800 hover:underline">
+                <h2 className="text-default-800 hover:underline">
                   {title}
                 </h2>
               </h2>

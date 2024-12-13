@@ -9,21 +9,50 @@ import { AuthActions } from "../components/auth/utils.tsx";
 import PostCardSkeleton from "../components/post/post-card-skeleton.tsx";
 import { Quiz, QuizResponse } from "../types.ts";
 import { convertQuizResponseToQuiz } from "../components/common/utils.tsx";
+import { Select, SelectItem } from "@nextui-org/react";
+
+const Tags = [
+  "#Activities",
+  "#Basics",
+  "#Education",
+  "#Food",
+  "#Health",
+  "#Other",
+  "#Shopping",
+  "#Family",
+  "#Sports",
+  "#Travel",
+  "#Work",
+];
+const DifficultyTags = ["A1", "A2", "B1", "B2", "C1", "C2"];
+const SortFilters = ["Most Recent", "Most Liked", "Most Taken"];
+
 
 export default function Quizzes() {
   usePageTitle("Quizzes");
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { getToken } = AuthActions();
   const token = getToken("access");
+  const [sortFilter, setSortFilter] = useState<string>("Most Recent");
+  const handleSelectionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSortFilter(e.target.value);
+  };
+
+  const handleTagClick = (tag: string) => {
+    if (selectedTags.includes(tag)) {
+      setSelectedTags(selectedTags.filter((t) => t !== tag));
+    } else {
+      setSelectedTags([...selectedTags, tag]);
+    }
+  };
+
 
   useEffect(() => {
     setIsLoading(true);
     axios
       .get(`${BASE_URL}/feed/quiz/`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       })
       .then((response) => {
         console.log(response.data);
@@ -38,12 +67,28 @@ export default function Quizzes() {
       });
   }, []);
 
+  const filteredQuizzes = quizzes.filter((quiz) => {
+    // Show all posts if no tags are selected
+    if (selectedTags.length === 0) return true;
 
-  const sortedQuizzes = [...quizzes].sort((a, b) => {
-    return (
-      new Date(b.quiz.created_at).getTime() -
-      new Date(a.quiz.created_at).getTime()
-    );
+    // Check if the post has at least one tag from the selectedTags
+    return quiz.quiz.tags.some((tag) => selectedTags.includes(tag));
+  });
+
+  const sortedQuizzes = [...filteredQuizzes].sort((a, b) => {
+    switch (sortFilter) {
+      case "Most Recent":
+        return (
+          new Date(b.quiz.created_at).getTime() -
+          new Date(a.quiz.created_at).getTime()
+        );
+      case "Most Liked":
+        return b.quiz.engagement.like_count - a.quiz.engagement.like_count;      // kontrol et
+      case "Most Taken":
+        return b.quiz.times_taken - a.quiz.times_taken;
+      default:
+        return 0;
+    }
   });
 
   const quiz2 = {
@@ -59,9 +104,45 @@ export default function Quizzes() {
   };
 
   return (
-    <div className="items-center gap-4 flex flex-col overflow-hidden mb-4">
+    <div className="items-center gap-4 flex flex-col overflow-hidden pb-4">
       <Navbar />
       <CreateQuizButton />
+      <div className="flex w-[740px] justify-between items-center  mt-4">
+        <Select
+          onChange={handleSelectionChange}
+          placeholder="Sort By"
+          defaultSelectedKeys={["Most Recent"]}
+          className="w-44 text-black"
+        >
+          {SortFilters.map((sortFilter) => (
+            <SelectItem key={sortFilter}>{sortFilter}</SelectItem>
+          ))}
+        </Select>
+        <div className="flex flex-row gap-2">
+          <Select
+            placeholder="Difficulty"
+            selectionMode="multiple"
+            className="w-32 text-black"
+          >
+            {DifficultyTags.map((tag) => (
+              <SelectItem onPress={() => handleTagClick(tag)} key={tag}>
+                {"#"+tag}
+              </SelectItem>
+            ))}
+          </Select>
+          <Select
+            placeholder="Categories"
+            selectionMode="multiple"
+            className="w-32 text-black"
+          >
+            {Tags.map((tag) => (
+              <SelectItem onPress={() => handleTagClick(tag)} key={tag}>
+                {tag}
+              </SelectItem>
+            ))}
+          </Select>
+        </div>
+      </div>
       {isLoading ?
         Array(2)
           .fill(0)

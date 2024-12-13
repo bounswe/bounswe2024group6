@@ -37,6 +37,7 @@ import { UserCard } from "../components/common/user-card.tsx";
 import Cookies from "js-cookie";
 import { usePageTitle } from "../components/common/usePageTitle.ts";
 import QuizCard from "../components/quiz/quiz-card.tsx";
+import { div } from "framer-motion/client";
 
 export default function Profile() {
   usePageTitle("Profile");
@@ -312,15 +313,17 @@ export default function Profile() {
                   </ModalHeader>
                   {(type === "follower" ? followers : followings).length > 0 ? (
                     (type === "follower" ? followers : followings).map((user) => (
-                      <UserCard
-                        key={user.username} // Ensure a unique key for each UserCard
-                        username={user.username}
-                        bio={user.bio}
-                        follower_count={user.follower_count}
-                        following_count={user.following_count}
-                        is_followed={user.is_followed}
-                        level={user.level}
-                      />
+                      <div className="border-1 rounded-xl">
+                        <UserCard
+                          key={user.username} // Ensure a unique key for each UserCard
+                          username={user.username}
+                          bio={user.bio}
+                          follower_count={user.follower_count}
+                          following_count={user.following_count}
+                          is_followed={user.is_followed}
+                          level={user.level}
+                        />
+                      </div>
                     ))
                   ) : (
                     <p className="text-default-500">

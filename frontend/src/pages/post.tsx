@@ -35,9 +35,6 @@ export default function Post() {
           post_id: postID,
         },
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
         }
       )
       .then((response) => {
