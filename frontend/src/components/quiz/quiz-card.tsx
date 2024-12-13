@@ -17,6 +17,9 @@ import {
   IconThumbUpFilled,
 } from "@tabler/icons-react";
 import { Link, useNavigate } from "react-router-dom";
+import { AuthActions } from "../auth/utils";
+import axios from "axios";
+import { BASE_URL } from "../../lib/baseURL";
 
 const maxLength = 250; // Maximum length of the content to be displayed
 
@@ -29,9 +32,12 @@ type Props = {
   timePassed: string;
   likeCount: number;
   tags: string[];
+  initialIsLiked: boolean;
+  initialIsBookmarked: boolean;
+  timesTaken: number;
 };
 
-export default function PostCard({
+export default function QuizCard({
   id,
   username,
   title,
@@ -40,24 +46,62 @@ export default function PostCard({
   timePassed,
   likeCount,
   tags,
+  initialIsLiked,
+  initialIsBookmarked,
+  timesTaken,
 }: Props) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isLiked, setIsLiked] = useState(false);
+  const [isLiked, setIsLiked] = useState(initialIsLiked);
   const [likes, setLikes] = useState(likeCount);
-  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(initialIsBookmarked);
   const navigate = useNavigate();
-
+  const { getToken } = AuthActions();
+  const token = getToken("access");
+  
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
   };
 
   const toggleLike = () => {
+    axios
+      .post(
+        `${BASE_URL}/quiz/like/`,
+        { quiz_id: id },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      .then((response) => {
+        console.log(response.data);
+        if(isLiked) {
+          setLikes(likes - 1);
+        } else {
+          setLikes(likes + 1);
+        }
+      })
+      .catch((error) => {
+        console.log(error.response.data);
+      });
     setIsLiked(!isLiked);
-    setLikes(likes + (!isLiked ? 1 : -1));
   };
 
   const toggleBookmark = () => {
-    setIsBookmarked(!isBookmarked);
+    axios
+      .post(
+        `${BASE_URL}/quiz/bookmark/`,
+        { quiz_id: id },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      .then((response) => {
+        console.log(response.data);
+        setIsBookmarked(!isBookmarked);
+      });
   };
 
   const displayedText =
@@ -108,15 +152,15 @@ export default function PostCard({
           </div>
         </div>
         )}
-        <div className="w-[500px] flex flex-col justify-between h-full pt-4">
+        <div className="w-[500px] h-[200px] flex flex-col justify-between pt-4">
           <CardBody className="px-3 py-0 text-small text-default-600 text-justify leading-relaxed overflow-hidden">
             <div className="flex flex-row justify-between w-full">
               <h2 className="text-2xl font-semibold leading-none text-default-800 mb-1">
-                <Link to={`/quiz/${id}/details`} className="text-default-800 hover:underline">
+                <h2 onClick={() => navigate(`/quiz/${id}/details`)} className="text-default-800 hover:underline">
                   {title}
-                </Link>
+                </h2>
               </h2>
-              <p className="text-default-600 text-sm">15 Attemps</p>
+              <p className="text-default-600 text-sm">{timesTaken} Attemps</p>
             </div>
             <p>
               {displayedText}
@@ -180,7 +224,7 @@ export default function PostCard({
                     size="sm"
                     radius="full"
                   >
-                    {tag}
+                    #{tag}
                   </Button>
                 ))}
             </div>

@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, TextInput, Image, ListRenderItem } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Navbar from '../../navbar';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import PostCard from '../../components/postcard'; 
-import { likePost, bookmarkPost } from '../../api/forum'; // Import the functions from forum.tsx
+import { likePost, bookmarkPost, getUserPostFeed, unlikePost, unbookmarkPost } from '../../api/forum'; // Import the functions from forum.tsx
 
 
 interface ForumPost {
@@ -17,59 +17,59 @@ interface ForumPost {
   tags: string[];
 }
 
-const initialForumData: ForumPost[] = [
-  { 
-    id: 1, 
-    title: 'Word In Detail: Insurance', 
-    author: 'Y.Emre',
-    likes: 501,
-    liked: false,
-    bookmarked: false,
-    tags: ['Vocabulary', 'Business']
-  },
-  {
-    id: 2,
-    title: "Elevator vs Lift, what's the difference?",
-    author: 'Aras',
-    likes: 291,
-    liked: false,
-    bookmarked: false,
-    tags: ['Grammar', 'Usage']
-  },
-  {
-    id: 3,
-    title: 'MegaThread: Toponymy of Scotland',
-    author: 'Kaan',
-    likes: 52,
-    liked: false,
-    bookmarked: false,
-    tags: ['Culture']
-  }
-];
 
 const ForumFeed: React.FC = () => {
   const [posts, setPosts] = useState<ForumPost[]>([]);
   const [selectedPost, setSelectedPost] = useState<ForumPost[]>([]);
-  const [page, setPage] = useState<number>(1);
+  // const [page, setPage] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const pageSize: number = 5;
   const flatListRef = useRef<FlatList<ForumPost>>(null);
   const navigation = useNavigation();
+  
+  
+  
+  useFocusEffect(
+    useCallback(() => {
+      loadPosts();
+    }, [])
+  );
 
-  useEffect(() => {
-     loadPosts();
-  }, [page]);
 
-  const loadPosts = (): void => {
+  const loadPosts = async (): Promise<void> => {
+
+  try {
+    var response =  await getUserPostFeed();
     if (loading) return;
     setLoading(true);
 
-    setTimeout(() => {
-      setPosts((prevPosts) => [...prevPosts, ...initialForumData]);
-      setLoading(false);
-    }, 500);
-  };
+    // setPosts((prevPosts) => [...prevPosts, ...feed]);
+
+    var feed = response.feed
+    // setPosts(feed)
+
+    
+    const posts = feed.map((post: any) => ({
+      author: post.author,
+      comments: post.comments,
+      createdAt: post.created_at,
+      description: post.description,
+      id: post.id,
+      isBookmarked: post.is_bookmarked,
+      liked: post.is_liked,
+      likes: post.like_count,
+      tags: post.tags,
+      title: post.title,
+    }));
+
+    setPosts(posts);
+  } catch (error) {
+    console.error('Error loading posts:', error);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleSearch = (text: string): void => {
     setSearchTerm(text);
@@ -85,11 +85,11 @@ const ForumFeed: React.FC = () => {
   
     router.navigate({pathname: '/(tabs)/forums/forumPostPage', params: {
        "id": item.id,
-       "title": item.title,
-       "author": item.author,
-       "likes": item.likes,
-       "liked": item.liked.toString(),
-       "bookmarked": item.bookmarked.toString(),
+      //  "title": item.title,
+      //  "author": item.author,
+      //  "likes": item.likes,
+      //  "liked": item.liked.toString(),
+      //  "bookmarked": item.bookmarked.toString(),
 
       
       }});
@@ -110,54 +110,115 @@ const ForumFeed: React.FC = () => {
   //   router.navigate('../postDetails');
   // };
 
-  const handleLikePress = async (postId: number): Promise<void> => {
-    setPosts(posts.map(post => {
-      if (post.id === postId) {
-        const newLikedState = !post.liked;
-        return {
-          ...post,
-          liked: newLikedState,
-          likes: newLikedState ? post.likes + 1 : post.likes - 1
-        };
-      }
-      return post;
-    }));
-
+  const handleLikePress = async (postId: number): Promise<void> => { 
     
-    // try {
-    //   const response = await likePost(postId);
-    //   if (response.success) {
-    //     setPosts(posts.map(post => {
-    //       if (post.id === postId) {
-    //         const newLikedState = !post.liked;
-    //         return {
-    //           ...post,
-    //           liked: newLikedState,
-    //           likes: newLikedState ? post.likes + 1 : post.likes - 1
-    //         };
-    //       }
-    //       return post;
-    //     }));
-    //   }
-    // } catch (error) {
-    //   console.error('Failed to like post:', error);
-    // }
+    posts.map(async post => {
+
+      if (post.id === postId) {
+        if(post.liked){
+
+          try {
+            const response = await unlikePost(postId);
+            if (response) {
+
+              setPosts(posts.map(post => {
+                if (post.id === postId) {
+                  return {
+                    ...post,
+                    liked: response.is_liked,
+                    likes: response.like_count
+                  };
+                }
+                return post;
+              }));
+            }
+          } catch (error) {
+            console.error('Failed to unlike post:', error);
+          }
+
+
+
+        }
+
+
+        else{
+          try {
+            const response = await likePost(postId);
+            if (response) {
+              setPosts(posts.map(post => {
+                if (post.id === postId) {
+                  return {
+                    ...post,
+                    liked: response.is_liked,
+                    likes: response.like_count
+                  };
+                }
+                return post;
+              }));
+            }
+          } catch (error) {
+            console.error('Failed to like post:', error);
+          }
+        }
+
+      }
+    })
+    
+
+
   };
 
   const handleBookmarkPress = async (postId: number): Promise<void> => {
-    try {
-      const response = await bookmarkPost(postId);
-      if (response.success) {
-        setPosts(posts.map(post => {
-          if (post.id === postId) {
-            return { ...post, bookmarked: !post.bookmarked };
+    posts.map(async post => {
+
+      if (post.id === postId) {
+        if(post.bookmarked){
+
+          try {
+            const response = await unbookmarkPost(postId);
+            if (response) {
+
+              setPosts(posts.map(post => {
+                if (post.id === postId) {
+                  return {
+                    ...post,
+                    bookmarked: response.is_bookmarked,
+                  };
+                }
+                return post;
+              }));
+            }
+          } catch (error) {
+            console.error('Failed to unbookmark post:', error);
           }
-          return post;
-        }));
+
+
+
+        }
+
+
+        else{
+          try {
+            const response = await bookmarkPost(postId);
+            if (response) {
+              setPosts(posts.map(post => {
+                if (post.id === postId) {
+                  return {
+                    ...post,
+                    bookmarked: response.is_bookmarked,
+                  };
+                }
+                return post;
+              }));
+            }
+          } catch (error) {
+            console.error('Failed to bookmark post:', error);
+          }
+        }
+
       }
-    } catch (error) {
-      console.error('Failed to bookmark post:', error);
-    }
+    })
+    
   };
 
 
@@ -203,8 +264,8 @@ const ForumFeed: React.FC = () => {
         data={filteredPosts}
         renderItem={renderPostItem}
         keyExtractor={item => item.id.toString()}
-        onEndReached={() => setPage(prev => prev + 1)}
-        onEndReachedThreshold={0.5}
+        // onEndReached={() => setPage(prev => prev + 1)}
+        // onEndReachedThreshold={0.5}
         ListFooterComponent={loading ? 
           <Text style={styles.loadingText}>Loading more posts...</Text> : null
         }

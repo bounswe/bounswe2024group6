@@ -1,15 +1,21 @@
 import React, { useState, useEffect} from 'react';
-import { Keyboard, StyleSheet, Text, TextInput, View, TouchableWithoutFeedback, TouchableOpacity, useColorScheme } from 'react-native';
+import { ScrollView, Keyboard, Pressable, StyleSheet, Text, TextInput, View, TouchableWithoutFeedback, Image, TouchableOpacity, useColorScheme, Modal } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
+import TokenManager from '@/app/TokenManager';
 
 const QuizCreationInfo = () => {
-  const [question, setQuestion] = useState('Pasta');
+  const [question, setQuestion] = useState('');
   const [answers, setAnswers] = useState(['', '', '', '']);
-  const [showButtonIndex, setShowButtonIndex] = useState(null); // Track which tile should show the button
+  const [showButtonIndex, setShowButtonIndex] = useState(null);
   const [newAnswer, setNewAnswer] = useState('');
   const [selectedAnswerIndex, setSelectedAnswerIndex] = useState<number | null>(null);
-  const [selectedType, setSelectedType] = useState('Type II');
+  const [selectedType, setSelectedType] = useState('Type I');
   const [correctAnswerIndex, setCorrectAnswerIndex] = useState<number | null>(null)
+  const [showInfoModal, setShowInfoModal] = useState(false);
+  const [prevWord, setPrevWord] = useState('');
+  const [meaningList, setMeaningList] = useState<any>([]);
+  const [meaningIndex, setMeaningIndex] = useState(0);
+  const [error, setError] = useState('');
 
   const isButtonDisabled = () => {
     const nonEmptyAnswers = answers.filter(answer => answer.trim() !== "");
@@ -20,7 +26,6 @@ const QuizCreationInfo = () => {
   const colorScheme = useColorScheme();
   const styles = getStyles(colorScheme);
 
-  // get params from the previous screen
   const { initialQuestion, initialAnswers, initialCorrectAnswer, type, index, trigger} = useLocalSearchParams();
 
 
@@ -80,12 +85,144 @@ const QuizCreationInfo = () => {
     setShowButtonIndex(null);
   };
 
+  const handleNewSuggestions = async () => {
+    try {
+      if (selectedType === 'Type I') {
+        const response = await TokenManager.authenticatedFetch(`/get-turkish/${question}/`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (!response.ok) {
+          setNewAnswer('');
+          setError('Meaning not available.');
+          return;
+        }
+        const data = await response.json();
+        const translation = data["turkish_translation"];
+        setNewAnswer(translation);
+        setError('');
+        
+      }
+      else if (selectedType === 'Type II') {
+      const response = await TokenManager.authenticatedFetch(`/get-english/${question}/`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (!response.ok) {
+        setNewAnswer('');
+        setError('Meaning not available.');
+        return;
+      }
+      const data = await response.json();
+      console.log(data);
+      const translation = data["english_word"];
+      setNewAnswer(translation);
+      setError('');
+  
+    }
+    else if (selectedType === 'Type III') {
+      if (prevWord !== question) {
+        setMeaningIndex(0);
+        setMeaningList([]);
+        const response = await TokenManager.authenticatedFetch(`/get-meaning/${question}/`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+      
+        setPrevWord(question);
+          
+        if (!response.ok) {
+          setNewAnswer('');
+          setError('Meaning not available.');
+          return;
+        }
+        const data = await response.json();
+        console.log(data);
+        let meaning = data["meaning"];
+
+        if (meaning === undefined) {
+          setNewAnswer('');
+          setError('Meaning not available.');
+          return;
+        }
+        let tempList = [];
+        if (meaning.includes(',')) {
+          tempList = meaning.split(',');
+          for (let i = 0; i < tempList.length; i++) {
+            tempList[i] = tempList[i].trim();
+          }
+          for (let i = 0; i < tempList.length; i++) {
+            console.log(tempList[i].charAt(tempList[i].length - 1));
+            if (tempList[i].charAt(tempList[i].length - 1) === ';') {
+              tempList[i] = tempList[i].substring(0, tempList[i].length - 1);
+            }
+          }
+        } 
+        else {
+          meaning = meaning.trim();
+          if (meaning.charAt(meaning.length - 1) === ';') {
+            meaning = meaning.substring(0, meaning.length - 1);
+          }
+          tempList.push(meaning);
+        }
+
+        for (let i = 0; i < tempList.length; i++) {
+          if (tempList[i] === 'None') {
+            tempList.splice(i, 1);
+          }
+        }
+        console.log(tempList);
+        setMeaningList(tempList); 
+        setNewAnswer(tempList[0]);
+        setError('');
+    }
+    else{
+      let tempIndex = 0
+      if (meaningIndex >= meaningList.length - 1) {
+        setMeaningIndex(0);
+      }
+      else{
+        tempIndex = meaningIndex + 1;
+        setMeaningIndex(tempIndex);
+      }
+      if (meaningList.length > 0){
+        console.log(tempIndex);
+        setNewAnswer(meaningList[tempIndex]);
+        setError('');
+      }
+      else{ 
+        setNewAnswer('');
+        setError('Meaning not available.')
+      }
+    }
+
+      
+    }
+    } catch (error) {
+      console.error('Error fetching word meaning:', error);
+      setNewAnswer('');
+      setError('Meaning not available.');
+    }
+  };
+
   return (
     <TouchableWithoutFeedback onPress={resetSelections} accessible={false}>
     <View style={styles.container}>
-
       <View style={styles.page}>
         {/* Type Selection Buttons */}
+      <View style={styles.topContainer}>
+                  
+      <TouchableOpacity style={styles.infoButton} onPress={() => setShowInfoModal(true)}>
+         <Image source={require('@/assets/images/info.png')} style={styles.icon}  />
+        </TouchableOpacity>
         <View style={styles.typeContainer}>
           {['Type I', 'Type II', 'Type III'].map((type, index) => (
             <TouchableOpacity
@@ -100,7 +237,7 @@ const QuizCreationInfo = () => {
             </TouchableOpacity>
           ))}
         </View>
-
+        </View>
         {/* Question and Answers Section */}
         <View style={[styles.questionAnswersContainer, styles.elevation]}>
           {/* Editable question title area */}
@@ -118,25 +255,34 @@ const QuizCreationInfo = () => {
                 {row.map((answer, colIndex) => {
                   const answerIndex = rowIndex * 2 + colIndex;
                   return (
-                    <TouchableOpacity
+                    <Pressable
                       style={[
                         styles.answerBox,
                         correctAnswerIndex === answerIndex
                           ? styles.correctAnswer
-                          : null, // Highlight correct answer
+                          : null, 
                         selectedAnswerIndex === answerIndex
                         ? styles.selectedAnswer
                         : null,
                       ]}
                       onPress={() => handleAnswerClick(answerIndex)}
                       onLongPress={() => handleLongPress(answerIndex)}
+                      key={answerIndex}
                     >
-                      <Text style={styles.answerText}
-                        numberOfLines={1} 
-                        ellipsizeMode="tail"
-                      >{answer}</Text>
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        style={styles.textContainer}
+                      >
+                        <View onStartShouldSetResponder={() => true}>
+                           <Text style={styles.answerText}
+                           onPress={() => handleAnswerClick(answerIndex)}
+                           onLongPress={() => handleLongPress(answerIndex)}
+                          >{answer}</Text>
+                          
+                        </View>
+                    </ScrollView>
 
-                                      {/* Show the button if the user long-pressed this tile */}
                     {showButtonIndex === answerIndex && (
                       <TouchableOpacity
                         style={styles.selectButton}
@@ -150,7 +296,7 @@ const QuizCreationInfo = () => {
                       </TouchableOpacity>
                     )}
 
-                    </TouchableOpacity>
+                    </Pressable>
                     );
                 })}
               </View>
@@ -158,7 +304,6 @@ const QuizCreationInfo = () => {
           </View>
         </View>
 
-        {/* Add Answer Header */}
         <Text style={styles.label}>Add Answer:</Text>
         <View style={styles.addAnswerContainer}>
           <TextInput
@@ -172,17 +317,22 @@ const QuizCreationInfo = () => {
           </TouchableOpacity>
         </View>
 
-        {/* Suggestions Header */}
-        <Text style={styles.label}>Suggestions:</Text>
         <View style={styles.suggestionsContainer}>
-          {['makarna', 'pilav', 'kek','yogurt'].map((suggestion, index) => (
-            <TouchableOpacity key={index} style={styles.suggestionButton} onPress={() => setNewAnswer(suggestion)}>
-              <Text style={styles.suggestionText}>{suggestion}</Text>
-            </TouchableOpacity>
-          ))}
+          <TouchableOpacity
+            style={styles.newSuggestionButton}
+            onPress={() => 
+              {
+                handleNewSuggestions();
+              }
+          }
+          >
+            <Text style={styles.newSuggestionText}>New Suggestion!</Text>
+          </TouchableOpacity>
+          <View style={{ minHeight: 18 }}>
+          {error ? <Text style={styles.error}>{error}</Text> : null}
+          </View>
         </View>
 
-        {/* Navigation Buttons */}
         <View style={styles.navButtonsContainer}>
           <TouchableOpacity style={styles.backButton} onPress={() => handleGoBack()}>
             
@@ -197,6 +347,34 @@ const QuizCreationInfo = () => {
         </TouchableOpacity>
         </View>
       </View>
+      <Modal
+        transparent={true}
+        visible={showInfoModal}
+        animationType="fade"
+        onRequestClose={() => setShowInfoModal(false)}
+      >
+        <TouchableWithoutFeedback onPress={() => setShowInfoModal(false)}>
+          <View style={styles.modalOverlay}>
+            <TouchableWithoutFeedback>
+              <View style={styles.modalContent}>
+                <Text style={styles.modalTitle}>Type Information</Text>
+                <Text style={styles.modalText}>
+                  {selectedType === 'Type I' && 'Type I -> English to Turkish'}
+                  {selectedType === 'Type II' && 'Type II -> Turkish to English'}
+                  {selectedType === 'Type III' && 'Type III -> Meaning of English Word'}
+                </Text>
+                <TouchableOpacity
+                  style={styles.modalCloseButton}
+                  onPress={() => setShowInfoModal(false)}
+                >
+                  <Text style={styles.modalCloseButtonText}>Close</Text>
+                </TouchableOpacity>
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+
     </View>
     </TouchableWithoutFeedback>
   );
@@ -217,18 +395,12 @@ const getStyles = (colorScheme: any) => {
       paddingTop: 50,
       justifyContent: 'flex-start',
     },
-    typeContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      marginBottom: 20,
-    },
     typeButton: {
       backgroundColor: isDark ? '#2e2e2e' : 'white',
       padding: 10,
       borderRadius: 10,
       borderWidth: 2,
       borderColor: isDark ? '#aaa' : '#000',
-      flex: 1,
       marginHorizontal: 5,
       justifyContent: 'center',
       alignItems: 'center',
@@ -312,15 +484,16 @@ const getStyles = (colorScheme: any) => {
       color: isDark ? '#fff' : '#000',
     },
     suggestionsContainer: {
-      flexDirection: 'row',
+      flexDirection: 'column',
       justifyContent: 'space-between',
       marginBottom: 20,
     },
     suggestionButton: {
       backgroundColor: isDark ? '#444' : '#d1e7dd',
       padding: 5,
-      width: 80,
-      height: 40,
+      width: 250,
+      height: 150,
+      alignSelf: 'center',
       borderRadius: 10,
       justifyContent: 'center',
       alignItems: 'center',
@@ -375,6 +548,103 @@ const getStyles = (colorScheme: any) => {
     elevation: {
       elevation: 30,
       shadowColor: isDark ? '#fff' : 'black',
+    },
+    topContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: 10,
+      marginBottom: 20,
+    },
+    infoButton: {
+      width: 25, 
+      height: 25,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: 5, 
+    },
+    
+    icon: {
+      width: 25,
+      height: 25,
+    },
+    typeContainer: {
+      flexDirection: 'row',
+      flex: 1,
+      justifyContent: 'space-evenly',
+      alignItems: 'center',
+      marginHorizontal: 5,
+    },
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    modalContent: {
+      backgroundColor: 'white',
+      padding: 20,
+      borderRadius: 10,
+      width: '80%',
+      alignItems: 'center',
+    },
+    modalTitle: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      marginBottom: 10,
+    },
+    modalText: {
+      fontSize: 16,
+      textAlign: 'center',
+      marginBottom: 20,
+    },
+    modalCloseButton: {
+      backgroundColor: '#3944FD',
+      padding: 10,
+      borderRadius: 5,
+    },
+    modalCloseButtonText: {
+      color: 'white',
+      fontWeight: 'bold',
+    },
+    textContainer: {
+      marginHorizontal: 5,
+    },
+    currentSuggestionText: {
+      fontSize: 15,
+      fontWeight: 'bold',
+      color: '#333',
+      textAlign: 'center',
+    },
+    newSuggestionButton: {
+      paddingVertical: 10,
+      marginVertical: 10,
+      paddingHorizontal: 6,
+      alignSelf: 'center',
+      width: 200,
+      backgroundColor: '#007BFF',
+      borderRadius: 5,
+    },
+    newSuggestionText: {
+      fontSize: 16,
+      color: '#fff',
+      textAlign: 'center',
+    },
+    
+    scrollContainer: {
+      flexGrow: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    scrollViewStyle: {  
+      justifyContent: 'center', 
+      alignItems: 'center', 
+    },
+    error: {
+      color: '#FF0000',
+      fontSize: 13,
+      textAlign: 'center',
+      fontWeight: 'bold',
     },
   });
 };

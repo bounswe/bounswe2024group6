@@ -3,6 +3,7 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from django.utils.timezone import now
 from django.contrib.postgres.fields import ArrayField
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 LEVEL_CHOICES = [
     ('A1', 'A1'),
@@ -28,6 +29,7 @@ class Profile(models.Model):
     following = models.ManyToManyField("self", symmetrical=False, related_name="profile_following", blank=True)
     followers = models.ManyToManyField("self", symmetrical=False, related_name="profile_followers", blank=True)
     level = models.CharField(max_length=2, choices=LEVEL_CHOICES, default='A1')
+    profile_picture = models.ImageField(upload_to="profile_pictures/", null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -44,6 +46,12 @@ class Quiz(models.Model):
     ]
 
     title = models.CharField(max_length=100)
+    title_image = models.ImageField(
+        upload_to='quiz_titles/',
+        null=True,
+        blank=True,
+        help_text="Optional image to display with the quiz title"
+    )
     description = models.TextField()
     author = models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='quizzes')
     tags = models.ManyToManyField('Tags', related_name='quizzes')
@@ -61,20 +69,40 @@ class Quiz(models.Model):
 
 
 class Question(models.Model):
-    LEVEL_CHOICES = Quiz.LEVEL_CHOICES
+    LEVEL_CHOICES = [
+        ('A1', 'A1'),
+        ('A2', 'A2'),
+        ('B1', 'B1'),
+        ('B2', 'B2'),
+        ('C1', 'C1'),
+        ('C2', 'C2'),
+    ]
+    
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='questions')
     question_number = models.IntegerField()
     question_text = models.TextField()
+    question_image = models.ImageField(upload_to='question_images/', null=True, blank=True)
     level = models.CharField(max_length=2, choices=LEVEL_CHOICES)
+    
     choice1 = models.CharField(max_length=100)
+    choice1_image = models.ImageField(upload_to='choice_images/', null=True, blank=True)
     choice2 = models.CharField(max_length=100)
+    choice2_image = models.ImageField(upload_to='choice_images/', null=True, blank=True)
     choice3 = models.CharField(max_length=100)
+    choice3_image = models.ImageField(upload_to='choice_images/', null=True, blank=True)
     choice4 = models.CharField(max_length=100)
-    correct_choice = models.IntegerField()
+    choice4_image = models.ImageField(upload_to='choice_images/', null=True, blank=True)
+    
+    correct_choice = models.IntegerField(
+        help_text="Number between 1-4 indicating which choice is correct",
+        validators=[
+            MinValueValidator(1, "Choice must be between 1 and 4"),
+            MaxValueValidator(4, "Choice must be between 1 and 4")
+        ]
+    )
 
     def __str__(self):
         return self.question_text
-
 
 class QuizProgress(models.Model):
     id = models.AutoField(primary_key=True)
@@ -147,7 +175,18 @@ class Word(models.Model):
 
     def __str__(self):
         return self.word
+
+
+class WordBookmark(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookmarked_words')
+    word = models.CharField(max_length=255)
+    class Meta:
+        unique_together = ('user', 'word')
+
+    def __str__(self):
+        return f"{self.user.username} bookmarked {self.word.word}"
     
+
 class Relationship(models.Model):
     word = models.ForeignKey(Word, on_delete=models.CASCADE, related_name="relationships")
     related_word = models.ForeignKey(Word, on_delete=models.CASCADE, related_name="related_to")
