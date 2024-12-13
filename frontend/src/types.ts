@@ -121,7 +121,7 @@ export type QuizDetailsResponse = {
     level: string;
     times_taken: number;
     tags: string[];
-  }
+  };
   quiz_result_id: number;
   is_solved: boolean;
 };
@@ -152,3 +152,28 @@ export type ProfileResponse = {
   image?: string; // TODO: to be made required
   quizzes?: Quiz[]; // TODO: to be made required
 };
+
+export type QuizCreationModel = {
+  quiz: QuizHeader;
+  questions: Question[];
+};
+
+export type QuizHeader = {
+  title: string;
+  description: string;
+  tags: {
+    name: string;
+  }[];
+  level: string;
+};
+
+export type Question = {
+  question_number: number;
+  question_text: string;
+  choice1: string;
+  choice2: string;
+  choice3: string;
+  choice4: string;
+  correct_choice: number;
+};
+
