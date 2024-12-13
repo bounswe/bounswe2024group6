@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, Input, Textarea, Select, SelectItem } from "@nextui-org/react";
 import { IconPlus } from "@tabler/icons-react";
 
@@ -24,9 +24,28 @@ const TAGS = [
   { key: "work", label: "@Work" },
 ];
 
-export default function CreateQuizMetadata() {
-  const [level, setLevel] = useState(new Set([]));
-  const [tag, setTag] = useState(new Set([]));
+export default function CreateQuizMetadata({
+  setQuizHeader,
+}: {
+  setQuizHeader: (quizHeader: any) => void;
+}) {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [level, setLevel] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
+
+  useEffect(() => {
+    const tagNames = level
+      ? [...tags.map((tag) => ({ name: tag })), { name: level }]
+      : tags.map((tag) => ({ name: tag }));
+
+    setQuizHeader({
+      title,
+      description,
+      level,
+      tags: tagNames,
+    });
+  }, [title, description, level, tags]);
 
   return (
     <Card className="w-[840px] px-2 pt-2 p-4">
@@ -36,15 +55,24 @@ export default function CreateQuizMetadata() {
         </div>
         <div className="flex flex-col gap-4 w-full">
           <div className="flex flex-row gap-4 w-full">
-            <Input isRequired label="Title" className="w-full" size="sm" />
+            <Input
+              isRequired
+              label="Title"
+              className="w-full"
+              size="sm"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
             <Select
               isRequired
               size="lg"
               placeholder="Level*"
-              selectedKeys={level}
+              selectedKeys={new Set([level])}
               radius="sm"
               className="max-w-24"
-              onSelectionChange={setLevel}
+              onSelectionChange={(keys) =>
+                setLevel(Array.from(keys)[0]?.toString() || "")
+              }
             >
               {LEVELS.map((level) => (
                 <SelectItem key={level.key}>{level.label}</SelectItem>
@@ -54,10 +82,13 @@ export default function CreateQuizMetadata() {
               isRequired
               size="lg"
               placeholder="Tag*"
-              selectedKeys={tag}
+              selectedKeys={new Set(tags)}
+              selectionMode="multiple"
               radius="sm"
               className="max-w-36"
-              onSelectionChange={setTag}
+              onSelectionChange={(keys) =>
+                setTags(Array.from(keys) as string[])
+              }
             >
               {TAGS.map((tag) => (
                 <SelectItem key={tag.key}>{tag.label}</SelectItem>
@@ -68,9 +99,12 @@ export default function CreateQuizMetadata() {
             label="Description"
             placeholder="Enter your description"
             className="w-full"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
           />
         </div>
       </div>
     </Card>
   );
 }
+

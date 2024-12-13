@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, Input, Select, SelectItem, Button } from "@nextui-org/react";
 import { IconWand, IconTrash } from "@tabler/icons-react";
+import { Question } from "../../types";
 
 const TYPES = [
   { key: "1", label: "English->Turkish" },
@@ -8,11 +9,38 @@ const TYPES = [
   { key: "3", label: "Meaning" },
 ];
 
-export default function CreateQuizQuestion() {
+export default function CreateQuizQuestion({
+  setQuizQuestions,
+  idx,
+}: {
+  setQuizQuestions: (quizQuestions: any) => void;
+  idx: number;
+}) {
   const [word, setWord] = useState("");
   const [type, setType] = useState(new Set(["1"]));
   const [correctAnswer, setCorrectAnswer] = useState("");
   const [wrongAnswers, setWrongAnswers] = useState<string[]>(["", "", ""]);
+
+  useEffect(() => {
+    const allAnswers = [correctAnswer, ...wrongAnswers];
+    const shuffledAnswers = [...allAnswers].sort(() => Math.random() - 0.5);
+    const correctIdx = shuffledAnswers.indexOf(correctAnswer);
+
+    setQuizQuestions((prev: Question[]) => {
+      const newQuestions = [...prev];
+      newQuestions[idx] = {
+        question_number: idx + 1,
+        question_text: word,
+        choice1: shuffledAnswers[0],
+        choice2: shuffledAnswers[1],
+        choice3: shuffledAnswers[2],
+        choice4: shuffledAnswers[3],
+        correct_choice: correctIdx + 1,
+      };
+      return newQuestions;
+    });
+  }, [word, type, correctAnswer, wrongAnswers]);
+
   return (
     <Card className="w-[840px] px-2 pt-2 p-4">
       <div className="flex flex-col gap-4">
@@ -107,3 +135,4 @@ export default function CreateQuizQuestion() {
     </Card>
   );
 }
+
