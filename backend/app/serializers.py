@@ -11,12 +11,13 @@ class ProfileSerializer(serializers.ModelSerializer):
     follower_count = serializers.SerializerMethodField()
     following_count = serializers.SerializerMethodField()
     is_followed = serializers.SerializerMethodField()
+    profile_picture = serializers.ImageField(required=False)
 
     class Meta:
         model = Profile
         fields = [
             'username', 'name','bio','level', 'posts', 'comments',
-            'follower_count', 'following_count', 'is_followed'
+            'follower_count', 'following_count', 'is_followed','profile_picture'
         ]
 
     def get_posts(self, obj):
@@ -132,6 +133,13 @@ class QuizResultsSerializer(serializers.ModelSerializer):
         representation['user'] = { 'id' : instance.user.id, 'username' : instance.user.username }
         representation['author'] = { 'id' : instance.quiz.author.id, 'username' : instance.quiz.author.username }
         representation['level'] = instance.quiz.level
+
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            representation['is_bookmarked'] = instance.quiz.bookmarked_by.filter(id=request.user.id).exists()
+            representation['is_liked'] = instance.quiz.liked_by.filter(id=request.user.id).exists()
+            representation['like_count'] = instance.quiz.like_count
+
         return representation
 
 
@@ -139,6 +147,7 @@ class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tags
         fields = ['id', 'name']
+
 
 class QuizSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True)
@@ -173,6 +182,22 @@ class QuizSerializer(serializers.ModelSerializer):
 
         return quiz
 
+    def update(self, instance, validated_data):
+        tags_data = validated_data.pop('tags', None)
+        
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        
+        if tags_data is not None:
+            instance.tags.clear()
+            
+            for tag_data in tags_data:
+                tag, created = Tags.objects.get_or_create(name=tag_data['name'])
+                instance.tags.add(tag)
+        
+        return instance
+
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation.pop('bookmarked_by')
@@ -181,12 +206,11 @@ class QuizSerializer(serializers.ModelSerializer):
         total_score = representation.pop('total_score')
         representation['average_score'] = total_score / instance.times_taken if instance.times_taken > 0 else 0
 
-        # Transform tags to a list of names
         representation['tags'] = [tag['name'] for tag in representation['tags']]
         representation['author'] = { 'id' : instance.author.id, 'username' : instance.author.username } 
 
         request = self.context.get('request')
-        if request and request.user.is_authenticated:
+        if request and request.user and request.user.is_authenticated:
             representation['is_bookmarked'] = instance.bookmarked_by.filter(id=request.user.id).exists()
             representation['is_liked'] = instance.liked_by.filter(id=request.user.id).exists()
 

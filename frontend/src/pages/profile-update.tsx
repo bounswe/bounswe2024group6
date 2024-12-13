@@ -102,6 +102,7 @@ export default function EditProfile() {
             </label>
             <Textarea
               id="bio"
+              data-testid="bio-input"
               name="bio"
               value={formData.bio}
               onChange={handleInputChange}
@@ -120,12 +121,13 @@ export default function EditProfile() {
               Level
             </label>
             <Select
+              data-testid="level-select"
               selectedKeys={new Set([formData.level])} // Use `selectedKeys` with a Set for controlled component
               onSelectionChange={(keys) => handleLevelChange([...keys][0])} // Convert the Set to an array and get the first value
               className="w-full mb-1"
             >
               {tags.map((tag) => (
-                <SelectItem key={tag}>{tag}</SelectItem>
+                <SelectItem key={tag} data-testid={`level-option-${tag}`}>{tag}</SelectItem>
               ))}
             </Select>
             <p className="text-gray-400 text-sm pl-1">Enter your level</p>
@@ -136,6 +138,7 @@ export default function EditProfile() {
           <div className="flex justify-center">
             <Button
               onClick={handleSubmit}
+              data-testid="submit-button"
               variant="solid"
               color="primary"
               className="px-8 py-1 font-bold rounded-lg"

@@ -9,7 +9,7 @@ from app.serializers import CommentSerializer
 import random
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+#@permission_classes([IsAuthenticated])
 def get_user_post_feed(request):
     user = request.user  
 

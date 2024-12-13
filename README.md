@@ -31,37 +31,74 @@ To build this project, ensure you have the following tools installed on your sys
 ### Steps to Build the Mobile App:
 
 1. *Clone the Repository:*
-   bash
-   git clone https://github.com/bounswe/bounswe2024group6.git
-   cd bounswe2024group6/mobile/bulingo
+   
+   `git clone https://github.com/bounswe/bounswe2024group6.git`
+
+
+   `cd bounswe2024group6/mobile/bulingo`
    
 
-2. *Install Dependencies:*
+3. *Install Dependencies:*
    Run the following command to install the necessary npm packages:
-   bash
-   npm install
+   
+   `npm install`
    
 
-3. *Log In to EAS (if not logged in):*
+4. *Log In to EAS (if not logged in):*
    Ensure you are logged in to your EAS account:
-   bash
-   eas login
+   
+   `eas login`
    
    (You will be prompted for your EAS account credentials.)
 
-4. *Build the Project Using EAS:*
-   To build the project for Android, use the following command:
-   bash
-   eas build -p android --profile preview
+5. *Build the Project Using EAS:*
+   To build the project for Android, you will have to first delete the `projectId` field from the app config. It should look like the following:
+
+   ```
+   ...
+   extra: {
+      eas: {
+      },
+      router: {
+        origin: false
+      }
+    },
+   ...
+   ```
+
+   You should then run the following command, which will prompt you to input a project id when you follow the steps presented.
+   
+   `eas build -p android --profile preview`
+
+   Afterwards, you should update the app config accordingly. It will look something like this:
+
+   ```
+   ...
+   extra: {
+      eas: {
+        "projectId": "1b91f436-e301-4a27-aeb3-1c57be3bf9a2"
+      },
+      router: {
+        origin: false
+      }
+    },
+   ...
+   ```
+
+   Alternatively, you can build the application locally, but it has many more dependencies and you will have to deal with gradle. The command for it is this:
+
+   `eas build -p android --profile preview --local`
+
+   You will still need to login and change the projectId with the steps described above.
    
    > Note: You may be prompted for your EAS account username and password in this step if not already logged in.
 
-5. *Access the APK:*
-   Once the build completes, you will receive a URL to download the APK. You can find the APK download link:
+7. *Access the APK:*
+   Once the build completes, you will receive a URL to download the APK (or an apk file will be created if you used to local build option). You can find the APK download link:
    - On the EAS build details page
    - In the terminal output when the eas build process finishes
 
-6. *Install the APK on Your Device:*
+8. *Install the APK on Your Device:*
    After downloading the APK file, you can install it on your Android device. Enable *"Install from Unknown Sources"* in your phone’s settings if needed.
 
 ### Endpoints

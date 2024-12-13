@@ -8,4 +8,4 @@ requests
 rdflib
 pandas
 python-dotenv
-Pillow
+Pillow>=8.0.0

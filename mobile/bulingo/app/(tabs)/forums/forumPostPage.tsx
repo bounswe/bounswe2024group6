@@ -3,8 +3,20 @@ import { View, ScrollView, StyleSheet, Text, FlatList, ActivityIndicator } from 
 import PostCard from '../../components/postcard'; // Assuming you already have the PostCard component defined
 import CommentCard from '../../components/commentcard'; // Assuming you already have the CommentCard component defined
 import { useLocalSearchParams } from 'expo-router';
-import { fetchForumPostWithId, fetchCommentsForPost } from '../../api/forum'; // Fetch post and comments API
-import { bookmarkPost, likePost } from '../../api';
+import { getPostDetails, unlikePost, likePost, unbookmarkPost, bookmarkPost, unlikeComment, likeComment } from '../../api/forum'; // Fetch post and comments API
+// import { bookmarkPost, likePost } from '../../api';
+
+interface Comment {
+  id: number;
+  post: number;
+  author: string;
+  body: string;
+  created_at: string;
+  parent: number | null;
+  replies: Comment[];
+  is_liked: boolean;
+  like_count: number;
+}
 
 const ForumPostPage = () => {
   const { id } = useLocalSearchParams(); // Get post ID from parameters
@@ -18,6 +30,7 @@ const ForumPostPage = () => {
     liked: boolean;
     bookmarked: boolean;
     tags: string[];
+    comments: Comment[];
   }>({
     id: null,
     title: '',
@@ -25,156 +38,241 @@ const ForumPostPage = () => {
     likes: 0,
     liked: false,
     bookmarked: false,
-    tags:[]
+    tags:[],
+    comments: []
   });
 
+
+
   // State for comments data
-  const [comments, setComments] = useState([
-    {
-      id:1,
-    username : "anil",
-    comment : "well done well donewell donewell donewell donewell donewell donewell donewell donewell done",
-    likes : 100,
-    isBookmarked : false,
-    liked: false
-      }
-    // ,
-    // {
-    //   id:2,
-    // username : "anil",
-    // comment : "well done",
-    // upvoteCount : 100,
-    // isBookmarked : false
-    // },
-    // {
-    //   id:3,
-    // username : "anil",
-    // comment : "well done",
-    // upvoteCount : 100,
-    // isBookmarked : false
-    // },
-    // {
-    //   id:4,
-    // username : "anil",
-    // comment : "well done",
-    // upvoteCount : 100,
-    // isBookmarked : false
-    // },
-    // {
-    //   id:5,
-    // username : "anil",
-    // comment : "well done",
-    // upvoteCount : 100,
-    // isBookmarked : false
-    // },
-    // {
-    //   id:6,
-    // username : "anil",
-    // comment : "well done",
-    // upvoteCount : 100,
-    // isBookmarked : false
-    // },
-    // {
-    //   id:7,
-    // username : "anil",
-    // comment : "well done",
-    // upvoteCount : 100,
-    // isBookmarked : false
-    // }
-
-
-
-  ]);
+  // const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    setPost(
-      {
-      id: 123,
-      title: "Example Title",
-      author: "Example Author",
-      likes: 12,
-      liked: false,
-      bookmarked: true,
-      tags: ["vocabulary", "business"]
-    }
-  );
+  // useEffect(() => {
+  //   var post = getPostDetails(Number(id));
+  //   console.log(post);
+    
+  // //   setPost(
+  // //     {
+  // //     id: 123,
+  // //     title: "Example Title",
+  // //     author: "Example Author",
+  // //     likes: 12,
+  // //     liked: false,
+  // //     bookmarked: true,
+  // //     tags: ["vocabulary", "business"]
+  // //   }
+  // // );
 
-  }, []);
+  // }, []);
 
   useEffect(() => {
     // Fetch post details
-    const fetchPost = async () => {
+    const fetchPostandComments = async () => {
       try {
-        const postData = await fetchForumPostWithId(id);
-        setPost(postData || {
-          id: 123,
-          title: "Example Title",
-          author: "Example Author",
-          likes: 12,
-          liked: false,
-          bookmarked: true,
-          tags: ["vocabulary", "business"]
+        var response = await getPostDetails(Number(id));
+        
+        var post = response.post
+        console.log(post);
+        
+      //   const postData = await fetchForumPostWithId(id);
+        setPost({
+          id: post.id,
+          title: post.title,
+          author: post.author,
+          likes: post.like_count,
+          liked: post.is_liked,
+          bookmarked: post.is_bookmarked,
+          tags: post.tags,
+          comments: post.comments
         });
+
+
+      //   [
+      //     {
+      //         "id": 1,
+      //         "post": 2,
+      //         "author": "asd",
+      //         "body": "bodyyy",
+      //         "created_at": "2024-11-25T12:14:17.313636Z",
+      //         "parent": null,
+      //         "replies": [],
+      //         "is_liked": false,
+      //         "like_count": 0
+      //     }
+      // ]
+
+
+
+      
+        
+        // setComments(
+        //   post.comments
+        // )
       } catch (error) {
         console.error("Failed to fetch post:", error);
+      }finally{
+        setLoading(false);
       }
-    };
+    }
 
-    // Fetch comments
-    const fetchComments = async () => {
-      try {
-        const commentsData = await fetchCommentsForPost(id); // Call the API to get comments
-        setComments(commentsData || []); // Set comments data or an empty array if none found
-      } catch (error) {
-        console.error("Failed to fetch comments:", error);
-      } finally {
-        setLoading(false); // Stop loading indicator
-      }
-    };
+    // // Fetch comments
+    // const fetchComments = async () => {
+    //   try {
+    //     const commentsData = await (id); // Call the API to get comments
+    //     setComments(commentsData || []); // Set comments data or an empty array if none found
+    //   } catch (error) {
+    //     console.error("Failed to fetch comments:", error);
+    //   } finally {
+    //     setLoading(false); // Stop loading indicator
+    //   }
+    // };
 
-    fetchPost();
-    fetchComments();
+    fetchPostandComments();
+    // fetchComments();
   }, [id]);
 
   const handleLikePost = async () => {
-    const newLikedState = !post.liked;
+    if(post.liked){
 
-    setPost({
-          ...post,
-          liked: newLikedState,
-          likes: newLikedState ? post.likes + 1 : post.likes - 1
-    });
+      try {
+        const response = await unlikePost(Number(id));
+        if (response) {
+          
+          setPost(post => {
+            if (post.id === Number(id)) {
+              return {
+                ...post,
+                liked: response.is_liked,
+                likes: response.like_count
+              };
+            }
+            return post;
+          })
+        }
 
-    // try {
-    //   const response = await likePost(post.id);
-    //   if (response.success) {
-    //     setPost(prevPost => ({
-    //       ...prevPost,
-    //       liked: !prevPost.liked,
-    //       likes: prevPost.liked ? prevPost.likes - 1 : prevPost.likes + 1,
-    //     }));
-    //   }
-    // } catch (error) {
-    //   console.error('Failed to like post:', error);
-    // }
+      } catch (error) {
+        console.error('Failed to unlike post:', error);
+      }
+
+
+
+    }
+
+
+    else{
+      try {
+        const response = await likePost(Number(id));
+        if (response) {
+          
+          setPost(post => {
+            if (post.id === Number(id)) {
+              return {
+                ...post,
+                liked: response.is_liked,
+                likes: response.like_count
+              };
+            }
+            return post;
+          })
+        }
+      } catch (error) {
+        console.error('Failed to like post:', error);
+      }
+    }
+
+
   };
 
 
   const handleLikeComment = async (commentId: number) => {
-    console.log("likecomment")
-    setComments(prevComments =>
-      prevComments.map(comment =>
-        comment.id === commentId
-          ? {
-              ...comment,
-              likes: !comment.liked ? comment.likes + 1 : comment.likes - 1,
-              isBookmarked: !comment.isBookmarked,
-              liked: !comment.liked
+
+
+
+    post.comments.map(async comment => {
+
+      if (comment.id === commentId) {
+        if(comment.is_liked){
+
+          try {
+            const response = await unlikeComment(commentId);
+            if (response) {
+
+              
+              setPost(post => ({
+                ...post,
+                comments: post.comments.map(comment => {
+                  if (comment.id === commentId) {
+                    return {
+                      ...comment,
+                      is_liked:  !comment.is_liked,
+                      like_count: response.like_count
+                    };
+                  }
+                  return comment;
+                })
+              }));
+
+
             }
-          : comment
-      )
-    );
+          } catch (error) {
+            console.error('Failed to unlike comment:', error);
+          }
+
+
+
+        }
+
+
+        else{
+
+          try {
+            const response = await likeComment(commentId);
+            if (response) {
+
+              
+              setPost(post => ({
+                ...post,
+                comments: post.comments.map(comment => {
+                  if (comment.id === commentId) {
+                    return {
+                      ...comment,
+                      is_liked: !comment.is_liked,
+                      like_count: response.like_count
+                    };
+                  }
+                  return comment;
+                })
+              }));
+
+
+            }
+          } catch (error) {
+            console.error('Failed to like comment:', error);
+          }
+
+        }
+
+      }
+    })
+
+
+
+
+
+
+    // setComments(prevComments =>
+    //   prevComments.map(comment =>
+    //     comment.id === commentId
+    //       ? {
+    //           ...comment,
+    //           likes: !comment.liked ? comment.likes + 1 : comment.likes - 1,
+    //           isBookmarked: !comment.isBookmarked,
+    //           liked: !comment.liked
+    //         }
+    //       : comment
+    //   )
+    // );
 
     // try {
     //   const response = await likeComment(commentId);
@@ -200,29 +298,77 @@ const ForumPostPage = () => {
 
 
   const handleBookmarkPress = async () => {
-    try {
-      const response = await bookmarkPost(post.id);
-      if (response.success) {
-        setPost(prevPost => ({
-          ...prevPost,
-          bookmarked: !prevPost.bookmarked,
-        }));
+    if(post.bookmarked){
+
+      try {
+        const response = await unbookmarkPost(Number(id));
+        if (response) {
+
+          
+          setPost(post => {
+            if (post.id === Number(id)) {
+              return {
+                ...post,
+                bookmarked: response.is_bookmarked,
+              };
+            }
+            return post;
+          })
+        }
+
+      } catch (error) {
+        console.error('Failed to unbookmark post:', error);
       }
-    } catch (error) {
-      console.error('Failed to bookmark post:', error);
+
+
+
     }
+
+
+    else{
+      try {
+
+        const response = await bookmarkPost(Number(id));
+        if (response) {
+          
+          setPost(post => {
+            if (post.id === Number(id)) {
+              return {
+                ...post,
+                bookmarked: response.is_bookmarked,
+              };
+            }
+            return post;
+          })
+        }
+      } catch (error) {
+        console.error('Failed to bookmark post:', error);
+      }
+    }
+
+
   };
 
   // Render each comment in a CommentCard component
   const renderComment = ({ item }) => (
+    // id: number;
+    // post: number;
+    // author: string;
+    // body: string;
+    // created_at: string;
+    // parent: number | null;
+    // replies: Comment[];
+    // is_liked: boolean;
+    // like_count: number;
+  
     <CommentCard
       id = {item.id}
-      username={item.username}
+      username={item.author}
       onUpvote={handleLikeComment}
-      comment={item.comment}
+      comment={item.body}
       isBookmarked={item.isBookmarked}
-      liked={item.liked}
-      likes= {item.likes}
+      liked={item.is_liked}
+      likes= {item.like_count}
     />
   );
 
@@ -233,7 +379,7 @@ const ForumPostPage = () => {
         <ActivityIndicator size="large" color="#0000ff" />
       ) : (
         <FlatList
-          data={comments}
+          data={post.comments}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderComment}
           contentContainerStyle={styles.commentsContainer}

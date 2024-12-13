@@ -86,8 +86,22 @@ def create_quiz(request):
             quiz.delete()
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET'])
+@api_view(['POST'])
 @permission_classes([IsAuthenticated])
+def delete_quiz(request):
+    quiz_id = request.data.get('quiz_id')
+    if quiz_id is None:
+        return Response({'error': 'quiz_id must be provided'}, status=status.HTTP_400_BAD_REQUEST)
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+    user = request.user
+    if user.is_staff:
+        quiz.delete()
+        return Response({'message': 'Quiz deleted'}, status=status.HTTP_200_OK)
+    
+    return Response({'error': 'You are not authorized to delete this quiz'}, status=status.HTTP_403_FORBIDDEN)
+    
+
+@api_view(['GET'])
 def view_quizzes(request):
     quizzes = Quiz.objects.all()
     # TODO: paginate the results
@@ -147,17 +161,33 @@ def submit_quiz(request):
     
     return Response(quiz_result_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def cancel_quiz(request):
+    # check if quiz progress is completed
+    quiz_progress = get_object_or_404(QuizProgress, id=request.data['quiz_progress_id'])
+    if quiz_progress.completed:
+        return Response({'error': 'Quiz already submitted.'}, status=status.HTTP_400_BAD_REQUEST)
+    # check if quiz progress is user's
+    if quiz_progress.user != request.user:
+        return Response({'error': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    quiz_progress.delete()
+    return Response({'message': 'Quiz progress deleted'}, status=status.HTTP_200_OK)
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_quiz_results(request):
     quizResults = QuizResults.objects.filter(user=request.user)
-    serializer = QuizResultsSerializer(quizResults, many=True)
+    serializer = QuizResultsSerializer(quizResults, many=True, context = {'request': request})
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_specific_quiz_result(request, quiz_result_id):
     quiz_result = get_object_or_404(QuizResults, id=quiz_result_id, user=request.user)
+
     quiz = quiz_result.quiz
     quiz_progress = quiz_result.quiz_progress
     
@@ -193,6 +223,7 @@ def get_specific_quiz_result(request, quiz_result_id):
     }
     
     return Response(response_data, status=status.HTTP_200_OK)
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -439,20 +470,17 @@ def get_question(request):
     return Response(response_data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
 def get_quiz(request, quiz_id):
     try:
         quiz = get_object_or_404(Quiz, id=quiz_id)
         serializer = QuizSerializer(quiz, context={'request': request})
-        
         data = {
-            'quiz': serializer.data,
-            'is_solved': QuizProgress.objects.filter(
-                quiz=quiz, 
-                user=request.user, 
-                completed=True
-            ).exists()
+            'quiz': serializer.data
         }
+        
+        if request.user.is_authenticated:    
+            data['is_solved'] = QuizProgress.objects.filter(quiz=quiz, user=request.user, completed=True).exists()
+            data['quiz_result_id'] = QuizResults.objects.filter(quiz=quiz, user=request.user).order_by('-id').first().id if data['is_solved'] else None
         
         if data['is_solved']:
             latest_result = QuizResults.objects.filter(
@@ -487,6 +515,26 @@ def bookmark_quiz(request):
 
     quiz.bookmarked_by.add(request.user) 
     return Response({'message': 'Quiz bookmarked'}, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def update_quiz(request):
+    quiz = get_object_or_404(Quiz, id=request.data['quiz_id'])
+    if quiz.author != request.user and not request.user.is_staff:
+        return Response({'error': 'You are not authorized to update this quiz'}, status=status.HTTP_403_FORBIDDEN)
+    
+    data = request.data
+    tags = data['quiz']['tags']
+    data['quiz']['tags'] = [{'name': t} for t in tags]
+    data['quiz']['author'] = quiz.author.id
+    
+    quizSerializer = QuizSerializer(instance=quiz, data=data['quiz'], context = {'request': request})
+    if not quizSerializer.is_valid():
+        return Response(quizSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    quiz = quizSerializer.save()
+    return Response(quizSerializer.data, status=status.HTTP_200_OK)
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

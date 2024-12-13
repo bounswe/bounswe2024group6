@@ -1,22 +1,24 @@
 from django.urls import path
 from app.views import *
-from app.views_directory.wordviews import get_turkish_translation, get_lexvo_info, get_word_meanings, fetch_english_words
+from app.views_directory.wordviews import get_turkish_translation, get_lexvo_info, get_word_meanings, fetch_english_words, bookmark_word, unbookmark_word, get_bookmarked_words
 from app.views_directory.profileviews import view_profile, update_profile, view_other_profile, view_followers, view_following
 from app.views_directory.follow_unfollow import follow_user, unfollow_user 
 from app.views_directory.authentication_endpoints import RegisterView, LoginView, LogoutView, RefreshTokenView
 from app.views_directory.comments import add_comment, delete_comment, like_comment, unlike_comment, get_comment_by_id
 from app.views_directory.postviews import like_post, unlike_post
 from app.views_directory.activity_streams import activities_by_user, activities_for_user_as_object
-from app.views_directory.postviews import create_post, delete_post, get_posts_of_user, get_post_details
+from app.views_directory.postviews import create_post, delete_post, get_posts_of_user, get_post_details, update_post
 from app.views_directory.feed_views import get_user_post_feed
 from app.views_directory.bookmark_views import bookmark_post, unbookmark_post, get_bookmarked_posts  
 from app.views_directory.searchview import SearchView
-from django.conf import settings
+from app.views_directory.admin_views import ban_user
 from django.conf.urls.static import static
+from django.conf import settings
 import app.views_directory.quiz_views as quiz_views
 
 urlpatterns = [
     path('', index , name='index_page'),
+    path('admin-ban/', ban_user, name="ban_user"),
     path('profile/', view_profile, name='view_profile'),
     path('profile/update/', update_profile, name='update_profile'),
     path('quiz/<int:quiz_id>/', quiz_views.get_quiz, name="get_quiz"),
@@ -37,6 +39,12 @@ urlpatterns = [
     path('quiz/review/<int:quiz_result_id>/', quiz_views.get_quiz_review, name="review_quiz"),
     path('quiz/recommend/<int:quiz_id>/', quiz_views.get_quiz_recommendations, name="recommend_quiz"),
     path('quiz/review_latest/<int:quiz_id>/', quiz_views.get_latest_quiz_review, name="review_latest_quiz"),
+    path('quiz/delete/', quiz_views.delete_quiz, name="delete_quiz"),
+    path('quiz/update/', quiz_views.update_quiz, name="update_quiz"),
+    path('quiz/cancel/', quiz_views.cancel_quiz, name="cancel_quiz"),
+    path('word/bookmark/<str:word>/', bookmark_word, name='bookmark_word'),
+    path('word/unbookmark/<str:word>/', unbookmark_word, name='unbookmark_word'),
+    path('word/bookmarks/', get_bookmarked_words, name='get_bookmarked_words'),
     path('create-post/',create_post, name='create_post'),
     path('signup/', RegisterView.as_view(), name='auth_register'),
     path('login/', LoginView.as_view(), name='auth_login'),
@@ -59,6 +67,7 @@ urlpatterns = [
     path('post/create/', create_post, name='create_post'), 
     path('post/delete/', delete_post, name='delete_post'), 
     path('post/my-posts/', get_posts_of_user, name='get_posts_of_user'),  
+    path('post/update/<int:post_id>/', update_post, name='update_tags'),
     path('user-activities/', activities_by_user, name='activities_by_user'),
     path('user-activities-as-object/', activities_for_user_as_object, name='activities_for_user_as_object'),
     path('feed/', get_user_post_feed, name='get_user_feed'),
@@ -70,4 +79,3 @@ urlpatterns = [
     path('profile/following/<str:username>/', view_following, name='view_following'),
     path('search/', SearchView.as_view(), name='search'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-

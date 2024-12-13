@@ -114,7 +114,7 @@ def delete_post(request):
 
     post = get_object_or_404(Post, id=post_id)
 
-    if post.author != request.user.username:
+    if post.author != request.user.username and not request.user.is_staff:
         return Response({"detail": "You do not have permission to delete this post."}, status=status.HTTP_403_FORBIDDEN)
 
     post.delete()
@@ -149,10 +149,36 @@ def get_posts_of_user(request):
     return Response({"posts": posts_data}, status=status.HTTP_200_OK)
 
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def update_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+
+    if post.author != request.user.username and not request.user.is_staff:
+        return Response({"detail": "You do not have permission to update this post."}, status=status.HTTP_403_FORBIDDEN)
+
+    tags = request.data.get("tags", [])
+    if not isinstance(tags, list):
+        return Response({"detail": "Tags must be a list of strings."}, status=status.HTTP_400_BAD_REQUEST)
+
+    post.tags = tags
+
+    title = request.data.get("title")
+    if title:
+        post.title = title
+    
+    description = request.data.get("description")
+    if description:
+        post.description = description
+    
+    post.save()
+
+    return Response({"detail": "Post updated successfully."}, status=status.HTTP_200_OK)
+
+
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
 def get_post_details(request):
     post_id = request.data.get("post_id")  
 
@@ -160,9 +186,11 @@ def get_post_details(request):
         return Response({"detail": "Post ID is required."}, status=status.HTTP_400_BAD_REQUEST)
 
     post = get_object_or_404(Post, id=post_id)
-
-    is_liked = post.liked_by.filter(id=request.user.id).exists()
-    is_bookmarked = Bookmark.objects.filter(user=request.user, post=post).exists() 
+    is_liked = False
+    is_bookmarked = False
+    if request.user.is_authenticated:
+        is_liked = post.liked_by.filter(id=request.user.id).exists()
+        is_bookmarked = Bookmark.objects.filter(user=request.user, post=post).exists() 
 
     comments = post.comments.all().order_by("-created_at")
     comments_data = CommentSerializer(comments, many=True, context={'request': request}).data

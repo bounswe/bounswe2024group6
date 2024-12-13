@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { createPost } from '@/app/api/forum';
 
 const ForumPostCreation = () => {
   const [title, setTitle] = useState('');
@@ -16,10 +17,17 @@ const ForumPostCreation = () => {
     router.back();
   };
 
-  const handleCreatePost = () => {
+  const handleCreatePost = async () => {
 
     // Handle post creation logic here
-    console.log('Post Created:', { title, content });
+    try {
+      await createPost(title, content, ["vocab", "business"]);
+      console.log('Post Created:', { title, content });
+      router.back();
+    } catch (error) {
+      console.error('Failed to create post:', error);
+    }
+
   };
   
   const isButtonDisabled = !title || !content ;

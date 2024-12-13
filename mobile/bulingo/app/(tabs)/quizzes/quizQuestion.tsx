@@ -25,7 +25,7 @@ const QuizQuestion = () => {
   const styles = getStyles(colorScheme);
   const quizId = useLocalSearchParams().quizId;
   const [quizData, setQuizData] = useState<QuizData | null>(null);
-  const [selectedChoices, setSelectedChoices] = useState<number[]>([]);
+  const [selectedChoices, setSelectedChoices] = useState<number[] >([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const isDark = colorScheme === 'dark';
   const [loading, setLoading] = useState(true);
@@ -50,7 +50,16 @@ const QuizQuestion = () => {
         const data = await response.json();
         if (response.ok) {
           setQuizData(data);
-          setSelectedChoices(Array(data.question_count).fill(null));
+          
+          const updatedChoices = Array(data.question_count).fill(null).map((_, index) => {
+            if (data.questions[index].previous_answer !== null) {
+              return data.questions[index].previous_answer - 1;
+            } else {
+              return -1;
+            }
+          });
+          
+          setSelectedChoices(updatedChoices);
         } else {
           setError(data.error || 'Failed to fetch quiz data');
         }
@@ -128,7 +137,7 @@ const QuizQuestion = () => {
   const handleNext = async () => {
     const currentAnswer = selectedChoices[currentQuestionIndex];
 
-    if (currentAnswer === null || quizData === null) {
+    if (currentAnswer === -1 || quizData === null) {
       return;
     }
     console.log(currentAnswer);
@@ -148,7 +157,7 @@ const QuizQuestion = () => {
   const handleFinish = async () => {
     const currentAnswer = selectedChoices[currentQuestionIndex];
 
-    if (currentAnswer === null || quizData === null) {
+    if (currentAnswer === -1 || quizData === null) {
       alert('Please select an answer before finishing the quiz.');
       return;
     }
