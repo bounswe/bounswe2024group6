@@ -17,7 +17,7 @@ enum Answer {
   D,
 }
 
-export default function Quizzes() {
+export default function Quiz() {
   const { quizID } = useParams<{ quizID: any }>();
   const [quizData, setQuizData] = useState<any>(null);
   const [currentPage, setCurrentPage] = React.useState(1);
@@ -78,6 +78,7 @@ export default function Quizzes() {
         answers={answers}
         isOpen={isOpen}
         toggleSidebar={toggleSidebar}
+        isReview={false}
       >
         <div className="flex flex-col items-center overflow-hidden">
           <h1 className="font-semibold text-4xl mt-3 mb-1 text-blue-900">
