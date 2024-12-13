@@ -93,6 +93,18 @@ export default function Tab() {
               likes: item.data.like_count,
             }
           }));
+        } else if (dataType == "comment"){
+          transformed_data = transformed_data.map((item:any) => ({
+            ...item,
+            data: {
+              ...item.data,
+              isBookmarked: false,  // Placeholder!!
+              liked: item.data.isLiked,
+              likes: item.data.like_count,
+              comment: item.data.body,
+              username: item.data.author,
+            }
+          }));
         }
         console.log(transformed_data)
         setSearchResults(transformed_data);
@@ -135,7 +147,7 @@ export default function Tab() {
               return (<PostCard {...item.data} />);
             }
             else if (item.type == "comment"){
-              return (<View style={tempStyles.box}><Text>Placeholder comment card component.</Text></View>);
+              return (<CommentCard {...item.data} />);
             }
             return null;
           }}
