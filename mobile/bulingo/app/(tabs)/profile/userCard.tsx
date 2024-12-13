@@ -70,6 +70,34 @@ const UserCard = (props: UserCardProps) => {
       console.log("Wrong 'buttonStyleNo' prop passed to UserCard component!")
       break;
   }
+
+  const handleAdminBanUser = async() => {
+    const url = 'admin-ban/';
+    const params = {
+      'username': props.username,
+    }
+    console.log("in handleAdminBanUser")
+    console.log(url)
+    console.log(params)
+    try{
+      const response = await TokenManager.authenticatedFetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(params),
+      })
+
+      if (response.ok){
+        console.log("User banned successful")
+      } else {
+        console.log(response.status)
+      };
+      setIsAdminOptionsVisible(false);
+    } catch(error) {
+      console.error(error)
+    }
+  }
   
 
   return (
@@ -78,7 +106,7 @@ const UserCard = (props: UserCardProps) => {
         <AdminOptions onClose={()=>setIsAdminOptionsVisible(false)} options={[
           {
             text: "Ban User", 
-            onPress: ()=>{console.log("Ban User Pressed") /* Placeholder until endpoint is ready */ }
+            onPress: handleAdminBanUser
           }, 
         ]}
         />

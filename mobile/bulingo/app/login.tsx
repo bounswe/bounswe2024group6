@@ -36,15 +36,20 @@ export default function Home() {
         },
         body: JSON.stringify(params),
       });
-      const json = await response.json();
-      if ("access" in json){
-        const { access, refresh } = json;
-        TokenManager.saveTokens(access, refresh);
-        TokenManager.setUsername(username);
-        Alert.set("Login Successful");
-        router.navigate('/');
+
+      if (response.ok){
+        const json = await response.json();
+        if ("access" in json){
+          const { access, refresh } = json;
+          TokenManager.saveTokens(access, refresh);
+          TokenManager.setUsername(username);
+          Alert.set("Login Successful");
+          router.navigate('/');
+        } else {
+          console.warn(json);
+        }
       } else {
-        setNotification("Incorrect Login information.")
+        setNotification("Incorrect Login information. You may be banned. ")
         setIsErrorVisible(true);
       };
     } catch (error) {
