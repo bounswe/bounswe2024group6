@@ -5,6 +5,8 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import QuizCard from '../components/quizCard';
 import UserCard from './profile/userCard';
 import TokenManager from '../TokenManager';
+import PostCard from '../components/postcard';
+import CommentCard from '../components/commentcard';
 
 const MOCK_SEARCH_RESULT = [
   {type: "quiz", data: { id: 13, title: 'Furniture', description: 'Essential furniture', author: 'Kaan', level: 'A2', likes: 3, liked: false }},
@@ -81,6 +83,16 @@ export default function Tab() {
           }));
           const username = TokenManager.getUsername()
           transformed_data = transformed_data.filter((elem: any) => elem.data.username != username)
+        } else if (dataType == "post"){
+          transformed_data = transformed_data.map((item:any) => ({
+            ...item,
+            data: {
+              ...item.data,
+              isBookmarked: item.data.is_bookmarked,
+              liked: item.data.is_liked,
+              likes: item.data.like_count,
+            }
+          }));
         }
         console.log(transformed_data)
         setSearchResults(transformed_data);
@@ -120,7 +132,7 @@ export default function Tab() {
               return (<QuizCard {...item.data} />);
             }
             else if (item.type == "post"){
-              return (<View style={tempStyles.box}><Text>Placeholder post card component.</Text></View>);
+              return (<PostCard {...item.data} />);
             }
             else if (item.type == "comment"){
               return (<View style={tempStyles.box}><Text>Placeholder comment card component.</Text></View>);
