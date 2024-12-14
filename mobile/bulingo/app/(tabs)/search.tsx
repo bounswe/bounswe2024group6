@@ -73,16 +73,17 @@ export default function Tab() {
             }
           }));
         } else if (dataType == "user"){
+          const username = TokenManager.getUsername();
           transformed_data = transformed_data.map((item:any) => ({
             ...item,
             data: {
               ...item.data,
               buttonText: item.data.isFollowing ? "Unfollow" : "Follow",
-              buttonStyleNo: item.data.isFollowing ? 1 : 2,
+              buttonStyleNo: item.data.username == username ? 3 : (item.data.isFollowing ? 1 : 2),
+              username: `${item.data.username}yooo`
             }
           }));
-          const username = TokenManager.getUsername()
-          transformed_data = transformed_data.filter((elem: any) => elem.data.username != username)
+          console.log(transformed_data)
         } else if (dataType == "post"){
           transformed_data = transformed_data.map((item:any) => ({
             ...item,
