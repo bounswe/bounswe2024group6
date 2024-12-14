@@ -10,7 +10,7 @@ from app.views_directory.postviews import like_post, unlike_post
 from app.views_directory.activity_streams import activities_by_user, activities_for_user_as_object
 from app.views_directory.postviews import create_post, delete_post, get_posts_of_user, get_post_details, update_post
 from app.views_directory.feed_views import get_user_post_feed
-from app.views_directory.bookmark_views import bookmark_post, unbookmark_post, get_bookmarked_posts  
+from app.views_directory.bookmark_views import bookmark_post, unbookmark_post, get_bookmarked_posts ,bookmark_comment,unbookmark_comment, get_bookmarked_comments
 from app.views_directory.searchview import SearchView
 
 from app.views_directory.image_view import get_image_details, get_direct_image
