@@ -20,7 +20,41 @@ from ..models import Tags
 from ..models import Quiz, Relationship, Word, Translation, WordBookmark
 from ..word_service import lexvo_manager
 import requests
+from ..word_service.semantic_service import SemanticChoiceGenerator
 
+@api_view(['GET', 'POST'])
+def get_quiz_choices(request, word, quiz_type):
+    """
+    Get quiz choices for a word with specified quiz type and optional correct choice
+    """
+    try:
+        generator = SemanticChoiceGenerator()
+        correct_choice=None
+        if request.method == 'POST':
+            correct_choice = request.data.get('correct_choice')
+            if not correct_choice:
+                return Response(
+                    {"error": "correct_choice is required in POST body"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        result = generator.generate_quiz_question(word, quiz_type, correct_choice)
+
+        if not result:
+            return Response(
+                {"error": f"Could not generate choices for word '{word}'"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        return Response({
+            "correct_answer": result['correct_answer'],
+            "options": result['options']
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response(
+            {"error": f"An error occurred: {str(e)}"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -169,6 +203,7 @@ def get_turkish_translation(request, word):
             {"error": f"An unexpected error occurred: {str(e)}"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
+
 
 @api_view(['GET'])
 def get_word_meanings(request, word):

@@ -8,4 +8,5 @@ requests
 rdflib
 pandas
 python-dotenv
+nltk
 Pillow>=8.0.0
