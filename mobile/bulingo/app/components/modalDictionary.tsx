@@ -56,6 +56,28 @@ export default function ModalDictionary(props: ModalDictionaryProps){
       } catch (error) {
         console.error(error);
       }
+
+      if(TokenManager.getUsername()){  // Only if the user is logged in
+        const url = "word/bookmarks/"  // Placeholder
+        try {
+          const response = await TokenManager.authenticatedFetch(url, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+
+          if (response.ok){
+            const result = await response.json()
+            setIsWordBookmarked(result.bookmarked_words.includes(getCorrectForm(props.word))); 
+          } else {
+            console.log(response.status)
+          };
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
       setIsLoading(false);
     };
     
