@@ -210,7 +210,8 @@ class ActivityStream(models.Model):
     verb = models.CharField(max_length=50) 
     object_type = models.CharField(max_length=50) 
     object_id = models.IntegerField()
-    timestamp = models.DateTimeField(default=now)  
+    object_name = models.CharField(max_length=100, null=True, blank=True)
+    timestamp = models.DateTimeField(default=now) 
     target = models.CharField(max_length=100, null=True, blank=True)  
     affected_username = models.CharField(
         max_length=150, null=True, blank=True

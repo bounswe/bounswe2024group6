@@ -5,7 +5,7 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 from app.serializers import QuizSerializer, QuizResultsSerializer, QuestionSerializer, QuizProgressSerializer, QuestionProgressSerializer
 from django.contrib.auth.models import User
-from app.models import Quiz, QuizResults, Question, QuizProgress, QuestionProgress
+from app.models import Quiz, QuizResults, Question, QuizProgress, QuestionProgress, ActivityStream
 import uuid
 from django.core.files.uploadedfile import UploadedFile
 import json
@@ -77,6 +77,20 @@ def create_quiz(request):
             print(f"Choice2 image: {saved_question.choice2_image}")
             print(f"Choice3 image: {saved_question.choice3_image}")
             print(f"Choice4 image: {saved_question.choice4_image}")
+        
+        user = request.user
+        for x in user.profile.followers.all():
+            ActivityStream.objects.create(
+                actor=request.user,
+                verb="created",
+                object_type="Quiz",
+                object_id=quiz.id,
+                object_name = quiz.title,
+                target=f"Quiz:{quiz.id}",
+                affected_username=x.user.username  # Use the associated User's username
+            )
+
+        
 
         return Response(quiz_serializer.data, status=status.HTTP_201_CREATED)
 
