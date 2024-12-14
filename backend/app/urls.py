@@ -86,8 +86,8 @@ urlpatterns = [
     path('search/', SearchView.as_view(), name='search'),
     path('image-details/<str:query>/', get_image_details, name='image-search'),
     path('image/<str:query>/', get_direct_image, name='direct-image'),
-    path('comments/bookmark/', comment_bookmarks.bookmark_comment, name='bookmark_comment'),
-    path('comments/unbookmark/', comment_bookmarks.unbookmark_comment, name='unbookmark_comment'),
-    path('comments/bookmarked/', comment_bookmarks.get_bookmarked_comments, name='get_bookmarked_comments'),
+    path('comments/bookmark/', bookmark_comment, name='bookmark_comment'),
+    path('comments/unbookmark/', unbookmark_comment, name='unbookmark_comment'),
+    path('comments/bookmarked/', get_bookmarked_comments, name='get_bookmarked_comments'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
