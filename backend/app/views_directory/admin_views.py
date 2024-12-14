@@ -4,6 +4,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from django.shortcuts import get_object_or_404
+from app.models import ActivityStream
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -17,6 +18,18 @@ def ban_user(request):
     
     user = get_object_or_404(User, username=username)
     user.is_active = False
+
+    for f in user.profile.followers.all():
+        ActivityStream.objects.create(
+            actor=user,
+            verb="banned",
+            object_type="User",
+            object_id=user.id,
+            object_name= user.username,
+            target=f"User:{user.id}",
+            affected_username=f.user.username
+        )
+
     user.save()
 
     return Response(
