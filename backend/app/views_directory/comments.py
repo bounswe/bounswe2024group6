@@ -65,6 +65,18 @@ def delete_comment(request):
     user = request.user
     if comment.author != user and not user.is_staff:
         return Response({"detail": "You do not have permission to delete this comment."}, status=status.HTTP_403_FORBIDDEN)
+    
+    if comment.author != user:
+        ActivityStream.objects.create(
+            actor=request.user,
+            verb="deleted",
+            object_type="Comment",
+            object_id=comment.id,
+            object_name=comment.body,
+            target=f"Post:{comment.post.id}",
+            affected_username=comment.author.username
+        )
+    
     comment.delete()
     return Response({"detail": "Comment deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
 
