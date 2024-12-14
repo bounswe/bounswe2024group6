@@ -7,7 +7,6 @@ import QuizCard from '@/app/components/quizCard';
 import TokenManager from '@/app/TokenManager';
 
 const emptyUserInfo: OtherUserInfo = {
-  name: '',
   bio: "",
   level: 'NA',
   follower_count: 0,
@@ -20,7 +19,6 @@ const emptyUserInfo: OtherUserInfo = {
 };
 
 type OtherUserInfo = {
-  name: string,
   bio: string,
   level: string,
   follower_count: number,
@@ -111,7 +109,6 @@ export default function Profile() {
   return (
     <FlatList 
       data={tabData[tab-1]}
-      keyExtractor={(item) => item.id}
       renderItem={({item}) => {
         if (isQuizInfo(item)){
           return (
@@ -132,7 +129,6 @@ export default function Profile() {
         <>
           <ProfileInfo
             username={username}
-            name={userInfo.name}
             level={userInfo.level}
             about={userInfo.bio}
             followerCount={userInfo.follower_count}
@@ -150,7 +146,6 @@ type ProfileInfoProps = {
   followerCount: number,
   followingCount: number,
   isFollowedByUser: boolean,
-  name: string,
   about: string,
   level: string,
   username: string,
@@ -211,7 +206,7 @@ const ProfileInfo = (props:ProfileInfoProps) => {
         </View>
       </View>
       <View style={styles.profileInfoAboutContainer}>
-        <Text style={styles.profileInfoNameText}>{props.name}</Text>
+        <Text style={styles.profileInfoNameText}>{props.username}</Text>
         <Text style={styles.profileInfoAboutText}>{props.about}</Text>
       </View>
       <View style={styles.profileInfoButtonContainer}>

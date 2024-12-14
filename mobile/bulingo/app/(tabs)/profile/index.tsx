@@ -6,7 +6,7 @@ import QuizCard from '@/app/components/quizCard';
 import TokenManager from '@/app/TokenManager';
 
 const defaultUserInfo: UserInfo = {
-  name: 'Yagiz Guldal',
+  username: 'ygz',
   bio: "Hello, I am an avid language learner. I am trying my best to learn English.",
   level: 'B1',
   follower_count: 0,
@@ -18,7 +18,7 @@ const defaultUserInfo: UserInfo = {
 };
 
 type UserInfo = {
-  name: string,
+  username: string,
   bio: string,
   level: string,
   follower_count: number,
@@ -122,8 +122,7 @@ export default function Profile() {
           });
           const solvedQuizResponse = await solvedQuizRequest.json()
           if (solvedQuizRequest.ok){
-            setUserInfo({...updatedUserInfo, solvedQuizzes: solvedQuizResponse});
-            console.log({...updatedUserInfo, solvedQuizzes: solvedQuizResponse});
+            setUserInfo({...updatedUserInfo, solvedQuizzes: solvedQuizResponse, username: username});
           } else {
             console.log(createdQuizResponse.status)
           };
@@ -178,7 +177,7 @@ export default function Profile() {
       ListHeaderComponent={
         <View>
           <ProfileInfo
-            name={userInfo.name}
+            username={userInfo.username}
             level={userInfo.level}
             about={userInfo.bio}
             followerCount={userInfo.follower_count}
@@ -194,7 +193,7 @@ export default function Profile() {
 type ProfileInfoProps = {
   followerCount: number,
   followingCount: number,
-  name: string,
+  username: string,
   about: string,
   level: string,
 }
@@ -233,7 +232,7 @@ const ProfileInfo = (props:ProfileInfoProps) => {
         </View>
       </View>
       <View style={styles.profileInfoAboutContainer}>
-        <Text style={styles.profileInfoNameText}>{props.name}</Text>
+        <Text style={styles.profileInfoNameText}>{props.username}</Text>
         <Text style={styles.profileInfoAboutText}>{props.about}</Text>
       </View>
       <View style={styles.profileInfoButtonContainer}>
