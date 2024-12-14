@@ -24,7 +24,8 @@ const levels = [
 ];
 
 export default function EditProfile() {
-  const [image, setImage] = useState<string | null>(null);
+  const [imageUri, setImageUri] = useState<string | null>(null);
+  const [imageType, setImageType] = useState<any>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [userInfo, setUserInfo] = useState<UserInfo>({name: '', bio: '', level: 'NA'});
@@ -97,7 +98,9 @@ export default function EditProfile() {
     });
 
     if (!result.canceled) {
-      setImage(result.assets[0].uri);
+      setImageUri(result.assets[0].uri);
+      setImageType(result.assets[0].mimeType);
+      console.log(result.assets[0])
       closeModal();
     }
   };
@@ -112,7 +115,9 @@ export default function EditProfile() {
 
 
     if (!result.canceled) {
-      setImage(result.assets[0].uri);
+      setImageUri(result.assets[0].uri);
+      setImageType(result.assets[0].mimeType);
+      console.log(result.assets[0])
       closeModal();
     }
   };
@@ -124,16 +129,31 @@ export default function EditProfile() {
       'level': userInfo.level,
       'bio': userInfo.bio,
      };
+
+    const formData = new FormData();
+    if (imageUri){
+      formData.append('profile_picture', {
+        uri: imageUri,
+        type: imageType, // e.g., 'image/jpeg'
+        name:`${TokenManager.getUsername()}_pp.jpg`,
+      });
+    }
+    formData.append('username', TokenManager.getUsername());
+    formData.append('level', userInfo.level);
+    formData.append('bio', userInfo.bio ? userInfo.bio : "");
     try {
+      console.log(formData);
       const response = await TokenManager.authenticatedFetch('profile/update/', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'multipart/form-data',
         },
-        body: JSON.stringify(params)
+        body: formData,
       });
+
       const res = await response.json();
       if (response.ok){
+        console.log(res);
         setUserInfo(res);
         router.navigate({pathname: '/(tabs)/profile', params: {key: Date.now()}})
       } else {
@@ -166,7 +186,7 @@ export default function EditProfile() {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.profilePictureContainer}>
-        <Image source={image ? { uri: image } : require("@/assets/images/profile-icon.png")} style={styles.profilePicture} />
+        <Image source={imageUri ? { uri: imageUri } : require("@/assets/images/profile-icon.png")} style={styles.profilePicture} />
       </View>
       <View style={styles.changePictureBoxContainer}>
         <TouchableOpacity onPress={handleChangePicturePress}>

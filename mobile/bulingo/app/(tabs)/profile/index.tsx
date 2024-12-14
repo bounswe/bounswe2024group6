@@ -15,6 +15,7 @@ const defaultUserInfo: UserInfo = {
   solvedQuizzes: [],
   posts: [],
   comments: [],
+  profile_picture: "",
 };
 
 type UserInfo = {
@@ -27,6 +28,7 @@ type UserInfo = {
   solvedQuizzes: QuizInfo[],  // Placeholder
   comments: any[],
   posts: any[],
+  profile_picture: string,
 };
 
 export type QuizInfo = {
@@ -182,6 +184,7 @@ export default function Profile() {
             about={userInfo.bio}
             followerCount={userInfo.follower_count}
             followingCount={userInfo.following_count}
+            profile_picture_uri={userInfo.profile_picture != "" ? userInfo.profile_picture : undefined}
           />
           <Tabs tab={tab} setTab={setTab}/>
         </View>
@@ -196,6 +199,7 @@ type ProfileInfoProps = {
   username: string,
   about: string,
   level: string,
+  profile_picture_uri?: string,
 }
 
 const ProfileInfo = (props:ProfileInfoProps) => {
@@ -214,7 +218,10 @@ const ProfileInfo = (props:ProfileInfoProps) => {
     <View style={styles.profileInfoContainer}>
       <View style={styles.profileInfoTopContainer}>
         <View style={styles.profileInfoTopPictureContainer}>
-          <Image source={require('@/assets/images/profile-icon.png')} style={styles.profileInfoTopPicture}></Image>
+          <Image 
+            source={props.profile_picture_uri ? { uri: props.profile_picture_uri } : require('@/assets/images/profile-icon.png')}
+            style={styles.profileInfoTopPicture}
+          />
         </View>
         <View style={styles.profileInfoTopFollowContainer}>
           <View style={styles.profileInfoTopFollowItemContainer}>
