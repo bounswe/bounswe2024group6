@@ -27,6 +27,8 @@ import { convertPostResponseToPost } from "../common/utils";
 import axios from "axios";
 import { BASE_URL } from "../../lib/baseURL";
 import { UserCard } from "../common/user-card";
+import GuestAuthModal from "../auth/guest-auth-modal";
+import ClickableText from "../common/clickable-text";
 
 const maxLength = 250; // Maximum length of the content to be displayed
 
@@ -60,6 +62,8 @@ export default function PostCard({
   const navigate = useNavigate();
   const { getToken } = AuthActions();
   const token = getToken("access");
+  const isGuest = !token;
+  const [guestModalOpen, setGuestModalOpen] = useState(false);
 
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
@@ -177,8 +181,8 @@ export default function PostCard({
       </CardHeader>
       <CardBody onClick={() => navigate(title ? `/post/${id}` : `/comment/${id}`)} className="px-3 py-0 text-small text-default-600 text-justify leading-relaxed overflow-hidden">
         <p>
-          {displayedText}
-          {(content) && content.length > maxLength && (
+          <ClickableText text={displayedText} />
+          {content && content.length > maxLength && (
             <span
               onClick={toggleExpand}
               style={{ color: "#186df5", cursor: "pointer" }}
@@ -198,11 +202,21 @@ export default function PostCard({
             >
               {likes}
             </p>
+            <GuestAuthModal
+              isOpen={guestModalOpen}
+              setIsOpen={setGuestModalOpen}
+            />
             <Button
               isIconOnly
               color="danger"
               aria-label="Like"
-              onClick={toggleLike}
+              onClick={
+                isGuest
+                  ? () => {
+                      setGuestModalOpen(true);
+                    }
+                  : toggleLike
+              }
               variant="light"
               className="flex items-center gap-3"
               data-testid="like-button"
@@ -218,7 +232,13 @@ export default function PostCard({
             isIconOnly
             color="secondary"
             aria-label="Bookmark"
-            onClick={toggleBookmark}
+            onClick={
+              isGuest
+                ? () => {
+                    setGuestModalOpen(true);
+                  }
+                : toggleBookmark
+            }
             variant="light"
           >
             {isBookmarked ? (

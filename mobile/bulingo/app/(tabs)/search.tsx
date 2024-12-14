@@ -4,9 +4,10 @@ import { RFPercentage } from 'react-native-responsive-fontsize';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import QuizCard from '../components/quizCard';
 import UserCard from './profile/userCard';
+import TokenManager from '../TokenManager';
+import PostCard from '../components/postcard';
+import CommentCard from '../components/commentcard';
 
-const TAGS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2', 'TAG1', 'TAG2', 'TAG3', 'GRAMMAR'];
-const CONTENT_TYPES = ["Users", "Quizzes", "Posts", "Comments"]
 const MOCK_SEARCH_RESULT = [
   {type: "quiz", data: { id: 13, title: 'Furniture', description: 'Essential furniture', author: 'Kaan', level: 'A2', likes: 3, liked: false }},
   {type: "user", data: { id: 18, username: 'ygz2', name: 'Yagiz Guldal', level: 'A1', profilePictureUri:"https://static.vecteezy.com/system/resources/thumbnails/024/646/930/small_2x/ai-generated-stray-cat-in-danger-background-animal-background-photo.jpg"}},
@@ -18,36 +19,103 @@ export default function Tab() {
   const [searchResults, setSearchResults] = useState<any>(undefined);
   const [searchQuery, setSearchQuery] = useState("");
   const [userInput, setUserInput] = useState("");
-  const [sortByOption, setSortByOption] = useState<string>('Sort by');
-  const [contentTypesOption, setContentTypesOption] = useState<{name: string, active: boolean}[]>(
-    CONTENT_TYPES.map(ct => ({name: ct, active: true}))
-  );
-  const [tagsOption, setTagsOptions] = useState<{name: string, active: boolean}[]>(
-    TAGS.map(tag => ({name: tag, active:true}))
-  );
-  const [sortByModalOpen, setSortByModalOpen] = useState(false);
-  const [contentTypeModalOpen, setContentTypeModalOpen] = useState(false);
-  const [tagsModalOpen, setTagsModalOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [option, setOption] = useState("Users");
   const [isLoading, setIsLoading] = useState(false);
 
 
-  // Temporary, will be changed when connection with backend is made.
-  useEffect(() => {
-    const fetchResults = async (params: any) => {
-      setIsLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 500));  // Simulates a network call, can safely be removed later
-      console.log("fetchResults called, returning mock data")
-      if (searchQuery.length == 0){
-        setSearchResults(undefined);
-      } else if (searchQuery !== "Empty") {
-        setSearchResults(MOCK_SEARCH_RESULT);
+  const search = async () => {
+    if (userInput.length == 0){
+      setSearchResults(undefined);
+      return;
+    }
+
+    setIsLoading(true);
+    const url = `search/?q=${userInput}&t=${option.toLowerCase()}`
+    try {
+      const response = await TokenManager.authenticatedFetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      if (response.ok){
+        let dataType: string;
+        switch (option){
+          case 'Users':
+            dataType = 'user';
+            break;
+          case 'Quizzes':
+            dataType = 'quiz';
+            break;
+          case 'Posts':
+            dataType = 'post';
+            break;
+          case 'Comments':
+            dataType = 'comment';
+            break;
+          default:
+            dataType = 'ERROR'
+            break;
+        }
+        const data = await response.json();
+        const real_data = data[option.toLowerCase()]
+        let transformed_data = real_data.map((item:any) => ({
+          type: dataType,
+          data: item,
+        }));
+        if (dataType == 'quiz'){
+          transformed_data = transformed_data.map((item:any) => ({
+            ...item,
+            data: {
+              ...item.data,
+              level: item.data.tags[0]
+            }
+          }));
+        } else if (dataType == "user"){
+          const username = TokenManager.getUsername();
+          transformed_data = transformed_data.map((item:any) => ({
+            ...item,
+            data: {
+              ...item.data,
+              buttonText: item.data.isFollowing ? "Unfollow" : "Follow",
+              buttonStyleNo: item.data.username == username ? 3 : (item.data.isFollowing ? 1 : 2),
+            }
+          }));
+          console.log(transformed_data)
+        } else if (dataType == "post"){
+          transformed_data = transformed_data.map((item:any) => ({
+            ...item,
+            data: {
+              ...item.data,
+              isBookmarked: item.data.is_bookmarked,
+              liked: item.data.is_liked,
+              likes: item.data.like_count,
+            }
+          }));
+        } else if (dataType == "comment"){
+          transformed_data = transformed_data.map((item:any) => ({
+            ...item,
+            data: {
+              ...item.data,
+              isBookmarked: false,  // Placeholder!!
+              liked: item.data.isLiked,
+              likes: item.data.like_count,
+              comment: item.data.body,
+              username: item.data.author,
+            }
+          }));
+        }
+        console.log(transformed_data)
+        setSearchResults(transformed_data);
       } else {
-        setSearchResults([]);
+        console.error(response.status);
       }
-      setIsLoading(false);
-    };
-    fetchResults({});
-  }, [sortByOption, contentTypesOption, tagsOption, searchQuery]);
+    } catch (error) {
+      console.error(error);
+    }
+    setIsLoading(false);
+  };
 
   const renderSearchResults = () => {
     if (searchResults === undefined){
@@ -68,19 +136,18 @@ export default function Tab() {
       return (
         <FlatList
           data={searchResults}
-          keyExtractor={(item) => item.data.id}
           renderItem={({item}) => {
             if (item.type == "user"){
-              return (<UserCard {...item.data} buttonText='Follow' buttonStyleNo={1}/>);
+              return (<UserCard {...item.data}/>);
             }
             else if (item.type == "quiz"){
               return (<QuizCard {...item.data} />);
             }
             else if (item.type == "post"){
-              return (<View style={tempStyles.box}><Text>Placeholder post card component.</Text></View>);
+              return (<PostCard {...item.data} />);
             }
             else if (item.type == "comment"){
-              return (<View style={tempStyles.box}><Text>Placeholder comment card component.</Text></View>);
+              return (<CommentCard {...item.data} />);
             }
             return null;
           }}
@@ -95,32 +162,21 @@ export default function Tab() {
         <View style={styles.searchBar}>
           <View style={styles.searchBox}>
             <TextInput style={styles.searchText} placeholder='Search' onChangeText={setUserInput} onEndEditing={() => setSearchQuery(userInput)}/>
-            <TouchableOpacity onPress={() => setSearchQuery(userInput)}>
+            <TouchableOpacity style={{padding: 5}}onPress={async () => {setSearchQuery(userInput); await search()}}>
               <FontAwesome name="search" style={styles.searchButton}/>
             </TouchableOpacity>
           </View>
         </View>
         <View style={styles.optionsBar}>
-          <TouchableOpacity style={styles.optionBox} onPress={() => setSortByModalOpen(true)}>
-            <Text style={sortByOption == 'Sort by' ? styles.passiveOptionText : styles.activeOptionText}>{sortByOption}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.optionBox} onPress={() => setContentTypeModalOpen(true)}>
-            <Text style={styles.passiveOptionText}>Content</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.optionBox} onPress={() => setTagsModalOpen(true)}>
-            <Text style={styles.passiveOptionText}>Tags</Text>
+          <Text>Search For: </Text>
+          <TouchableOpacity style={styles.optionBox} onPress={() => setModalOpen(true)}>
+            <Text>{option}</Text>
           </TouchableOpacity>
         </View>
       </View>
       {renderSearchResults()}
-      {sortByModalOpen && 
-        <SimpleModal options={["Newest", "Most Liked", "Clear"]} setOption={setSortByOption} setModalOpen={setSortByModalOpen}/>
-      }
-      {contentTypeModalOpen && 
-        <MultiChoiceModal options={contentTypesOption} setOptions={setContentTypesOption} setModalOpen={setContentTypeModalOpen}/>
-      }
-      {tagsModalOpen && 
-        <MultiChoiceModalType2 options={tagsOption} setOptions={setTagsOptions} setModalOpen={setTagsModalOpen}/>
+      {modalOpen &&
+        <SimpleModal options={['Users', 'Quizzes', 'Posts', 'Comments']} setOption={setOption} setModalOpen={setModalOpen}/>
       }
       {isLoading && 
         <View style={styles.modalOverlay}>
@@ -263,7 +319,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     alignItems: 'center',
     flexDirection: 'row',
-    padding: 4,
+    paddingHorizontal: 15,
+    paddingVertical: 5,
   },
   optionBox: {
     borderRadius: 10,

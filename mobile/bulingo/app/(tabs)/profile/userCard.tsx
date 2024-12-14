@@ -10,7 +10,7 @@ type UserCardProps = {
   name: string,
   level: string,
   buttonText: string,
-  buttonStyleNo: number,  // 1: Gray Button 2: Blue button
+  buttonStyleNo: number,  // 1: Gray Button 2: Blue button 3: No button (self)
   onButtonPress?: () => void;
   onCardPress?: () => void;
 };
@@ -44,9 +44,11 @@ const UserCard = (props: UserCardProps) => {
     }
 
     router.navigate('/(tabs)/profile')
-    setTimeout(() => {
-      router.push(`/(tabs)/profile/users/${props.username}`);
-    }, 0);
+    if (props.buttonStyleNo != 3){
+      setTimeout(() => {
+        router.push(`/(tabs)/profile/users/${props.username}`);
+      }, 0);
+    }
   };
 
   let buttonStyleAddOn;
@@ -59,6 +61,8 @@ const UserCard = (props: UserCardProps) => {
     case 2:
       buttonStyleAddOn = styles.buttonStyleAddOn2;
       buttonTextColor = 'white';
+      break;
+    case 3:
       break;
     default: 
       console.log("Wrong 'buttonStyleNo' prop passed to UserCard component!")
@@ -84,21 +88,21 @@ const UserCard = (props: UserCardProps) => {
               style={styles.profilePicture}
             />
           )}
-        
       </View>
       <View style={styles.usernameContainer}>
-        <Text style={styles.usernameText}>{props.username}</Text>
-        <Text style={styles.nameText}>{props.name}</Text>
+        <Text style={styles.usernameText}>{props.username.length <= 12 ? props.username : `${props.username.slice(0, 10)}..`}</Text>
       </View>
       <View style={styles.followerContainerRightCompartment}>
         <View style={styles.levelContainer}>
           <Text style={styles.levelText}>{props.level}</Text>
         </View>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={[styles.buttonStyle, buttonStyleAddOn]} onPress={handleButtonPress} testID='button'>
-            <Text style={[styles.buttonText, {color: buttonTextColor}]}>{props.buttonText}</Text>
-          </TouchableOpacity>
-        </View>
+        { props.buttonStyleNo != 3 &&
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={[styles.buttonStyle, buttonStyleAddOn]} onPress={handleButtonPress} testID='button'>
+              <Text style={[styles.buttonText, {color: buttonTextColor}]}>{props.buttonText}</Text>
+            </TouchableOpacity>
+          </View>
+        }
       </View>
     </TouchableOpacity>
   );
@@ -110,7 +114,7 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     flex: 0,
     flexDirection: 'row',
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between',
     margin: 5,
     borderRadius: 8,
     backgroundColor:'white',
@@ -144,9 +148,8 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   buttonContainer: {
-    flex: 1,
+    flex: 0,
     justifyContent: 'center',
-    alignItems: 'stretch',
   },
   levelContainer: {
     flex: 1,
@@ -163,6 +166,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     margin: 5,
     alignItems: 'center',
+    width: 80,
   },
   buttonStyleAddOn1: {
     backgroundColor: 'rgba(154, 154, 154, 0.2)',
@@ -177,11 +181,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   usernameText: {
-    fontSize: RFPercentage(2.5),
+    fontSize: 18,
     fontWeight: 'bold'
-  },
-  nameText: {
-    fontSize: RFPercentage(2),
   },
 });
 

@@ -10,6 +10,7 @@ import { option } from "framer-motion/client";
 import { BASE_URL } from "../../lib/baseURL.ts";
 import axios from "axios";
 import { AuthActions } from "../../components/auth/utils.tsx";
+import ClickableText from "../common/clickable-text.tsx";
 
 type Props = {
   quiz_progress_id: number;
@@ -24,6 +25,7 @@ type Props = {
   question: string;
   correct?: number;
   previous_answer?: number;
+  isReview?: boolean;
 };
 enum Answer {
   None,
@@ -46,6 +48,7 @@ export default function QuestionCard({
   question,
   correct,
   previous_answer,
+  isReview,
 }: Props) {
   const { getToken } = AuthActions();
   const token = getToken("access");
@@ -95,54 +98,132 @@ export default function QuestionCard({
       </CardHeader>
       <Divider />
       <CardBody className="flex flex-col justify-center shadow-lg rounded-lg w-[550px] h-[200px]">
-        <p className="text-center text-5xl text-blue-900">{question}</p>
+        <div className="text-center text-5xl text-blue-900">
+          {isReview ? <ClickableText text={question} /> : question}
+        </div>
       </CardBody>
 
       <CardFooter className="w-[550px] h-[170px] py-6">
         <div className="grid grid-cols-2 grid-rows-2 gap-4 w-full h-full">
           <Button
-            color={correct == 1 ? "success" : previous_answer == 1 ? "danger" : "primary"}
-            onClick={previous_answer !== undefined && correct !== undefined ? undefined : handleClick(1)}
-            variant={
-              (answers[cur_question - 1] === Answer.A || correct == 1 || previous_answer == 1) ? "solid" : "bordered"
+            color={
+              correct == 1
+                ? "success"
+                : previous_answer == 1
+                ? "danger"
+                : "primary"
             }
-            className={`flex items-center justify-center text-xl h-12 mx-3 ${(answers[cur_question - 1] === Answer.C || correct == 1 || previous_answer == 1) ? "text-white" : ""
+            onClick={
+              previous_answer !== undefined && correct !== undefined
+                ? undefined
+                : handleClick(1)
+            }
+            variant={
+              answers[cur_question - 1] === Answer.A ||
+              correct == 1 ||
+              previous_answer == 1
+                ? "solid"
+                : "bordered"
+            }
+            className={`flex items-center justify-center text-xl h-12 mx-3 ${
+              answers[cur_question - 1] === Answer.C ||
+              correct == 1 ||
+              previous_answer == 1
+                ? "text-white"
+                : ""
             }`}
           >
-            {option_a}
+            {isReview ? <ClickableText text={option_a} /> : option_a}
           </Button>
           <Button
-            color={correct == 2 ? "success" : previous_answer == 2 ? "danger" : "primary"}
-            onClick={previous_answer !== undefined && correct !== undefined ? undefined : handleClick(2)}
-            variant={
-              (answers[cur_question - 1] === Answer.B || correct == 2 || previous_answer == 2) ? "solid" : "bordered"
+            color={
+              correct == 2
+                ? "success"
+                : previous_answer == 2
+                ? "danger"
+                : "primary"
             }
-            className={`flex items-center justify-center text-xl h-12 mx-3 ${(answers[cur_question - 1] === Answer.C || correct == 2 || previous_answer == 2) ? "text-white" : ""
+            onClick={
+              previous_answer !== undefined && correct !== undefined
+                ? undefined
+                : handleClick(2)
+            }
+            variant={
+              answers[cur_question - 1] === Answer.B ||
+              correct == 2 ||
+              previous_answer == 2
+                ? "solid"
+                : "bordered"
+            }
+            className={`flex items-center justify-center text-xl h-12 mx-3 ${
+              answers[cur_question - 1] === Answer.C ||
+              correct == 2 ||
+              previous_answer == 2
+                ? "text-white"
+                : ""
             }`}
           >
-            {option_b}
+            {isReview ? <ClickableText text={option_b} /> : option_b}
           </Button>
           <Button
-            color={correct == 3 ? "success" : previous_answer == 3 ? "danger" : "primary"}
-            onClick={previous_answer !== undefined && correct !== undefined ? undefined : handleClick(3)}
-            variant={
-              (answers[cur_question - 1] === Answer.C || correct == 3 || previous_answer == 3) ? "solid" : "bordered"
+            color={
+              correct == 3
+                ? "success"
+                : previous_answer == 3
+                ? "danger"
+                : "primary"
             }
-            className={`flex items-center justify-center text-xl h-12 mx-3 ${(answers[cur_question - 1] === Answer.C || correct == 3 || previous_answer == 3) ? "text-white" : ""
+            onClick={
+              previous_answer !== undefined && correct !== undefined
+                ? undefined
+                : handleClick(3)
+            }
+            variant={
+              answers[cur_question - 1] === Answer.C ||
+              correct == 3 ||
+              previous_answer == 3
+                ? "solid"
+                : "bordered"
+            }
+            className={`flex items-center justify-center text-xl h-12 mx-3 ${
+              answers[cur_question - 1] === Answer.C ||
+              correct == 3 ||
+              previous_answer == 3
+                ? "text-white"
+                : ""
             }`}
           >
-            {option_c}
+            {isReview ? <ClickableText text={option_c} /> : option_c}
           </Button>
           <Button
-            color={correct == 4 ? "success" : previous_answer == 4 ? "danger" : "primary"}
-            onClick={previous_answer !== undefined && correct !== undefined ? undefined : handleClick(4)}
-            variant={
-              (answers[cur_question - 1] === Answer.D || correct == 4 || previous_answer == 4) ? "solid" : "bordered"
+            color={
+              correct == 4
+                ? "success"
+                : previous_answer == 4
+                ? "danger"
+                : "primary"
             }
-            className={`flex items-center justify-center text-xl h-12 mx-3 ${(answers[cur_question - 1] === Answer.C || correct == 4 || previous_answer == 4) ? "text-white" : ""
-              }`}
+            onClick={
+              previous_answer !== undefined && correct !== undefined
+                ? undefined
+                : handleClick(4)
+            }
+            variant={
+              answers[cur_question - 1] === Answer.D ||
+              correct == 4 ||
+              previous_answer == 4
+                ? "solid"
+                : "bordered"
+            }
+            className={`flex items-center justify-center text-xl h-12 mx-3 ${
+              answers[cur_question - 1] === Answer.C ||
+              correct == 4 ||
+              previous_answer == 4
+                ? "text-white"
+                : ""
+            }`}
           >
-            {option_d}
+            {isReview ? <ClickableText text={option_d} /> : option_d}
           </Button>
         </div>
       </CardFooter>
