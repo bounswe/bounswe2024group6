@@ -98,43 +98,50 @@ def unlike_comment(request):
     comment.save()
     return Response({"detail": "Comment unliked successfully", "like_count": comment.like_count}, status=status.HTTP_200_OK)
 
-@api_view(['GET'])
+@api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def get_comment_by_id(request):
+    comment_id = request.data.get("comment_id")  # Access comment_id from request data
 
-    comment_id = request.data.get("comment_id")
-    
     if not comment_id:
         return Response({"detail": "Comment ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Fetch the main comment
     comment = get_object_or_404(Comment, id=comment_id)
-    
+
+    # Check if the comment is liked by the current user
     is_liked = comment.liked_by.filter(id=request.user.id).exists()
-    
-    liked_by_users = comment.liked_by.all()
-    like_count = comment.like_count  
-    
-    replies = Comment.objects.filter(parent=comment)
-    
-    reply_data = []
-    for reply in replies:
-        reply_data.append({
-            'id': reply.id,
-            'author': reply.author.username,
-            'body': reply.body,
-            'created_at': reply.created_at,
-            'like_count': reply.like_count,
-            'is_liked': reply.liked_by.filter(id=request.user.id).exists(),
-        })
-    
-    comment_data = {
-        'id': comment.id,
-        'author': comment.author.username,
-        'body': comment.body,
-        'created_at': comment.created_at,
-        'like_count': like_count,
-        'is_liked': is_liked, 
-        'liked_by_users': [user.username for user in liked_by_users], 
-        'replies': reply_data 
+
+    # Fetch all users who liked the comment
+    liked_by_users = comment.liked_by.all().values_list('username', flat=True)
+
+    # Fetch all replies to the comment
+    replies = Comment.objects.filter(parent=comment).select_related('author')
+
+    # Serialize the replies
+    reply_data = [
+        {
+            "id": reply.id,
+            "author": reply.author.username,
+            "body": reply.body,
+            "created_at": reply.created_at,
+            "like_count": reply.like_count,
+            "is_liked": reply.liked_by.filter(id=request.user.id).exists(),
+            "liked_by_users": list(reply.liked_by.all().values_list('username', flat=True)),
         }
-    
+        for reply in replies
+    ]
+
+    # Prepare the comment data
+    comment_data = {
+        "id": comment.id,
+        "author": comment.author.username,
+        "body": comment.body,
+        "created_at": comment.created_at,
+        "like_count": comment.like_count,
+        "is_liked": is_liked,
+        "liked_by_users": list(liked_by_users),
+        "replies": reply_data,
+    }
+
     return Response({"comment": comment_data}, status=status.HTTP_200_OK)
