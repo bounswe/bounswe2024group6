@@ -16,13 +16,16 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     if (!accessToken) {
       setIsAuthenticated(false); // User is not authenticated
       Cookies.remove("username");
+      Cookies.remove("accessToken");
+      Cookies.remove("refreshToken");
     } else {
       setIsAuthenticated(true); // User is authenticated
     }
   }, [navigate]);
 
   // Show a loading state until authentication is verified
-  if (isAuthenticated === null) {
+  if (!isAuthenticated) {
+    navigate("/");
     return <></>;
   }
 
