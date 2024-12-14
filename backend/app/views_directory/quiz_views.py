@@ -481,8 +481,13 @@ def get_quiz(request, quiz_id):
         if request.user.is_authenticated:    
             data['is_solved'] = QuizProgress.objects.filter(quiz=quiz, user=request.user, completed=True).exists()
             data['quiz_result_id'] = QuizResults.objects.filter(quiz=quiz, user=request.user).order_by('-id').first().id if data['is_solved'] else None
-        
-        if data['is_solved']:
+            data['has_unfinished'] = QuizProgress.objects.filter(
+                quiz=quiz,
+                user=request.user,
+                completed=False
+            ).exists()
+
+        if data.get('is_solved'):
             latest_result = QuizResults.objects.filter(
                 quiz=quiz,
                 user=request.user
@@ -497,11 +502,6 @@ def get_quiz(request, quiz_id):
             ).order_by('-score').first()
             data['best_score'] = best_result.score if best_result else None
         
-        data['has_unfinished'] = QuizProgress.objects.filter(
-                quiz=quiz,
-                user=request.user,
-                completed=False
-            ).exists()
         
         return Response(data, status=status.HTTP_200_OK)
         
