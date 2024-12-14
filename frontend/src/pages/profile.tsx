@@ -12,6 +12,7 @@ import {
   ModalContent,
   ModalBody,
   ModalHeader,
+  Card,
 } from "@nextui-org/react";
 import { useState, useEffect, Suspense } from "react";
 
@@ -39,6 +40,7 @@ import Cookies from "js-cookie";
 import { usePageTitle } from "../components/common/usePageTitle.ts";
 import QuizCard from "../components/quiz/quiz-card.tsx";
 import GuestAuthModal from "../components/auth/guest-auth-modal.tsx";
+import ClickableText from "../components/common/clickable-text.tsx";
 
 export default function Profile() {
   usePageTitle("Profile");
@@ -208,6 +210,22 @@ export default function Profile() {
       .then((response) => {
         console.log("following", response.data);
         setFollowings(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, [token]);
+
+  useEffect(() => {
+    axios
+      .get(`${BASE_URL}/word/bookmarks/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        console.log(response.data);
+        setBookmarkedWords(response.data.bookmarked_words);
       })
       .catch((error) => {
         console.log(error);
@@ -472,7 +490,7 @@ export default function Profile() {
                       </div>
                     }
                   >
-                    <div className="flex flex-col gap-4 items-center">
+                    <div className="flex flex-col gap-4 items-left w-[740px]">
                       {bookmarkedPosts.map((post) => (
                         <Suspense key={post.id} fallback={<PostCardSkeleton />}>
                           <PostCard
@@ -499,7 +517,7 @@ export default function Profile() {
                       </div>
                     }
                   >
-                    <div className="flex flex-col gap-4 items-center">
+                    <div className="flex flex-col gap-4 items-left w-[740px]">
                       {bookmarkedQuizzes.map((quiz) => (
                         <Suspense key={quiz.id} fallback={<PostCardSkeleton />}>
                           <QuizCard
@@ -527,7 +545,15 @@ export default function Profile() {
                       </div>
                     }
                   >
-                    <div className="w-[740px]">Words</div>
+                    <div className="flex flex-col gap-4 items-left w-[740px]">
+                      {bookmarkedWords.map((word, index) => (
+                        <Suspense key={index} fallback={<PostCardSkeleton />}>
+                          <Card className="w-48 px-2 py-2 text-center">
+                            <ClickableText text={word} />
+                          </Card>
+                        </Suspense>
+                      ))}
+                    </div>
                   </Tab>
                 </Tabs>
               </div>
