@@ -27,11 +27,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/quizzes",
-    element: (
-      <ProtectedRoute>
-        <Quizzes />
-      </ProtectedRoute>
-    ),
+    element: <Quizzes />,
   },
   {
     path: "/quiz/:quizID",
@@ -43,11 +39,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/quiz/:quizID/details",
-    element: (
-      <ProtectedRoute>
-        <QuizDetails />
-      </ProtectedRoute>
-    ),
+    element: <QuizDetails />,
   },
   {
     path: "/quiz/:quizResultID/review",
@@ -66,14 +58,6 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: "/quiz/:quizID/details",
-    element: (
-      <ProtectedRoute>
-        <QuizDetails />
-      </ProtectedRoute>
-    ),
-  },
-  {
     path: "/create-quiz",
     element: (
       <ProtectedRoute>
@@ -82,28 +66,12 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: "/quiz/:quizID/end",
-    element: (
-      <ProtectedRoute>
-        <QuizEnd />
-      </ProtectedRoute>
-    ),
-  },
-  {
     path: "/forum",
-    element: (
-      <ProtectedRoute>
-        <Forum />
-      </ProtectedRoute>
-    ),
+    element: <Forum />,
   },
   {
     path: "/post/:postID",
-    element: (
-      <ProtectedRoute>
-        <Post />
-      </ProtectedRoute>
-    ),
+    element: <Post />,
   },
   {
     path: "/compose-post",
@@ -115,11 +83,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/profile/:username",
-    element: (
-      <ProtectedRoute>
-        <Profile />
-      </ProtectedRoute>
-    ),
+    element: <Profile />,
   },
   {
     path: "/profile/:username/edit",
@@ -131,11 +95,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/browse",
-    element: (
-      <ProtectedRoute>
-        <Browse />
-      </ProtectedRoute>
-    ),
+    element: <Browse />,
   },
 ]);
 
@@ -148,4 +108,3 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     </NextUIProvider>
   </React.StrictMode>
 );
-
