@@ -26,6 +26,7 @@ import {
   IconSquareRoundedCheck,
   IconBorderAll,
   IconClipboardText,
+  IconAbc,
 } from "@tabler/icons-react";
 import { AuthActions } from "../components/auth/utils.tsx";
 import {
@@ -37,7 +38,6 @@ import { UserCard } from "../components/common/user-card.tsx";
 import Cookies from "js-cookie";
 import { usePageTitle } from "../components/common/usePageTitle.ts";
 import QuizCard from "../components/quiz/quiz-card.tsx";
-import { div } from "framer-motion/client";
 
 export default function Profile() {
   usePageTitle("Profile");
@@ -49,13 +49,15 @@ export default function Profile() {
   const [isFollowing, setIsFollowing] = useState(false);
   const [followCount, setFollowCount] = useState(0);
   const [bookmarkedPosts, setBookmarkedPosts] = useState<Post[]>([]);
+  const [bookmarkedQuizzes, setBookmarkedQuizzes] = useState<Quiz[]>([]);
+  const [bookmarkedWords, setBookmarkedWords] = useState<any[]>([]);
   const [solvedQuizzes, setSolvedQuizzes] = useState<Quiz[]>([]);
   const [createdQuizzes, setCreatedQuizzes] = useState<Quiz[]>([]);
   const [followers, setFollowers] = useState<any[]>([]);
   const [followings, setFollowings] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [type, setType] = useState("following");
+  const [type, setType] = useState<string>("following");
 
   const handleOpen = (type) => {
     setType(type);
@@ -99,7 +101,6 @@ export default function Profile() {
 
   useEffect(() => {
     if (username === Cookies.get("username")) {
-      console.log("Fetching bookmarked posts");
       axios
         .post(
           `${BASE_URL}/get_bookmarked_posts/`,
@@ -113,9 +114,34 @@ export default function Profile() {
           }
         )
         .then((response) => {
-          console.log(response);
+          console.log("bookmarked posts:", response.data);
           const bookmarked = response.data.map(convertPostResponseToPost);
           setBookmarkedPosts(bookmarked);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } else {
+      console.log("Not fetching bookmarked posts");
+    }
+  }, [token]);
+
+
+  useEffect(() => {
+    if (username === Cookies.get("username")) {
+      axios
+        .get(
+          `${BASE_URL}/quiz/bookmarks/`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+        .then((response) => {
+          console.log("bookmarked quizzes:", response.data);
+          const bookmarked = response.data.map(convertQuizResponseToQuiz);
+          setBookmarkedQuizzes(bookmarked);
         })
         .catch((error) => {
           console.log(error);
@@ -439,22 +465,78 @@ export default function Profile() {
                 </div>
               }
             >
-              <div className="flex flex-col gap-4 items-center">
-                {bookmarkedPosts.map((post) => (
-                  <Suspense key={post.id} fallback={<PostCardSkeleton />}>
-                    <PostCard
-                      id={post.id}
-                      username={post.author.username}
-                      title={post.post.title}
-                      content={post.post.content}
-                      timePassed={post.post.timestamp}
-                      likeCount={post.engagement.likes}
-                      tags={post.post.tags}
-                      initialIsLiked={post.engagement.is_liked}
-                      initialIsBookmarked={post.engagement.is_bookmarked}
-                    />
-                  </Suspense>
-                ))}
+              <div>
+                <Tabs aria-label="SavedOptions" placement="start" className="mr-1">
+                  <Tab
+                    key="posts"
+                    title={
+                      <div className="flex items-start text-left space-x-2">
+                        <IconBorderAll size={20} stroke={1.5} />
+                        <span>Posts</span>
+                      </div>
+                    }
+                  >
+                    <div className="flex flex-col gap-4 items-center">
+                      {bookmarkedPosts.map((post) => (
+                        <Suspense key={post.id} fallback={<PostCardSkeleton />}>
+                          <PostCard
+                            id={post.id}
+                            username={post.author.username}
+                            title={post.post.title}
+                            content={post.post.content}
+                            timePassed={post.post.timestamp}
+                            likeCount={post.engagement.likes}
+                            tags={post.post.tags}
+                            initialIsLiked={post.engagement.is_liked}
+                            initialIsBookmarked={post.engagement.is_bookmarked}
+                          />
+                        </Suspense>
+                      ))}
+                    </div>
+                  </Tab>
+                  <Tab
+                    key={"quizzes"}
+                    title={
+                      <div className="flex items-center space-x-2">
+                        <IconClipboardText size={20} stroke={1.5} />
+                        <span>Quizzes</span>
+                      </div>
+                    }
+                  >
+                    <div className="flex flex-col gap-4 items-center">
+                      {bookmarkedQuizzes.map((quiz) => (
+                        <Suspense key={quiz.id} fallback={<PostCardSkeleton />}>
+                          <QuizCard
+                            id={quiz.id}
+                            username={quiz.author.username}
+                            title={quiz.quiz.title}
+                            content={quiz.quiz.description}
+                            timePassed={quiz.quiz.timestamp}
+                            likeCount={quiz.engagement.like_count}
+                            tags={quiz.quiz.tags}
+                            initialIsLiked={quiz.engagement.is_liked}
+                            initialIsBookmarked={quiz.engagement.is_bookmarked}
+                            timesTaken={quiz.quiz.times_taken}
+                          />
+                        </Suspense>
+                      ))}
+                    </div>
+                  </Tab>
+                  <Tab
+                    key={"words"}
+                    title={
+                      <div className="flex items-center space-x-2">
+                        <IconAbc size={20} stroke={1.5} />
+                        <span>Words</span>
+                      </div>
+                    }
+                  >
+                    <div className="w-[740px]">
+                      Words
+                    </div>
+                    
+                  </Tab>
+                </Tabs>
               </div>
             </Tab>
           )}
