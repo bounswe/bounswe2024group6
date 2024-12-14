@@ -586,6 +586,17 @@ def like_quiz(request):
     quiz.liked_by.add(request.user) 
     quiz.like_count += 1
     quiz.save()
+
+    ActivityStream.objects.create(
+        actor=request.user,
+        verb="liked",
+        object_type="Quiz",
+        object_id=quiz.id,
+        object_name = quiz.title,
+        target=f"Quiz:{quiz.id}",
+        affected_username= quiz.author.username 
+    )
+    
     return Response({'message': 'Quiz liked'}, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
