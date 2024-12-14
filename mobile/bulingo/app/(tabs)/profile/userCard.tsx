@@ -10,7 +10,7 @@ type UserCardProps = {
   name: string,
   level: string,
   buttonText: string,
-  buttonStyleNo: number,  // 1: Gray Button 2: Blue button 3: No button
+  buttonStyleNo: number,  // 1: Gray Button 2: Blue button 3: No button (self)
   onButtonPress?: () => void;
   onCardPress?: () => void;
 };
@@ -44,9 +44,11 @@ const UserCard = (props: UserCardProps) => {
     }
 
     router.navigate('/(tabs)/profile')
-    setTimeout(() => {
-      router.push(`/(tabs)/profile/users/${props.username}`);
-    }, 0);
+    if (props.buttonStyleNo != 3){
+      setTimeout(() => {
+        router.push(`/(tabs)/profile/users/${props.username}`);
+      }, 0);
+    }
   };
 
   let buttonStyleAddOn;

@@ -80,7 +80,6 @@ export default function Tab() {
               ...item.data,
               buttonText: item.data.isFollowing ? "Unfollow" : "Follow",
               buttonStyleNo: item.data.username == username ? 3 : (item.data.isFollowing ? 1 : 2),
-              username: `${item.data.username}yooo`
             }
           }));
           console.log(transformed_data)
