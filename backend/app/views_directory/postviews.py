@@ -97,12 +97,18 @@ def create_post(request):
         created_at=timezone.now()
     )
 
-    ActivityStream.objects.create(
-        actor=request.user,
-        verb="created",
-        object_type="Post",
-        object_id=post.id
-    )
+    user = request.user
+    
+    for f in user.profile.followers.all():
+        ActivityStream.objects.create(
+            actor=request.user,
+            verb="created",
+            object_type="Post",
+            object_id=post.id,
+            object_name=title,
+            affected_username=f.user.username
+            )
+    
 
     return Response({"detail": "Post created successfully.", "post_id": post.id}, status=status.HTTP_201_CREATED)
 
