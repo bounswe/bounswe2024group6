@@ -18,7 +18,7 @@ from app.views_directory.admin_views import ban_user
 from django.conf.urls.static import static
 from django.conf import settings
 import app.views_directory.quiz_views as quiz_views
-from app.views_directory.import comment_bookmarks import  get_bookmarked_posts ,bookmark_comment,unbookmark_comment, get_bookmarked_comments
+from app.views_directory.comment_bookmarks import get_bookmarked_posts, bookmark_comment, unbookmark_comment, get_bookmarked_comments
 
 
 urlpatterns = [
