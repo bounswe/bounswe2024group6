@@ -481,7 +481,7 @@ def get_quiz(request, quiz_id):
         if request.user.is_authenticated:    
             data['is_solved'] = QuizProgress.objects.filter(quiz=quiz, user=request.user, completed=True).exists()
             data['quiz_result_id'] = QuizResults.objects.filter(quiz=quiz, user=request.user).order_by('-id').first().id if data['is_solved'] else None
-            data['has_unfinished'] = QuizProgress.objects.filter(
+            data['has_unfinished_progress'] = QuizProgress.objects.filter(
                 quiz=quiz,
                 user=request.user,
                 completed=False
