@@ -102,6 +102,7 @@ export default function QuizReview() {
               question={currentQuestion?.question}
               correct={currentQuestion?.correct_choice}
               previous_answer={currentQuestion?.previous_answer}
+              isReview={true}
             />
           </div>
           <div className="flex justify-center items-center gap-24 my-1">
