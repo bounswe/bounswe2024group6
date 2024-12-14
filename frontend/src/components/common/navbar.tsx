@@ -36,6 +36,7 @@ export default function Navbar() {
   const token = getToken("access");
   const [notifications, setNotifications] = useState([]);
   const [isNotificationsViewed, setIsNotificationsViewed] = useState(false);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     if (!username) {
@@ -107,6 +108,11 @@ export default function Navbar() {
       });
   };
 
+  function handleSearch(query) {
+    navigate(`/browse?q=${query}`);
+    navigate(0);
+  }
+
   const content = (
     <PopoverContent>
       <div className="px-2 pb-2">
@@ -171,6 +177,13 @@ export default function Navbar() {
             size="sm"
             className="w-64"
             radius="full"
+            value={search}
+            onValueChange={setSearch}
+            onKeyUp={(e) => {
+              if (e.key === "Enter") {
+                handleSearch(search);
+              }
+            }}
           />
         </div>
         <div className="flex-1 flex justify-center items-center">
@@ -252,4 +265,3 @@ export default function Navbar() {
     </div>
   );
 }
-
