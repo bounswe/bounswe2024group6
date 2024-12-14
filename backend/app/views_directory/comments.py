@@ -28,13 +28,15 @@ def add_comment(request):
         parent=parent_comment
     )
 
-    ActivityStream.objects.create(
-        actor=request.user,
-        verb="commented",
-        object_type="Comment",
-        object_id=comment.id,
-        target=f"Post:{post.id}"
-    )
+    if post.author != request.user:
+        ActivityStream.objects.create(
+            actor=request.user,
+            verb="commented",
+            object_type="Comment",
+            object_id=comment.id,
+            target=f"Post:{post.id}",
+            affected_username=post.author.username
+        )
 
     return Response(CommentSerializer(comment).data, status=status.HTTP_201_CREATED)
 
