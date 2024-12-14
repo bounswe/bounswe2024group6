@@ -28,6 +28,7 @@ import axios from "axios";
 import { BASE_URL } from "../../lib/baseURL";
 import { UserCard } from "../common/user-card";
 import GuestAuthModal from "../auth/guest-auth-modal";
+import ClickableText from "../common/clickable-text";
 
 const maxLength = 250; // Maximum length of the content to be displayed
 
@@ -154,12 +155,9 @@ export default function PostCard({
           {title}
         </h4>
       </CardHeader>
-      <CardBody
-        onClick={() => navigate(`/post/${id}`)}
-        className="px-3 py-0 text-small text-default-600 text-justify leading-relaxed overflow-hidden"
-      >
+      <CardBody className="px-3 py-0 text-small text-default-600 text-justify leading-relaxed overflow-hidden">
         <p>
-          {displayedText}
+          <ClickableText text={displayedText} />
           {content && content.length > maxLength && (
             <span
               onClick={toggleExpand}
