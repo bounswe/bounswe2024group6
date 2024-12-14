@@ -296,13 +296,14 @@ class PostSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     replies = serializers.SerializerMethodField()
     is_liked = serializers.SerializerMethodField()
+    is_bookmarked = serializers.SerializerMethodField() 
     author = serializers.CharField(source='author.username')
 
     class Meta:
         model = Comment
         fields = [
             'id', 'post', 'author', 'body', 'created_at', 'parent',
-            'replies', 'is_liked', 'like_count'
+            'replies', 'is_liked', 'like_count','is_bookmarked',
         ]
 
     def get_replies(self, obj):
@@ -315,4 +316,11 @@ class CommentSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return obj.liked_by.filter(id=request.user.id).exists()
+        return False
+
+    def get_is_bookmarked(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            from app.models import CommentBookmark  # or wherever it’s defined
+            return CommentBookmark.objects.filter(user=request.user, comment=obj).exists()
         return False

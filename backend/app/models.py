@@ -248,3 +248,14 @@ class Bookmark(models.Model):
     def __str__(self):
         return f"{self.user.username} bookmarked {self.post.title}"
     
+class CommentBookmark(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comment_bookmarks')
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='comment_bookmarks')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'comment')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.username} bookmarked comment {self.comment.id}"
