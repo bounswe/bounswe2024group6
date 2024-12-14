@@ -109,7 +109,18 @@ def delete_quiz(request):
     quiz = get_object_or_404(Quiz, id=quiz_id)
     user = request.user
     if user.is_staff:
+        ActivityStream.objects.create(
+            actor=request.user,
+            verb="deleted",
+            object_type="Quiz",
+            object_id=quiz.id,
+            object_name = quiz.title,
+            target=f"Quiz:{quiz.id}",
+            affected_username= quiz.author.username  # Use the associated User
+        )
+        
         quiz.delete()
+        
         return Response({'message': 'Quiz deleted'}, status=status.HTTP_200_OK)
     
     return Response({'error': 'You are not authorized to delete this quiz'}, status=status.HTTP_403_FORBIDDEN)
