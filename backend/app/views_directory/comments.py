@@ -38,6 +38,20 @@ def add_comment(request):
             affected_username=post.author.username
         )
 
+    user = request.user
+    for x in user.profile.followers.all():
+            if x.user == post.author:
+                continue
+            ActivityStream.objects.create(
+                actor=request.user,
+                verb="created",
+                object_type="Quiz",
+                object_id=comment.id,
+                object_name = comment.body,
+                target=f"Post:{post.id}",
+                affected_username=x.user.username  
+            )
+
     return Response(CommentSerializer(comment).data, status=status.HTTP_201_CREATED)
 
 @api_view(['DELETE'])
