@@ -99,7 +99,6 @@ def unlike_comment(request):
     return Response({"detail": "Comment unliked successfully", "like_count": comment.like_count}, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
 def get_comment_by_id(request):
     comment_id = request.data.get("comment_id")  # Access comment_id from request data
 
@@ -110,7 +109,7 @@ def get_comment_by_id(request):
     comment = get_object_or_404(Comment, id=comment_id)
 
     # Check if the comment is liked by the current user
-    is_liked = comment.liked_by.filter(id=request.user.id).exists()
+    is_liked = comment.liked_by.filter(id=request.user.id).exists() if request.user.is_authenticated else False
 
     # Fetch all users who liked the comment
     liked_by_users = comment.liked_by.all().values_list('username', flat=True)
@@ -126,7 +125,7 @@ def get_comment_by_id(request):
             "body": reply.body,
             "created_at": reply.created_at,
             "like_count": reply.like_count,
-            "is_liked": reply.liked_by.filter(id=request.user.id).exists(),
+            "is_liked": reply.liked_by.filter(id=request.user.id).exists() if request.user.is_authenticated else False,
             "liked_by_users": list(reply.liked_by.all().values_list('username', flat=True)),
         }
         for reply in replies
