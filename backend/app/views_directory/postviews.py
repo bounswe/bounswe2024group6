@@ -116,15 +116,18 @@ def delete_post(request):
 
     if post.author != request.user.username and not request.user.is_staff:
         return Response({"detail": "You do not have permission to delete this post."}, status=status.HTTP_403_FORBIDDEN)
-
+    post_title = post.title
     post.delete()
-
-    ActivityStream.objects.create(
-        actor=request.user,
-        verb="deleted",
-        object_type="Post",
-        object_id=post_id
-    )
+    
+    if post.author != request.user: 
+        ActivityStream.objects.create(
+            actor=request.user,
+            verb="deleted",
+            object_type="Post",
+            object_id=post_id,
+            object_name=post_title,
+            affected_username=post.author.username
+        )
 
     return Response({"detail": "Post deleted successfully."}, status=status.HTTP_200_OK)
 
