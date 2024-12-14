@@ -38,6 +38,7 @@ import { UserCard } from "../components/common/user-card.tsx";
 import Cookies from "js-cookie";
 import { usePageTitle } from "../components/common/usePageTitle.ts";
 import QuizCard from "../components/quiz/quiz-card.tsx";
+import GuestAuthModal from "../components/auth/guest-auth-modal.tsx";
 
 export default function Profile() {
   usePageTitle("Profile");
@@ -45,6 +46,7 @@ export default function Profile() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const { getToken } = AuthActions();
   const token = getToken("access");
+  const isGuest = !token;
   const [sortedPosts, setSortedPosts] = useState<Post[]>([]);
   const [isFollowing, setIsFollowing] = useState(false);
   const [followCount, setFollowCount] = useState(0);
@@ -58,6 +60,7 @@ export default function Profile() {
   const [isLoading, setIsLoading] = useState(true);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [type, setType] = useState<string>("following");
+  const [guestModalOpen, setGuestModalOpen] = useState(false);
 
   const handleOpen = (type) => {
     setType(type);
@@ -97,8 +100,6 @@ export default function Profile() {
     }
   }, [username, token]);
 
-
-
   useEffect(() => {
     if (username === Cookies.get("username")) {
       axios
@@ -126,18 +127,14 @@ export default function Profile() {
     }
   }, [token]);
 
-
   useEffect(() => {
     if (username === Cookies.get("username")) {
       axios
-        .get(
-          `${BASE_URL}/quiz/bookmarks/`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        )
+        .get(`${BASE_URL}/quiz/bookmarks/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
         .then((response) => {
           console.log("bookmarked quizzes:", response.data);
           const bookmarked = response.data.map(convertQuizResponseToQuiz);
@@ -153,14 +150,11 @@ export default function Profile() {
 
   useEffect(() => {
     axios
-      .get(
-        `${BASE_URL}/quiz/solved/${username}/`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
+      .get(`${BASE_URL}/quiz/solved/${username}/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       .then((response) => {
         console.log("solved", response.data);
         const solved = response.data.map(convertQuizResponseToQuiz);
@@ -173,14 +167,11 @@ export default function Profile() {
 
   useEffect(() => {
     axios
-      .get(
-        `${BASE_URL}/quiz/created/${username}/`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
+      .get(`${BASE_URL}/quiz/created/${username}/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       .then((response) => {
         console.log(response.data);
         const createdquiz = response.data.map(convertQuizResponseToQuiz);
@@ -193,14 +184,11 @@ export default function Profile() {
 
   useEffect(() => {
     axios
-      .get(
-        `${BASE_URL}/profile/followers/${username}/`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
+      .get(`${BASE_URL}/profile/followers/${username}/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       .then((response) => {
         console.log("followers", response.data);
         setFollowers(response.data);
@@ -212,14 +200,11 @@ export default function Profile() {
 
   useEffect(() => {
     axios
-      .get(
-        `${BASE_URL}/profile/following/${username}/`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
+      .get(`${BASE_URL}/profile/following/${username}/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       .then((response) => {
         console.log("following", response.data);
         setFollowings(response.data);
@@ -228,7 +213,6 @@ export default function Profile() {
         console.log(error);
       });
   }, [token]);
-
 
   const toggleFollow = () => {
     axios
@@ -274,6 +258,7 @@ export default function Profile() {
 
   return (
     <div className="h-full w-full items-center overflow-hidden flex flex-col">
+      <GuestAuthModal isOpen={guestModalOpen} setIsOpen={setGuestModalOpen} />
       <Navbar />
       {isLoading ? (
         <>
@@ -296,16 +281,20 @@ export default function Profile() {
               </div>
             </div>
             <div
-              className={`flex flex-row ${profile.username === Cookies.get("username") ? "pl-32" : "pl-0"
-                } gap-6`}
+              className={`flex flex-row ${
+                profile.username === Cookies.get("username") ? "pl-32" : "pl-0"
+              } gap-6`}
             >
               {profile.username !== Cookies.get("username") && (
                 <Button
                   variant={isFollowing ? "faded" : "solid"}
                   color="primary"
-                  onClick={toggleFollow}
-                  className={`border-2 rounded-lg min-w-36 font-bold px-8 py-6 ${isFollowing ? "text-blue-900" : ""
-                    }`}
+                  onClick={
+                    isGuest ? () => setGuestModalOpen(true) : toggleFollow
+                  }
+                  className={`border-2 rounded-lg min-w-36 font-bold px-8 py-6 ${
+                    isFollowing ? "text-blue-900" : ""
+                  }`}
                 >
                   {isFollowing ? "Unfollow" : "Follow"}
                 </Button>
@@ -338,22 +327,25 @@ export default function Profile() {
                     {type === "follower" ? "Followers" : "Following"}
                   </ModalHeader>
                   {(type === "follower" ? followers : followings).length > 0 ? (
-                    (type === "follower" ? followers : followings).map((user) => (
-                      <div className="border-1 rounded-xl">
-                        <UserCard
-                          key={user.username} // Ensure a unique key for each UserCard
-                          username={user.username}
-                          bio={user.bio}
-                          follower_count={user.follower_count}
-                          following_count={user.following_count}
-                          is_followed={user.is_followed}
-                          level={user.level}
-                        />
-                      </div>
-                    ))
+                    (type === "follower" ? followers : followings).map(
+                      (user) => (
+                        <div className="border-1 rounded-xl">
+                          <UserCard
+                            key={user.username} // Ensure a unique key for each UserCard
+                            username={user.username}
+                            bio={user.bio}
+                            follower_count={user.follower_count}
+                            following_count={user.following_count}
+                            is_followed={user.is_followed}
+                            level={user.level}
+                          />
+                        </div>
+                      )
+                    )
                   ) : (
                     <p className="text-default-500">
-                      No {type === "follower" ? "followers" : "following"} found.
+                      No {type === "follower" ? "followers" : "following"}{" "}
+                      found.
                     </p>
                   )}
                 </ModalContent>
@@ -466,7 +458,11 @@ export default function Profile() {
               }
             >
               <div>
-                <Tabs aria-label="SavedOptions" placement="start" className="mr-1">
+                <Tabs
+                  aria-label="SavedOptions"
+                  placement="start"
+                  className="mr-1"
+                >
                   <Tab
                     key="posts"
                     title={
@@ -531,10 +527,7 @@ export default function Profile() {
                       </div>
                     }
                   >
-                    <div className="w-[740px]">
-                      Words
-                    </div>
-                    
+                    <div className="w-[740px]">Words</div>
                   </Tab>
                 </Tabs>
               </div>
@@ -545,4 +538,3 @@ export default function Profile() {
     </div>
   );
 }
-

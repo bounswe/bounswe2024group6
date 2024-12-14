@@ -27,6 +27,7 @@ import { convertPostResponseToPost } from "../common/utils";
 import axios from "axios";
 import { BASE_URL } from "../../lib/baseURL";
 import { UserCard } from "../common/user-card";
+import GuestAuthModal from "../auth/guest-auth-modal";
 
 const maxLength = 250; // Maximum length of the content to be displayed
 
@@ -60,6 +61,8 @@ export default function PostCard({
   const navigate = useNavigate();
   const { getToken } = AuthActions();
   const token = getToken("access");
+  const isGuest = !token;
+  const [guestModalOpen, setGuestModalOpen] = useState(false);
 
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
@@ -116,7 +119,10 @@ export default function PostCard({
 
   return (
     <Card className="w-[740px] px-2 pt-2" data-testid="post-card" isPressable>
-      <CardHeader onClick={() => navigate(`/post/${id}`)} className="flex flex-col items-start gap-2">
+      <CardHeader
+        onClick={() => navigate(`/post/${id}`)}
+        className="flex flex-col items-start gap-2"
+      >
         <div className="flex w-full justify-between">
           <div className="flex gap-3">
             <Popover showArrow placement="bottom">
@@ -148,10 +154,13 @@ export default function PostCard({
           {title}
         </h4>
       </CardHeader>
-      <CardBody onClick={() => navigate(`/post/${id}`)} className="px-3 py-0 text-small text-default-600 text-justify leading-relaxed overflow-hidden">
+      <CardBody
+        onClick={() => navigate(`/post/${id}`)}
+        className="px-3 py-0 text-small text-default-600 text-justify leading-relaxed overflow-hidden"
+      >
         <p>
           {displayedText}
-          {(content) && content.length > maxLength && (
+          {content && content.length > maxLength && (
             <span
               onClick={toggleExpand}
               style={{ color: "#186df5", cursor: "pointer" }}
@@ -171,11 +180,21 @@ export default function PostCard({
             >
               {likes}
             </p>
+            <GuestAuthModal
+              isOpen={guestModalOpen}
+              setIsOpen={setGuestModalOpen}
+            />
             <Button
               isIconOnly
               color="danger"
               aria-label="Like"
-              onClick={toggleLike}
+              onClick={
+                isGuest
+                  ? () => {
+                      setGuestModalOpen(true);
+                    }
+                  : toggleLike
+              }
               variant="light"
               className="flex items-center gap-3"
               data-testid="like-button"
@@ -191,7 +210,13 @@ export default function PostCard({
             isIconOnly
             color="secondary"
             aria-label="Bookmark"
-            onClick={toggleBookmark}
+            onClick={
+              isGuest
+                ? () => {
+                    setGuestModalOpen(true);
+                  }
+                : toggleBookmark
+            }
             variant="light"
           >
             {isBookmarked ? (
