@@ -25,6 +25,7 @@ import axios from "axios";
 import { BASE_URL } from "../../lib/baseURL";
 import { formatTimeAgo } from "./utils";
 import NotificationCard from "../notification/notification-card";
+import GuestAuthModal from "../auth/guest-auth-modal";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -34,9 +35,11 @@ export default function Navbar() {
   const { logout, removeTokens, getToken } = AuthActions();
 
   const token = getToken("access");
+  const isGuest = !token;
   const [notifications, setNotifications] = useState([]);
   const [isNotificationsViewed, setIsNotificationsViewed] = useState(false);
   const [search, setSearch] = useState("");
+  const [guestModalOpen, setGuestModalOpen] = useState(false);
 
   useEffect(() => {
     if (!username) {
@@ -117,11 +120,11 @@ export default function Navbar() {
     <PopoverContent>
       <div className="px-2 pb-2">
         <div className="text-medium font-semibold px-5 py-2 text-center">
-          {username || "Guest"}
+          {isGuest ? "Guest" : username}
         </div>
         <Divider className="w-full bg-zinc-300" />
         <div className="flex flex-col">
-          {username ? (
+          {!isGuest ? (
             <>
               <Button
                 variant="light"
@@ -149,7 +152,7 @@ export default function Navbar() {
           ) : (
             <Button
               variant="light"
-              onClick={() => navigate("/")}
+              onClick={() => setGuestModalOpen(true)}
               className="text-medium mt-2"
             >
               Login
@@ -162,6 +165,7 @@ export default function Navbar() {
 
   return (
     <div className="w-screen p-2 shadow-none" data-testid="navbar">
+      <GuestAuthModal isOpen={guestModalOpen} setIsOpen={setGuestModalOpen} />
       <Card className="flex flex-row w-full px-5 py-3 rounded-full shadow-md">
         <div className="flex-1 flex flex-row gap-6 items-center">
           <Link
@@ -212,41 +216,43 @@ export default function Navbar() {
         </div>
         <div className="flex-1 flex justify-end items-center flex-row">
           <ThemeSwitcher />
-          <Dropdown>
-            <DropdownTrigger>
-              <Button
-                radius="full"
-                isIconOnly
-                aria-label="more than 99 notifications"
-                variant="light"
-                onClick={() => setIsNotificationsViewed(true)}
-              >
-                {!isNotificationsViewed ? (
-                  <Badge content="" shape="circle" color="danger" size="sm">
+          {!isGuest && (
+            <Dropdown>
+              <DropdownTrigger>
+                <Button
+                  radius="full"
+                  isIconOnly
+                  aria-label="more than 99 notifications"
+                  variant="light"
+                  onClick={() => setIsNotificationsViewed(true)}
+                >
+                  {!isNotificationsViewed ? (
+                    <Badge content="" shape="circle" color="danger" size="sm">
+                      <IconBell size={24} />
+                    </Badge>
+                  ) : (
                     <IconBell size={24} />
-                  </Badge>
-                ) : (
-                  <IconBell size={24} />
-                )}
-              </Button>
-            </DropdownTrigger>
-            <DropdownMenu
-              aria-label="Dropdown menu with description"
-              className="max-h-[360px] overflow-y-auto"
-            >
-              <DropdownSection title="Notifications" showDivider>
-                {notifications.map((notification) => (
-                  <DropdownItem isReadOnly className="cursor-default">
-                    <NotificationCard
-                      key={notification.id}
-                      content={notification.content}
-                      timePassed={notification.timePassed}
-                    />
-                  </DropdownItem>
-                ))}
-              </DropdownSection>
-            </DropdownMenu>
-          </Dropdown>
+                  )}
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                aria-label="Dropdown menu with description"
+                className="max-h-[360px] overflow-y-auto"
+              >
+                <DropdownSection title="Notifications" showDivider>
+                  {notifications.map((notification) => (
+                    <DropdownItem isReadOnly className="cursor-default">
+                      <NotificationCard
+                        key={notification.id}
+                        content={notification.content}
+                        timePassed={notification.timePassed}
+                      />
+                    </DropdownItem>
+                  ))}
+                </DropdownSection>
+              </DropdownMenu>
+            </Dropdown>
+          )}
 
           <Popover key="bottom-end" placement="bottom-end">
             <PopoverTrigger>
