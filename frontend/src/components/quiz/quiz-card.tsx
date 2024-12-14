@@ -24,6 +24,7 @@ import { AuthActions } from "../auth/utils";
 import axios from "axios";
 import { BASE_URL } from "../../lib/baseURL";
 import { UserCard } from "../common/user-card";
+import GuestAuthModal from "../auth/guest-auth-modal";
 
 const maxLength = 250; // Maximum length of the content to be displayed
 
@@ -61,6 +62,8 @@ export default function QuizCard({
   const navigate = useNavigate();
   const { getToken } = AuthActions();
   const token = getToken("access");
+  const isGuest = !token;
+  const [guestModalOpen, setGuestModalOpen] = useState(false);
 
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
@@ -144,7 +147,7 @@ export default function QuizCard({
         </div>
         <Divider className="mt-1.5 bg-zinc-200" />
       </CardHeader>
-      <div onClick={() => navigate(`/quiz/${id}/details`)} className="flex flex-row justify-between items-center mb-5">
+      <div className="flex flex-row justify-between items-center mb-5">
         {picture ? (
           <img
             src={picture}
@@ -155,24 +158,33 @@ export default function QuizCard({
               objectFit: "cover",
               objectPosition: "center",
             }}
+            onClick={() => navigate(`/quiz/${id}/details`)}
           />
         ) : (
-          <div className="w-[200px] h-[200px] flex justify-center items-center p-8">
+          <div
+            className="w-[200px] h-[200px] flex justify-center items-center p-8"
+            onClick={() => navigate(`/quiz/${id}/details`)}
+          >
             <div className="text-blue-800 text-7xl md:text-7xl font-semibold items-center mb-3 pb-6 pl-3">
               <div className="relative">
-                <span className="inline-block transform -rotate-12 translate-y-2">bu</span>
-                <span className="text-blue-600 inline-block transform rotate-12 translate-y-2">lingo</span>
+                <span className="inline-block transform -rotate-12 translate-y-2">
+                  bu
+                </span>
+                <span className="text-blue-600 inline-block transform rotate-12 translate-y-2">
+                  lingo
+                </span>
               </div>
             </div>
           </div>
         )}
         <div className="w-[500px] h-[200px] flex flex-col justify-between pt-4">
-          <CardBody className="px-3 py-0 text-small text-default-600 text-justify leading-relaxed overflow-hidden">
+          <CardBody
+            className="px-3 py-0 text-small text-default-600 text-justify leading-relaxed overflow-hidden"
+            onClick={() => navigate(`/quiz/${id}/details`)}
+          >
             <div className="flex flex-row justify-between w-full">
               <h2 className="text-2xl font-semibold leading-none text-default-800 mb-1">
-                <h2 className="text-default-800">
-                  {title}
-                </h2>
+                <h2 className="text-default-800">{title}</h2>
               </h2>
               <p className="text-default-600 text-sm">{timesTaken} Attemps</p>
             </div>
@@ -198,11 +210,15 @@ export default function QuizCard({
                 >
                   {likes}
                 </p>
+                <GuestAuthModal
+                  isOpen={guestModalOpen}
+                  setIsOpen={setGuestModalOpen}
+                />
                 <Button
                   isIconOnly
                   color="danger"
                   aria-label="Like"
-                  onClick={toggleLike}
+                  onClick={isGuest ? () => setGuestModalOpen(true) : toggleLike}
                   variant="light"
                   className="flex items-center gap-3"
                 >
@@ -217,7 +233,9 @@ export default function QuizCard({
                 isIconOnly
                 color="secondary"
                 aria-label="Bookmark"
-                onClick={toggleBookmark}
+                onClick={
+                  isGuest ? () => setGuestModalOpen(true) : toggleBookmark
+                }
                 variant="light"
               >
                 {isBookmarked ? (
