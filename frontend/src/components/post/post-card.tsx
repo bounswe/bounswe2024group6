@@ -70,29 +70,56 @@ export default function PostCard({
   };
 
   const toggleLike = () => {
-    axios
-      .post(
-        `${BASE_URL}/post/${isLiked ? "unlike" : "like"}/`,
-        { post_id: id },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
-      .then((response) => {
-        console.log(response.data);
-        setLikes(response.data.like_count);
-      })
-      .catch((error) => {
-        if (
-          error.response.data.detail === "You have already liked this post."
-        ) {
-          setIsLiked(true);
-        }
-        console.log(error.response.data);
-      });
-    setIsLiked(!isLiked);
+    if (title) {
+      axios
+        .post(
+          `${BASE_URL}/post/${isLiked ? "unlike" : "like"}/`,
+          { post_id: id },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+        .then((response) => {
+          console.log(response.data);
+          setLikes(response.data.like_count);
+        })
+        .catch((error) => {
+          if (
+            error.response.data.detail === "You have already liked this post."
+          ) {
+            setIsLiked(true);
+          }
+          console.log(error.response.data);
+        });
+      setIsLiked(!isLiked);
+    } else {
+      axios
+        .post(
+          `${BASE_URL}/post/comment/${isLiked ? "unlike" : "like"}/`,
+          { comment_id: id },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+        .then((response) => {
+          console.log(response.data);
+          setLikes(response.data.like_count);
+        })
+        .catch((error) => {
+          if (
+            error.response.data.detail === "You have already liked this comment."
+          ) {
+            setIsLiked(true);
+          }
+          console.log(error.response.data);
+        });
+      setIsLiked(!isLiked);
+    }
+
   };
 
   const toggleBookmark = () => {
@@ -120,10 +147,7 @@ export default function PostCard({
 
   return (
     <Card className="w-[740px] px-2 pt-2" data-testid="post-card" isPressable>
-      <CardHeader
-        onClick={() => navigate(`/post/${id}`)}
-        className="flex flex-col items-start gap-2"
-      >
+      <CardHeader onClick={() => navigate(title ? `/post/${id}` : `/comment/${id}`)} className="flex flex-col items-start gap-2">
         <div className="flex w-full justify-between">
           <div className="flex gap-3">
             <Popover showArrow placement="bottom">
@@ -155,7 +179,7 @@ export default function PostCard({
           {title}
         </h4>
       </CardHeader>
-      <CardBody className="px-3 py-0 text-small text-default-600 text-justify leading-relaxed overflow-hidden">
+      <CardBody onClick={() => navigate(title ? `/post/${id}` : `/comment/${id}`)} className="px-3 py-0 text-small text-default-600 text-justify leading-relaxed overflow-hidden">
         <p>
           <ClickableText text={displayedText} />
           {content && content.length > maxLength && (
@@ -225,7 +249,7 @@ export default function PostCard({
           </Button>
           <Button
             isIconOnly
-            onClick={() => navigate(`/post/${id}`)}
+            onClick={() => navigate(title ? `/post/${id}` : `/comment/${id}`)}
             color="warning"
             aria-label="Message"
             variant="light"

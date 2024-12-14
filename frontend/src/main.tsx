@@ -74,6 +74,14 @@ const router = createBrowserRouter([
     element: <Post />,
   },
   {
+    path: "/comment/:commentID",
+    element: (
+      <ProtectedRoute>
+        <Post />
+      </ProtectedRoute>
+    ),
+  },
+  {
     path: "/compose-post",
     element: (
       <ProtectedRoute>

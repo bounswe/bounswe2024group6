@@ -1,6 +1,6 @@
 import { Post } from "../../types";
 
-import type { PostResponse, Profile, ProfileResponse, Quiz, QuizResponse, QuizDetail, QuizDetailsResponse } from "../../types.ts";
+import type { PostResponse, Profile, ProfileResponse, Quiz, QuizResponse, QuizDetail, QuizDetailsResponse, CommentResponse  } from "../../types.ts";
 
 export const formatTimeAgo = (timestamp: string): string => {
   const now = new Date();
@@ -46,6 +46,30 @@ export const convertPostResponseToPost = (postResponse: PostResponse): Post => {
       is_bookmarked: postResponse.is_bookmarked,
     },
     comments: postResponse.comments || [],
+  };
+};
+
+export const convertCommentResponseToPost = (commentResponse: CommentResponse): Post => {
+  return {
+    id: commentResponse.id,
+    author: {
+      username: commentResponse.author,
+      profile_image: "",
+    },
+    post: {
+      title: "", // Comments don't have titles
+      content: commentResponse.body,
+      tags: commentResponse.tags,
+      timestamp: formatTimeAgo(commentResponse.created_at),
+      created_at: commentResponse.created_at,
+    },
+    engagement: {
+      likes: commentResponse.like_count,
+      comments: commentResponse.replies ? commentResponse.replies.length : 0,
+      is_liked: commentResponse.is_liked,
+      is_bookmarked: false, // Comments can't be bookmarked
+    },
+    comments: commentResponse.replies || [], // Nested comments, if any
   };
 };
 
