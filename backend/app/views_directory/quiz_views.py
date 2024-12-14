@@ -497,6 +497,12 @@ def get_quiz(request, quiz_id):
             ).order_by('-score').first()
             data['best_score'] = best_result.score if best_result else None
         
+        data['has_unfinished'] = QuizProgress.objects.filter(
+                quiz=quiz,
+                user=request.user,
+                completed=False
+            ).exists()
+        
         return Response(data, status=status.HTTP_200_OK)
         
     except Exception as e:
