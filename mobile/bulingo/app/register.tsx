@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, TouchableWi
 import { Picker } from '@react-native-picker/picker';
 import {router} from 'expo-router';
 
-const SIGNUP_URL = "http://161.35.208.249:8000/signup/";
+const SIGNUP_URL = "http://64.226.76.231:8000/signup/";
 
 const Register = () => {
   const [email, setEmail] = useState('');
