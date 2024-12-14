@@ -17,8 +17,10 @@ type FormData = {
 
 export default function Login({
   setIsRegister,
+  isGuestView,
 }: {
   setIsRegister: (value: boolean) => void;
+  isGuestView?: boolean;
 }) {
   const [username, setUsername] = useState(Cookies.get("username") || "");
   const [password, setPassword] = useState(Cookies.get("password") || "");
@@ -35,7 +37,6 @@ export default function Login({
   } = useForm<FormData>();
 
   const onSubmit = () => {
-    
     login(username, password)
       .json((json) => {
         Cookies.set("username", username);
@@ -45,7 +46,11 @@ export default function Login({
         storeToken(json.access, "access");
         storeToken(json.refresh, "refresh");
 
-        navigate("/forum");
+        if (isGuestView) {
+          navigate(0);
+        } else {
+          navigate("/forum");
+        }
       })
       .catch((err) => {
         setError("root", { type: "manual", message: err.json.detail });
@@ -131,7 +136,7 @@ export default function Login({
         <div className="text-center">
           <span className="text-sm">Or continue as a </span>
           <button
-            onClick={() => navigate("/forum")}
+            onClick={isGuestView ? () => navigate(0) : () => navigate("/forum")}
             className="text-blue-600 hover:underline"
           >
             Guest
