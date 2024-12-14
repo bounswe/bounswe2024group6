@@ -45,7 +45,7 @@ def delete_comment(request):
     if not comment_id:
         return Response({"detail": "comment_id is required."}, status=status.HTTP_400_BAD_REQUEST)
 
-    comment = get_object_or_404(Comment, id=comment_id, author=request.user)
+    comment = get_object_or_404(Comment, id=comment_id)
     user = request.user
     if comment.author != user and not user.is_staff:
         return Response({"detail": "You do not have permission to delete this comment."}, status=status.HTTP_403_FORBIDDEN)
