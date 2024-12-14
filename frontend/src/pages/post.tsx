@@ -7,9 +7,10 @@ import { IconChevronDown } from "@tabler/icons-react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { BASE_URL } from "../lib/baseURL";
-import type { Comment, Post, PostResponse } from "../types.ts";
+import type { Comment, CommentResponse, Post, PostResponse } from "../types.ts";
 import { AuthActions } from "../components/auth/utils.tsx";
 import {
+  convertCommentResponseToPost,
   convertPostResponseToPost,
   formatTimeAgo,
 } from "../components/common/utils.tsx";
@@ -18,6 +19,8 @@ import CommentSkeleton from "../components/post/comment-skeleton.tsx";
 
 export default function Post() {
   const { postID } = useParams();
+  const { commentID } = useParams();
+  console.log(postID, commentID);
   const [post, setPost] = useState<Post | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [comment, setComment] = useState("");
@@ -27,29 +30,62 @@ export default function Post() {
   const username = Cookies.get("username");
 
   useEffect(() => {
-    setIsLoading(true);
-    axios
-      .post(
-        `${BASE_URL}/post/`,
-        {
-          post_id: postID,
-        },
-        {
-        }
-      )
-      .then((response) => {
-        console.log(response.data);
-        const postData: PostResponse = response.data.post;
-        setPost(convertPostResponseToPost(postData));
-        setComments(convertPostResponseToPost(postData).comments);
-      })
-      .catch((error) => {
-        console.log(error);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+    if (postID) {
+      setIsLoading(true);
+      axios
+        .post(
+          `${BASE_URL}/post/`,
+          {
+            post_id: postID,
+          },
+          {
+          }
+        )
+        .then((response) => {
+          console.log(response.data);
+          const postData: PostResponse = response.data.post;
+          setPost(convertPostResponseToPost(postData));
+          setComments(convertPostResponseToPost(postData).comments);
+        })
+        .catch((error) => {
+          console.log(error);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
   }, [postID]);
+
+  useEffect(() => {
+    if (commentID) {
+      setIsLoading(true);
+      axios
+        .post(
+          `${BASE_URL}/comment/`,
+          {
+            comment_id: commentID,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+        .then((response) => {
+          console.log("comment:",response.data);
+          const postData: CommentResponse = response.data.comment;
+          setPost(convertCommentResponseToPost(postData));
+          setComments(convertCommentResponseToPost(postData).comments);
+        })
+        .catch((error) => {
+          console.log(error);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
+  }, [commentID]);
 
   const handleSubmit = () => {
     const { getToken } = AuthActions();
@@ -141,21 +177,21 @@ export default function Post() {
         </Card>
         {isLoading
           ? Array(1)
-              .fill(0)
-              .map((_, index) => <CommentSkeleton key={index} />)
+            .fill(0)
+            .map((_, index) => <CommentSkeleton key={index} />)
           : comments.map((comment) => (
-              <Suspense key={comment.id} fallback={<CommentSkeleton />}>
-                <PostCard
-                  id={comment.id}
-                  username={comment.author}
-                  content={comment.body || comment.content}
-                  timePassed={formatTimeAgo(comment.created_at)}
-                  likeCount={comment.like_count}
-                  initialIsLiked={comment.is_liked}
-                  initialIsBookmarked={false}
-                />
-              </Suspense>
-            ))}
+            <Suspense key={comment.id} fallback={<CommentSkeleton />}>
+              <PostCard
+                id={comment.id}
+                username={comment.author}
+                content={comment.body || comment.content}
+                timePassed={formatTimeAgo(comment.created_at)}
+                likeCount={comment.like_count}
+                initialIsLiked={comment.is_liked}
+                initialIsBookmarked={false}
+              />
+            </Suspense>
+          ))}
       </div>
     </div>
   );

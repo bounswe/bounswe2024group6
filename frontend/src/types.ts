@@ -42,6 +42,17 @@ export type PostResponse = {
   comments?: Comment[]; // TODO: to be made required
 };
 
+export type CommentResponse = {
+  author: string;
+  created_at: string;
+  body: string;
+  id: number;
+  like_count: number;
+  tags: string[];
+  is_liked: boolean;
+  replies?: Comment[]; // TODO: to be made required
+};
+
 export type Quiz = {
   id: number;
   author: {
