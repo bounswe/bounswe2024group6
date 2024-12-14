@@ -110,10 +110,10 @@ export default function QuizEnd() {
                             <p className="text-center text-5xl text-blue-900">{message}</p>
                         </CardBody>
                         <CardFooter>
-                            <div className="flex gap-1 justify-between w-full items-center">
-                                <div className="flex justify-between gap-3 items-center">
+                            <div className="flex gap-1 justify-between w-full items-center mx-1">
+                                <div className="flex justify-between gap-1 items-center">
                                     <p
-                                        className={cn("font-semibold text-2xl text-default-500", {
+                                        className={cn("font-semibold text-xl text-default-500", {
                                             "font-semibold text-red-500": isLiked,
                                         })}
                                         style={{ width: "15px" }}
@@ -129,15 +129,20 @@ export default function QuizEnd() {
                                         className="flex items-center gap-3"
                                     >
                                         {isLiked ? (
-                                            <IconThumbUpFilled size={40} stroke={1.5} />
+                                            <IconThumbUpFilled size={25} stroke={1.5} />
                                         ) : (
-                                            <IconThumbUp size={40} stroke={1.5} />
+                                            <IconThumbUp size={25} stroke={1.5} />
                                         )}
                                     </Button>
                                 </div>
-                                <Button color="primary" variant="flat" onClick={() => navigate(`/quiz/${quizData?.quiz.id}`)} className="text-lg w-24 h-12">
-                                    Retake
-                                </Button>
+                                <div className="flex flex-row gap-4">
+                                    <Button color="primary" variant="flat" onClick={() => navigate(`/quiz/${quizData?.quiz.id}`)} className="text-lg w-24 h-12">
+                                        Retake
+                                    </Button>
+                                    <Button color="primary" variant="flat" onClick={() => navigate(`/quiz/${quizID}/review`)} className="text-lg w-24 h-12">
+                                        Review
+                                    </Button>
+                                </div>
                                 <div className="ml-9">
                                     <Button
                                         isIconOnly
@@ -147,9 +152,9 @@ export default function QuizEnd() {
                                         variant="light"
                                     >
                                         {isBookmarked ? (
-                                            <IconBookmarkFilled size={40} stroke={1.5} />
+                                            <IconBookmarkFilled size={25} stroke={1.5} />
                                         ) : (
-                                            <IconBookmark size={40} stroke={1.5} />
+                                            <IconBookmark size={25} stroke={1.5} />
                                         )}
                                     </Button>
                                 </div>

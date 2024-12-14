@@ -18,6 +18,7 @@ import Home from "./pages/home.tsx";
 import ProtectedRoute from "./components/auth/protect-routes.tsx";
 import "./index.css";
 import ProfileUpdate from "./pages/profile-update.tsx";
+import QuizReview from "./pages/quiz-review.tsx";
 
 const router = createBrowserRouter([
   {
@@ -45,6 +46,14 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <QuizDetails />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/quiz/:quizResultID/review",
+    element: (
+      <ProtectedRoute>
+        <QuizReview />
       </ProtectedRoute>
     ),
   },

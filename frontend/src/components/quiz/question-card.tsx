@@ -22,6 +22,8 @@ type Props = {
   option_c: string;
   option_d: string;
   question: string;
+  correct?: number;
+  previous_answer?: number;
 };
 enum Answer {
   None,
@@ -42,6 +44,8 @@ export default function QuestionCard({
   option_c,
   option_d,
   question,
+  correct,
+  previous_answer,
 }: Props) {
   const { getToken } = AuthActions();
   const token = getToken("access");
@@ -97,42 +101,46 @@ export default function QuestionCard({
       <CardFooter className="w-[550px] h-[170px] py-6">
         <div className="grid grid-cols-2 grid-rows-2 gap-4 w-full h-full">
           <Button
-            color="primary"
-            onClick={handleClick(1)}
+            color={correct == 1 ? "success" : previous_answer == 1 ? "danger" : "primary"}
+            onClick={previous_answer !== undefined && correct !== undefined ? undefined : handleClick(1)}
             variant={
-              answers[cur_question - 1] === Answer.A ? "solid" : "bordered"
+              (answers[cur_question - 1] === Answer.A || correct == 1 || previous_answer == 1) ? "solid" : "bordered"
             }
-            className=" flex items-center justify-center text-xl h-12 mx-3"
+            className={`flex items-center justify-center text-xl h-12 mx-3 ${(answers[cur_question - 1] === Answer.C || correct == 1 || previous_answer == 1) ? "text-white" : ""
+            }`}
           >
             {option_a}
           </Button>
           <Button
-            color="primary"
-            onClick={handleClick(2)}
+            color={correct == 2 ? "success" : previous_answer == 2 ? "danger" : "primary"}
+            onClick={previous_answer !== undefined && correct !== undefined ? undefined : handleClick(2)}
             variant={
-              answers[cur_question - 1] === Answer.B ? "solid" : "bordered"
+              (answers[cur_question - 1] === Answer.B || correct == 2 || previous_answer == 2) ? "solid" : "bordered"
             }
-            className=" flex items-center justify-center text-xl h-12 mx-3"
+            className={`flex items-center justify-center text-xl h-12 mx-3 ${(answers[cur_question - 1] === Answer.C || correct == 2 || previous_answer == 2) ? "text-white" : ""
+            }`}
           >
             {option_b}
           </Button>
           <Button
-            color="primary"
-            onClick={handleClick(3)}
+            color={correct == 3 ? "success" : previous_answer == 3 ? "danger" : "primary"}
+            onClick={previous_answer !== undefined && correct !== undefined ? undefined : handleClick(3)}
             variant={
-              answers[cur_question - 1] === Answer.C ? "solid" : "bordered"
+              (answers[cur_question - 1] === Answer.C || correct == 3 || previous_answer == 3) ? "solid" : "bordered"
             }
-            className=" flex items-center justify-center text-xl h-12 mx-3"
+            className={`flex items-center justify-center text-xl h-12 mx-3 ${(answers[cur_question - 1] === Answer.C || correct == 3 || previous_answer == 3) ? "text-white" : ""
+            }`}
           >
             {option_c}
           </Button>
           <Button
-            color="primary"
-            onClick={handleClick(4)}
+            color={correct == 4 ? "success" : previous_answer == 4 ? "danger" : "primary"}
+            onClick={previous_answer !== undefined && correct !== undefined ? undefined : handleClick(4)}
             variant={
-              answers[cur_question - 1] === Answer.D ? "solid" : "bordered"
+              (answers[cur_question - 1] === Answer.D || correct == 4 || previous_answer == 4) ? "solid" : "bordered"
             }
-            className=" flex items-center justify-center text-xl h-12 mx-3"
+            className={`flex items-center justify-center text-xl h-12 mx-3 ${(answers[cur_question - 1] === Answer.C || correct == 4 || previous_answer == 4) ? "text-white" : ""
+              }`}
           >
             {option_d}
           </Button>
