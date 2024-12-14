@@ -88,42 +88,44 @@ export default function Post() {
   }, [commentID]);
 
   const handleSubmit = () => {
-    const { getToken } = AuthActions();
-    const token = getToken("access");
-
-    axios
-      .post(
-        `${BASE_URL}/post/comment/add/`,
-        {
-          post_id: postID,
-          body: comment,
-          parent_id: postID,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
-      .then((response) => {
-        console.log(response.data);
-        setComment("");
-        setComments([
+    if(postID) {
+      const { getToken } = AuthActions();
+      const token = getToken("access");
+  
+      axios
+        .post(
+          `${BASE_URL}/post/comment/add/`,
           {
-            id: response.data.id,
-            content: response.data.body,
-            author: username || "Me",
-            created_at: response.data.created_at,
-            like_count: 0,
-            is_liked: false,
+            post_id: postID,
+            body: comment,
+            parent_id: postID,
           },
-          ...comments,
-        ]);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+        .then((response) => {
+          console.log(response.data);
+          setComment("");
+          setComments([
+            {
+              id: response.data.id,
+              content: response.data.body,
+              author: username || "Me",
+              created_at: response.data.created_at,
+              like_count: 0,
+              is_liked: false,
+            },
+            ...comments,
+          ]);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
   };
   return (
     <div className="flex flex-col items-center overflow-hidden mb-4">

@@ -66,29 +66,56 @@ export default function PostCard({
   };
 
   const toggleLike = () => {
-    axios
-      .post(
-        `${BASE_URL}/post/${isLiked ? "unlike" : "like"}/`,
-        { post_id: id },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
-      .then((response) => {
-        console.log(response.data);
-        setLikes(response.data.like_count);
-      })
-      .catch((error) => {
-        if (
-          error.response.data.detail === "You have already liked this post."
-        ) {
-          setIsLiked(true);
-        }
-        console.log(error.response.data);
-      });
-    setIsLiked(!isLiked);
+    if (title) {
+      axios
+        .post(
+          `${BASE_URL}/post/${isLiked ? "unlike" : "like"}/`,
+          { post_id: id },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+        .then((response) => {
+          console.log(response.data);
+          setLikes(response.data.like_count);
+        })
+        .catch((error) => {
+          if (
+            error.response.data.detail === "You have already liked this post."
+          ) {
+            setIsLiked(true);
+          }
+          console.log(error.response.data);
+        });
+      setIsLiked(!isLiked);
+    } else {
+      axios
+        .post(
+          `${BASE_URL}/post/comment/${isLiked ? "unlike" : "like"}/`,
+          { comment_id: id },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+        .then((response) => {
+          console.log(response.data);
+          setLikes(response.data.like_count);
+        })
+        .catch((error) => {
+          if (
+            error.response.data.detail === "You have already liked this comment."
+          ) {
+            setIsLiked(true);
+          }
+          console.log(error.response.data);
+        });
+      setIsLiked(!isLiked);
+    }
+
   };
 
   const toggleBookmark = () => {
