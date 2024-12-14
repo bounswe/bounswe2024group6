@@ -114,7 +114,7 @@ export default function QuizCard({
       : `${content.slice(0, maxLength)}... `;
 
   return (
-    <Card className="w-[740px] px-2 pt-2" isPressable>
+    <Card className="w-[740px] pt-2" isPressable>
       <CardHeader className="flex flex-col items-start gap-2">
         <div className="flex w-full justify-between">
           <div className="flex gap-3">

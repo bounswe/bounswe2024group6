@@ -12,10 +12,14 @@ import { BASE_URL } from "../lib/baseURL.ts";
 import axios from "axios";
 import { AuthActions } from "../components/auth/utils.tsx";
 import { set } from "react-hook-form";
+import QuizCard from "../components/quiz/quiz-card.tsx";
+import { Quiz, QuizResponse } from "../types.ts";
+import { convertQuizResponseToQuiz } from "../components/common/utils.tsx";
 
 export default function QuizEnd() {
     const { quizID } = useParams<{ quizID: any }>();
     const [quizData, setQuizData] = useState<any>();
+    const [quizRecommend, setQuizRecommend] = useState<Quiz>();
     const navigate = useNavigate();
     const { getToken } = AuthActions();
     const token = getToken("access");
@@ -24,6 +28,7 @@ export default function QuizEnd() {
     const medium_messages = ["Not bad!", "Nice try!", "Good effort!", "You're getting there!", "You're improving!", "You're on the right track!", "You're doing well!", "You're almost there!", "You're so close!"];
     const bad_messages = ["Try again!", "Keep practicing!", "You can do better!", "You're getting closer!", "You're on the right path!", "Good luck next time!"];
     const [message, setMessage] = useState("");
+    const [quiz_id, setquiz_id] = useState();
     const [scorePercentage, setScorePercentage] = useState(0);
 
     useEffect(() => {
@@ -39,9 +44,10 @@ export default function QuizEnd() {
                     console.log(response.data);
                     setQuizData(response.data);
                     setScorePercentage((response.data.score / response.data.question_count) * 100);
-                    // setIsLiked(response.data.quiz.is_liked);
-                    // setLikes(response.data.quiz.like_count);
-                    // setIsBookmarked(response.data.quiz.is_bookmarked);
+                    setIsLiked(response.data.is_liked);
+                    setLikes(response.data.like_count);
+                    setIsBookmarked(response.data.is_bookmarked);
+                    setquiz_id(response.data.quiz.id);
                 })
                 .catch((error) => {
                     console.error("Error fetching quiz data:", error);
@@ -54,7 +60,31 @@ export default function QuizEnd() {
         }
     }, [quizID, token]);
 
-    const likeCount = 15;
+    useEffect(() => {
+        if (quiz_id) {
+            setIsLoading(true);
+            axios
+                .get(`${BASE_URL}/quiz/recommend/${quiz_id}/`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                })
+                .then((response) => {
+                    console.log("recommended:", response.data);
+                    const temp: QuizResponse = response.data;
+                    setQuizRecommend(convertQuizResponseToQuiz(temp));
+                })
+                .catch((error) => {
+                    console.error("Error fetching quiz data:", error);
+                })
+                .finally(() => {
+                    setIsLoading(false);
+                });
+        } else {
+            console.error("No quiz ID provided");
+        }
+    }, [quiz_id, token]);
+
 
     useEffect(() => {
         setMessage(getMessage());
@@ -75,27 +105,58 @@ export default function QuizEnd() {
 
 
     const [isLiked, setIsLiked] = useState(false);
-    const [likes, setLikes] = useState(likeCount);
+    const [likes, setLikes] = useState(0);
     const [isBookmarked, setIsBookmarked] = useState(false); // Example state for bookmark
 
 
-
     const toggleLike = () => {
-        setIsLiked(!isLiked);
-        setLikes(likes + (!isLiked ? 1 : -1));
+        axios
+            .post(
+                `${BASE_URL}/quiz/like/`,
+                { quiz_id: quiz_id },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            )
+            .then((response) => {
+                console.log(response.data);
+                if (isLiked) {
+                    setLikes(likes - 1);
+                } else {
+                    setLikes(likes + 1);
+                }
+                setIsLiked(!isLiked);
+            })
+            .catch((error) => {
+                console.log(error.response.data);
+            });
     };
 
     const toggleBookmark = () => {
-        setIsBookmarked(!isBookmarked);
+        axios
+            .post(
+                `${BASE_URL}/quiz/bookmark/`,
+                { quiz_id: quiz_id },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            )
+            .then((response) => {
+                console.log(response.data);
+                setIsBookmarked(!isBookmarked);
+            });
     };
 
-
     return (
-        <div className="h-screen w-screen flex flex-col">
+        <div className="w-screen flex flex-col overflow-hidden">
             <Navbar />
-            <div className="flex flex-col items-center overflow-hidden">
+            <div className="flex flex-col items-center overflow-hidden w-min">
                 <h1 className="font-semibold text-4xl mt-3 mb-1 text-blue-900">{quizData?.quiz.title}</h1>
-                <div className="flex flex-col items-center py-4">
+                <div className="flex flex-col items-center pt-4 w-screen">
                     <Card className="max-w-[600px]">
                         <CardHeader className="flex justify-center items-center">
                             <Chip color={
@@ -162,10 +223,31 @@ export default function QuizEnd() {
                         </CardFooter>
                     </Card>
                 </div>
-                <div className="flex justify-center items-center gap-6 my-1">
+                <div className="w-min overflow-hidden items-center mb-1">
+                    {
+                        quizRecommend ?
+                            <div className="flex flex-col justify-center gap-2 items-center w-min">
+                                <h1 className="font-semibold text-3xl mt-3 mb-1 text-blue-900">Recommended for you</h1>
+                                <QuizCard
+                                    key={quizRecommend.id}
+                                    id={quizRecommend.id}
+                                    username={quizRecommend.author.username}
+                                    title={quizRecommend.quiz.title}
+                                    content={quizRecommend.quiz.description}
+                                    picture={""}
+                                    timePassed={quizRecommend.quiz.timestamp}
+                                    likeCount={quizRecommend.engagement.like_count}
+                                    tags={quizRecommend.quiz.tags}
+                                    initialIsLiked={quizRecommend.engagement.is_liked}
+                                    initialIsBookmarked={quizRecommend.engagement.is_bookmarked}
+                                    timesTaken={quizRecommend.quiz.times_taken}
+                                />
+                            </div>
+                            :
+                            <p className="text-center text-2xl text-blue-900">No recommendations available</p>
+                    }
                 </div>
             </div>
-
         </div >
     );
 }

@@ -83,7 +83,7 @@ export default function Quizzes() {
           new Date(a.quiz.created_at).getTime()
         );
       case "Most Liked":
-        return b.quiz.engagement.like_count - a.quiz.engagement.like_count;      // kontrol et
+        return b.engagement.like_count - a.engagement.like_count;
       case "Most Taken":
         return b.quiz.times_taken - a.quiz.times_taken;
       default:
