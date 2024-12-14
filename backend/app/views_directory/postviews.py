@@ -98,7 +98,7 @@ def create_post(request):
     )
 
     user = request.user
-    
+
     for f in user.profile.followers.all():
         ActivityStream.objects.create(
             actor=request.user,
@@ -171,15 +171,27 @@ def update_post(request, post_id):
     if not isinstance(tags, list):
         return Response({"detail": "Tags must be a list of strings."}, status=status.HTTP_400_BAD_REQUEST)
 
-    post.tags = tags
 
     title = request.data.get("title")
+    description = request.data.get("description")
+
+    if not (post.title == title and post.description == description and post.tags == tags) and post.author != request.user:
+        ActivityStream.objects.create(
+            actor=request.user,
+            verb="updated",
+            object_type="Post",
+            object_id=post.id,
+            object_name=title,
+            affected_username=post.author.username
+        )
+
     if title:
         post.title = title
     
-    description = request.data.get("description")
     if description:
         post.description = description
+
+    post.tags = tags
     
     post.save()
 
