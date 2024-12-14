@@ -171,6 +171,17 @@ def submit_quiz(request):
                 'quiz_title_image': request.build_absolute_uri(quiz.title_image.url) if quiz.title_image else None,
             }
         }
+
+        ActivityStream.objects.create(
+            actor=request.user,
+            verb="solved",
+            object_type="Quiz",
+            object_id=quiz.id,
+            object_name = quiz.title,
+            target=f"Quiz:{quiz.id}",
+            affected_username= quiz.author.username  # Use the associated User's username
+        )
+
         return Response(response_data, status=status.HTTP_200_OK)
     
     return Response(quiz_result_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
