@@ -46,7 +46,6 @@ def get_quiz_choices(request, word, quiz_type):
             )
 
         return Response({
-            "word": word,
             "correct_answer": result['correct_answer'],
             "options": result['options']
         }, status=status.HTTP_200_OK)

@@ -102,11 +102,6 @@ class SemanticChoiceGenerator:
                     translation__iexact=correct_translation
                 ).first()
                 
-                if not translation:
-                    Translation.objects.create(
-                        word=word_obj,
-                        translation=correct_translation.lower()
-                    )
             else:
                 word_obj = Word.objects.create(
                     word=word,
@@ -114,10 +109,6 @@ class SemanticChoiceGenerator:
                     sentence="",
                     level="A1",
                     part_of_speech=""
-                )
-                Translation.objects.create(
-                    word=word_obj,
-                    translation=correct_translation.lower()
                 )
 
         if not correct_translation:
@@ -179,13 +170,12 @@ class SemanticChoiceGenerator:
                     wrong_translations.append(trans_text)
 
         wrong_translations = wrong_translations[:3]
-        all_choices = wrong_translations + [correct_translation]
+        all_choices = wrong_translations
         random.shuffle(all_choices)
 
         return {
-            'word': word,
             'correct_answer': correct_translation,
-            'options': all_choices
+            'options': wrong_translations
         }
 
     def _generate_english_translation_choices(self, word, correct_answer=None):
@@ -210,10 +200,6 @@ class SemanticChoiceGenerator:
                             level="A1",
                             part_of_speech=""
                         )
-                        translation = Translation.objects.create(
-                            word=word_obj,
-                            translation=word.lower()
-                        )
                 else:
                     word_obj = Word.objects.create(
                         word=correct_english,
@@ -221,10 +207,6 @@ class SemanticChoiceGenerator:
                         sentence="",
                         level="A1",
                         part_of_speech=""
-                    )
-                    translation = Translation.objects.create(
-                        word=word_obj,
-                        translation=word.lower()
                     )
             
             if not correct_english:
@@ -290,11 +272,10 @@ class SemanticChoiceGenerator:
                             wrong_translations.append(word_text)
 
             wrong_translations = wrong_translations[:3]
-            all_choices = wrong_translations + [correct_english]
+            all_choices = wrong_translations 
             random.shuffle(all_choices)
 
             return {
-                'word': word,
                 'correct_answer': correct_english,
                 'options': all_choices
             }
@@ -459,11 +440,10 @@ class SemanticChoiceGenerator:
                     wrong_meanings.append(cleaned_def)
             attempts += 1
 
-        all_choices = wrong_meanings + [correct_meaning]
+        all_choices = wrong_meanings 
         random.shuffle(all_choices)
 
         return {
-            'word': word,
             'correct_answer': correct_meaning,
             'options': all_choices
         }
