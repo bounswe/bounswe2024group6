@@ -96,13 +96,15 @@ def like_comment(request):
     comment.like_count += 1
     comment.save()
 
-    ActivityStream.objects.create(
-        actor=request.user,
-        verb="liked",
-        object_type="Comment",
-        object_id=comment.id,
-        target=f"Post:{comment.post.id}"
-    )
+    if request.user != comment.author:
+        ActivityStream.objects.create(
+            actor=request.user,
+            verb="liked",
+            object_type="Comment",
+            object_id=comment.id,
+            target=f"Post:{comment.post.id}",
+            affected_username=comment.author.username
+        )
 
     return Response(
         {"detail": "Comment liked successfully", "like_count": comment.like_count},

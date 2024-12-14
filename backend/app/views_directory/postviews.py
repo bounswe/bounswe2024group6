@@ -23,14 +23,15 @@ def like_post(request):
     post.like_count = post.liked_by.count()
     post.save()
 
-    ActivityStream.objects.create(
-        actor=request.user,
-        verb="liked",
-        object_type="Post",
-        object_id=post.id,
-        affected_username=post.author.username
-
-    )
+    if post.author != request.user:
+        ActivityStream.objects.create(
+            actor=request.user,
+            verb="liked",
+            object_type="Post",
+            object_id=post.id,
+            target=f"Post:{post.id}",
+            affected_username=post.author.username
+        )
 
     # Include like and bookmark status in the response
     is_liked = post.liked_by.filter(id=request.user.id).exists()
