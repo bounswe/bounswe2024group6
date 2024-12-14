@@ -34,7 +34,6 @@ export default function Followers() {
 
         if (response.ok){
           const result = await response.json();
-          console.log("Followers:", result);
           setFollowers(result);
         } else {
           console.log(response.status)

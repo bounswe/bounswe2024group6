@@ -138,7 +138,8 @@ export default function EditProfile() {
         name:`${TokenManager.getUsername()}_pp.jpg`,
       });
     }
-    formData.append('username', TokenManager.getUsername());
+    formData.append('username', TokenManager.getUsername());  // The warning here should not be the case 
+                                                              // as the user needs to be logged in to edit their profile.
     formData.append('level', userInfo.level);
     formData.append('bio', userInfo.bio ? userInfo.bio : "");
     try {
@@ -153,7 +154,6 @@ export default function EditProfile() {
 
       const res = await response.json();
       if (response.ok){
-        console.log(res);
         setUserInfo(res);
         router.navigate({pathname: '/(tabs)/profile', params: {key: Date.now()}})
       } else {
