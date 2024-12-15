@@ -157,6 +157,7 @@ export type ProfileResponse = {
   follower_count: number;
   following_count: number;
   is_followed: boolean;
+  profile_picture: string;
   level: string;
   bio: string;
   name: string;

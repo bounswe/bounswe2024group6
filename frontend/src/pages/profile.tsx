@@ -87,7 +87,7 @@ export default function Profile() {
         })
         .then((response) => {
           const data: ProfileResponse = response.data;
-          console.log(data);
+          console.log("profile",data);
           const profile = convertProfileResponseToProfile(data);
           const sortedVersion = [...profile.posts].sort((a, b) => {
             return (
@@ -311,7 +311,7 @@ export default function Profile() {
           <div className="flex justify-center gap-6 items-center w-full px-32 py-3">
             <div className="flex items-center px-2 rounded-lg">
               <Avatar
-                src="https://nextui.org/avatars/avatar-1.png"
+                src={profile.image}
                 className="mr-2 w-24 h-24"
               />
               <div className="mx-4 max-w-52">
