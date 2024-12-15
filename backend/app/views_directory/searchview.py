@@ -29,6 +29,7 @@ class SearchView(APIView):
                     "username": u.username,
                     "email": u.email,
                     "level": u.profile.level if hasattr(u, 'profile') else None,
+                    "profile_picture": u.profile.profile_picture.url if hasattr(u, 'profile') and u.profile.profile_picture else None,
                     "isFollowing": user and u.profile in user.profile.following.all() if hasattr(user, 'profile') else False,
                 }
                 for u in users
@@ -51,6 +52,7 @@ class SearchView(APIView):
                     "created_at": comment.created_at,
                     "like_count": comment.like_count,
                     "isLiked": user and comment.liked_by.filter(id=user.id).exists(),
+                    "isBookmarked": user and self._is_comment_bookmarked(user, comment),
                 }
                 for comment in comments
             ]
@@ -83,3 +85,9 @@ class SearchView(APIView):
         """Retrieve IDs of quizzes bookmarked by the user."""
         from app.models import Quiz
         return list(Quiz.objects.filter(bookmarked_by=user).values_list('id', flat=True))
+
+    @staticmethod
+    def _is_comment_bookmarked(user, comment):
+        """Check if a comment is bookmarked by the user."""
+        from app.models import CommentBookmark
+        return CommentBookmark.objects.filter(user=user, comment=comment).exists()
