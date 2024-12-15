@@ -10,7 +10,7 @@ import {
 import { IconPlus } from "@tabler/icons-react";
 import QuizTagSearchModal from "./quiz-tag-search-modal";
 
-const LEVELS = [
+export const LEVELS = [
   { key: "A1", label: "A1" },
   { key: "A2", label: "A2" },
   { key: "B1", label: "B1" },
