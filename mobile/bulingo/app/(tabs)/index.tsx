@@ -1,8 +1,9 @@
 import React, {useState, useCallback} from 'react';
 import {Image, TouchableOpacity, StyleSheet, Text, View, Dimensions} from 'react-native';
-import { router, useLocalSearchParams, useFocusEffect } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import TokenManager from '../TokenManager';
 import Notification from '../components/topNotification';
+import Alert from '../Alert';
 import PressableText from '../pressableText';
 
 const { width, height } = Dimensions.get('window');
@@ -11,20 +12,24 @@ export default function Home() {
   const handleRegister = () => {
     router.navigate("/register");
   };
-  const searchParams = useLocalSearchParams();
   const username = TokenManager.getUsername();
-  const [logoutTrigger, setLogoutTrigger] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
   const [profilePictureUri, setProfilePictureUri] = useState("");
 
 
 
   useFocusEffect(
+    // useCallback(() => {
+    //   if (searchParams?.notification == 'login_success'){
+    //     setNotification("Login Successful!");
+    //   } else if (searchParams?.notification == 'register_success'){
+    //     setNotification("Registration Successful!");
+    //   }
+    // }, [])
     useCallback(() => {
-      if (searchParams?.notification == 'login_success'){
-        setNotification("Login Successful!");
-      } else if (searchParams?.notification == 'register_success'){
-        setNotification("Registration Successful!");
+      if(Alert.get()){
+        setNotification(Alert.get());
+        Alert.clear();
       }
 
       const fetchProfileInfo = async () => {

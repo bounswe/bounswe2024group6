@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import {router} from 'expo-router';
+import Alert from './Alert';
 
 const SIGNUP_URL = "http://64.226.76.231:8000/signup/";
 
@@ -59,7 +60,8 @@ const Register = () => {
       const json = await response.json();
       console.log(json)
       if (json){
-        router.navigate('/?notification=register_success');
+        Alert.set("Registration Successful")
+        router.navigate('/');
       }
     } catch (error) {
       console.error(error);
