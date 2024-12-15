@@ -10,7 +10,7 @@ type UserInfoCompact = {
   username: string,
   name: string,
   level: string,
-  profilePictureUri: string,
+  profile_picture: string,
   is_followed: boolean,
 };
 
@@ -68,10 +68,10 @@ export default function Following() {
           <UserCard 
             name={item.name}
             username={item.username} 
-            profilePictureUri={item.profilePictureUri} 
+            profilePictureUri={item.profile_picture} 
             level={item.level}
             buttonText={item.is_followed ? 'Unfollow' : 'Follow'}
-            buttonStyleNo={item.is_followed ? 1 : 2}
+            buttonStyleNo={item.username == TokenManager.getUsername() ? 3 : (item.is_followed ? 1 : 2)}
           />
         );
       }}

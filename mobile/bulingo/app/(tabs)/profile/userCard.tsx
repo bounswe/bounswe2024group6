@@ -33,7 +33,6 @@ const UserCard = (props: UserCardProps) => {
     } catch (error) {
       console.error(error);
     }
-    console.log("Button Pressed: " + props.username);
     if (props.onButtonPress){
       props.onButtonPress();
     }
