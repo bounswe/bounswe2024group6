@@ -46,6 +46,7 @@ export default function CreateQuizMetadata({
       description,
       level,
       tags: tagNames,
+      title_image: file,
     });
   }, [title, description, level, tags]);
 

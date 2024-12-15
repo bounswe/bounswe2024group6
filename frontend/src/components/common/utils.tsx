@@ -86,6 +86,7 @@ export const convertQuizResponseToQuiz = (quizResponse: QuizResponse): Quiz => {
       tags: quizResponse.tags,
       timestamp: formatTimeAgo(quizResponse.created_at),
       created_at: quizResponse.created_at,
+      picture: quizResponse.title_image,
       level: quizResponse.level,
       times_taken: quizResponse.times_taken,
     },

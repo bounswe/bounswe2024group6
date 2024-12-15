@@ -147,7 +147,7 @@ export default function QuizCard({
         </div>
         <Divider className="mt-1.5 bg-zinc-200" />
       </CardHeader>
-      <div className="flex flex-row justify-between items-center mb-5">
+      <div className="flex flex-row justify-between items-center mb-4 ml-4 mr-4">
         {picture ? (
           <img
             src={picture}
@@ -157,6 +157,7 @@ export default function QuizCard({
               height: "200px",
               objectFit: "cover",
               objectPosition: "center",
+              borderRadius: "10px",
             }}
             onClick={() => navigate(`/quiz/${id}/details`)}
           />

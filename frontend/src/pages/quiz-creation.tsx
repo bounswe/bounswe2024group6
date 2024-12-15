@@ -30,15 +30,32 @@ export default function QuizCreation() {
   const handleSubmit = () => {
     setIsLoading(true);
     const token = getToken("access");
-    const formData: QuizCreationModel = {
-      quiz: quizHeader,
-      questions: quizQuestions,
-    };
+    const formData = new FormData();
+
+    // Add quiz details
+    formData.append("title", quizHeader.title);
+    formData.append("description", quizHeader.description);
+    formData.append("level", quizHeader.level);
+    formData.append("tags", JSON.stringify(quizHeader.tags));
+
+    // Add title image if exists
+    if (quizHeader.title_image) {
+      formData.append("title_image", quizHeader.title_image);
+    }
+
+    formData.append(
+      `questions`,
+      JSON.stringify(
+        quizQuestions,
+      )
+    );
+    console.log("Form data:", formData);
+    
     axios
       .post(`${BASE_URL}/quiz/create/`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          "Content-Type": "multipart/form-data",
         },
       })
       .then((response) => {
@@ -46,7 +63,8 @@ export default function QuizCreation() {
         navigate("/quizzes");
       })
       .catch((error) => {
-        console.log(error);
+        console.error(error);
+        setIsLoading(false);
       });
   };
 
