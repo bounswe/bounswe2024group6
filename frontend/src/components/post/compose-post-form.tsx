@@ -20,8 +20,9 @@ import axios from "axios";
 import { BASE_URL } from "../../lib/baseURL.ts";
 import { AuthActions } from "../auth/utils.tsx";
 import { useNavigate } from "react-router-dom";
+import TagSearchModal from "./tag-search-modal.tsx";
 
-const Tags = [
+export const Tags = [
   "#Grammar",
   "#Vocabulary",
   "#Vocabulary Tips",
@@ -33,6 +34,7 @@ const Tags = [
   "#General",
   "#Fun",
 ];
+
 const DifficultyTags = ["#A1", "#A2", "#B1", "#B2", "#C1", "#C2"];
 
 export default function ComposePostForm() {
@@ -41,6 +43,7 @@ export default function ComposePostForm() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [diffTag, setDiffTag] = useState<string>("");
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [isTagSearchModalOpen, setIsTagSearchModalOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleCategorySelection = (keys: Selection) => {
@@ -115,48 +118,79 @@ export default function ComposePostForm() {
             <label className="block mb-2 text-md text-center font-medium text-gray-700">
               Tags
             </label>
-            <div className="flex flex-row justify-between mb-3">
-              <Select
-                data-testid="difficulty-select"
-                label="Difficulty"
-                placeholder="Optional"
-                className="w-48 text-black"
-                selectedKeys={diffTag ? [diffTag] : []}
-                onSelectionChange={handleDifficultySelection}
-              >
-                {DifficultyTags.map((tag) => (
-                  <SelectItem
-                    data-testid={`difficulty-option-${tag}`}
-                    key={tag}
+            <div className="flex flex-col gap-2">
+              <div className="flex flex-row justify-between mb-3">
+                <Select
+                  data-testid="difficulty-select"
+                  label="Difficulty"
+                  placeholder="Optional"
+                  size="sm"
+                  className="w-48 text-black"
+                  selectedKeys={diffTag ? [diffTag] : []}
+                  onSelectionChange={handleDifficultySelection}
+                >
+                  {DifficultyTags.map((tag) => (
+                    <SelectItem
+                      data-testid={`difficulty-option-${tag}`}
+                      key={tag}
+                    >
+                      {tag}
+                    </SelectItem>
+                  ))}
+                </Select>
+                <TagSearchModal
+                  isOpen={isTagSearchModalOpen}
+                  setIsOpen={setIsTagSearchModalOpen}
+                  selectedTags={selectedTags}
+                  setSelectedTags={setSelectedTags}
+                />
+                <Button
+                  data-testid="add-tag-button"
+                  color="default"
+                  size="lg"
+                  radius="sm"
+                  onPress={() => setIsTagSearchModalOpen(true)}
+                  variant="flat"
+                >
+                  Choose Tags
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {diffTag && (
+                  <Button
+                    key={diffTag}
+                    color="primary"
+                    variant="flat"
+                    className="text-sm h-8"
+                    size="sm"
+                    radius="full"
+                    onClick={() => setDiffTag("")}
                   >
-                    {tag}
-                  </SelectItem>
-                ))}
-              </Select>
-              <Select
-                data-testid="category-select"
-                isRequired
-                label="Categories"
-                placeholder="Required Field"
-                selectionMode="multiple"
-                className="w-48 text-black"
-                selectedKeys={new Set(selectedTags)}
-                onSelectionChange={handleCategorySelection}
-              >
-                {Tags.map((tag) => (
-                  <SelectItem
-                    key={tag}
-                    data-testid={`category-option-${tag.replace("#", "")}`}
-                  >
-                    {tag}
-                  </SelectItem>
-                ))}
-              </Select>
+                    {diffTag}
+                  </Button>
+                )}
+                {selectedTags &&
+                  selectedTags.map((tag) => (
+                    <Button
+                      key={tag}
+                      color="primary"
+                      variant="flat"
+                      className="text-sm h-8"
+                      size="sm"
+                      radius="full"
+                      onClick={() =>
+                        setSelectedTags(selectedTags.filter((t) => t !== tag))
+                      }
+                    >
+                      {tag}
+                    </Button>
+                  ))}
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="flex justify-end gap-4">
+        <div className="flex justify-end gap-4 mt-3">
           <Button
             data-testid="preview-button"
             onPress={onOpen}
