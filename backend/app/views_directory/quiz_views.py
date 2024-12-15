@@ -570,6 +570,16 @@ def update_quiz(request):
     if not quizSerializer.is_valid():
         return Response(quizSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
     quiz = quizSerializer.save()
+    if request.user.is_staff and quiz.author != request.user:
+        ActivityStream.objects.create(
+            actor=request.user,
+            verb="updated",
+            object_type="Quiz",
+            object_id=quiz.id,
+            object_name=quiz.title,
+            target=f"Quiz:{quiz.id}",
+            affected_username=quiz.author.username
+        )
     return Response(quizSerializer.data, status=status.HTTP_200_OK)
 
 
