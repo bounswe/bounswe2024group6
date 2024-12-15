@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, FlatList, Image, StyleSheet } from 'react-native';
 import TokenManager from '../TokenManager';
-import { FontAwesome } from '@expo/vector-icons';
-import {router} from "expo-router";
+import GuestModal from '@/app/components/guestModal';
+import {router, useFocusEffect} from "expo-router";
 
 function timeDifferenceToString(isoTimestamp: string): string {
   const now: Date = new Date();
@@ -37,16 +37,7 @@ function timeDifferenceToString(isoTimestamp: string): string {
 }
 
 
-const dbg_notifications = [
-  {
-    actor: "ygz", 
-    affected_username: "ygz2",
-    object_id: 2,
-    object_type: "Profile", 
-    timestamp: "2024-11-24T17:06:46.710414Z", 
-    verb: "followed"
-  }
-];
+const dbg_notifications: any[] = [];
 
 const NotificationItem = ( {activity} : any ) => {
   const ActivityToComponent = (activity: any) => {
@@ -89,11 +80,25 @@ const NotificationItem = ( {activity} : any ) => {
 
 
 const Notifications = () => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [notifications, setNotifications] = useState(dbg_notifications);
+  const [guestModalVisible, setGuestModalVisible] = useState(false);
+
+  useFocusEffect(
+    useCallback(()=>{
+      const username = TokenManager.getUsername();
+      if (!username){
+        setGuestModalVisible(true);
+        return
+      }
+    }, [])
+  );
 
   useEffect(() => {
     const fetchFollowers = async () => {
+      if(!TokenManager.getUsername()){
+        return;
+      }
       try {
         const response = await TokenManager.authenticatedFetch("user-activities-as-object/", {
           method: 'GET',
@@ -116,6 +121,14 @@ const Notifications = () => {
     fetchFollowers();
   }, []);
 
+
+  const onGuestModalClose = () => {
+    setGuestModalVisible(false);
+    router.replace("/");
+  }
+  if(guestModalVisible){
+    return <GuestModal onClose={onGuestModalClose}/>
+  }
 
   return (
     <View style={styles.container}>

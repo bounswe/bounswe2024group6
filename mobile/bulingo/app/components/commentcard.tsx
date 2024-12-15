@@ -1,24 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
+import GuestModal from './guestModal';
+import TokenManager from '../TokenManager';
 import PressableText from '../pressableText';
 import {router} from 'expo-router';
 import { fetchCommentAuthorImage } from '../api/forum';
 import { bookmarkComment, unbookmarkComment } from '../api/forum';
 
 interface CommentCardProps {
-  id: number;
-  isBookmarked: boolean;
-  onUpvote: (id: number) => void;
-  username: string;
-  comment: string;
-  liked: boolean;
-  likes: number;
+    id: number;
+    isBookmarked: boolean;
+    onUpvote: (id: number) => void;
+    username: string;
+    comment: string;
+    liked: boolean;
+    likes: number;
 }
 
 const CommentCard: React.FC<CommentCardProps> = ({ id, isBookmarked: initialBookmark, username, comment, onUpvote, liked, likes }) => {
   const [isBookmarked, setIsBookmarked] = useState(initialBookmark);
-    const [imageLink, setImageLink] = useState<string | null>(null);
+  const [imageLink, setImageLink] = useState<string | null>(null);
+  const [guestModalVisible, setGuestModalVisible] = useState(false);
+
 
     useEffect(() => {
         const fetchImage = async () => {
@@ -58,8 +62,26 @@ const toggleBookmark = async () => {
         }, 0);
   }
 
+  const handleLikePress = () => {
+    if(!TokenManager.getUsername()){
+        setGuestModalVisible(true);
+        return;
+    }
+    onUpvote(id);
+}
+
+const handleBookmarkPress = () => {
+    if(!TokenManager.getUsername()){
+        setGuestModalVisible(true);
+        return;
+    }
+    // TODO: Implement bookmark here!
+    toggleBookmark();
+}
+
   return (
     <>
+      {guestModalVisible && <GuestModal onClose={() => setGuestModalVisible(false)}/>}
       <View style={styles.cardContainer}>
 
         <TouchableOpacity onPress={redirectToAuthorProfilePage}>
@@ -81,20 +103,26 @@ const toggleBookmark = async () => {
         </View>
 
         <View style={styles.actionsContainer}>
-          <TouchableOpacity style={styles.likeButton} onPress={() => onUpvote(id)} testID='likeButton'>
+          <TouchableOpacity style={styles.likeButton} onPress={handleLikePress} testID='likeButton'>
             <Text style={styles.quizLikes}>
               <Image source={liked ? require('../../assets/images/like-2.png') : require('../../assets/images/like-1.png')} style={styles.icon} />
               {likes}
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={toggleBookmark} style={styles.bookmarkButton}>
-            <FontAwesome name={isBookmarked ? 'bookmark' : 'bookmark-o'} size={20} color="black" />
-          </TouchableOpacity>
+
+
+                {/* Bookmark Button */}
+                <TouchableOpacity onPress={handleBookmarkPress} style={styles.bookmarkButton}>
+                    <FontAwesome name={isBookmarked ? 'bookmark' : 'bookmark-o'} size={20} color="black" />
+                </TouchableOpacity>
+            </View>
+            
         </View>
-      </View>
-    </>
-  );
+
+        
+        </>
+    );
 };
 
 const styles = StyleSheet.create({

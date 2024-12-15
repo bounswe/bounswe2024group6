@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { TouchableOpacity, View, Image, StyleSheet, Text } from 'react-native';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import { router } from 'expo-router';
 import TokenManager from '@/app/TokenManager';
+import GuestModal from '@/app/components/guestModal';
 
 type UserCardProps = {
   profilePictureUri: string,
@@ -16,7 +17,14 @@ type UserCardProps = {
 };
 
 const UserCard = (props: UserCardProps) => {
+  const [guestModalVisible, setGuestModalVisible] = useState(false);
+
   const handleButtonPress = async () => {
+    if(!TokenManager.getUsername()){
+      setGuestModalVisible(true);
+      return
+    }
+
     const url = `profile/${props.buttonText.toLowerCase()}/`;
     const params = {
       'username': props.username,
@@ -38,6 +46,11 @@ const UserCard = (props: UserCardProps) => {
     }
   };
   const handleCardPress = () => {
+    if(!TokenManager.getUsername()){
+      setGuestModalVisible(true);
+      return;
+    }
+
     if (props.onCardPress){ 
       props.onCardPress();
     }
@@ -70,40 +83,43 @@ const UserCard = (props: UserCardProps) => {
   
 
   return (
-    <TouchableOpacity style={styles.followerContainer} onPress={handleCardPress} testID='card'>
-      <View style={styles.profilePictureContainer}>
-        {props.profilePictureUri 
-          ? (
-            <Image 
-              source={{
-                uri: props.profilePictureUri,
-              }} 
-              style={styles.profilePicture}
-            />
-          )
-          : (
-            <Image 
-              source={require('@/assets/images/profile-icon.png')}
-              style={styles.profilePicture}
-            />
-          )}
-      </View>
-      <View style={styles.usernameContainer}>
-        <Text style={styles.usernameText}>{props.username.length <= 12 ? props.username : `${props.username.slice(0, 10)}..`}</Text>
-      </View>
-      <View style={styles.followerContainerRightCompartment}>
-        <View style={styles.levelContainer}>
-          <Text style={styles.levelText}>{props.level}</Text>
+    <>
+      {guestModalVisible && <GuestModal onClose={() => setGuestModalVisible(false)}/>}
+      <TouchableOpacity style={styles.followerContainer} onPress={handleCardPress} testID='card'>
+        <View style={styles.profilePictureContainer}>
+          {props.profilePictureUri 
+            ? (
+              <Image 
+                source={{
+                  uri: props.profilePictureUri,
+                }} 
+                style={styles.profilePicture}
+              />
+            )
+            : (
+              <Image 
+                source={require('@/assets/images/profile-icon.png')}
+                style={styles.profilePicture}
+              />
+            )}
         </View>
-        { props.buttonStyleNo != 3 &&
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity style={[styles.buttonStyle, buttonStyleAddOn]} onPress={handleButtonPress} testID='button'>
-              <Text style={[styles.buttonText, {color: buttonTextColor}]}>{props.buttonText}</Text>
-            </TouchableOpacity>
+        <View style={styles.usernameContainer}>
+          <Text style={styles.usernameText}>{props.username.length <= 12 ? props.username : `${props.username.slice(0, 10)}..`}</Text>
+        </View>
+        <View style={styles.followerContainerRightCompartment}>
+          <View style={styles.levelContainer}>
+            <Text style={styles.levelText}>{props.level}</Text>
           </View>
-        }
-      </View>
-    </TouchableOpacity>
+          { props.buttonStyleNo != 3 &&
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity style={[styles.buttonStyle, buttonStyleAddOn]} onPress={handleButtonPress} testID='button'>
+                <Text style={[styles.buttonText, {color: buttonTextColor}]}>{props.buttonText}</Text>
+              </TouchableOpacity>
+            </View>
+          }
+        </View>
+      </TouchableOpacity>
+    </>
   );
 };
 

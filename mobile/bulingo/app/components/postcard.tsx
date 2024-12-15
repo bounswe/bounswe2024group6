@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
+import GuestModal from './guestModal';
+import TokenManager from '../TokenManager';
 import PressableText from '../pressableText';
 
 interface PostCardProps {
@@ -12,7 +14,7 @@ interface PostCardProps {
   liked: boolean;
   isBookmarked: boolean;
   feedOrPost: string;
-  onUpvote: () => void;
+  onUpvote: (id:any) => void;
   onBookmark: () => void;
   onPress?: () => void;
 }
@@ -31,49 +33,66 @@ const PostCard: React.FC<PostCardProps> = ({
   onBookmark,
   onPress,
 }) => {
+  const [guestModalVisible, setGuestModalVisible] = useState(false);
 
+  const handleLikePress = () => {
+    if(!TokenManager.getUsername()){
+      setGuestModalVisible(true);
+      return;
+    }
+    onUpvote(id);
+  }
+
+  const handleBookmarkPress = () => {
+    if(!TokenManager.getUsername()){
+      setGuestModalVisible(true);
+      return;
+    }
+    onBookmark();
+  }
 
   return (
-    <TouchableOpacity onPress={onPress} testID='card'>
-      <View style={styles.cardContainer}>
-        <View style={styles.header}>
-          {/* <PressableText style={styles.title}</> */}
-        <PressableText style={styles.title} text={title}/>
-          {/* <Text style={styles.title}>{title}</Text> */}
-          <Text style={styles.author}>by {author}</Text>
-        </View>
-        <View style={styles.tagsContainer}>
-          {tags && tags.map((tag, index) => (
-            <View key={index} style={styles.levelBadge}>
-              <Text style={styles.levelText}>{tag}</Text>
-            </View>
-          ))}
-        </View>
-        <View style={styles.footer}>
-          <View style={styles.actionsContainer}>
-            {/* <TouchableOpacity onPress={onUpvote} style={styles.upvoteButton}>
-              <FontAwesome name="arrow-up" size={20} color="green" />
-              <Text style={styles.upvoteCount}>{likes}</Text>
-            </TouchableOpacity>
-             */}
-            <TouchableOpacity style={styles.likeButton} onPress={() => onUpvote(id)} testID={'likeButton'}>
-             <Text style={styles.quizLikes}>
-            <Image source={liked ? require('../../assets/images/like-2.png') : require('../../assets/images/like-1.png')}style={styles.icon} /> 
-            {likes}
-            </Text>
-            </TouchableOpacity>
+    <>
+      {guestModalVisible && <GuestModal onClose={() => setGuestModalVisible(false)}/>}
+      <TouchableOpacity onPress={onPress} testID='card'>
+        <View style={styles.cardContainer}>
+          <View style={styles.header}>
+            <PressableText style={styles.title} text={title}/>
+            <Text style={styles.author}>by {author}</Text>
+          </View>
+          <View style={styles.tagsContainer}>
+            {tags && tags.map((tag, index) => (
+              <View key={index} style={styles.levelBadge}>
+                <Text style={styles.levelText}>{tag}</Text>
+              </View>
+            ))}
+          </View>
+          <View style={styles.footer}>
+            <View style={styles.actionsContainer}>
+              {/* <TouchableOpacity onPress={onUpvote} style={styles.upvoteButton}>
+                <FontAwesome name="arrow-up" size={20} color="green" />
+                <Text style={styles.upvoteCount}>{likes}</Text>
+              </TouchableOpacity>
+              */}
+              <TouchableOpacity style={styles.likeButton} onPress={handleLikePress} testID={'likeButton'}>
+              <Text style={styles.quizLikes}>
+              <Image source={liked ? require('../../assets/images/like-2.png') : require('../../assets/images/like-1.png')}style={styles.icon} /> 
+              {likes}
+              </Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity onPress={onBookmark} style={styles.bookmarkButton} testID={'bookmarkButton'}>
-              <FontAwesome 
-                name={isBookmarked ? 'bookmark' : 'bookmark-o'} 
-                size={20} 
-                color="black" 
-              />
-            </TouchableOpacity>
+              <TouchableOpacity onPress={handleBookmarkPress} style={styles.bookmarkButton} testID={'bookmarkButton'}>
+                <FontAwesome 
+                  name={isBookmarked ? 'bookmark' : 'bookmark-o'} 
+                  size={20} 
+                  color="black" 
+                />
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-      </View>
-    </TouchableOpacity>
+      </TouchableOpacity>
+    </>
   );
 };
 
