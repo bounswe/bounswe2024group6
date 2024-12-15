@@ -3,6 +3,7 @@ import {Pressable, StyleSheet, Text, View, TextInput, TouchableWithoutFeedback, 
 import {router} from 'expo-router'
 import TokenManager from './TokenManager'; // Import the TokenManager
 import Notification from './components/topNotification';
+import Alert from './Alert';
 
 
 
@@ -40,7 +41,8 @@ export default function Home() {
         const { access, refresh } = json;
         TokenManager.saveTokens(access, refresh);
         TokenManager.setUsername(username);
-        router.replace('/?notification=login_success');
+        Alert.set("Login Successful");
+        router.navigate('/');
       } else {
         setNotification("Incorrect Login information.")
         setIsErrorVisible(true);

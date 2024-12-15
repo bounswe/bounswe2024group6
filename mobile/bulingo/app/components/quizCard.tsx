@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { TouchableOpacity, Image, Text, View, StyleSheet, useColorScheme } from 'react-native';
 import GuestModal from './guestModal';
 import TokenManager from '../TokenManager';
+import { FontAwesome } from '@expo/vector-icons';
+import PressableText from '../pressableText';
 
 type QuizCardProps = {
   title: string,
@@ -11,6 +13,7 @@ type QuizCardProps = {
   description: string,
   liked: boolean,
   likes: number,
+  bookmarked: boolean,
   onQuizPress?: (id: number) => void;
   onLikePress?: (id: number) => void;
   onBookmarkPress?: (id: number) => void;  
@@ -64,8 +67,10 @@ export default function QuizCard(props: QuizCardProps){
         testID='quiz'
       >
         <View style={styles.quizTop}>
-          <Text style={styles.quizTitle}>{props.title}</Text>
-          <Text style={styles.quizDescription}>{props.description}</Text>
+          <PressableText style={styles.quizTitle} text={props.title}/>
+          <PressableText style={styles.quizDescription} text={props.description}/>
+        {/* <Text style={styles.quizTitle}>{props.title}</Text>
+        <Text style={styles.quizDescription}>{props.description}</Text> */}
         </View>
         <View style={styles.quizBottom}>
           <View style={styles.quizBottomLeft}>
@@ -78,13 +83,16 @@ export default function QuizCard(props: QuizCardProps){
             </Text>
           </TouchableOpacity>
 
-          {/* Touchable Bookmark Icon at the bottom right */}
-          <TouchableOpacity style={styles.bookmarkButton} onPress={() => handleBookmarkPress(props.id)} testID='bookmarkButton'>
-            <Image source={require('@/assets/images/bookmark-icon.png')} style={styles.icon} />
-          </TouchableOpacity>
-        </View>
-      </TouchableOpacity>
-    </>
+        {/* Touchable Bookmark Icon at the bottom right */}
+        <TouchableOpacity style={styles.bookmarkButton} onPress={() => handleBookmarkPress(props.id)} testID='bookmarkButton'>
+          <FontAwesome 
+            name={props.bookmarked ? 'bookmark' : 'bookmark-o'} 
+            size={20}
+            color="black" 
+          />
+        </TouchableOpacity>
+      </View>
+    </TouchableOpacity>
   );
 }
 
@@ -142,20 +150,23 @@ const getStyles = (colorScheme: any) => {
       position: 'absolute',
       bottom: 0,
       right: 10,
-      height: 50,
-      padding: 4,
+      height: 35,
     },
     quizLikes: {
       fontSize: 16,
       color: isDark ? '#fff' : '#000',
     },
     likeButton: {
-      flex: 2,
+      height: 35,
+      width: 35,
+      bottom: -5,
     },
     bookmarkButton: {
-      flex: 1,
+      height: 25,
+      width: 25,
       justifyContent: 'flex-end',
       alignItems: 'flex-end',
+      bottom: -15,
     },
     icon: {
       width: 30,

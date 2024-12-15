@@ -23,9 +23,10 @@ import { useState } from "react";
 import { useEffect } from "react";
 import axios from "axios";
 import { BASE_URL } from "../../lib/baseURL";
-import { formatTimeAgo } from "./utils";
+import { convertProfileResponseToProfile, formatTimeAgo } from "./utils";
 import NotificationCard from "../notification/notification-card";
 import GuestAuthModal from "../auth/guest-auth-modal";
+import { Profile, ProfileResponse } from "../../types";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -33,19 +34,43 @@ export default function Navbar() {
   const username = Cookies.get("username");
 
   const { logout, removeTokens, getToken } = AuthActions();
-
+  const [profileImage, setProfileImage] = useState<string | null>(null);
   const token = getToken("access");
   const isGuest = !token;
   const [notifications, setNotifications] = useState([]);
   const [isNotificationsViewed, setIsNotificationsViewed] = useState(false);
   const [search, setSearch] = useState("");
   const [guestModalOpen, setGuestModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (!username) {
       setIsNotificationsViewed(true);
     }
   }, [username]);
+
+  useEffect(() => {
+    if (username) {
+      setIsLoading(true);
+      axios
+        .get(`${BASE_URL}/profile/${username}/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((response) => {
+          const data: ProfileResponse = response.data;
+          console.log("profile",data);
+          setProfileImage(response.data.profile_picture);
+        })
+        .catch((error) => {
+          console.log(error);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
+  }, [username, token]);
 
   useEffect(() => {
     axios
@@ -102,7 +127,6 @@ export default function Navbar() {
     logout()
       .res(() => {
         removeTokens();
-        Cookies.remove("username");
         navigate("/");
       })
       .catch(() => {
@@ -260,7 +284,7 @@ export default function Navbar() {
                 as="button"
                 isBordered
                 color="success"
-                src="https://nextui.org/avatars/avatar-1.png"
+                src={profileImage || "https://nextui.org/avatars/avatar-1.png"}
                 className="ml-4"
               />
             </PopoverTrigger>

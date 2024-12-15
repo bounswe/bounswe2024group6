@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Image, TouchableOpacity, useColorScheme, Activi
 import { useRouter } from 'expo-router';
 import { useLocalSearchParams } from 'expo-router';
 import TokenManager from '@/app/TokenManager';
+import PressableText from '@/app/pressableText';
 
 type QuizDetails = {
   id: number;
@@ -128,7 +129,9 @@ const QuizDetails = () => {
   return (
     <View style={styles.container}>
       <View style={[styles.elevation, styles.quizDetailsBox]}>
-        <Text style={styles.quizTitle}>{quizDetails.title}</Text>
+        <PressableText style={styles.quizTitle} text={quizDetails.title}/>
+        
+        {/* <Text style={styles.quizTitle}>{quizDetails.title}</Text> */}
         <Text style={styles.quizDescription}>
           Times Taken: {quizDetails.times_taken || 0} {'\n'}
           Number of Questions: {quizDetails.question_count || 0} {'\n'}
@@ -136,10 +139,6 @@ const QuizDetails = () => {
           Level: {quizDetails.level || 'N/A'}
         </Text>
 
-        {/* Bookmark button in the bottom right corner */}
-        <TouchableOpacity style={styles.bookmarkButton}>
-          <Image source={require('@/assets/images/bookmark-icon.png')} style={styles.bookmarkIcon} />
-        </TouchableOpacity>
       </View>
 
       <View style={styles.buttonContainer}>
@@ -248,16 +247,6 @@ const getStyles = (colorScheme: any) => {
       alignItems: 'center',
       color: '#ffffff',
       fontWeight: 'bold',
-    },
-    bookmarkButton: {
-      position: 'absolute',
-      bottom: 10,
-      right: 10,
-    },
-    bookmarkIcon: {
-      width: 24,
-      height: 24,
-      tintColor: isDark ? 'white' : 'black',
     },
   });
 };

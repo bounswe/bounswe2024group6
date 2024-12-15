@@ -18,6 +18,8 @@ export default function PressableText(props: PressableTextProps){
     setSelectedWord(word);
     setModalVisible(true);
   };
+  // let wordCount = 0;
+  let wordCount = props.text.split(' ').length;
 
   // Function to close modal
   const closeModal = () => {
@@ -26,17 +28,30 @@ export default function PressableText(props: PressableTextProps){
   };
 
   return (
-    <View style={props.containerStyle ? props.containerStyle : styles.container}>
+    <View style={styles.container}>
       {/* Render each word as a Pressable */}
+      
       {props.text.split(' ').map((word, index) => (
         <Pressable
           key={index}
           onLongPress={() => handleLongPress(word)}
-          style={styles.wordPressable}
+          // style={}
         >
-          <Text style={props.style}>{word} </Text>
+            <Text style={props.style}>
+            {word}
+            {/* {"Add a space after each word except the last"} */}
+            {index < wordCount - 1 ? ' ' : ''}
+          </Text>
+
+          {/* <Text style={props.style}>{word} </Text> */}
         </Pressable>
       ))}
+
+      
+   
+
+
+
 
       {/* Modal for additional information */}
       {selectedWord && modalVisible && (
@@ -52,7 +67,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     marginTop: 5,
     marginBottom: 5,

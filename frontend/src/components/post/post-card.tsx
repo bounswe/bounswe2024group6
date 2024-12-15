@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   CardHeader,
@@ -19,6 +19,7 @@ import {
   IconThumbUp,
   IconThumbUpFilled,
   IconMessageCircle,
+  IconDotsVertical,
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import { AuthActions } from "../auth/utils";
@@ -29,6 +30,8 @@ import { BASE_URL } from "../../lib/baseURL";
 import { UserCard } from "../common/user-card";
 import GuestAuthModal from "../auth/guest-auth-modal";
 import ClickableText from "../common/clickable-text";
+import { ProfileResponse } from "../../types";
+import DeletePostModal from "../admin/delete-post-modal";
 
 const maxLength = 250; // Maximum length of the content to be displayed
 
@@ -60,14 +63,42 @@ export default function PostCard({
   const [likes, setLikes] = useState(likeCount);
   const [isBookmarked, setIsBookmarked] = useState(initialIsBookmarked);
   const navigate = useNavigate();
-  const { getToken } = AuthActions();
+  const { getToken, useIsAdmin } = AuthActions();
   const token = getToken("access");
   const isGuest = !token;
+  const isAdmin = useIsAdmin();
   const [guestModalOpen, setGuestModalOpen] = useState(false);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [popoverOpen, setPopoverOpen] = useState(false);
+  const [deletePostModalOpen, setDeletePostModalOpen] = useState(false);
 
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
   };
+
+  useEffect(() => {
+    if (username) {
+      setIsLoading(true);
+      axios
+        .get(`${BASE_URL}/profile/${username}/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((response) => {
+          const data: ProfileResponse = response.data;
+          console.log("profile", data);
+          setProfileImage(response.data.profile_picture);
+        })
+        .catch((error) => {
+          console.log(error);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
+  }, [username, token]);
 
   const toggleLike = () => {
     if (title) {
@@ -111,7 +142,8 @@ export default function PostCard({
         })
         .catch((error) => {
           if (
-            error.response.data.detail === "You have already liked this comment."
+            error.response.data.detail ===
+            "You have already liked this comment."
           ) {
             setIsLiked(true);
           }
@@ -119,25 +151,40 @@ export default function PostCard({
         });
       setIsLiked(!isLiked);
     }
-
   };
 
   const toggleBookmark = () => {
-    axios
-      .post(
-        `${BASE_URL}/${isBookmarked ? "unbookmark" : "bookmark"}/`,
-        { post_id: id },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
-      .then((response) => {
-        console.log(response.data);
-        setIsBookmarked(response.data.is_bookmarked);
-      });
-    //setIsBookmarked(!isBookmarked);
+    if (title) {
+      axios
+        .post(
+          `${BASE_URL}/${isBookmarked ? "unbookmark" : "bookmark"}/`,
+          { post_id: id },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+        .then((response) => {
+          console.log(response.data);
+          setIsBookmarked(response.data.is_bookmarked);
+        });
+    } else {
+      axios
+        .post(
+          `${BASE_URL}/comments/${isBookmarked ? "unbookmark" : "bookmark"}/`,
+          { comment_id: id },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+        .then((response) => {
+          console.log(response.data);
+          setIsBookmarked(response.data.is_bookmarked);
+        });
+    }
   };
 
   const displayedText =
@@ -147,7 +194,7 @@ export default function PostCard({
 
   return (
     <Card className="w-[740px] px-2 pt-2" data-testid="post-card" isPressable>
-      <CardHeader onClick={() => navigate(title ? `/post/${id}` : `/comment/${id}`)} className="flex flex-col items-start gap-2">
+      <CardHeader className="flex flex-col items-start gap-2">
         <div className="flex w-full justify-between">
           <div className="flex gap-3">
             <Popover showArrow placement="bottom">
@@ -158,7 +205,9 @@ export default function PostCard({
                     isBordered
                     radius="full"
                     className="w-6 h-6 text-tiny"
-                    src="https://nextui.org/avatars/avatar-1.png"
+                    src={
+                      profileImage || "https://nextui.org/avatars/avatar-1.png"
+                    }
                   />
                   <div className="flex flex-col gap-1 items-start justify-center">
                     <h5 className="text-small tracking-tight text-default-400">
@@ -172,14 +221,71 @@ export default function PostCard({
               </PopoverContent>
             </Popover>
           </div>
-          <p className="text-default-400 text-small">{timePassed}</p>
+          <div
+            onClick={() => navigate(title ? `/post/${id}` : `/comment/${id}`)}
+            className="w-full"
+          />
+          <div className="flex flex-row items-center justify-end gap-2">
+            <p className="text-default-400 text-small text-nowrap">
+              {timePassed}
+            </p>
+            <DeletePostModal
+              isOpen={deletePostModalOpen}
+              setIsOpen={setDeletePostModalOpen}
+              post_id={id}
+              isPost={title ? true : false}
+            />
+            {isAdmin && (
+              <Popover
+                key="bottom-end"
+                placement="bottom-end"
+                onOpenChange={(isOpen) => setPopoverOpen(isOpen)}
+                isOpen={popoverOpen}
+              >
+                <PopoverTrigger>
+                  <IconDotsVertical size={20} />
+                </PopoverTrigger>
+                <PopoverContent className="p-1 pb-2">
+                  {title && (
+                    <Button
+                      variant="light"
+                      onClick={() => {
+                        navigate(`/edit-post/${id}`);
+                        setPopoverOpen(false); // Close the popover
+                      }}
+                      className="text-medium mt-2"
+                    >
+                      Edit Post
+                    </Button>
+                  )}
+                  <Button
+                    variant="light"
+                    color="danger"
+                    onClick={() => {
+                      setDeletePostModalOpen(true);
+                      setPopoverOpen(false); // Close the popover
+                    }}
+                    className="text-medium mt-2"
+                  >
+                    {title ? "Delete Post" : "Delete Comment"}
+                  </Button>
+                </PopoverContent>
+              </Popover>
+            )}
+          </div>
         </div>
         <Divider className="mt-1.5 bg-zinc-200" />
-        <h4 className="text-lg font-semibold leading-none text-default-900">
+        <h4
+          className="text-lg font-semibold leading-none text-default-900"
+          onClick={() => navigate(title ? `/post/${id}` : `/comment/${id}`)}
+        >
           {title}
         </h4>
       </CardHeader>
-      <CardBody onClick={() => navigate(title ? `/post/${id}` : `/comment/${id}`)} className="px-3 py-0 text-small text-default-600 text-justify leading-relaxed overflow-hidden">
+      <CardBody
+        onClick={() => navigate(title ? `/post/${id}` : `/comment/${id}`)}
+        className="px-3 py-0 text-small text-default-600 text-justify leading-relaxed overflow-hidden"
+      >
         <p>
           <ClickableText text={displayedText} />
           {content && content.length > maxLength && (

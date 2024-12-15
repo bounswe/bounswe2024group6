@@ -11,6 +11,7 @@ import Post from "./pages/post.tsx";
 import Profile from "./pages/profile.tsx";
 import Browse from "./pages/browse.tsx";
 import ComposePost from "./pages/compose-post.tsx";
+import EditPost from "./pages/edit-post.tsx";
 import QuizEnd from "./pages/quiz-end.tsx";
 import QuizDetails from "./pages/quiz-details.tsx";
 import QuizCreation from "./pages/quiz-creation.tsx";
@@ -75,15 +76,21 @@ const router = createBrowserRouter([
   },
   {
     path: "/comment/:commentID",
-    element: (
-        <Post />
-    ),
+    element: <Post />,
   },
   {
     path: "/compose-post",
     element: (
       <ProtectedRoute>
         <ComposePost />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/edit-post/:postID",
+    element: (
+      <ProtectedRoute>
+        <EditPost />
       </ProtectedRoute>
     ),
   },

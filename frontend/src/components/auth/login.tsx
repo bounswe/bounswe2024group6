@@ -46,6 +46,10 @@ export default function Login({
         storeToken(json.access, "access");
         storeToken(json.refresh, "refresh");
 
+        checkAdmin().then((isAdmin) => {
+          Cookies.set("isAdmin", isAdmin.toString());
+        });
+
         if (isGuestView) {
           navigate(0);
         } else {
@@ -57,7 +61,7 @@ export default function Login({
       });
   };
 
-  const { login, storeToken } = AuthActions();
+  const { login, storeToken, checkAdmin } = AuthActions();
 
   return (
     <div className=" flex lg:justify-end items-center">

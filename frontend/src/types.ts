@@ -5,6 +5,8 @@ export type Comment = {
   created_at: string;
   like_count: number;
   is_liked: boolean;
+  is_bookmarked: boolean;
+  parent: number;
 };
 
 export type Post = {
@@ -50,6 +52,7 @@ export type CommentResponse = {
   like_count: number;
   tags: string[];
   is_liked: boolean;
+  is_bookmarked: boolean;
   replies?: Comment[]; // TODO: to be made required
 };
 
@@ -150,6 +153,7 @@ export type Profile = {
   posts: Post[];
   quizzes: Quiz[];
   is_followed: boolean;
+  is_banned: boolean;
 };
 
 export type ProfileResponse = {
@@ -157,6 +161,7 @@ export type ProfileResponse = {
   follower_count: number;
   following_count: number;
   is_followed: boolean;
+  profile_picture: string;
   level: string;
   bio: string;
   name: string;
@@ -164,6 +169,7 @@ export type ProfileResponse = {
   posts: PostResponse[];
   image?: string; // TODO: to be made required
   quizzes?: Quiz[]; // TODO: to be made required
+  is_banned: boolean;
 };
 
 

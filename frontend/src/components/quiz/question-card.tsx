@@ -6,7 +6,6 @@ import {
   Divider,
   Button,
 } from "@nextui-org/react";
-import { option } from "framer-motion/client";
 import { BASE_URL } from "../../lib/baseURL.ts";
 import axios from "axios";
 import { AuthActions } from "../../components/auth/utils.tsx";
@@ -129,7 +128,7 @@ export default function QuestionCard({
               answers[cur_question - 1] === Answer.C ||
               correct == 1 ||
               previous_answer == 1
-                ? "text-white"
+                ? ""
                 : ""
             }`}
           >
@@ -159,7 +158,7 @@ export default function QuestionCard({
               answers[cur_question - 1] === Answer.C ||
               correct == 2 ||
               previous_answer == 2
-                ? "text-white"
+                ? ""
                 : ""
             }`}
           >
@@ -189,7 +188,7 @@ export default function QuestionCard({
               answers[cur_question - 1] === Answer.C ||
               correct == 3 ||
               previous_answer == 3
-                ? "text-white"
+                ? ""
                 : ""
             }`}
           >
@@ -219,7 +218,7 @@ export default function QuestionCard({
               answers[cur_question - 1] === Answer.C ||
               correct == 4 ||
               previous_answer == 4
-                ? "text-white"
+                ? ""
                 : ""
             }`}
           >

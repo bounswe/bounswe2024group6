@@ -67,7 +67,7 @@ export const convertCommentResponseToPost = (commentResponse: CommentResponse): 
       likes: commentResponse.like_count,
       comments: commentResponse.replies ? commentResponse.replies.length : 0,
       is_liked: commentResponse.is_liked,
-      is_bookmarked: false, // Comments can't be bookmarked
+      is_bookmarked: commentResponse.is_bookmarked,
     },
     comments: commentResponse.replies || [], // Nested comments, if any
   };
@@ -135,9 +135,10 @@ export const convertProfileResponseToProfile = (profileResponse: ProfileResponse
     bio: profileResponse.bio,
     followers: profileResponse.follower_count,
     following: profileResponse.following_count,
-    image: profileResponse.image || '',
+    image: profileResponse.profile_picture || 'https://nextui.org/avatars/avatar-1.png',
     posts: profileResponse.posts.map(convertPostResponseToPost),
     quizzes: profileResponse.quizzes || [],
     is_followed: profileResponse.is_followed,
+    is_banned: profileResponse.is_banned,
   };
 };
