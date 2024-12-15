@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import PressableText from '../pressableText';
+import { fetchCommentAuthorImage } from '../api/forum';
 
 interface CommentCardProps {
   id: number;
@@ -15,6 +16,24 @@ interface CommentCardProps {
 
 const CommentCard: React.FC<CommentCardProps> = ({ id, isBookmarked: initialBookmark, username, comment, onUpvote, liked, likes }) => {
   const [isBookmarked, setIsBookmarked] = useState(initialBookmark);
+    const [imageLink, setImageLink] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchImage = async () => {
+            try {
+                const response = await fetchCommentAuthorImage(username);
+                console.log(response.profile_picture)
+                setImageLink(response.profile_picture);
+            } catch (error) {
+                console.error('Error fetching image:', error);
+            }
+        };
+
+        fetchImage();
+    }, [username]);
+
+
+
 
   const toggleBookmark = () => {
     setIsBookmarked(!isBookmarked);
@@ -25,7 +44,12 @@ const CommentCard: React.FC<CommentCardProps> = ({ id, isBookmarked: initialBook
       <View style={styles.cardContainer}>
         <View style={styles.profileSection}>
           <View style={styles.profileIcon}>
-            <FontAwesome name="user" size={24} color="#333" />
+            {imageLink ? (
+                <Image source={{ uri: imageLink }} style={{ width: 40, height: 40, borderRadius: 20 }} />
+            ) : (
+                <FontAwesome name="user" size={24} color="#333" />
+            )}
+            {/* <FontAwesome name="user" size={24} color="#333" /> */}
           </View>
           <Text style={styles.userName}>{username}</Text>
         </View>
