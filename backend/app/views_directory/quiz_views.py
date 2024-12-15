@@ -179,13 +179,14 @@ def submit_quiz(request):
         # fetch the latest 5 wrong questions
         # TODO: change this to a more clever algorithm
         wrong_questions = WrongQuestion.objects.filter(user=request.user).order_by('-id')[:5]
-        
+        max_level = max(wq.question.level for wq in wrong_questions)
+
         review_quiz_data = {
             'title': 'Review Your Mistakes',
             'description': 'A set of questions you answered incorrectly.',
             'author': request.user.id,
-            'tags': [{'name': 'for you'}],  # TODO: add relevant tags if necessary
-            'level': 'B1',  # TODO: adjust the level from the wrong questions 
+            'tags': [{'name': 'for you'}],  # TODO: might wanna add relative tags
+            'level': max_level,  
             'question_count': wrong_questions.count(),
             'for_user': request.user.id
         }
