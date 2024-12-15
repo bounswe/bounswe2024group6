@@ -6,7 +6,6 @@ import {
   Divider,
   Button,
 } from "@nextui-org/react";
-import { option } from "framer-motion/client";
 import { BASE_URL } from "../../lib/baseURL.ts";
 import axios from "axios";
 import { AuthActions } from "../../components/auth/utils.tsx";
