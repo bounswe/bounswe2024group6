@@ -124,6 +124,41 @@ export default function Post() {
               created_at: response.data.created_at,
               like_count: 0,
               is_liked: false,
+              is_bookmarked: false,
+            },
+            ...comments,
+          ]);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } else if(commentID) {
+      axios
+        .post(
+          `${BASE_URL}/post/comment/add/`,
+          {
+            body: comment,
+            parent_id: commentID,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+        .then((response) => {
+          console.log(response.data);
+          setComment("");
+          setComments([
+            {
+              id: response.data.id,
+              content: response.data.body,
+              author: username || "Me",
+              created_at: response.data.created_at,
+              like_count: 0,
+              is_liked: false,
+              is_bookmarked: false,
             },
             ...comments,
           ]);
@@ -196,7 +231,7 @@ export default function Post() {
                 timePassed={formatTimeAgo(comment.created_at)}
                 likeCount={comment.like_count}
                 initialIsLiked={comment.is_liked}
-                initialIsBookmarked={false}
+                initialIsBookmarked={comment.is_bookmarked}
               />
             </Suspense>
           ))}

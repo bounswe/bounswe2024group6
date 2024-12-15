@@ -67,7 +67,7 @@ export const convertCommentResponseToPost = (commentResponse: CommentResponse): 
       likes: commentResponse.like_count,
       comments: commentResponse.replies ? commentResponse.replies.length : 0,
       is_liked: commentResponse.is_liked,
-      is_bookmarked: false, // Comments can't be bookmarked
+      is_bookmarked: commentResponse.is_bookmarked,
     },
     comments: commentResponse.replies || [], // Nested comments, if any
   };

@@ -123,6 +123,7 @@ export default function PostCard({
   };
 
   const toggleBookmark = () => {
+    if(title) {
     axios
       .post(
         `${BASE_URL}/${isBookmarked ? "unbookmark" : "bookmark"}/`,
@@ -137,7 +138,22 @@ export default function PostCard({
         console.log(response.data);
         setIsBookmarked(response.data.is_bookmarked);
       });
-    //setIsBookmarked(!isBookmarked);
+    } else {
+      axios
+        .post(
+          `${BASE_URL}/comments/${isBookmarked ? "unbookmark" : "bookmark"}/`,
+          { comment_id: id },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+        .then((response) => {
+          console.log(response.data);
+          setIsBookmarked(response.data.is_bookmarked);
+        });
+    }
   };
 
   const displayedText =
