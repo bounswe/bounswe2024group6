@@ -153,6 +153,7 @@ export type Profile = {
   posts: Post[];
   quizzes: Quiz[];
   is_followed: boolean;
+  is_banned: boolean;
 };
 
 export type ProfileResponse = {
@@ -168,6 +169,7 @@ export type ProfileResponse = {
   posts: PostResponse[];
   image?: string; // TODO: to be made required
   quizzes?: Quiz[]; // TODO: to be made required
+  is_banned: boolean;
 };
 
 

@@ -139,5 +139,6 @@ export const convertProfileResponseToProfile = (profileResponse: ProfileResponse
     posts: profileResponse.posts.map(convertPostResponseToPost),
     quizzes: profileResponse.quizzes || [],
     is_followed: profileResponse.is_followed,
+    is_banned: profileResponse.is_banned,
   };
 };
