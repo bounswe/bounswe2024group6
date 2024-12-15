@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import PressableText from '../pressableText';
+import {router} from 'expo-router';
 import { fetchCommentAuthorImage } from '../api/forum';
 import { bookmarkComment, unbookmarkComment } from '../api/forum';
 
@@ -50,9 +51,18 @@ const toggleBookmark = async () => {
     console.log(isBookmarked)
 };
 
+  const redirectToAuthorProfilePage = () =>{
+     router.navigate('/(tabs)/profile')
+        setTimeout(() => {
+          router.push(`/(tabs)/profile/users/${username}`);
+        }, 0);
+  }
+
   return (
     <>
       <View style={styles.cardContainer}>
+
+        <TouchableOpacity onPress={redirectToAuthorProfilePage}>
         <View style={styles.profileSection}>
           <View style={styles.profileIcon}>
             {imageLink ? (
@@ -64,6 +74,7 @@ const toggleBookmark = async () => {
           </View>
           <Text style={styles.userName}>{username}</Text>
         </View>
+        </TouchableOpacity>
 
         <View style={styles.commentSection}>
           <PressableText style={styles.commentText} text={comment} />
