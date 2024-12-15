@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import PressableText from '../pressableText';
+import {router} from 'expo-router';
 
 interface CommentCardProps {
   id: number;
@@ -20,15 +21,25 @@ const CommentCard: React.FC<CommentCardProps> = ({ id, isBookmarked: initialBook
     setIsBookmarked(!isBookmarked);
   };
 
+  const redirectToAuthorProfilePage = () =>{
+     router.navigate('/(tabs)/profile')
+        setTimeout(() => {
+          router.push(`/(tabs)/profile/users/${username}`);
+        }, 0);
+  }
+
   return (
     <>
       <View style={styles.cardContainer}>
+
+        <TouchableOpacity onPress={redirectToAuthorProfilePage}>
         <View style={styles.profileSection}>
           <View style={styles.profileIcon}>
             <FontAwesome name="user" size={24} color="#333" />
           </View>
           <Text style={styles.userName}>{username}</Text>
         </View>
+        </TouchableOpacity>
 
         <View style={styles.commentSection}>
           <PressableText style={styles.commentText} text={comment} />
