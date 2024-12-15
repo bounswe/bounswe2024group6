@@ -9,29 +9,24 @@ import { AuthActions } from "../components/auth/utils.tsx";
 import PostCardSkeleton from "../components/post/post-card-skeleton.tsx";
 import { Quiz, QuizResponse } from "../types.ts";
 import { convertQuizResponseToQuiz } from "../components/common/utils.tsx";
-import { Select, SelectItem } from "@nextui-org/react";
+import {
+  Select,
+  SelectItem,
+  Autocomplete,
+  AutocompleteItem,
+} from "@nextui-org/react";
 
-const Tags = [
-  "#Activities",
-  "#Basics",
-  "#Education",
-  "#Food",
-  "#Health",
-  "#Other",
-  "#Shopping",
-  "#Family",
-  "#Sports",
-  "#Travel",
-  "#Work",
-];
 const DifficultyTags = ["A1", "A2", "B1", "B2", "C1", "C2"];
 const SortFilters = ["Most Recent", "Most Liked", "Most Taken"];
-
 
 export default function Quizzes() {
   usePageTitle("Quizzes");
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+  const [selectedDifficultyTags, setSelectedDifficultyTags] = useState<
+    string[]
+  >([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [tags, setTags] = useState<{ key: string; label: string }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { getToken } = AuthActions();
   const token = getToken("access");
@@ -40,14 +35,15 @@ export default function Quizzes() {
     setSortFilter(e.target.value);
   };
 
-  const handleTagClick = (tag: string) => {
-    if (selectedTags.includes(tag)) {
-      setSelectedTags(selectedTags.filter((t) => t !== tag));
+  const handleDifficultyTagClick = (tag: string) => {
+    if (selectedDifficultyTags.includes(tag)) {
+      setSelectedDifficultyTags(
+        selectedDifficultyTags.filter((t) => t !== tag)
+      );
     } else {
-      setSelectedTags([...selectedTags, tag]);
+      setSelectedDifficultyTags([...selectedDifficultyTags, tag]);
     }
   };
-
 
   useEffect(() => {
     setIsLoading(true);
@@ -57,12 +53,19 @@ export default function Quizzes() {
     };
     axios
       .get(`${BASE_URL}/feed/quiz/`, {
-        headers
+        headers,
       })
       .then((response) => {
         console.log(response.data);
         const quizData: QuizResponse[] = response.data;
         setQuizzes(quizData.map(convertQuizResponseToQuiz));
+        setTags(
+          quizData
+            .map((quiz) => quiz.tags)
+            .flat()
+            .filter((tag) => !DifficultyTags.includes(tag))
+            .map((tag) => ({ key: tag, label: tag }))
+        );
       })
       .catch((error) => {
         console.log(error);
@@ -70,11 +73,18 @@ export default function Quizzes() {
       .finally(() => {
         setIsLoading(false);
       });
-  }, []);
+  }, [token]);
 
   const filteredQuizzes = quizzes.filter((quiz) => {
+    if (
+      selectedDifficultyTags.length > 0 &&
+      !quiz.quiz.tags.some((tag) => selectedDifficultyTags.includes(tag))
+    ) {
+      return false;
+    }
     // Show all posts if no tags are selected
-    if (selectedTags.length === 0) return true;
+    if (!selectedTags || selectedTags.length === 0 || !selectedTags[0])
+      return true;
 
     // Check if the post has at least one tag from the selectedTags
     return quiz.quiz.tags.some((tag) => selectedTags.includes(tag));
@@ -96,13 +106,13 @@ export default function Quizzes() {
     }
   });
 
-  
   return (
     <div className="items-center gap-4 flex flex-col overflow-hidden pb-4">
       <Navbar />
       <CreateQuizButton />
       <div className="flex w-[740px] justify-between items-center  mt-4">
         <Select
+          size="lg"
           onChange={handleSelectionChange}
           placeholder="Sort By"
           defaultSelectedKeys={["Most Recent"]}
@@ -114,36 +124,42 @@ export default function Quizzes() {
         </Select>
         <div className="flex flex-row gap-2">
           <Select
+            size="lg"
             placeholder="Difficulty"
             selectionMode="multiple"
             className="w-32 text-black"
           >
             {DifficultyTags.map((tag) => (
-              <SelectItem onPress={() => handleTagClick(tag)} key={tag}>
-                {"#"+tag}
+              <SelectItem
+                onPress={() => handleDifficultyTagClick(tag)}
+                key={tag}
+              >
+                {"#" + tag}
               </SelectItem>
             ))}
           </Select>
-          <Select
-            placeholder="Categories"
-            selectionMode="multiple"
-            className="w-32 text-black"
+          <Autocomplete
+            size="sm"
+            radius="lg"
+            className="max-w-[200px]"
+            defaultItems={tags}
+            label="Tags"
+            placeholder="Search a tag"
+            onSelectionChange={(e) => {
+              setSelectedTags([e]);
+            }}
           >
-            {Tags.map((tag) => (
-              <SelectItem onPress={() => handleTagClick(tag)} key={tag}>
-                {tag}
-              </SelectItem>
-            ))}
-          </Select>
+            {(item) => (
+              <AutocompleteItem key={item.key}>{item.label}</AutocompleteItem>
+            )}
+          </Autocomplete>
         </div>
       </div>
-      {isLoading ?
-        Array(2)
-          .fill(0)
-          .map((_, index) => <PostCardSkeleton key={index} />)
-        :
-        (
-          sortedQuizzes.map((quiz) => (
+      {isLoading
+        ? Array(2)
+            .fill(0)
+            .map((_, index) => <PostCardSkeleton key={index} />)
+        : sortedQuizzes.map((quiz) => (
             <QuizCard
               key={quiz.id}
               id={quiz.id}
@@ -158,8 +174,7 @@ export default function Quizzes() {
               initialIsBookmarked={quiz.engagement.is_bookmarked}
               timesTaken={quiz.quiz.times_taken}
             />
-          ))
-        )}
+          ))}
     </div>
   );
 }
