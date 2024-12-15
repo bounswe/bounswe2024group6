@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
+import GuestModal from './guestModal';
+import TokenManager from '../TokenManager';
 
 interface CommentCardProps {
     id: number;
@@ -10,20 +12,38 @@ interface CommentCardProps {
     comment: string;
     liked: boolean;
     likes: number;
-
 }
 
 const CommentCard: React.FC<CommentCardProps> = ({ id, isBookmarked: initialBookmark, username, comment, onUpvote, liked, likes }) => {
     const [isBookmarked, setIsBookmarked] = useState(initialBookmark);
+    const [guestModalVisible, setGuestModalVisible] = useState(false);
+
 
     const toggleBookmark = () => {
         setIsBookmarked(!isBookmarked);
     };
 
+    const handleLikePress = () => {
+        if(!TokenManager.getUsername()){
+            setGuestModalVisible(true);
+            return;
+        }
+        onUpvote(id);
+    }
+    
+    const handleBookmarkPress = () => {
+        if(!TokenManager.getUsername()){
+            setGuestModalVisible(true);
+            return;
+        }
+        // TODO: Implement bookmark here!
+        toggleBookmark();
+    }
 
 
     return (
         <>
+        {guestModalVisible && <GuestModal onClose={() => setGuestModalVisible(false)}/>}
         <View style={styles.cardContainer}>
            
            
@@ -47,7 +67,7 @@ const CommentCard: React.FC<CommentCardProps> = ({ id, isBookmarked: initialBook
                     </TouchableOpacity>
                     <Text style={styles.upvoteCount}>{upvoteCount}</Text> */}
 
-            <TouchableOpacity style={styles.likeButton} onPress={() => onUpvote(id)} testID='likeButton'>
+            <TouchableOpacity style={styles.likeButton} onPress={handleLikePress} testID='likeButton'>
                         <Text style={styles.quizLikes}>
                         <Image source={liked ? require('../../assets/images/like-2.png') : require('../../assets/images/like-1.png')}style={styles.icon} /> 
                                           {/* <Image source={ require('../../assets/images/like-2.png')}style={styles.icon} />  */}
@@ -59,7 +79,7 @@ const CommentCard: React.FC<CommentCardProps> = ({ id, isBookmarked: initialBook
 
 
                 {/* Bookmark Button */}
-                <TouchableOpacity onPress={toggleBookmark} style={styles.bookmarkButton}>
+                <TouchableOpacity onPress={handleBookmarkPress} style={styles.bookmarkButton}>
                     <FontAwesome name={isBookmarked ? 'bookmark' : 'bookmark-o'} size={20} color="black" />
                 </TouchableOpacity>
             </View>

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { TouchableOpacity, Image, Text, View, StyleSheet, useColorScheme } from 'react-native';
+import GuestModal from './guestModal';
+import TokenManager from '../TokenManager';
 
 type QuizCardProps = {
   title: string,
@@ -18,6 +20,7 @@ type QuizCardProps = {
 export default function QuizCard(props: QuizCardProps){
   const [likes, setLikes] = useState(props.likes);
   const [liked, setLiked] = useState(props.liked);
+  const [guestModalVisible, setGuestModalVisible] = useState(false);
 
   const colorScheme = useColorScheme();
   const styles = getStyles(colorScheme);
@@ -28,6 +31,11 @@ export default function QuizCard(props: QuizCardProps){
   };
 
   const handleLikePress = (id: number) => {
+    if(!TokenManager.getUsername()){
+      setGuestModalVisible(true);
+      return
+    }
+
     props.onLikePress && props.onLikePress(id);
     if(liked){
       setLiked(false);
@@ -40,36 +48,43 @@ export default function QuizCard(props: QuizCardProps){
   };
 
   const handleBookmarkPress = (id: number) => {
+    if(!TokenManager.getUsername()){
+      setGuestModalVisible(true);
+      return
+    }
     props.onBookmarkPress && props.onBookmarkPress(id);
   };
 
   return (
-    <TouchableOpacity
-      style={[styles.quizItem, styles.elevation]}
-      onPress={() => handleQuizPress(props.id)}
-      testID='quiz'
-    >
-      <View style={styles.quizTop}>
-        <Text style={styles.quizTitle}>{props.title}</Text>
-        <Text style={styles.quizDescription}>{props.description}</Text>
-      </View>
-      <View style={styles.quizBottom}>
-        <View style={styles.quizBottomLeft}>
-          <Text style={styles.quizAuthor}>by {props.author}</Text>
-          <Text style={styles.quizLevel}>{props.level}</Text>
+    <>
+      {guestModalVisible && <GuestModal onClose={() => setGuestModalVisible(false)}/>}
+      <TouchableOpacity
+        style={[styles.quizItem, styles.elevation]}
+        onPress={() => handleQuizPress(props.id)}
+        testID='quiz'
+      >
+        <View style={styles.quizTop}>
+          <Text style={styles.quizTitle}>{props.title}</Text>
+          <Text style={styles.quizDescription}>{props.description}</Text>
         </View>
-        <TouchableOpacity style={styles.likeButton} onPress={() => handleLikePress(props.id)} testID='likeButton'>
-          <Text style={styles.quizLikes}>
-          <Image source={liked ? require('@/assets/images/like-2.png') : require('@/assets/images/like-1.png')}style={styles.icon} /> {likes}
-          </Text>
-        </TouchableOpacity>
+        <View style={styles.quizBottom}>
+          <View style={styles.quizBottomLeft}>
+            <Text style={styles.quizAuthor}>by {props.author}</Text>
+            <Text style={styles.quizLevel}>{props.level}</Text>
+          </View>
+          <TouchableOpacity style={styles.likeButton} onPress={() => handleLikePress(props.id)} testID='likeButton'>
+            <Text style={styles.quizLikes}>
+            <Image source={liked ? require('@/assets/images/like-2.png') : require('@/assets/images/like-1.png')}style={styles.icon} /> {likes}
+            </Text>
+          </TouchableOpacity>
 
-        {/* Touchable Bookmark Icon at the bottom right */}
-        <TouchableOpacity style={styles.bookmarkButton} onPress={() => handleBookmarkPress(props.id)} testID='bookmarkButton'>
-          <Image source={require('@/assets/images/bookmark-icon.png')} style={styles.icon} />
-        </TouchableOpacity>
-      </View>
-    </TouchableOpacity>
+          {/* Touchable Bookmark Icon at the bottom right */}
+          <TouchableOpacity style={styles.bookmarkButton} onPress={() => handleBookmarkPress(props.id)} testID='bookmarkButton'>
+            <Image source={require('@/assets/images/bookmark-icon.png')} style={styles.icon} />
+          </TouchableOpacity>
+        </View>
+      </TouchableOpacity>
+    </>
   );
 }
 
