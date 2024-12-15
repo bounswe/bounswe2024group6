@@ -13,6 +13,7 @@ const QuizCreationInfo = () => {
   const [correctAnswerIndex, setCorrectAnswerIndex] = useState<number | null>(null)
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [prevWord, setPrevWord] = useState('');
+  const [verticalOptions, setVerticalOptions] = useState<string[]>([]);
   const [meaningList, setMeaningList] = useState<any>([]);
   const [meaningIndex, setMeaningIndex] = useState(0);
   const [error, setError] = useState('');
@@ -29,6 +30,45 @@ const QuizCreationInfo = () => {
   const { initialQuestion, initialAnswers, initialCorrectAnswer, type, index, trigger} = useLocalSearchParams();
 
 
+  const fetchVerticalOptions = async () => {
+    try {
+      let endpoint = '';
+      if (selectedType === 'Type I') {
+        endpoint = `/quiz/choices/${question}/EN_TO_TR/`;
+      } else if (selectedType === 'Type II') {
+        endpoint = `/quiz/choices/${question}/TR_TO_EN/`;
+      } else if (selectedType === 'Type III') {
+        endpoint = `/quiz/choices/${question}/EN_TO_MEANING/`;
+      }
+      
+      const response = await TokenManager.authenticatedFetch(endpoint, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+      console.log(response);
+      console.log(data);
+
+      if (!response.ok) {
+        setVerticalOptions([]);
+        setError('Options not available.');
+        return;
+      }
+
+      
+      console.log(data);
+      const options = [...data.options];
+      setVerticalOptions(options);
+      setError('');
+    } catch (error) {
+      console.error('Error fetching vertical options:', error);
+      setVerticalOptions([]);
+      setError('Options not available.');
+    }
+  };
 
 
   useEffect(() => {
