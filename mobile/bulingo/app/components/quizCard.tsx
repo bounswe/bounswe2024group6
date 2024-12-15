@@ -92,7 +92,8 @@ export default function QuizCard(props: QuizCardProps){
           />
         </TouchableOpacity>
       </View>
-    </TouchableOpacity>
+      </TouchableOpacity>
+    </>
   );
 }
 
