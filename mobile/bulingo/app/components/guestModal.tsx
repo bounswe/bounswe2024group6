@@ -8,11 +8,11 @@ type GuestModalProps = {
 
 export default function GuestModal(props: GuestModalProps){
   const onLoginPress = () => {
-    router.navigate("/login");
+    router.replace("/login");
   }
 
   const onRegisterPress = () => {
-    router.navigate("/register");
+    router.replace("/register");
   }
 
   return (

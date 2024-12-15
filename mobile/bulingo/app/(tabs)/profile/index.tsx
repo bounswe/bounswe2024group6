@@ -4,6 +4,7 @@ import { RFPercentage } from 'react-native-responsive-fontsize';
 import {router, useFocusEffect} from 'expo-router';
 import QuizCard from '@/app/components/quizCard';
 import TokenManager from '@/app/TokenManager';
+import GuestModal from '@/app/components/guestModal';
 
 const defaultUserInfo: UserInfo = {
   username: 'ygz',
@@ -61,20 +62,19 @@ export default function Profile() {
   const [userInfo, setUserInfo] = useState<UserInfo>(defaultUserInfo);
   const [tab, setTab] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [guestModalVisible, setGuestModalVisible] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
-      console.log('Page is focused!');
-
-      // Trigger your re-fetching or re-rendering logic here.
-      // For example, fetch new data:
       const fetchProfileInfo = async () => {
         setIsLoading(true);
         const username = TokenManager.getUsername()
-        if (username === null){
-          console.error("username is null")
+        if (!username){
+          setGuestModalVisible(true);
+          setIsLoading(false);
           return
         }
+        setGuestModalVisible(false);
         const params = {
           'user': username,
          };
@@ -139,7 +139,6 @@ export default function Profile() {
 
       // Optional cleanup (runs when page loses focus)
       return () => {
-        console.log('Page is no longer focused.');
       };
     }, [])
   );
@@ -155,6 +154,14 @@ export default function Profile() {
       </TouchableWithoutFeedback>
     );
   };
+
+  const onGuestModalClose = () => {
+    setGuestModalVisible(false);
+    router.replace("/");
+  }
+  if(guestModalVisible){
+    return <GuestModal onClose={onGuestModalClose}/>
+  }
 
   return (
     <FlatList 
