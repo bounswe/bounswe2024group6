@@ -15,12 +15,33 @@ const QuizResults = () => {
   const styles = getStyles(colorScheme);
 
   const [quizResult, setQuizResult] = useState<{
-    quiz: { id: number; title: string };
-    score: number;
-    time_taken: number;
-    level: string;
-    question_count: number;
+    questions: {
+      choice_images: any[];
+      choices: any[]; 
+      correct_choice: number;
+      is_correct: boolean;
+      question_image: string | null;
+      question_number: number;
+      question_text: string;
+      user_answer: number | null;
+    }[];
+    quiz_result: {
+      author: { id: number; username: string };
+      id: number;
+      is_bookmarked: boolean;
+      is_liked: boolean;
+      level: string;
+      like_count: number;
+      question_count: number;
+      quiz: { id: number; title: string };
+      quiz_progress: number;
+      score: number;
+      time_taken: number;
+      user: { id: number; username: string };
+    };
+    quiz_title_image: string | null;
   } | null>(null);
+  
 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -118,10 +139,10 @@ const QuizResults = () => {
       <View style={styles.resultsCardContainer}>
         {quizResult ? (
           <QuizResultsCard
-            quizName={quizResult.quiz.title}
-            tags={[quizResult.level || 'A1']}
-            score={quizResult.score}
-            maxScore={quizResult.question_count}
+            quizName={quizResult.quiz_result.quiz.title}
+            tags={[quizResult.quiz_result.level || 'A1']}
+            score={quizResult.quiz_result.score}
+            maxScore={quizResult.quiz_result.question_count}
             styles={{ styles }}
           />
         ) : (
