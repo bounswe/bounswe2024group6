@@ -15,6 +15,7 @@ export default function Home() {
   const username = TokenManager.getUsername();
   const [logoutTrigger, setLogoutTrigger] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
+  const [profilePictureUri, setProfilePictureUri] = useState("");
 
 
 
@@ -25,6 +26,46 @@ export default function Home() {
       } else if (searchParams?.notification == 'register_success'){
         setNotification("Registration Successful!");
       }
+
+      const fetchProfileInfo = async () => {
+        const username = TokenManager.getUsername()
+        if (!username){
+          return
+        }
+        const params = {
+          'user': username,
+         };
+  
+        const baseUrl = 'profile/'; 
+        // Convert the parameters to a query string
+        const queryString = new URLSearchParams(params).toString();
+        const profileUrl = `${baseUrl}?${queryString}`;
+  
+        try {
+          const profileRequest = await TokenManager.authenticatedFetch(profileUrl, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+          const profileResponse = await profileRequest.json();
+          if (profileRequest.ok){
+            setProfilePictureUri(profileResponse.profile_picture)
+          } else {
+            console.log(profileRequest.status)
+          };
+        } catch (error) {
+          console.error(error);
+        }
+      };
+
+      fetchProfileInfo();
+
+      // Optional cleanup (runs when page loses focus)
+      return () => {
+        console.log('Page is no longer focused.');
+      };
+
     }, [])
   );
 
@@ -48,7 +89,7 @@ export default function Home() {
       <View style={styles.page}>
       <View style={styles.profilePictureContainer}>
       <Image
-            source={require('@/assets/images/profile-icon.png')}
+            source={profilePictureUri ? { uri: profilePictureUri} : require('@/assets/images/profile-icon.png')}
             style={styles.profilePicture}
         />
       </View>
