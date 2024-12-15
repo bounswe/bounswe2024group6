@@ -50,7 +50,9 @@ export default function Post() {
           console.log(response.data);
           const postData: PostResponse = response.data.post;
           setPost(convertPostResponseToPost(postData));
-          setComments(convertPostResponseToPost(postData).comments);
+          setComments(
+            convertPostResponseToPost(postData).comments.filter(comment => comment.parent === null)
+          );
         })
         .catch((error) => {
           console.log(error);
@@ -135,7 +137,7 @@ export default function Post() {
     } else if(commentID) {
       axios
         .post(
-          `${BASE_URL}/post/comment/add/`,
+          `${BASE_URL}/post/comment/reply/`,
           {
             body: comment,
             parent_id: commentID,
@@ -148,7 +150,7 @@ export default function Post() {
           }
         )
         .then((response) => {
-          console.log(response.data);
+          console.log("reply",response.data);
           setComment("");
           setComments([
             {

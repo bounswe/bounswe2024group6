@@ -83,7 +83,7 @@ export default function PostCard({
         })
         .then((response) => {
           const data: ProfileResponse = response.data;
-          console.log("profile",data);
+          console.log("profile", data);
           setProfileImage(response.data.profile_picture);
         })
         .catch((error) => {
@@ -149,21 +149,21 @@ export default function PostCard({
   };
 
   const toggleBookmark = () => {
-    if(title) {
-    axios
-      .post(
-        `${BASE_URL}/${isBookmarked ? "unbookmark" : "bookmark"}/`,
-        { post_id: id },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
-      .then((response) => {
-        console.log(response.data);
-        setIsBookmarked(response.data.is_bookmarked);
-      });
+    if (title) {
+      axios
+        .post(
+          `${BASE_URL}/${isBookmarked ? "unbookmark" : "bookmark"}/`,
+          { post_id: id },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+        .then((response) => {
+          console.log(response.data);
+          setIsBookmarked(response.data.is_bookmarked);
+        });
     } else {
       axios
         .post(
@@ -255,8 +255,8 @@ export default function PostCard({
               onClick={
                 isGuest
                   ? () => {
-                      setGuestModalOpen(true);
-                    }
+                    setGuestModalOpen(true);
+                  }
                   : toggleLike
               }
               variant="light"
@@ -277,8 +277,8 @@ export default function PostCard({
             onClick={
               isGuest
                 ? () => {
-                    setGuestModalOpen(true);
-                  }
+                  setGuestModalOpen(true);
+                }
                 : toggleBookmark
             }
             variant="light"

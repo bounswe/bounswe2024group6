@@ -6,6 +6,7 @@ export type Comment = {
   like_count: number;
   is_liked: boolean;
   is_bookmarked: boolean;
+  parent: number;
 };
 
 export type Post = {
