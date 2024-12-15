@@ -2,12 +2,21 @@ import { useEffect, useState } from "react";
 import { Card, Input, Select, SelectItem, Button } from "@nextui-org/react";
 import { IconWand, IconTrash } from "@tabler/icons-react";
 import { Question } from "../../types";
+import { AuthActions } from "../auth/utils";
+import { BASE_URL } from "../../lib/baseURL";
+import axios from "axios";
 
 const TYPES = [
   { key: "1", label: "English->Turkish" },
   { key: "2", label: "Turkish->English" },
   { key: "3", label: "Meaning" },
 ];
+
+const getTypeValue = (typeSet: Set<string>): string => {
+  const typeKey = Array.from(typeSet)[0];
+  const selectedType = TYPES.find((t) => t.key === typeKey);
+  return selectedType ? selectedType.label : "EN_TO_TR";
+};
 
 export default function CreateQuizQuestion({
   setQuizQuestions,
@@ -20,6 +29,8 @@ export default function CreateQuizQuestion({
   const [type, setType] = useState(new Set(["1"]));
   const [correctAnswer, setCorrectAnswer] = useState("");
   const [wrongAnswers, setWrongAnswers] = useState<string[]>(["", "", ""]);
+  const { getToken } = AuthActions();
+  const token = getToken("access");
 
   useEffect(() => {
     const allAnswers = [correctAnswer, ...wrongAnswers];
@@ -40,6 +51,32 @@ export default function CreateQuizQuestion({
       return newQuestions;
     });
   }, [word, type, correctAnswer, wrongAnswers]);
+
+  const handleChoiceCreation = () => {
+    console.log("Creating choices...");
+    const typeValue =
+      getTypeValue(type) === "English->Turkish"
+        ? "EN_TO_TR"
+        : getTypeValue(type) === "Turkish->English"
+        ? "TR_TO_EN"
+        : "EN_TO_MEANING";
+
+    axios
+      .get(`${BASE_URL}/quiz/choices/${word}/${typeValue}/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        const correctOption = response.data.correct_answer;
+        const wrongOptions = response.data.options;
+        setCorrectAnswer(correctOption);
+        setWrongAnswers(wrongOptions);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
 
   return (
     <Card className="w-[840px] px-2 pt-2 p-4">
@@ -67,12 +104,7 @@ export default function CreateQuizQuestion({
               size="lg"
               isDisabled={!word}
               onClick={() => {
-                setCorrectAnswer("Correct Answer");
-                setWrongAnswers([
-                  "Wrong Answer 1",
-                  "Wrong Answer 2",
-                  "Wrong Answer 3",
-                ]);
+                handleChoiceCreation();
               }}
             >
               <IconWand size={24} />

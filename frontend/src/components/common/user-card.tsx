@@ -115,7 +115,7 @@ export const UserCard = ({
             isBordered
             radius="full"
             size="md"
-            src="https://nextui.org/avatars/avatar-1.png"
+            src={profile?.image || profile_image || "https://nextui.org/avatars/avatar-1.png"}
           />
           <div className="flex flex-col items-start justify-center">
             <h4 className="text-small font-semibold leading-none text-default-600">

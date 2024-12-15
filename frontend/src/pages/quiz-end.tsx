@@ -42,12 +42,12 @@ export default function QuizEnd() {
                 })
                 .then((response) => {
                     console.log(response.data);
-                    setQuizData(response.data);
-                    setScorePercentage((response.data.score / response.data.question_count) * 100);
-                    setIsLiked(response.data.is_liked);
-                    setLikes(response.data.like_count);
-                    setIsBookmarked(response.data.is_bookmarked);
-                    setquiz_id(response.data.quiz.id);
+                    setQuizData(response.data.quiz_result);
+                    setScorePercentage((response.data.quiz_result.score / response.data.quiz_result.question_count) * 100);
+                    setIsLiked(response.data.quiz_result.is_liked);
+                    setLikes(response.data.quiz_result.like_count);
+                    setIsBookmarked(response.data.quiz_result.is_bookmarked);
+                    setquiz_id(response.data.quiz_result.id);
                 })
                 .catch((error) => {
                     console.error("Error fetching quiz data:", error);
@@ -223,7 +223,7 @@ export default function QuizEnd() {
                         </CardFooter>
                     </Card>
                 </div>
-                <div className="w-min overflow-hidden items-center mb-1">
+                <div className=" p-4 w-min overflow-hidden items-center mb-1">
                     {
                         quizRecommend ?
                             <div className="flex flex-col justify-center gap-2 items-center w-min">

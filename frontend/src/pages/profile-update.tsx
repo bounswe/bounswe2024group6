@@ -17,6 +17,9 @@ export default function EditProfile() {
   const token = getToken("access");
   const tags = ["A1", "A2", "B1", "B2", "C1", "C2"];
   const navigate = useNavigate();
+  const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+
 
   const [formData, setFormData] = useState({
     username: "",
@@ -25,7 +28,15 @@ export default function EditProfile() {
     avatar: "",
   });
 
-  // Fetch Profile Data (unchanged from your logic)
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile && selectedFile.type.startsWith("image/")) {
+      setFile(selectedFile);
+      setPreview(URL.createObjectURL(selectedFile));
+    }
+  };
+
+  // Fetch Profile Data
   useEffect(() => {
     axios
       .get(`${BASE_URL}/profile/${Cookies.get("username")}/`, {
@@ -42,8 +53,10 @@ export default function EditProfile() {
           username: profile.username,
           level: profile.level,
           bio: profile.bio || "Hey, new learner here!",
-          avatar: "https://nextui.org/avatars/avatar-1.png", // Mocked default avatar
+          avatar: profile.image || "https://nextui.org/avatars/avatar-1.png",
         });
+
+        setPreview(profile.image || null);
       })
       .catch((error) => {
         console.log(error);
@@ -59,23 +72,37 @@ export default function EditProfile() {
   const handleLevelChange = (level: string) => {
     setFormData({ ...formData, level });
   };
+
+
   const handleSubmit = () => {
+    const formDataToSend = new FormData();
+
+    // Add basic profile data
+    formDataToSend.append("username", formData.username);
+    formDataToSend.append("level", formData.level);
+    formDataToSend.append("bio", formData.bio);
+
+    // Add avatar file if it exists
+    if (file) {
+      formDataToSend.append("profile_picture", file);
+    }
+
     axios
-      .post(`${BASE_URL}/profile/update/`, formData, {
+      .post(`${BASE_URL}/profile/update/`, formDataToSend, {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          "Content-Type": "multipart/form-data",
         },
       })
-      .then(() => {
-        console.log("Profile updated successfully");
+      .then((response) => {
+        console.log("Profile updated successfully", response.data);
         navigate(`/profile/${Cookies.get("username")}`);
-        //setProfile(formData); // Update profile with new values
       })
       .catch((error) => {
         console.log(error);
       });
   };
+
 
   return (
     <div className="h-full w-full items-center overflow-hidden flex flex-col">
@@ -83,16 +110,27 @@ export default function EditProfile() {
       <div className="flex flex-col justify-center gap-6 items-center w-full px-32 py-5">
         {/* Avatar */}
         <div className="flex flex-col items-center">
-          <Avatar src={formData.avatar} className="w-32 h-32 mb-4" />
-          <Button
-            variant="faded"
-            color="primary"
-            className="font-bold"
-            //onClick={() => alert("Avatar change logic goes here!")} // Mocked logic
-          >
-            Change Avatar
-          </Button>
+          {/* Avatar Display */}
+          <Avatar
+            src={preview || formData.avatar} // Show preview if a file is selected, else show the current avatar
+            className="w-32 h-32 mb-4"
+          />
+
+          {/* Change Avatar Button */}
+          <label className="relative cursor-pointer">
+            <div className={`bg-default-100 hover:bg-default-200 flex flex-col justify-center items-center rounded-3xl w-[120px] h-[40px] overflow-hidden`}>
+              <span className="text-primary text-sm font-bold">Change Avatar</span>
+            </div>
+            {/* File Input */}
+            <input
+              type="file"
+              className="hidden"
+              onChange={handleFileChange} // Handle file selection
+              accept="image/*"
+            />
+          </label>
         </div>
+
 
         <form className="flex flex-col gap-6 w-full max-w-lg">
           {/* Bio Field */}

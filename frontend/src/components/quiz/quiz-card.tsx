@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   CardHeader,
@@ -25,6 +25,7 @@ import axios from "axios";
 import { BASE_URL } from "../../lib/baseURL";
 import { UserCard } from "../common/user-card";
 import GuestAuthModal from "../auth/guest-auth-modal";
+import { ProfileResponse } from "../../types";
 
 const maxLength = 250; // Maximum length of the content to be displayed
 
@@ -64,10 +65,35 @@ export default function QuizCard({
   const token = getToken("access");
   const isGuest = !token;
   const [guestModalOpen, setGuestModalOpen] = useState(false);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
   };
+
+  useEffect(() => {
+    if (username) {
+      setIsLoading(true);
+      axios
+        .get(`${BASE_URL}/profile/${username}/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((response) => {
+          const data: ProfileResponse = response.data;
+          console.log("profile",data);
+          setProfileImage(response.data.profile_picture);
+        })
+        .catch((error) => {
+          console.log(error);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
+  }, [username, token]);
 
   const toggleLike = () => {
     axios
@@ -129,7 +155,7 @@ export default function QuizCard({
                     isBordered
                     radius="full"
                     className="w-6 h-6 text-tiny"
-                    src="https://nextui.org/avatars/avatar-1.png"
+                    src={profileImage || "https://nextui.org/avatars/avatar-1.png"}
                   />
                   <div className="flex flex-col gap-1 items-start justify-center">
                     <h5 className="text-small tracking-tight text-default-400">
@@ -147,7 +173,7 @@ export default function QuizCard({
         </div>
         <Divider className="mt-1.5 bg-zinc-200" />
       </CardHeader>
-      <div className="flex flex-row justify-between items-center mb-5">
+      <div className="flex flex-row justify-between items-center mb-4 ml-4 mr-4">
         {picture ? (
           <img
             src={picture}
@@ -157,6 +183,7 @@ export default function QuizCard({
               height: "200px",
               objectFit: "cover",
               objectPosition: "center",
+              borderRadius: "10px",
             }}
             onClick={() => navigate(`/quiz/${id}/details`)}
           />

@@ -7,7 +7,6 @@ import QuizCard from '@/app/components/quizCard';
 import TokenManager from '@/app/TokenManager';
 
 const emptyUserInfo: OtherUserInfo = {
-  name: '',
   bio: "",
   level: 'NA',
   follower_count: 0,
@@ -17,10 +16,10 @@ const emptyUserInfo: OtherUserInfo = {
   solvedQuizzes: [],
   posts: [],
   comments: [],
+  profile_picture: "",
 };
 
 type OtherUserInfo = {
-  name: string,
   bio: string,
   level: string,
   follower_count: number,
@@ -30,6 +29,7 @@ type OtherUserInfo = {
   solvedQuizzes: QuizInfo[],
   posts: [],
   comments: [],
+  profile_picture: string,
 };
 
 export default function Profile() {
@@ -111,7 +111,6 @@ export default function Profile() {
   return (
     <FlatList 
       data={tabData[tab-1]}
-      keyExtractor={(item) => item.id}
       renderItem={({item}) => {
         if (isQuizInfo(item)){
           return (
@@ -132,12 +131,12 @@ export default function Profile() {
         <>
           <ProfileInfo
             username={username}
-            name={userInfo.name}
             level={userInfo.level}
             about={userInfo.bio}
             followerCount={userInfo.follower_count}
             followingCount={userInfo.following_count}
             isFollowedByUser={userInfo.is_followed}
+            profile_picture_uri={userInfo.profile_picture != "" ? userInfo.profile_picture : undefined}
           />
           <Tabs tab={tab} setTab={setTab}/>
         </>
@@ -150,10 +149,10 @@ type ProfileInfoProps = {
   followerCount: number,
   followingCount: number,
   isFollowedByUser: boolean,
-  name: string,
   about: string,
   level: string,
   username: string,
+  profile_picture_uri?: string,
 }
 
 const ProfileInfo = (props:ProfileInfoProps) => {
@@ -193,7 +192,10 @@ const ProfileInfo = (props:ProfileInfoProps) => {
     <View style={styles.profileInfoContainer}>
       <View style={styles.profileInfoTopContainer}>
         <View style={styles.profileInfoTopPictureContainer}>
-          <Image source={require('@/assets/images/profile-icon.png')} style={styles.profileInfoTopPicture}></Image>
+          <Image 
+            source={props.profile_picture_uri ? { uri: props.profile_picture_uri } : require('@/assets/images/profile-icon.png')}
+            style={styles.profileInfoTopPicture}
+          />
         </View>
         <View style={styles.profileInfoTopFollowContainer}>
           <View style={styles.profileInfoTopFollowItemContainer}>
@@ -211,7 +213,7 @@ const ProfileInfo = (props:ProfileInfoProps) => {
         </View>
       </View>
       <View style={styles.profileInfoAboutContainer}>
-        <Text style={styles.profileInfoNameText}>{props.name}</Text>
+        <Text style={styles.profileInfoNameText}>{props.username}</Text>
         <Text style={styles.profileInfoAboutText}>{props.about}</Text>
       </View>
       <View style={styles.profileInfoButtonContainer}>

@@ -67,6 +67,7 @@ export type Quiz = {
     tags: string[];
     timestamp: string;
     created_at: string;
+    picture: string;
     level: string;
     times_taken: number;
   };
@@ -91,6 +92,7 @@ export type QuizResponse = {
   is_liked: boolean;
   is_bookmarked: boolean;
   times_taken: number;
+  title_image: string;
   tags: string[];
 };
 
@@ -157,6 +159,7 @@ export type ProfileResponse = {
   follower_count: number;
   following_count: number;
   is_followed: boolean;
+  profile_picture: string;
   level: string;
   bio: string;
   name: string;
@@ -179,6 +182,7 @@ export type QuizHeader = {
     name: string;
   }[];
   level: string;
+  title_image?: File;
 };
 
 export type Question = {

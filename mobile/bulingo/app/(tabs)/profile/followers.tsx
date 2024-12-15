@@ -7,14 +7,13 @@ type UserInfoCompact = {
   username: string,
   name: string,
   level: string,
-  profilePictureUri: string,
+  profile_picture: string,
+  is_followed: boolean,
 };
 
 export default function Followers() {
   const [isLoading, setIsLoading] = useState(true);
-  const [followers, setFollowers] = useState<UserInfoCompact[]>([
-    {username: 'oguz', name: 'Oguz', level: 'NA', profilePictureUri:"https://static.vecteezy.com/system/resources/thumbnails/024/646/930/small_2x/ai-generated-stray-cat-in-danger-background-animal-background-photo.jpg"},
-  ])
+  const [followers, setFollowers] = useState<UserInfoCompact[]>([])
 
   useEffect(() => {
     const fetchFollowers = async () => {
@@ -66,10 +65,10 @@ export default function Followers() {
           <UserCard 
             name={item.name}
             username={item.username} 
-            profilePictureUri={item.profilePictureUri} 
+            profilePictureUri={item.profile_picture} 
             level={item.level}
-            buttonText={'Follow'}
-            buttonStyleNo={2}
+            buttonText={item.is_followed ? 'Unfollow' : 'Follow'}
+            buttonStyleNo={item.is_followed ? 1 : 2}
           />
         );
       }}
