@@ -13,6 +13,7 @@ const QuizCreationInfo = () => {
   const [correctAnswerIndex, setCorrectAnswerIndex] = useState<number | null>(null)
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [prevWord, setPrevWord] = useState('');
+  const [verticalOptions, setVerticalOptions] = useState<string[]>([]);
   const [meaningList, setMeaningList] = useState<any>([]);
   const [meaningIndex, setMeaningIndex] = useState(0);
   const [error, setError] = useState('');
@@ -29,6 +30,45 @@ const QuizCreationInfo = () => {
   const { initialQuestion, initialAnswers, initialCorrectAnswer, type, index, trigger} = useLocalSearchParams();
 
 
+  const fetchVerticalOptions = async () => {
+    try {
+      let endpoint = '';
+      if (selectedType === 'Type I') {
+        endpoint = `/quiz/choices/${question}/EN_TO_TR/`;
+      } else if (selectedType === 'Type II') {
+        endpoint = `/quiz/choices/${question}/TR_TO_EN/`;
+      } else if (selectedType === 'Type III') {
+        endpoint = `/quiz/choices/${question}/EN_TO_MEANING/`;
+      }
+      
+      const response = await TokenManager.authenticatedFetch(endpoint, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+      console.log(response);
+      console.log(data);
+
+      if (!response.ok) {
+        setVerticalOptions([]);
+        setError('Options not available.');
+        return;
+      }
+
+      
+      console.log(data);
+      const options = [...data.options];
+      setVerticalOptions(options);
+      setError('');
+    } catch (error) {
+      console.error('Error fetching vertical options:', error);
+      setVerticalOptions([]);
+      setError('Options not available.');
+    }
+  };
 
 
   useEffect(() => {
@@ -216,13 +256,13 @@ const QuizCreationInfo = () => {
   return (
     <TouchableWithoutFeedback onPress={resetSelections} accessible={false}>
     <View style={styles.container}>
-      <View style={styles.page}>
         {/* Type Selection Buttons */}
       <View style={styles.topContainer}>
                   
       <TouchableOpacity style={styles.infoButton} onPress={() => setShowInfoModal(true)}>
-         <Image source={require('@/assets/images/info.png')} style={styles.icon}  />
+        <Image source={require('@/assets/images/info.png')} style={styles.icon}  />
         </TouchableOpacity>
+
         <View style={styles.typeContainer}>
           {['Type I', 'Type II', 'Type III'].map((type, index) => (
             <TouchableOpacity
@@ -238,6 +278,10 @@ const QuizCreationInfo = () => {
           ))}
         </View>
         </View>
+        <ScrollView>
+        <TouchableWithoutFeedback>
+        <View style={styles.page}>
+
         {/* Question and Answers Section */}
         <View style={[styles.questionAnswersContainer, styles.elevation]}>
           {/* Editable question title area */}
@@ -275,9 +319,9 @@ const QuizCreationInfo = () => {
                         style={styles.textContainer}
                       >
                         <View onStartShouldSetResponder={() => true}>
-                           <Text style={styles.answerText}
-                           onPress={() => handleAnswerClick(answerIndex)}
-                           onLongPress={() => handleLongPress(answerIndex)}
+                          <Text style={styles.answerText}
+                          onPress={() => handleAnswerClick(answerIndex)}
+                          onLongPress={() => handleLongPress(answerIndex)}
                           >{answer}</Text>
                           
                         </View>
@@ -333,6 +377,24 @@ const QuizCreationInfo = () => {
           </View>
         </View>
 
+        <View style={styles.verticalOptionsContainer}>
+          <TouchableOpacity style={styles.newSuggestionButton} onPress={fetchVerticalOptions}>
+            <Text style={styles.newSuggestionText}>Fetch Options</Text>
+          </TouchableOpacity>
+          <ScrollView style={styles.verticalOptions}>
+            {verticalOptions.map((option, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.optionButton}
+                onPress={() => setNewAnswer(option)}
+              >
+                <Text style={styles.optionText}>{option}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+
+
         <View style={styles.navButtonsContainer}>
           <TouchableOpacity style={styles.backButton} onPress={() => handleGoBack()}>
             
@@ -347,6 +409,10 @@ const QuizCreationInfo = () => {
         </TouchableOpacity>
         </View>
       </View>
+      </TouchableWithoutFeedback>
+      </ScrollView>
+      
+      
       <Modal
         transparent={true}
         visible={showInfoModal}
@@ -392,7 +458,6 @@ const getStyles = (colorScheme: any) => {
       flex: 9,
       backgroundColor: isDark ? '#121212' : 'white',
       padding: 20,
-      paddingTop: 50,
       justifyContent: 'flex-start',
     },
     typeButton: {
@@ -486,7 +551,6 @@ const getStyles = (colorScheme: any) => {
     suggestionsContainer: {
       flexDirection: 'column',
       justifyContent: 'space-between',
-      marginBottom: 20,
     },
     suggestionButton: {
       backgroundColor: isDark ? '#444' : '#d1e7dd',
@@ -527,6 +591,10 @@ const getStyles = (colorScheme: any) => {
     },
     disabledButton: {
       backgroundColor: isDark ? '#444' : '#ccc',
+    },
+    scrollableContent: {
+      flex: 1,
+      width: '100%',
     },
     selectButton: {
       position: 'absolute',
@@ -618,7 +686,6 @@ const getStyles = (colorScheme: any) => {
     },
     newSuggestionButton: {
       paddingVertical: 10,
-      marginVertical: 10,
       paddingHorizontal: 6,
       alignSelf: 'center',
       width: 200,
@@ -630,7 +697,6 @@ const getStyles = (colorScheme: any) => {
       color: '#fff',
       textAlign: 'center',
     },
-    
     scrollContainer: {
       flexGrow: 1,
       alignItems: 'center',
@@ -645,6 +711,20 @@ const getStyles = (colorScheme: any) => {
       fontSize: 13,
       textAlign: 'center',
       fontWeight: 'bold',
+    },
+    verticalOptionsContainer: {
+      marginBottom: 40,
+    },
+    verticalOptions: {
+    },
+    optionButton: {
+      padding: 10,
+      borderBottomWidth: 1,
+      borderBottomColor: isDark ? '#333' : '#ccc',
+    },
+    optionText: {
+      fontSize: 16,
+      color: isDark ? '#fff' : '#000',
     },
   });
 };
