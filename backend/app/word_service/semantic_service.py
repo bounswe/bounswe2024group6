@@ -89,7 +89,7 @@ class SemanticChoiceGenerator:
             return self._generate_meaning_choices(word, correct_answer)
         elif quiz_type == 'EN_TO_TR':
             return self._generate_turkish_translation_choices(word, correct_answer)
-        elif quiz_type == 'TR_TO_ENG':
+        elif quiz_type == 'TR_TO_EN':
             return self._generate_english_translation_choices(word, correct_answer)
 
     def _generate_turkish_translation_choices(self, word, correct_translation=None):
