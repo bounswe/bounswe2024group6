@@ -14,7 +14,7 @@ from app.views_directory.bookmark_views import bookmark_post, unbookmark_post, g
 from app.views_directory.searchview import SearchView
 
 from app.views_directory.image_view import get_image_details, get_direct_image
-from app.views_directory.admin_views import ban_user
+from app.views_directory.admin_views import ban_user, admin_check
 from django.conf.urls.static import static
 from django.conf import settings
 import app.views_directory.quiz_views as quiz_views
@@ -24,6 +24,7 @@ from app.views_directory.comment_bookmarks import  bookmark_comment, unbookmark_
 urlpatterns = [
     path('', index , name='index_page'),
     path('admin-ban/', ban_user, name="ban_user"),
+    path('admin-check/', admin_check, name="admin_check"),
     path('profile/', view_profile, name='view_profile'),
     path('profile/update/', update_profile, name='update_profile'),
     path('quiz/<int:quiz_id>/', quiz_views.get_quiz, name="get_quiz"),

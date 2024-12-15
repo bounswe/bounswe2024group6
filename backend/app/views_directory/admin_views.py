@@ -25,3 +25,13 @@ def ban_user(request):
         },
         status=status.HTTP_200_OK
    )
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def admin_check(request):
+    return Response(
+        {
+            "is_admin": request.user.is_staff,
+        },
+        status=status.HTTP_200_OK
+    )
