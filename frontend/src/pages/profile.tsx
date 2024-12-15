@@ -46,6 +46,7 @@ import { usePageTitle } from "../components/common/usePageTitle.ts";
 import QuizCard from "../components/quiz/quiz-card.tsx";
 import GuestAuthModal from "../components/auth/guest-auth-modal.tsx";
 import ClickableText from "../components/common/clickable-text.tsx";
+import BanUserModal from "../components/admin/ban-user-modal.tsx";
 
 export default function Profile() {
   usePageTitle("Profile");
@@ -74,6 +75,7 @@ export default function Profile() {
   const [type, setType] = useState<string>("following");
   const [guestModalOpen, setGuestModalOpen] = useState(false);
   const [popoverOpen, setPopoverOpen] = useState(false);
+  const [isBanModalOpen, setIsBanModalOpen] = useState(false);
 
   const handleOpen = (type) => {
     setType(type);
@@ -432,8 +434,26 @@ export default function Profile() {
                   >
                     Liked Comments
                   </Button>
+                  {isAdmin && profile.username !== Cookies.get("username") && (
+                    <Button
+                      variant="light"
+                      color="danger"
+                      onClick={() => {
+                        setIsBanModalOpen(true);
+                        setPopoverOpen(false); // Close the popover
+                      }}
+                      className="text-medium w-full"
+                    >
+                      Ban User
+                    </Button>
+                  )}
                 </PopoverContent>
               </Popover>
+              <BanUserModal
+                isOpen={isBanModalOpen}
+                setIsOpen={setIsBanModalOpen}
+                username={profile.username}
+              />
               <Modal
                 isOpen={isOpen}
                 onOpenChange={onOpenChange}
