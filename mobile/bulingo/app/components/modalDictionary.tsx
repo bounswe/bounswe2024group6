@@ -208,7 +208,7 @@ const styles = StyleSheet.create(
     },
     normalText: {
       fontSize: 16,
-      margin: 3,
+      // margin: 3,
       textAlign: 'left',
     },
     normalTextContainer: {
@@ -220,8 +220,8 @@ const styles = StyleSheet.create(
       fontSize: 14,
       color: "rgba(0, 50, 200, 0.8)",
       fontWeight: "300",
-      margin: 1,
-      marginLeft: 10,
+      // margin: 1,
+      // marginLeft: 10,
     },
     header: {
       justifyContent: 'space-between',

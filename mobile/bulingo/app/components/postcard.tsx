@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
+import PressableText from '../pressableText';
 
 interface PostCardProps {
     id: string;
@@ -36,7 +37,9 @@ const PostCard: React.FC<PostCardProps> = ({
     <TouchableOpacity onPress={onPress} testID='card'>
       <View style={styles.cardContainer}>
         <View style={styles.header}>
-          <Text style={styles.title}>{title}</Text>
+          {/* <PressableText style={styles.title}</> */}
+        <PressableText style={styles.title} text={title}/>
+          {/* <Text style={styles.title}>{title}</Text> */}
           <Text style={styles.author}>by {author}</Text>
         </View>
         <View style={styles.tagsContainer}>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { TouchableOpacity, Image, Text, View, StyleSheet, useColorScheme } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
+import PressableText from '../pressableText';
 
 type QuizCardProps = {
   title: string,
@@ -52,8 +53,11 @@ export default function QuizCard(props: QuizCardProps){
       testID='quiz'
     >
       <View style={styles.quizTop}>
-        <Text style={styles.quizTitle}>{props.title}</Text>
-        <Text style={styles.quizDescription}>{props.description}</Text>
+                <PressableText style={styles.quizTitle} text={props.title}/>
+                <PressableText style={styles.quizDescription} text={props.description}/>
+        
+        {/* <Text style={styles.quizTitle}>{props.title}</Text>
+        <Text style={styles.quizDescription}>{props.description}</Text> */}
       </View>
       <View style={styles.quizBottom}>
         <View style={styles.quizBottomLeft}>

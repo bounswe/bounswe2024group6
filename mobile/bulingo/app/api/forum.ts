@@ -54,8 +54,8 @@ export const getPostsOfUser = async () => {
 };
 
 // **Comments**
-export const addComment = async (postId: number, text: string) => {
-    return await makeAuthenticatedRequest('post/comment/add/', 'POST', { post_id: postId, text });
+export const addComment = async (postId: number, body: string) => {
+    return await makeAuthenticatedRequest('post/comment/add/', 'POST', { post_id: postId, body: body });
 };
 
 export const deleteComment = async (commentId: number) => {

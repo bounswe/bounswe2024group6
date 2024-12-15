@@ -3,7 +3,7 @@ import { TouchableOpacity, StyleSheet, Text, View, ActivityIndicator } from 'rea
 import { useLocalSearchParams, router } from 'expo-router';
 import TokenManager from '@/app/TokenManager';
 import { Dimensions, useColorScheme } from 'react-native';
-
+import PressableText from '@/app/pressableText';
 const { width, height } = Dimensions.get('window');
 
 export type QuizQuestionReview = {
@@ -113,7 +113,9 @@ useEffect(() => {
 
         <View style={[styles.questionWrapper, styles.elevation]}>
           <View style={[styles.questionContainer, styles.questionAnswerElevation]}>
-            <Text style={styles.questionText}>{currentQuestion?.question || 'No question available'}</Text>
+            <PressableText style={styles.questionText} text={currentQuestion?.question || 'No question available'}/>
+           
+            {/* <Text style={styles.questionText}>{currentQuestion?.question || 'No question available'}</Text> */}
           </View>
 
           <View style={styles.optionsContainer}>
@@ -132,7 +134,9 @@ useEffect(() => {
                         onPress={() => handleOptionSelect(index)}
                         testID='button'
                     >
-                        <Text style={styles.optionText}>{choice}</Text>
+                      <PressableText style={styles.optionText} text={choice}/>
+                      
+                        {/* <Text style={styles.optionText}>{choice}</Text> */}
                     </TouchableOpacity>
                 </View>
                 );
