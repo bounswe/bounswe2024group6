@@ -130,24 +130,15 @@ def unlike_comment(request):
 
 @api_view(['POST'])
 def get_comment_by_id(request):
-    comment_id = request.data.get("comment_id")  # Access comment_id from request data
+    comment_id = request.data.get("comment_id") 
 
     if not comment_id:
         return Response({"detail": "Comment ID is required."}, status=status.HTTP_400_BAD_REQUEST)
-
-    # Fetch the main comment
+    
     comment = get_object_or_404(Comment, id=comment_id)
-
-    # Check if the comment is liked by the current user
     is_liked = comment.liked_by.filter(id=request.user.id).exists() if request.user.is_authenticated else False
-
-    # Fetch all users who liked the comment
     liked_by_users = comment.liked_by.all().values_list('username', flat=True)
-
-    # Fetch all replies to the comment
     replies = Comment.objects.filter(parent=comment).select_related('author')
-
-    # Serialize the replies
     reply_data = [
         {
             "id": reply.id,
@@ -160,8 +151,7 @@ def get_comment_by_id(request):
         }
         for reply in replies
     ]
-
-    # Prepare the comment data
+    
     comment_data = {
         "id": comment.id,
         "author": comment.author.username,

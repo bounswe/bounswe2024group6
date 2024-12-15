@@ -109,17 +109,18 @@ def delete_quiz(request):
     quiz = get_object_or_404(Quiz, id=quiz_id)
     user = request.user
     if user.is_staff:
-        ActivityStream.objects.create(
-            actor=request.user,
-            verb="deleted",
-            object_type="Quiz",
-            object_id=quiz.id,
-            object_name = quiz.title,
-            target=f"Quiz:{quiz.id}",
-            affected_username= quiz.author.username  # Use the associated User
-        )
-        
-        quiz.delete()
+        if quiz.author != user:
+            ActivityStream.objects.create(
+                actor=request.user,
+                verb="deleted",
+                object_type="Quiz",
+                object_id=quiz.id,
+                object_name = quiz.title,
+                target=f"Quiz:{quiz.id}",
+                affected_username= quiz.author.username  # Use the associated User
+            )
+            
+            quiz.delete()
         
         return Response({'message': 'Quiz deleted'}, status=status.HTTP_200_OK)
     
@@ -587,15 +588,16 @@ def like_quiz(request):
     quiz.like_count += 1
     quiz.save()
 
-    ActivityStream.objects.create(
-        actor=request.user,
-        verb="liked",
-        object_type="Quiz",
-        object_id=quiz.id,
-        object_name = quiz.title,
-        target=f"Quiz:{quiz.id}",
-        affected_username= quiz.author.username 
-    )
+    if request.user != quiz.author:
+        ActivityStream.objects.create(
+            actor=request.user,
+            verb="liked",
+            object_type="Quiz",
+            object_id=quiz.id,
+            object_name = quiz.title,
+            target=f"Quiz:{quiz.id}",
+            affected_username= quiz.author.username 
+        )
     
     return Response({'message': 'Quiz liked'}, status=status.HTTP_200_OK)
 
