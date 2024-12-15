@@ -135,7 +135,7 @@ export const convertProfileResponseToProfile = (profileResponse: ProfileResponse
     bio: profileResponse.bio,
     followers: profileResponse.follower_count,
     following: profileResponse.following_count,
-    image: profileResponse.image || '',
+    image: profileResponse.profile_picture || 'https://nextui.org/avatars/avatar-1.png',
     posts: profileResponse.posts.map(convertPostResponseToPost),
     quizzes: profileResponse.quizzes || [],
     is_followed: profileResponse.is_followed,
