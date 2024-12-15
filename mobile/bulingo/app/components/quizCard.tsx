@@ -80,7 +80,7 @@ export default function QuizCard(props: QuizCardProps){
   return (
     <>
       { isTagEditVisible && 
-        <TagEdit type="Quiz" id='placeholder' onClose={() => setIsTagEditVisible(false)}/>
+        <TagEdit type="Quiz" id='placeholder' onClose={() => setIsTagEditVisible(false)} tags={[props.level]}/>
       }
       { isAdminOptionsVisible &&
         <AdminOptions onClose={()=>setIsAdminOptionsVisible(false)} options={[
@@ -131,6 +131,7 @@ export default function QuizCard(props: QuizCardProps){
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
+  </>
   );
 }
 
