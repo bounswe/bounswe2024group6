@@ -30,7 +30,6 @@ const QuizFeed = () => {
     if (reset) {
       setQuizzes([]);
       setPage(1); 
-      console.log('reset');
     }
   
     try {
@@ -42,7 +41,6 @@ const QuizFeed = () => {
       });
   
       const data = await response.json();
-      console.log(data);
       if (response.ok) {
         const formattedResults = data.map((quiz: any) => ({
           id: quiz.id,
@@ -73,9 +71,9 @@ const QuizFeed = () => {
     setSearchTerm(text);
   };
 
-  const filteredQuizzes = quizzes.filter((quiz: any) =>
-    quiz.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    quiz.author.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredQuizzes = quizzes.filter((quiz: any) => {
+    return quiz.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    quiz.author.toLowerCase().includes(searchTerm.toLowerCase()) }
   );
 
   // const loadMoreQuizzes = () => {
@@ -91,15 +89,38 @@ const QuizFeed = () => {
     });
   };
 
-  const handleLikePress = (quizId: number) => {
-    const updatedQuizzes = quizzes.map((quiz: any) => {
+  const handleLikePress = async (quizId: number) => {
+    const updatedQuizzes = await Promise.all( quizzes.map( async (quiz: any) => {
       if (quiz.id === quizId) {
-        const liked = !quiz.liked;
-        const likes = liked ? quiz.likes + 1 : quiz.likes - 1;
-        return { ...quiz, liked, likes };
-      }
-      return quiz;
-    });
+        let data = '';
+        try {
+          const response = await TokenManager.authenticatedFetch(`/quiz/like/`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              quiz_id: quizId,
+            }),
+          });
+      
+          data = await response.json();
+          let liked = quiz.liked;
+          let likes = quiz.likes;
+          if (response.ok) {
+            liked = !quiz.liked;
+            likes = liked ? quiz.likes + 1 : quiz.likes - 1;
+          }
+          return { ...quiz, liked, likes };
+        }
+        catch(error: any)
+        {
+          setError('Failed to fetch quizzes. Please try again. Error: ' + JSON.stringify(data));
+        }
+
+    }
+    return quiz;
+    }));
     setQuizzes(updatedQuizzes);
   };
 
