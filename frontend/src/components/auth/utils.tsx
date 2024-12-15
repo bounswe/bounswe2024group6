@@ -2,10 +2,8 @@ import wretch from "wretch";
 import Cookies from "js-cookie";
 import { BASE_URL } from "../../lib/baseURL";
 
-
 // Base API setup for making HTTP requests
 const api = wretch(`${BASE_URL}`).accept("application/json");
-
 
 /**
  * Stores a token in cookies.
@@ -31,29 +29,42 @@ const getToken = (type: string) => {
 const removeTokens = () => {
   Cookies.remove("accessToken");
   Cookies.remove("refreshToken");
+  Cookies.remove("isAdmin");
+  Cookies.remove("username");
 };
 
 const register = (email: string, username: string, password: string) => {
-    return api.post({ email, username, password }, "/signup/");
-  };
-  
-  const login = (username: string,  password: string) => {
-    return api.post({ username , password }, "/login/");
-  };
-  
-  const logout = () => {
-    const refreshToken = getToken("refresh");
-    const accessToken = getToken("access");
-    return api
-      .auth(`Bearer ${accessToken}`)
-      .post({ refresh: refreshToken }, "/logout/");
-  };
-  
-  const handleJWTRefresh = () => {
-    const refreshToken = getToken("refresh");
-    return api.post({ refresh: refreshToken }, "/refresh/");
-  };
+  return api.post({ email, username, password }, "/signup/");
+};
 
+const login = (username: string, password: string) => {
+  return api.post({ username, password }, "/login/");
+};
+
+const logout = () => {
+  const refreshToken = getToken("refresh");
+  const accessToken = getToken("access");
+  return api
+    .auth(`Bearer ${accessToken}`)
+    .post({ refresh: refreshToken }, "/logout/");
+};
+
+const handleJWTRefresh = () => {
+  const refreshToken = getToken("refresh");
+  return api.post({ refresh: refreshToken }, "/refresh/");
+};
+
+const checkAdmin = () => {
+  const token = getToken("access");
+  return api
+    .auth(`Bearer ${token}`)
+    .get("/admin-check/")
+    .json((data) => data.is_admin);
+};
+
+const useIsAdmin = () => {
+  return Cookies.get("isAdmin") === "true";
+};
 
 export const AuthActions = () => {
   return {
@@ -64,6 +75,7 @@ export const AuthActions = () => {
     getToken,
     logout,
     removeTokens,
+    checkAdmin,
+    useIsAdmin,
   };
 };
-  
