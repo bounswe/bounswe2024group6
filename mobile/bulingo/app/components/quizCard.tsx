@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TouchableOpacity, Image, Text, View, StyleSheet, useColorScheme } from 'react-native';
 import AdminOptions from './adminOptions';
 import TagEdit from './tagEdit';
@@ -27,6 +27,7 @@ export default function QuizCard(props: QuizCardProps){
   const [liked, setLiked] = useState(props.liked);
   const [isAdminOptionsVisible, setIsAdminOptionsVisible] = useState(false);
   const [isTagEditVisible, setIsTagEditVisible] = useState(false);
+  const [tags, setTags] = useState<string[]>([]);
 
   const colorScheme = useColorScheme();
   const styles = getStyles(colorScheme);
@@ -77,10 +78,35 @@ export default function QuizCard(props: QuizCardProps){
     }
   }
 
+  useEffect(() => {
+    fetchQuizTags();
+  },[])
+
+  const fetchQuizTags = async () => {
+    const url = `quiz/${props.id}/`;
+    try {
+      const response = await TokenManager.authenticatedFetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if(response.ok){
+        const res = await response.json()
+        setTags(res.quiz.tags);
+        console.log(res);
+      } else{
+        console.warn(response.status)
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   return (
     <>
       { isTagEditVisible && 
-        <TagEdit type="Quiz" id='placeholder' onClose={() => setIsTagEditVisible(false)} tags={[props.level]}/>
+        <TagEdit type="Quiz" id='placeholder' onClose={() => setIsTagEditVisible(false)} tags={tags}/>
       }
       { isAdminOptionsVisible &&
         <AdminOptions onClose={()=>setIsAdminOptionsVisible(false)} options={[
@@ -113,7 +139,7 @@ export default function QuizCard(props: QuizCardProps){
         <View style={styles.quizBottom}>
           <View style={styles.quizBottomLeft}>
             <Text style={styles.quizAuthor}>by {props.author}</Text>
-            <Text style={styles.quizLevel}>{props.level}</Text>
+            {props.level && <Text style={styles.quizLevel}>{props.level}</Text>}
           </View>
           <TouchableOpacity style={styles.likeButton} onPress={() => handleLikePress(props.id)} testID='likeButton'>
             <Text style={styles.quizLikes}>
