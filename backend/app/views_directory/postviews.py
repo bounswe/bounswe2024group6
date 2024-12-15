@@ -76,6 +76,36 @@ def unlike_post(request):
         status=status.HTTP_200_OK
     )
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_liked_posts(request):
+    """
+    Fetch all posts liked by the authenticated user.
+    """
+    user = request.user
+
+    # Fetch posts liked by the user
+    liked_posts = Post.objects.filter(liked_by=user).order_by('-created_at')
+
+    # Serialize the posts
+    liked_posts_data = [
+        {
+            "id": post.id,
+            "title": post.title,
+            "description": post.description,
+            "created_at": post.created_at,
+            "like_count": post.like_count,
+            "tags": post.tags,  # Assuming tags are stored as a list of strings
+            "author": post.author.username,
+            "is_liked": True,  # User liked these posts
+            "is_bookmarked": post.bookmarked_by.filter(id=user.id).exists(),  # Check bookmark status
+        }
+        for post in liked_posts
+    ]
+
+    return Response({"liked_posts": liked_posts_data}, status=status.HTTP_200_OK)
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_post(request):

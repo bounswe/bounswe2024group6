@@ -128,6 +128,36 @@ def unlike_comment(request):
     comment.save()
     return Response({"detail": "Comment unliked successfully", "like_count": comment.like_count}, status=status.HTTP_200_OK)
 
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_liked_comments(request):
+    """
+    Endpoint to fetch all comments liked by the authenticated user.
+    """
+    user = request.user
+
+    # Fetch comments liked by the user
+    liked_comments = Comment.objects.filter(liked_by=user).select_related('author', 'post').order_by('-created_at')
+
+    # Serialize the comments
+    serialized_comments = [
+        {
+            "id": comment.id,
+            "post": comment.post.id,  # Assuming the post ID is needed
+            "author": comment.author.username,
+            "body": comment.body,
+            "created_at": comment.created_at,
+            "like_count": comment.like_count,
+            "is_liked": True,  # User liked these comments
+            "is_bookmarked": CommentBookmark.objects.filter(user=user, comment=comment).exists(),
+        }
+        for comment in liked_comments
+    ]
+
+    return Response({"liked_comments": serialized_comments}, status=status.HTTP_200_OK)
+
+
 @api_view(['POST'])
 def get_comment_by_id(request):
     comment_id = request.data.get("comment_id")  
