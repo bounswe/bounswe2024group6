@@ -61,12 +61,15 @@ export default function Profile() {
   const [bookmarkedWords, setBookmarkedWords] = useState<any[]>([]);
   const [solvedQuizzes, setSolvedQuizzes] = useState<Quiz[]>([]);
   const [createdQuizzes, setCreatedQuizzes] = useState<Quiz[]>([]);
+  const [likedQuizzes, setLikedQuizzes] = useState<Quiz[]>([]);
   const [followers, setFollowers] = useState<any[]>([]);
   const [followings, setFollowings] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [type, setType] = useState<string>("following");
   const [guestModalOpen, setGuestModalOpen] = useState(false);
+  const [popoverOpen, setPopoverOpen] = useState(false);
+
 
   const handleOpen = (type) => {
     setType(type);
@@ -165,6 +168,23 @@ export default function Profile() {
         console.log("solved", response.data);
         const solved = response.data.map(convertQuizResponseToQuiz);
         setSolvedQuizzes(solved);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, [token]);
+
+  useEffect(() => {
+    axios
+      .get(`${BASE_URL}/quiz/likes/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        console.log("liked quizzes", response.data);
+        const liked = response.data.map(convertQuizResponseToQuiz);
+        setLikedQuizzes(liked);
       })
       .catch((error) => {
         console.log(error);
@@ -335,21 +355,27 @@ export default function Profile() {
               >
                 {followCount} Followers
               </Button>
-              <Popover key="bottom-end" placement="bottom-end">
+              <Popover key="bottom-end" placement="bottom-end" onOpenChange={(isOpen) => setPopoverOpen(isOpen)} isOpen={popoverOpen}>
                 <PopoverTrigger>
                   <IconDotsVertical size={30} />
                 </PopoverTrigger>
                 <PopoverContent className="p-1 pb-2">
                   <Button
                     variant="light"
-                    onClick={() => handleOpen("quiz")}
+                    onClick={() => {
+                      handleOpen("quiz");
+                      setPopoverOpen(false); // Close the popover
+                    }}
                     className="text-medium mt-2"
                   >
                     Liked Quizzes
                   </Button>
                   <Button
                     variant="light"
-                    onClick={() => handleOpen("post")}
+                    onClick={() => {
+                      handleOpen("post");
+                      setPopoverOpen(false); // Close the popover
+                    }}
                     className="text-medium w-full"
                   >
                     Liked Posts
@@ -360,7 +386,8 @@ export default function Profile() {
                 isOpen={isOpen}
                 onOpenChange={onOpenChange}
                 placement="top-center"
-                className="max-w-[360px] flex flex-col items-center"
+                className={`${type === "quiz" || type === "post" ? "max-w-[740px]" : "max-w-[360px]"
+                  } flex flex-col items-center`}
                 backdrop="blur"
               >
                 <ModalContent className="pb-6 gap-3">
@@ -375,26 +402,48 @@ export default function Profile() {
                             ? "Liked Quizzes"
                             : ""}
                   </ModalHeader>
-                  {(type === "follower" ? followers : followings).length > 0 ? (
-                    (type === "follower" ? followers : followings).map(
-                      (user) => (
-                        <div className="border-1 rounded-xl">
-                          <UserCard
-                            key={user.username} // Ensure a unique key for each UserCard
-                            username={user.username}
-                            bio={user.bio}
-                            follower_count={user.follower_count}
-                            following_count={user.following_count}
-                            is_followed={user.is_followed}
-                            level={user.level}
+                  {type === "quiz" ? (
+                    likedQuizzes.length > 0 ? (
+                      likedQuizzes.map((quiz) => (
+                        <div key={quiz.id} className="border-1 rounded-xl">
+                          <QuizCard
+                            id={quiz.id}
+                            username={quiz.author.username}
+                            title={quiz.quiz.title}
+                            content={quiz.quiz.description}
+                            timePassed={quiz.quiz.timestamp}
+                            timesTaken={quiz.quiz.times_taken}
+                            likeCount={quiz.engagement.like_count}
+                            tags={quiz.quiz.tags}
+                            initialIsLiked={quiz.engagement.is_liked}
+                            initialIsBookmarked={quiz.engagement.is_bookmarked}
                           />
                         </div>
-                      )
+                      ))
+                    ) : (
+                      <p className="text-default-500">No liked quizzes found.</p>
                     )
+                  ) 
+                  : type === "post" ? (
+                    <p>No liked post found.</p>
+                  )
+                  : (type === "follower" || type === "following") &&
+                    (type === "follower" ? followers : followings).length > 0 ? (
+                    (type === "follower" ? followers : followings).map((user) => (
+                      <div key={user.username} className="border-1 rounded-xl">
+                        <UserCard
+                          username={user.username}
+                          bio={user.bio}
+                          follower_count={user.follower_count}
+                          following_count={user.following_count}
+                          is_followed={user.is_followed}
+                          level={user.level}
+                        />
+                      </div>
+                    ))
                   ) : (
                     <p className="text-default-500">
-                      No {type === "follower" ? "followers" : "following"}{" "}
-                      found.
+                      No {type === "follower" ? "followers" : "following"} found.
                     </p>
                   )}
                 </ModalContent>
