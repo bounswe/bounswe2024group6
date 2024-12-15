@@ -64,6 +64,7 @@ export default function Quizzes() {
             .map((quiz) => quiz.tags)
             .flat()
             .filter((tag) => !DifficultyTags.includes(tag))
+            .filter((value, index, self) => self.indexOf(value) === index)
             .map((tag) => ({ key: tag, label: tag }))
         );
       })

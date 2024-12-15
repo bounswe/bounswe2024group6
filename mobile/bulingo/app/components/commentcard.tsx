@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import PressableText from '../pressableText';
 import { fetchCommentAuthorImage } from '../api/forum';
+import { bookmarkComment, unbookmarkComment } from '../api/forum';
 
 interface CommentCardProps {
   id: number;
@@ -35,9 +36,19 @@ const CommentCard: React.FC<CommentCardProps> = ({ id, isBookmarked: initialBook
 
 
 
-  const toggleBookmark = () => {
-    setIsBookmarked(!isBookmarked);
-  };
+const toggleBookmark = async () => {
+    try {
+        if (isBookmarked) {
+            await unbookmarkComment(id);
+        } else {
+            await bookmarkComment(id);
+        }
+        setIsBookmarked(!isBookmarked);
+    } catch (error) {
+        console.error('Failed to toggle bookmark:', error);
+    }
+    console.log(isBookmarked)
+};
 
   return (
     <>
