@@ -126,6 +126,12 @@ const NotificationItem = ( {activity} : any ) => {
       else if(activity.verb == 'commented'){
         return "commented under your"
       }
+      else if(activity.verb == 'updated'){
+        return "updated your"
+      }
+      else if(activity.verb == "banned"){
+        return "was banned!"
+      }
       else {
         return "UNH: " + activity.verb
       }
@@ -155,6 +161,17 @@ const NotificationItem = ( {activity} : any ) => {
       else if(activity.verb == 'commented'){
         return "Post"
       }
+      else if(activity.verb == "updated"){
+        if(activity.object_type == "Quiz"){
+          return "Quiz";
+        } 
+        else if(activity.object_type == "Post") {
+          return "Post"
+        }
+        else {
+          return "UNH2 " + activity.object_type
+        }
+      }
       else if(activity.verb == 'deleted'){
         if(activity.object_type == "Quiz"){
           return `Quiz (${activity.object_name})`;
@@ -168,6 +185,9 @@ const NotificationItem = ( {activity} : any ) => {
         else {
           return "UNH2 " + activity.object_type
         }
+      }
+      else if(activity.verb == "banned"){
+        return "";
       }
       else {
         return "UNH: " + activity.verb
