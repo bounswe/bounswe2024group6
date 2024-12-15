@@ -49,8 +49,12 @@ export default function Forum() {
 
   useEffect(() => {
     setIsLoading(true);
+    const headers = {
+      "Content-Type": "application/json",
+      ...(token && { Authorization: `Bearer ${token}` }),
+    };
     axios
-      .get(`${BASE_URL}/feed/`, {
+      .get(`${BASE_URL}/feed/`, { headers
       })
       .then((response) => {
         console.log(response.data);

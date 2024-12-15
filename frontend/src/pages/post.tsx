@@ -32,6 +32,10 @@ export default function Post() {
   useEffect(() => {
     if (postID) {
       setIsLoading(true);
+      const headers = {
+        "Content-Type": "application/json",
+        ...(token && { Authorization: `Bearer ${token}` }),
+      };
       axios
         .post(
           `${BASE_URL}/post/`,
@@ -39,6 +43,7 @@ export default function Post() {
             post_id: postID,
           },
           {
+            headers
           }
         )
         .then((response) => {
@@ -59,6 +64,10 @@ export default function Post() {
   useEffect(() => {
     if (commentID) {
       setIsLoading(true);
+      const headers = {
+        "Content-Type": "application/json",
+        ...(token && { Authorization: `Bearer ${token}` }),
+      };
       axios
         .post(
           `${BASE_URL}/comment/`,
@@ -66,10 +75,7 @@ export default function Post() {
             comment_id: commentID,
           },
           {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
+            headers
           }
         )
         .then((response) => {
