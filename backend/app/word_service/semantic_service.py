@@ -56,7 +56,7 @@ class SemanticChoiceGenerator:
             return {
                 'word': word,
                 'correct_answer': word,
-                'options': [word] + random.sample(nltk_words.words(), 3)
+                'options': random.sample(nltk_words.words(), 3)
             }
         
         correct_def = self._clean_definition(synsets[0].definition())
@@ -71,7 +71,7 @@ class SemanticChoiceGenerator:
                 wrong_defs.add(cleaned_def)
         
         wrong_defs = list(wrong_defs)[:3]
-        all_choices = wrong_defs + [correct_def]
+        all_choices = wrong_defs
         random.shuffle(all_choices)
         
         return {
@@ -89,7 +89,7 @@ class SemanticChoiceGenerator:
             return self._generate_meaning_choices(word, correct_answer)
         elif quiz_type == 'EN_TO_TR':
             return self._generate_turkish_translation_choices(word, correct_answer)
-        else:
+        elif quiz_type == 'TR_TO_EN':
             return self._generate_english_translation_choices(word, correct_answer)
 
     def _generate_turkish_translation_choices(self, word, correct_translation=None):
@@ -328,11 +328,10 @@ class SemanticChoiceGenerator:
             return any(any(word_part in def_part for def_part in def_parts) for word_part in word_parts)
 
         word_obj = Word.objects.filter(word__iexact=word).first()
-        
         if correct_answer:
             if _contains_word(correct_answer, word):
+                print("b")
                 return self._fallback_choices(word)
-                
             if word_obj:
                 if self._clean_definition(word_obj.meaning) != correct_answer:
                     word_obj = Word.objects.create(
@@ -428,6 +427,7 @@ class SemanticChoiceGenerator:
                                 wrong_meanings.add(cleaned_def)
 
         wrong_meanings = list(wrong_meanings)[:3]
+        print(wrong_meanings)
         attempts = 0
         while len(wrong_meanings) < 3 and attempts < 20: 
             if synsets:
