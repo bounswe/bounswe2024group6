@@ -28,13 +28,29 @@ def add_comment(request):
         parent=parent_comment
     )
 
-    ActivityStream.objects.create(
-        actor=request.user,
-        verb="commented",
-        object_type="Comment",
-        object_id=comment.id,
-        target=f"Post:{post.id}"
-    )
+    if post.author != request.user:
+        ActivityStream.objects.create(
+            actor=request.user,
+            verb="commented",
+            object_type="Comment",
+            object_id=comment.id,
+            target=f"Post:{post.id}",
+            affected_username=post.author.username
+        )
+
+    user = request.user
+    for x in user.profile.followers.all():
+            if x.user == post.author:
+                continue
+            ActivityStream.objects.create(
+                actor=request.user,
+                verb="commented",
+                object_type="Comment",
+                object_id=comment.id,
+                object_name = comment.body,
+                target=f"Post:{post.id}",
+                affected_username=x.user.username  
+            )
 
     return Response(CommentSerializer(comment).data, status=status.HTTP_201_CREATED)
 
@@ -49,6 +65,18 @@ def delete_comment(request):
     user = request.user
     if comment.author != user and not user.is_staff:
         return Response({"detail": "You do not have permission to delete this comment."}, status=status.HTTP_403_FORBIDDEN)
+    
+    if comment.author != user:
+        ActivityStream.objects.create(
+            actor=request.user,
+            verb="deleted",
+            object_type="Comment",
+            object_id=comment.id,
+            object_name=comment.body,
+            target=f"Post:{comment.post.id}",
+            affected_username=comment.author.username
+        )
+    
     comment.delete()
     return Response({"detail": "Comment deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
 
@@ -68,13 +96,15 @@ def like_comment(request):
     comment.like_count += 1
     comment.save()
 
-    ActivityStream.objects.create(
-        actor=request.user,
-        verb="liked",
-        object_type="Comment",
-        object_id=comment.id,
-        target=f"Post:{comment.post.id}"
-    )
+    if request.user != comment.author:
+        ActivityStream.objects.create(
+            actor=request.user,
+            verb="liked",
+            object_type="Comment",
+            object_id=comment.id,
+            target=f"Post:{comment.post.id}",
+            affected_username=comment.author.username
+        )
 
     return Response(
         {"detail": "Comment liked successfully", "like_count": comment.like_count},
@@ -116,6 +146,7 @@ def get_comment_by_id(request):
 
     liked_by_users = comment.liked_by.all().values_list('username', flat=True)
     replies = Comment.objects.filter(parent=comment).select_related('author')
+
 
     reply_data = [
         {
