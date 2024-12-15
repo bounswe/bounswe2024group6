@@ -127,7 +127,6 @@ export default function Navbar() {
     logout()
       .res(() => {
         removeTokens();
-        Cookies.remove("username");
         navigate("/");
       })
       .catch(() => {
