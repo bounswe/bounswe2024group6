@@ -1,60 +1,117 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image, Pressable } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
+import GuestModal from './guestModal';
 import TokenManager from '../TokenManager';
 import AdminOptions from './adminOptions';
-import { router } from 'expo-router';
 import PressableText from '../pressableText';
+import {router} from 'expo-router';
+import { fetchCommentAuthorImage } from '../api/forum';
+import { bookmarkComment, unbookmarkComment } from '../api/forum';
 
 interface CommentCardProps {
-  id: number;
-  isBookmarked: boolean;
-  onUpvote: (id: number) => void;
-  username: string;
-  comment: string;
-  liked: boolean;
-  likes: number;
+    id: number;
+    isBookmarked: boolean;
+    onUpvote: (id: number) => void;
+    username: string;
+    comment: string;
+    liked: boolean;
+    likes: number;
 }
 
 
 
 const CommentCard: React.FC<CommentCardProps> = ({ id, isBookmarked: initialBookmark, username, comment, onUpvote, liked, likes }) => {
-    const [isBookmarked, setIsBookmarked] = useState(initialBookmark);
-    const [isAdminOptionsVisible, setIsAdminOptionsVisible] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(initialBookmark);
+  const [imageLink, setImageLink] = useState<string | null>(null);
+  const [guestModalVisible, setGuestModalVisible] = useState(false);
+  const [isAdminOptionsVisible, setIsAdminOptionsVisible] = useState(false);
 
 
-    const toggleBookmark = () => {
+    useEffect(() => {
+        const fetchImage = async () => {
+            try {
+                const response = await fetchCommentAuthorImage(username);
+                console.log(response.profile_picture)
+                setImageLink(response.profile_picture);
+            } catch (error) {
+                console.error('Error fetching image:', error);
+            }
+        };
+
+        fetchImage();
+    }, [username]);
+
+
+
+
+const toggleBookmark = async () => {
+    try {
+        if (isBookmarked) {
+            await unbookmarkComment(id);
+        } else {
+            await bookmarkComment(id);
+        }
         setIsBookmarked(!isBookmarked);
-    };
-
-    const handleAdminDeleteComment = async () => {
-        const url = 'post/comment/delete/';
-        const params = {
-          'comment_id': id,
-          'user': TokenManager.getUsername(),
-        }
-        try{
-          const response = await TokenManager.authenticatedFetch(url, {
-            method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(params),
-          })
-    
-          if (response.ok){
-            console.log("Comment Deletion successful")
-          } else {
-            console.log(response.status)
-          };
-          router.replace('/?notification=Comment Deleted Successfully');
-        } catch(error) {
-          console.error(error)
-        }
+    } catch (error) {
+        console.error('Failed to toggle bookmark:', error);
     }
+    console.log(isBookmarked)
+};
+
+  const redirectToAuthorProfilePage = () =>{
+     router.navigate('/(tabs)/profile')
+        setTimeout(() => {
+          router.push(`/(tabs)/profile/users/${username}`);
+        }, 0);
+  }
+
+  const handleLikePress = () => {
+    if(!TokenManager.getUsername()){
+        setGuestModalVisible(true);
+        return;
+    }
+    onUpvote(id);
+}
+
+const handleBookmarkPress = () => {
+    if(!TokenManager.getUsername()){
+        setGuestModalVisible(true);
+        return;
+    }
+    // TODO: Implement bookmark here!
+    toggleBookmark();
+}
+
+const handleAdminDeleteComment = async () => {
+  const url = 'post/comment/delete/';
+  const params = {
+    'comment_id': id,
+    'user': TokenManager.getUsername(),
+  }
+  try{
+    const response = await TokenManager.authenticatedFetch(url, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(params),
+    })
+
+    if (response.ok){
+      console.log("Comment Deletion successful")
+    } else {
+      console.log(response.status)
+    };
+    router.replace('/?notification=Comment Deleted Successfully');
+  } catch(error) {
+    console.error(error)
+  }
+}
 
     return (
         <>
+        {guestModalVisible && <GuestModal onClose={() => setGuestModalVisible(false)}/>}
         { isAdminOptionsVisible &&
             <AdminOptions onClose={()=>setIsAdminOptionsVisible(false)} options={[
             {
@@ -68,19 +125,26 @@ const CommentCard: React.FC<CommentCardProps> = ({ id, isBookmarked: initialBook
             style={styles.cardContainer}
             onLongPress={() => TokenManager.getIsAdmin() && setIsAdminOptionsVisible(true)}
         >  
-            <View style={styles.profileSection}>
-                <View style={styles.profileIcon}>
-                    <FontAwesome name="user" size={24} color="#333" />
-                </View>
-                <Text style={styles.userName}>{username}</Text>
-            </View>
+        <TouchableOpacity onPress={redirectToAuthorProfilePage}>
+        <View style={styles.profileSection}>
+          <View style={styles.profileIcon}>
+            {imageLink ? (
+                <Image source={{ uri: imageLink }} style={{ width: 40, height: 40, borderRadius: 20 }} />
+            ) : (
+                <FontAwesome name="user" size={24} color="#333" />
+            )}
+            {/* <FontAwesome name="user" size={24} color="#333" /> */}
+          </View>
+          <Text style={styles.userName}>{username}</Text>
+        </View>
+        </TouchableOpacity>
             
             <View style={styles.commentSection}>
               <PressableText style={styles.commentText} text={comment} />
             </View>
 
         <View style={styles.actionsContainer}>
-          <TouchableOpacity style={styles.likeButton} onPress={() => onUpvote(id)} testID='likeButton'>
+          <TouchableOpacity style={styles.likeButton} onPress={handleLikePress} testID='likeButton'>
             <Text style={styles.quizLikes}>
               <Image source={liked ? require('../../assets/images/like-2.png') : require('../../assets/images/like-1.png')} style={styles.icon} />
               {likes}

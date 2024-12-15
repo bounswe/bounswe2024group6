@@ -4,6 +4,7 @@ import AdminOptions from './adminOptions';
 import TagEdit from './tagEdit';
 import TokenManager from '../TokenManager';
 import { router } from 'expo-router';
+import GuestModal from './guestModal';
 import { FontAwesome } from '@expo/vector-icons';
 import PressableText from '../pressableText';
 
@@ -28,6 +29,7 @@ export default function QuizCard(props: QuizCardProps){
   const [isAdminOptionsVisible, setIsAdminOptionsVisible] = useState(false);
   const [isTagEditVisible, setIsTagEditVisible] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
+  const [guestModalVisible, setGuestModalVisible] = useState(false);
 
   const colorScheme = useColorScheme();
   const styles = getStyles(colorScheme);
@@ -38,6 +40,11 @@ export default function QuizCard(props: QuizCardProps){
   };
 
   const handleLikePress = (id: number) => {
+    if(!TokenManager.getUsername()){
+      setGuestModalVisible(true);
+      return
+    }
+
     props.onLikePress && props.onLikePress(id);
     if(liked){
       setLiked(false);
@@ -50,6 +57,10 @@ export default function QuizCard(props: QuizCardProps){
   };
 
   const handleBookmarkPress = (id: number) => {
+    if(!TokenManager.getUsername()){
+      setGuestModalVisible(true);
+      return
+    }
     props.onBookmarkPress && props.onBookmarkPress(id);
   };
 
@@ -105,6 +116,7 @@ export default function QuizCard(props: QuizCardProps){
 
   return (
     <>
+      {guestModalVisible && <GuestModal onClose={() => setGuestModalVisible(false)}/>}
       { isTagEditVisible && 
         <TagEdit type="Quiz" id='placeholder' onClose={() => setIsTagEditVisible(false)} tags={tags}/>
       }

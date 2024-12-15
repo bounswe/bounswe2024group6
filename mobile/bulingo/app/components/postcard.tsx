@@ -5,6 +5,7 @@ import TokenManager from '../TokenManager';
 import AdminOptions from './adminOptions';
 import TagEdit from './tagEdit';
 import { router } from 'expo-router';
+import GuestModal from './guestModal';
 import PressableText from '../pressableText';
 
 interface PostCardProps {
@@ -16,7 +17,7 @@ interface PostCardProps {
   liked: boolean;
   isBookmarked: boolean;
   feedOrPost: string;
-  onUpvote: () => void;
+  onUpvote: (id:any) => void;
   onBookmark: () => void;
   onPress?: () => void;
 }
@@ -37,6 +38,24 @@ const PostCard: React.FC<PostCardProps> = ({
 }) => {
   const [isAdminOptionsVisible, setIsAdminOptionsVisible] = useState(false);
   const [isTagEditVisible, setIsTagEditVisible] = useState(false);
+  const [guestModalVisible, setGuestModalVisible] = useState(false);
+
+
+  const handleLikePress = () => {
+    if(!TokenManager.getUsername()){
+      setGuestModalVisible(true);
+      return;
+    }
+    onUpvote(id);
+  }
+
+  const handleBookmarkPress = () => {
+    if(!TokenManager.getUsername()){
+      setGuestModalVisible(true);
+      return;
+    }
+    onBookmark();
+  }
 
   const handleAdminDeletePost = async () => {
     const url = 'post/delete/';
@@ -66,6 +85,7 @@ const PostCard: React.FC<PostCardProps> = ({
 
   return (
     <>
+      {guestModalVisible && <GuestModal onClose={() => setGuestModalVisible(false)}/>}
       { isTagEditVisible && 
         <TagEdit type="Quiz" id={id} onClose={() => setIsTagEditVisible(false)} tags={tags}/>
       }
@@ -111,14 +131,14 @@ const PostCard: React.FC<PostCardProps> = ({
                 <Text style={styles.upvoteCount}>{likes}</Text>
               </TouchableOpacity>
                 */}
-              <TouchableOpacity style={styles.likeButton} onPress={() => onUpvote(id)} testID={'likeButton'}>
+              <TouchableOpacity style={styles.likeButton} onPress={handleLikePress} testID={'likeButton'}>
                 <Text style={styles.quizLikes}>
               <Image source={liked ? require('../../assets/images/like-2.png') : require('../../assets/images/like-1.png')}style={styles.icon} /> 
               {likes}
               </Text>
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={onBookmark} style={styles.bookmarkButton} testID={'bookmarkButton'}>
+              <TouchableOpacity onPress={handleBookmarkPress} style={styles.bookmarkButton} testID={'bookmarkButton'}>
                 <FontAwesome 
                   name={isBookmarked ? 'bookmark' : 'bookmark-o'} 
                   size={20} 

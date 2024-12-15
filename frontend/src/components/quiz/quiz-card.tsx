@@ -18,6 +18,7 @@ import {
   IconBookmarkFilled,
   IconThumbUp,
   IconThumbUpFilled,
+  IconDotsVertical,
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import { AuthActions } from "../auth/utils";
@@ -26,6 +27,8 @@ import { BASE_URL } from "../../lib/baseURL";
 import { UserCard } from "../common/user-card";
 import GuestAuthModal from "../auth/guest-auth-modal";
 import { ProfileResponse } from "../../types";
+import DeleteQuizModal from "../admin/delete-quiz-modal";
+import EditQuizTagsModal from "../admin/edit-quiz-tags-modal";
 
 const maxLength = 250; // Maximum length of the content to be displayed
 
@@ -61,12 +64,16 @@ export default function QuizCard({
   const [likes, setLikes] = useState(likeCount);
   const [isBookmarked, setIsBookmarked] = useState(initialIsBookmarked);
   const navigate = useNavigate();
-  const { getToken } = AuthActions();
+  const { getToken, useIsAdmin } = AuthActions();
   const token = getToken("access");
   const isGuest = !token;
+  const isAdmin = useIsAdmin();
   const [guestModalOpen, setGuestModalOpen] = useState(false);
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [deleteQuizModalOpen, setDeleteQuizModalOpen] = useState(false);
+  const [editQuizTagsModalOpen, setEditQuizTagsModalOpen] = useState(false);
+  const [popoverOpen, setPopoverOpen] = useState(false);
 
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
@@ -83,7 +90,7 @@ export default function QuizCard({
         })
         .then((response) => {
           const data: ProfileResponse = response.data;
-          console.log("profile",data);
+          console.log("profile", data);
           setProfileImage(response.data.profile_picture);
         })
         .catch((error) => {
@@ -155,7 +162,9 @@ export default function QuizCard({
                     isBordered
                     radius="full"
                     className="w-6 h-6 text-tiny"
-                    src={profileImage || "https://nextui.org/avatars/avatar-1.png"}
+                    src={
+                      profileImage || "https://nextui.org/avatars/avatar-1.png"
+                    }
                   />
                   <div className="flex flex-col gap-1 items-start justify-center">
                     <h5 className="text-small tracking-tight text-default-400">
@@ -169,7 +178,61 @@ export default function QuizCard({
               </PopoverContent>
             </Popover>
           </div>
-          <p className="text-default-400 text-small">{timePassed}</p>
+          <div className="flex flex-row items-center justify-end gap-2">
+            <p className="text-default-400 text-small text-nowrap">
+              {timePassed}
+            </p>
+            <DeleteQuizModal
+              isOpen={deleteQuizModalOpen}
+              setIsOpen={setDeleteQuizModalOpen}
+              quiz_id={id}
+            />
+            <EditQuizTagsModal
+              isOpen={editQuizTagsModalOpen}
+              setIsOpen={setEditQuizTagsModalOpen}
+              quizId={id}
+              title={title}
+              description={content}
+              initialTags={tags}
+            />
+            {isAdmin && (
+              <Popover
+                key="bottom-end"
+                placement="bottom-end"
+                onOpenChange={(isOpen) => setPopoverOpen(isOpen)}
+                isOpen={popoverOpen}
+              >
+                <PopoverTrigger>
+                  <IconDotsVertical size={20} />
+                </PopoverTrigger>
+                <PopoverContent className="p-1 pb-2">
+                  {title && (
+                    <Button
+                      variant="light"
+                      onClick={() => {
+                        setEditQuizTagsModalOpen(true);
+                        setPopoverOpen(false); // Close the popover
+                      }}
+                      className="text-medium mt-2"
+                    >
+                      Edit Quiz
+                    </Button>
+                  )}
+                  <Button
+                    variant="light"
+                    color="danger"
+                    onClick={() => {
+                      setDeleteQuizModalOpen(true);
+                      setPopoverOpen(false); // Close the popover
+                    }}
+                    className="text-medium mt-2"
+                  >
+                    Delete Quiz
+                  </Button>
+                </PopoverContent>
+              </Popover>
+            )}
+          </div>
         </div>
         <Divider className="mt-1.5 bg-zinc-200" />
       </CardHeader>
@@ -283,7 +346,7 @@ export default function QuizCard({
                     size="sm"
                     radius="full"
                   >
-                    #{tag}
+                    {tag}
                   </Button>
                 ))}
             </div>

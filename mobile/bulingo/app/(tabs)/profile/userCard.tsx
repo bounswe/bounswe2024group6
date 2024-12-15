@@ -1,9 +1,10 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import { TouchableOpacity, View, Image, StyleSheet, Text } from 'react-native';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import { router } from 'expo-router';
 import TokenManager from '@/app/TokenManager';
 import AdminOptions from '@/app/components/adminOptions';
+import GuestModal from '@/app/components/guestModal';
 
 type UserCardProps = {
   profilePictureUri: string,
@@ -19,7 +20,14 @@ type UserCardProps = {
 const UserCard = (props: UserCardProps) => {
   const [isAdminOptionsVisible, setIsAdminOptionsVisible] = useState(false);
 
+  const [guestModalVisible, setGuestModalVisible] = useState(false);
+
   const handleButtonPress = async () => {
+    if(!TokenManager.getUsername()){
+      setGuestModalVisible(true);
+      return
+    }
+
     const url = `profile/${props.buttonText.toLowerCase()}/`;
     const params = {
       'username': props.username,
@@ -41,6 +49,11 @@ const UserCard = (props: UserCardProps) => {
     }
   };
   const handleCardPress = () => {
+    if(!TokenManager.getUsername()){
+      setGuestModalVisible(true);
+      return;
+    }
+
     if (props.onCardPress){ 
       props.onCardPress();
     }
@@ -99,6 +112,7 @@ const UserCard = (props: UserCardProps) => {
 
   return (
     <>
+      {guestModalVisible && <GuestModal onClose={() => setGuestModalVisible(false)}/>}
       { isAdminOptionsVisible &&
         <AdminOptions onClose={()=>setIsAdminOptionsVisible(false)} options={[
           {

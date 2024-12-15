@@ -4,16 +4,10 @@ import { RFPercentage } from 'react-native-responsive-fontsize';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import QuizCard from '../components/quizCard';
 import UserCard from './profile/userCard';
-import TokenManager from '../TokenManager';
+import TokenManager, { BASE_URL } from '../TokenManager';
 import PostCard from '../components/postcard';
 import CommentCard from '../components/commentcard';
 
-const MOCK_SEARCH_RESULT = [
-  {type: "quiz", data: { id: 13, title: 'Furniture', description: 'Essential furniture', author: 'Kaan', level: 'A2', likes: 3, liked: false }},
-  {type: "user", data: { id: 18, username: 'ygz2', name: 'Yagiz Guldal', level: 'A1', profilePictureUri:"https://static.vecteezy.com/system/resources/thumbnails/024/646/930/small_2x/ai-generated-stray-cat-in-danger-background-animal-background-photo.jpg"}},
-  {type: "post", data: { id: 36, name: "Placeholder Post"}},
-  {type: "comment", data: { id: 326, name: "Placeholder Comment"}},
-];
 
 export default function Tab() {
   const [searchResults, setSearchResults] = useState<any>(undefined);
@@ -33,7 +27,7 @@ export default function Tab() {
     setIsLoading(true);
     const url = `search/?q=${userInput}&t=${option.toLowerCase()}`
     try {
-      const response = await TokenManager.authenticatedFetch(url, {
+      const response = await fetch(BASE_URL + "/" + url, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -81,6 +75,7 @@ export default function Tab() {
               ...item.data,
               buttonText: item.data.isFollowing ? "Unfollow" : "Follow",
               buttonStyleNo: item.data.username == username ? 3 : (item.data.isFollowing ? 1 : 2),
+              profilePictureUri: item.data.profile_picture ? "http://64.226.76.231:8000" + item.data.profile_picture : "",
             }
           }));
           console.log(transformed_data)

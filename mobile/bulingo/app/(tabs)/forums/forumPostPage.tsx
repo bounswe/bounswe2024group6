@@ -15,6 +15,7 @@ interface Comment {
   replies: Comment[];
   is_liked: boolean;
   like_count: number;
+  is_bookmarked: boolean;
 }
 
 const ForumPostPage = () => {
@@ -226,7 +227,7 @@ const ForumPostPage = () => {
       username={item.author}
       onUpvote={handleLikeComment}
       comment={item.body}
-      isBookmarked={item.isBookmarked}
+      isBookmarked={item.is_bookmarked}
       liked={item.is_liked}
       likes={item.like_count}
     />
