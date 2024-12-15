@@ -57,7 +57,7 @@ const QuizCreationQuestionList = () => {
   const colorScheme = useColorScheme();
   const styles = getStyles(colorScheme);
   
-  const { question, answers, correctAnswer, selectedType, index, trigger } = useLocalSearchParams();
+  const { question, questionImage, answers, correctAnswer, selectedType, index, trigger } = useLocalSearchParams();
   const parsedAnswers = Array.isArray(answers) ? answers.join(', ') : answers ? JSON.parse(answers) : [];
 
   const key = questions.length === 0 ? 0 : questions[questions.length - 1].id + 1;
@@ -68,6 +68,7 @@ const QuizCreationQuestionList = () => {
       const newQuestion = {
         id: index !== undefined ? questions[Number(index)].id : key,
         name: Array.isArray(question) ? question[0] : question,
+        image: Array.isArray(questionImage) ? questionImage[0] : questionImage ,
         correctAnswer: Array.isArray(correctAnswer) ? correctAnswer[0] : correctAnswer,
         answers: parsedAnswers,
         type: Array.isArray(selectedType) ? selectedType[0] : selectedType 
