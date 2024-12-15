@@ -136,10 +136,6 @@ const QuizDetails = () => {
           Level: {quizDetails.level || 'N/A'}
         </Text>
 
-        {/* Bookmark button in the bottom right corner */}
-        <TouchableOpacity style={styles.bookmarkButton}>
-          <Image source={require('@/assets/images/bookmark-icon.png')} style={styles.bookmarkIcon} />
-        </TouchableOpacity>
       </View>
 
       <View style={styles.buttonContainer}>
@@ -248,16 +244,6 @@ const getStyles = (colorScheme: any) => {
       alignItems: 'center',
       color: '#ffffff',
       fontWeight: 'bold',
-    },
-    bookmarkButton: {
-      position: 'absolute',
-      bottom: 10,
-      right: 10,
-    },
-    bookmarkIcon: {
-      width: 24,
-      height: 24,
-      tintColor: isDark ? 'white' : 'black',
     },
   });
 };

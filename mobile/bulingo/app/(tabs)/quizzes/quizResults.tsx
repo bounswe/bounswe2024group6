@@ -4,6 +4,7 @@ import { useLocalSearchParams } from "expo-router";
 import { router } from "expo-router";
 import { Dimensions } from 'react-native';
 import TokenManager from '@/app/TokenManager';
+import { FontAwesome } from '@expo/vector-icons';
 
 const { width, height } = Dimensions.get('window');
 
@@ -13,6 +14,8 @@ const QuizResults = () => {
   const styles = getStyles(colorScheme);
   const [resultQuizLiked, setResultQuizLiked] = useState<boolean>(false);
   const [reccQuizLiked, setReccQuizLiked] = useState<boolean>(false);
+  const [resultQuizBookmarked, setResultQuizBookmarked] = useState<boolean>(false);
+  const [reccQuizBookmarked, setReccQuizBookmarked] = useState<boolean>(false);
 
   const [quizResult, setQuizResult] = useState<{
     questions: {
@@ -55,7 +58,40 @@ const QuizResults = () => {
     level: string;
     likes: number;
     liked: boolean;
+    bookmarked: boolean;
   } | null>(null);
+
+
+  const handleBookmarkPress = async (bookmarked: any, quizId: any) => {
+    let data = '';
+    try {
+      const response = await TokenManager.authenticatedFetch(`/quiz/bookmark/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          quiz_id: quizId,
+        }),
+      });
+      console.log(quizId);
+      data = await response.json();
+      console.log(data);
+      if (response.ok) {
+        bookmarked = !bookmarked;
+        if (quizId === quizResult?.quiz_result.quiz.id) {
+          setResultQuizBookmarked(bookmarked);
+        }
+        else {
+          setReccQuizBookmarked(bookmarked);
+        };
+      }
+    }
+    catch(error: any)
+    {
+      setError('Failed to fetch quizzes. Please try again. Error: ' + JSON.stringify(data));
+    }
+  }
 
 
   const handleLikePress = async (liked: any, quizId: any) => {
@@ -108,6 +144,7 @@ const QuizResults = () => {
           const data = await response.json();
           setQuizResult(data);
           setResultQuizLiked(data.quiz_result.is_liked);
+          setResultQuizBookmarked(data.quiz_result.is_bookmarked);
 
         } else {
           const errorData = await response.json();
@@ -143,8 +180,10 @@ const QuizResults = () => {
             level: quiz.level,
             likes: quiz.like_count,
             liked: quiz.is_liked,
+            bookmarked: quiz.is_bookmarked,
           };
           setReccQuizLiked(quiz.is_liked);
+          setReccQuizBookmarked(quiz.is_bookmarked);
           setRecommendedQuiz(formattedResults);
           setError(null);
         } else {
@@ -190,8 +229,12 @@ const QuizResults = () => {
             <Image source={resultQuizLiked ? require('@/assets/images/like-2.png') : require('@/assets/images/like-1.png')} style={styles.icon} />
             </TouchableOpacity>
 
-            <TouchableOpacity>
-              <Image style={[styles.bottomButtonBookmark, {borderWidth: 0}]} source={require('@/assets/images/bookmark-icon.png')}/>
+            <TouchableOpacity onPress={() => handleBookmarkPress(resultQuizBookmarked, quizResult?.quiz_result.quiz.id)} >
+              <FontAwesome 
+              name={resultQuizBookmarked ? 'bookmark' : 'bookmark-o'} 
+              size={20}
+              color="black" 
+            />
             </TouchableOpacity>
           </View>
       </View>
@@ -225,8 +268,12 @@ const QuizResults = () => {
         <Image source={reccQuizLiked ? require('@/assets/images/like-2.png') : require('@/assets/images/like-1.png')} style={styles.icon} />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.bookmarkButton}>
-          <Image source={require('@/assets/images/bookmark-icon.png')} style={styles.icon} />
+        <TouchableOpacity style={styles.bookmarkButton} onPress={() => handleBookmarkPress(reccQuizBookmarked, props.id)} >
+          <FontAwesome 
+            name={reccQuizBookmarked ? 'bookmark' : 'bookmark-o'} 
+            size={20}
+            color="black" 
+          />
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
@@ -521,7 +568,7 @@ const getStyles = (colorScheme: any) => {
     },
     likeButton: {
       position: 'absolute',
-      bottom: height * 0.02,
+      bottom: height * 0.008,  
       left: -width * 0.15,
     },
     bookmarkButton: {
@@ -534,6 +581,7 @@ const getStyles = (colorScheme: any) => {
       height: height * 0.05,
       resizeMode: 'contain',
       tintColor: isDark ? '#fff' : '#000',
+
     },
     loadingText: {
       textAlign: 'center',

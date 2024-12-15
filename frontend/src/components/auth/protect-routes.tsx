@@ -18,6 +18,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
       Cookies.remove("username");
       Cookies.remove("accessToken");
       Cookies.remove("refreshToken");
+      Cookies.remove("isAdmin");
     } else {
       setIsAuthenticated(true); // User is authenticated
     }
