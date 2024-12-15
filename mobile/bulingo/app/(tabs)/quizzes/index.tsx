@@ -127,7 +127,6 @@ const QuizFeed = () => {
 
 
   const handleBookmarkPress = async (quizId: number) => {
-    console.log('bookmarking quiz', quizId);
     const updatedQuizzes = await Promise.all(
       quizzes.map(async (quiz: any) => {
         if (quiz.id === quizId) {
