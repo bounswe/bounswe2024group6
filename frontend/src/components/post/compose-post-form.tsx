@@ -210,7 +210,7 @@ export default function ComposePostForm() {
             <ModalContent>
               <PostCard
                 id={0}
-                username="#alitariksahin"
+                username="alitariksahin"
                 title={title}
                 content={content}
                 tags={[...selectedTags, ...(diffTag ? [diffTag] : [])]}
