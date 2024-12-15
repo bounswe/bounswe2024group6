@@ -83,7 +83,7 @@ export default function QuizCard({
         })
         .then((response) => {
           const data: ProfileResponse = response.data;
-          console.log("profile",data);
+          console.log("profile", data);
           setProfileImage(response.data.profile_picture);
         })
         .catch((error) => {
@@ -155,7 +155,9 @@ export default function QuizCard({
                     isBordered
                     radius="full"
                     className="w-6 h-6 text-tiny"
-                    src={profileImage || "https://nextui.org/avatars/avatar-1.png"}
+                    src={
+                      profileImage || "https://nextui.org/avatars/avatar-1.png"
+                    }
                   />
                   <div className="flex flex-col gap-1 items-start justify-center">
                     <h5 className="text-small tracking-tight text-default-400">
@@ -283,7 +285,7 @@ export default function QuizCard({
                     size="sm"
                     radius="full"
                   >
-                    #{tag}
+                    {tag}
                   </Button>
                 ))}
             </div>
