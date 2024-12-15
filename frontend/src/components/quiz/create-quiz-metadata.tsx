@@ -33,6 +33,8 @@ export default function CreateQuizMetadata({
   const [description, setDescription] = useState("");
   const [level, setLevel] = useState("");
   const [tags, setTags] = useState<string[]>([]);
+  const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
 
   useEffect(() => {
     const tagNames = level
@@ -47,29 +49,63 @@ export default function CreateQuizMetadata({
     });
   }, [title, description, level, tags]);
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile && selectedFile.type.startsWith('image/')) {
+      setFile(selectedFile);
+      setPreview(URL.createObjectURL(selectedFile));
+    }
+  };
+
   return (
     <Card className="w-[840px] px-2 pt-2 p-4">
       <div className="flex flex-row gap-4">
-        <div className="bg-default-100 hover:bg-default-200 p-[60px] flex justify-center items-center rounded-3xl">
-          <IconPlus size={24} className="text-default-500" />
-        </div>
+        <label className="relative cursor-pointer">
+          <div className={`bg-default-100 hover:bg-default-200 flex flex-col justify-center items-center rounded-3xl w-[240px] h-[240px] overflow-hidden ${preview ? 'p-0' : 'p-[60px]'}`}>
+            {preview ? (
+              <img 
+                src={preview} 
+                alt="Preview" 
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <>
+                <IconPlus size={24} className="text-default-500" />
+                <span className="text-default-500 text-sm mt-2">Upload Image</span>
+              </>
+            )}
+          </div>
+          <input
+            type="file"
+            className="hidden"
+            onChange={handleFileChange}
+            accept="image/*"
+          />
+        </label>
         <div className="flex flex-col gap-4 w-full">
-          <div className="flex flex-row gap-4 w-full">
-            <Input
-              isRequired
-              label="Title"
-              className="w-full"
-              size="sm"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
+          <Input
+            isRequired
+            label="Title"
+            className="w-full"
+            size="sm"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+          <Textarea
+            label="Description"
+            placeholder="Enter your description"
+            className="w-full"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+          <div className="flex flex-row gap-4">
             <Select
               isRequired
               size="lg"
               placeholder="Level*"
               selectedKeys={new Set([level])}
               radius="sm"
-              className="max-w-24"
+              className="w-1/2"
               onSelectionChange={(keys) =>
                 setLevel(Array.from(keys)[0]?.toString() || "")
               }
@@ -85,7 +121,7 @@ export default function CreateQuizMetadata({
               selectedKeys={new Set(tags)}
               selectionMode="multiple"
               radius="sm"
-              className="max-w-36"
+              className="w-1/2"
               onSelectionChange={(keys) =>
                 setTags(Array.from(keys) as string[])
               }
@@ -95,13 +131,6 @@ export default function CreateQuizMetadata({
               ))}
             </Select>
           </div>
-          <Textarea
-            label="Description"
-            placeholder="Enter your description"
-            className="w-full"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
         </div>
       </div>
     </Card>
