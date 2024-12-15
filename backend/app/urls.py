@@ -5,7 +5,7 @@ from app.views_directory.wordviews import get_turkish_translation, get_lexvo_inf
 from app.views_directory.profileviews import view_profile, update_profile, view_other_profile, view_followers, view_following
 from app.views_directory.follow_unfollow import follow_user, unfollow_user 
 from app.views_directory.authentication_endpoints import RegisterView, LoginView, LogoutView, RefreshTokenView
-from app.views_directory.comments import add_comment, delete_comment, like_comment, unlike_comment, get_comment_by_id
+from app.views_directory.comments import add_comment, delete_comment, like_comment, unlike_comment, get_comment_by_id,add_reply
 from app.views_directory.postviews import like_post, unlike_post
 from app.views_directory.activity_streams import activities_by_user, activities_for_user_as_object
 from app.views_directory.postviews import create_post, delete_post, get_posts_of_user, get_post_details, update_post
@@ -68,6 +68,7 @@ urlpatterns = [
     path('post/like/', like_post, name='like_post'),
     path('post/unlike/', unlike_post, name='unlike_post'),
     path('post/comment/add/', add_comment, name='add_comment'),
+    path('post/comment/reply/', add_reply, name='add_reply'),
     path('post/comment/delete/', delete_comment, name='delete_comment'),
     path('post/comment/like/', like_comment, name='like_comment'),
     path('post/comment/unlike/', unlike_comment, name='unlike_comment'),

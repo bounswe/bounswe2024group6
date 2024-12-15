@@ -54,6 +54,39 @@ def add_comment(request):
 
     return Response(CommentSerializer(comment).data, status=status.HTTP_201_CREATED)
 
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_reply(request):
+    parent_id = request.data.get('parent_id')
+    body = request.data.get('body')
+
+    if not parent_id or not body:
+        return Response({"detail": "parent_id and body are required."}, status=status.HTTP_400_BAD_REQUEST)
+
+    parent_comment = get_object_or_404(Comment, id=parent_id)
+
+    reply = Comment.objects.create(
+        post=parent_comment.post,
+        author=request.user,
+        body=body,
+        parent=parent_comment
+    )
+
+    if parent_comment.author != request.user:
+        ActivityStream.objects.create(
+            actor=request.user,
+            verb="replied",
+            object_type="Comment",
+            object_id=reply.id,
+            object_name=reply.body,
+            target=f"Comment:{parent_comment.id}",
+            affected_username=parent_comment.author.username
+        )
+
+    return Response(CommentSerializer(reply).data, status=status.HTTP_201_CREATED)
+
+
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_comment(request):
