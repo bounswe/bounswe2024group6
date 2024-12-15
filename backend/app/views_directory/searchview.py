@@ -70,6 +70,7 @@ class SearchView(APIView):
                     "author": quiz.author.username,
                     "created_at": quiz.created_at,
                     "tags": [tag.name for tag in quiz.tags.all()],
+                    "level": quiz.level,  # Include the level field
                     "isLiked": user and quiz.liked_by.filter(id=user.id).exists(),
                     "isBookmarked": quiz.id in bookmarked_quiz_ids,
                     "likeCount": quiz.liked_by.count(),
