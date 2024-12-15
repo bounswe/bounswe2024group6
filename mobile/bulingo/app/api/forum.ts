@@ -74,6 +74,10 @@ export const getCommentById = async (commentId: number) => {
     return await makeAuthenticatedRequest('comment/', 'POST', { comment_id: commentId });
 };
 
+export const fetchCommentAuthorImage = async (username: string) => {
+    return await makeAuthenticatedRequest(`profile/${username}/`, 'GET');
+};
+
 export const bookmarkComment = async (commentId: number) => {
     return await makeAuthenticatedRequest('comments/bookmark/', 'POST', { comment_id: commentId });
 };
