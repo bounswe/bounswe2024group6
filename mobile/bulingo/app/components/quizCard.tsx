@@ -133,20 +133,23 @@ const getStyles = (colorScheme: any) => {
       position: 'absolute',
       bottom: 0,
       right: 10,
-      height: 50,
-      padding: 4,
+      height: 35,
     },
     quizLikes: {
       fontSize: 16,
       color: isDark ? '#fff' : '#000',
     },
     likeButton: {
-      flex: 2,
+      height: 35,
+      width: 35,
+      bottom: -5,
     },
     bookmarkButton: {
-      flex: 1,
+      height: 25,
+      width: 25,
       justifyContent: 'flex-end',
       alignItems: 'flex-end',
+      bottom: -15,
     },
     icon: {
       width: 30,
