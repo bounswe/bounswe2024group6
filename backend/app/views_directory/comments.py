@@ -44,8 +44,8 @@ def add_comment(request):
                 continue
             ActivityStream.objects.create(
                 actor=request.user,
-                verb="created",
-                object_type="Quiz",
+                verb="commented",
+                object_type="Comment",
                 object_id=comment.id,
                 object_name = comment.body,
                 target=f"Post:{post.id}",
@@ -151,7 +151,7 @@ def get_comment_by_id(request):
         }
         for reply in replies
     ]
-    
+
     comment_data = {
         "id": comment.id,
         "author": comment.author.username,
