@@ -44,6 +44,28 @@ export default function Home() {
           TokenManager.saveTokens(access, refresh);
           TokenManager.setUsername(username);
           Alert.set("Login Successful");
+          try{
+            const isAdminUrl = 'admin-check/';
+            const responseIsAdmin = await TokenManager.authenticatedFetch(isAdminUrl, {
+              method: 'GET',
+              headers: {
+                "Content-Type": "application/json",
+              },
+            })
+
+            if (response.ok){
+              const result = await responseIsAdmin.json();
+              TokenManager.setIsAdmin(result.is_admin)
+            } else {
+              console.warn(response.status);
+            }
+          } catch (error) {
+            console.error(error);
+          }
+
+
+
+
           router.navigate('/');
         } else {
           console.warn(json);
