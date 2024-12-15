@@ -48,8 +48,12 @@ export default function QuizDetails() {
     useEffect(() => {
         if (quizID) {
             setIsLoading(true);
+            const headers = {
+                ...(token && { Authorization: `Bearer ${token}` }),
+              };
             axios
                 .get(`${BASE_URL}/quiz/${quizID}/`, {
+                    headers
                 })
                 .then((response) => {
                     console.log(response.data);

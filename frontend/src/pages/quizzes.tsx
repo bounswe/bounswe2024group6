@@ -51,8 +51,13 @@ export default function Quizzes() {
 
   useEffect(() => {
     setIsLoading(true);
+    const headers = {
+      "Content-Type": "application/json",
+      ...(token && { Authorization: `Bearer ${token}` }),
+    };
     axios
       .get(`${BASE_URL}/feed/quiz/`, {
+        headers
       })
       .then((response) => {
         console.log(response.data);

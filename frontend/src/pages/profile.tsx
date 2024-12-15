@@ -13,6 +13,9 @@ import {
   ModalBody,
   ModalHeader,
   Card,
+  PopoverTrigger,
+  Popover,
+  PopoverContent,
 } from "@nextui-org/react";
 import { useState, useEffect, Suspense } from "react";
 
@@ -28,6 +31,7 @@ import {
   IconBorderAll,
   IconClipboardText,
   IconAbc,
+  IconDotsVertical,
 } from "@tabler/icons-react";
 import { AuthActions } from "../components/auth/utils.tsx";
 import {
@@ -299,9 +303,8 @@ export default function Profile() {
               </div>
             </div>
             <div
-              className={`flex flex-row ${
-                profile.username === Cookies.get("username") ? "pl-32" : "pl-0"
-              } gap-6`}
+              className={`flex flex-row ${profile.username === Cookies.get("username") ? "pl-32" : "pl-0"
+                } gap-6 items-center`}
             >
               {profile.username !== Cookies.get("username") && (
                 <Button
@@ -310,9 +313,8 @@ export default function Profile() {
                   onClick={
                     isGuest ? () => setGuestModalOpen(true) : toggleFollow
                   }
-                  className={`border-2 rounded-lg min-w-36 font-bold px-8 py-6 ${
-                    isFollowing ? "text-blue-900" : ""
-                  }`}
+                  className={`border-2 rounded-lg min-w-36 font-bold px-8 py-6 ${isFollowing ? "text-blue-900" : ""
+                    }`}
                 >
                   {isFollowing ? "Unfollow" : "Follow"}
                 </Button>
@@ -333,6 +335,27 @@ export default function Profile() {
               >
                 {followCount} Followers
               </Button>
+              <Popover key="bottom-end" placement="bottom-end">
+                <PopoverTrigger>
+                  <IconDotsVertical size={30} />
+                </PopoverTrigger>
+                <PopoverContent className="p-1 pb-2">
+                  <Button
+                    variant="light"
+                    onClick={() => handleOpen("quiz")}
+                    className="text-medium mt-2"
+                  >
+                    Liked Quizzes
+                  </Button>
+                  <Button
+                    variant="light"
+                    onClick={() => handleOpen("post")}
+                    className="text-medium w-full"
+                  >
+                    Liked Posts
+                  </Button>
+                </PopoverContent>
+              </Popover>
               <Modal
                 isOpen={isOpen}
                 onOpenChange={onOpenChange}
@@ -342,7 +365,15 @@ export default function Profile() {
               >
                 <ModalContent className="pb-6 gap-3">
                   <ModalHeader className="text-lg font-semibold">
-                    {type === "follower" ? "Followers" : "Following"}
+                    {type === "follower"
+                      ? "Followers"
+                      : type === "following"
+                        ? "Following"
+                        : type === "post"
+                          ? "Liked Posts"
+                          : type === "quiz"
+                            ? "Liked Quizzes"
+                            : ""}
                   </ModalHeader>
                   {(type === "follower" ? followers : followings).length > 0 ? (
                     (type === "follower" ? followers : followings).map(
