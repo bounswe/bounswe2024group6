@@ -35,6 +35,7 @@ import {
 } from "@tabler/icons-react";
 import { AuthActions } from "../components/auth/utils.tsx";
 import {
+  convertCommentResponseToPost,
   convertPostResponseToPost,
   convertProfileResponseToProfile,
   convertQuizResponseToQuiz,
@@ -64,6 +65,8 @@ export default function Profile() {
   const [solvedQuizzes, setSolvedQuizzes] = useState<Quiz[]>([]);
   const [createdQuizzes, setCreatedQuizzes] = useState<Quiz[]>([]);
   const [likedQuizzes, setLikedQuizzes] = useState<Quiz[]>([]);
+  const [likedPosts, setLikedPosts] = useState<Post[]>([]);
+  const [likedComments, setLikedComments] = useState<Post[]>([]);
   const [followers, setFollowers] = useState<any[]>([]);
   const [followings, setFollowings] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -186,6 +189,40 @@ export default function Profile() {
         console.log("liked quizzes", response.data);
         const liked = response.data.map(convertQuizResponseToQuiz);
         setLikedQuizzes(liked);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, [token]);
+
+  useEffect(() => {
+    axios
+      .get(`${BASE_URL}/post/liked/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        console.log("liked posts", response.data);
+        const likedP = response.data.liked_posts.map(convertPostResponseToPost);
+        setLikedPosts(likedP);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, [token]);
+
+  useEffect(() => {
+    axios
+      .get(`${BASE_URL}/comments/liked/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        console.log("liked comments", response.data);
+        const likedP = response.data.liked_comments.map(convertCommentResponseToPost);
+        setLikedComments(likedP);
       })
       .catch((error) => {
         console.log(error);
@@ -385,17 +422,24 @@ export default function Profile() {
                   >
                     Liked Posts
                   </Button>
+                  <Button
+                    variant="light"
+                    onClick={() => {
+                      handleOpen("comment");
+                      setPopoverOpen(false); // Close the popover
+                    }}
+                    className="text-medium w-full"
+                  >
+                    Liked Comments
+                  </Button>
                 </PopoverContent>
               </Popover>
               <Modal
                 isOpen={isOpen}
                 onOpenChange={onOpenChange}
                 placement="top-center"
-                className={`${
-                  type === "quiz" || type === "post"
-                    ? "max-w-[740px]"
-                    : "max-w-[360px]"
-                } flex flex-col items-center`}
+                className={`${type === "quiz" || type === "post" || type === "comment" ? "max-w-[760px]" : "max-w-[360px]"
+                  } flex flex-col items-center max-h-[80vh] overflow-y-auto`}
                 backdrop="blur"
               >
                 <ModalContent className="pb-6 gap-3">
@@ -403,12 +447,12 @@ export default function Profile() {
                     {type === "follower"
                       ? "Followers"
                       : type === "following"
-                      ? "Following"
-                      : type === "post"
-                      ? "Liked Posts"
-                      : type === "quiz"
-                      ? "Liked Quizzes"
-                      : ""}
+                        ? "Following"
+                        : type === "post"
+                          ? "Liked Posts"
+                          : type === "quiz"
+                            ? "Liked Quizzes"
+                            : "Liked Comments"}
                   </ModalHeader>
                   {type === "quiz" ? (
                     likedQuizzes.length > 0 ? (
@@ -433,28 +477,62 @@ export default function Profile() {
                         No liked quizzes found.
                       </p>
                     )
-                  ) : type === "post" ? (
-                    <p>No liked post found.</p>
-                  ) : (type === "follower" || type === "following") &&
-                    (type === "follower" ? followers : followings).length >
-                      0 ? (
-                    (type === "follower" ? followers : followings).map(
-                      (user) => (
-                        <div
-                          key={user.username}
-                          className="border-1 rounded-xl"
-                        >
-                          <UserCard
-                            username={user.username}
-                            bio={user.bio}
-                            follower_count={user.follower_count}
-                            following_count={user.following_count}
-                            is_followed={user.is_followed}
-                            level={user.level}
+                  ) 
+                  : type === "post" ? (
+                    likedPosts.length > 0 ? (
+                      likedPosts.map((post) => (
+                        <div key={post.id} className="border-1 rounded-xl">
+                          <PostCard
+                            id={post.id}
+                            username={post.author.username}
+                            title={post.post.title}
+                            content={post.post.content}
+                            timePassed={post.post.timestamp}
+                            likeCount={post.engagement.likes}
+                            tags={post.post.tags}
+                            initialIsLiked={post.engagement.is_liked}
+                            initialIsBookmarked={post.engagement.is_bookmarked}
                           />
                         </div>
-                      )
+                      ))
+                    ) : (
+                      <p className="text-default-500">No liked posts found.</p>
                     )
+                  ) 
+                  : type === "comment" ? (
+                    likedComments.length > 0 ? (
+                      likedComments.map((post) => (
+                        <div key={post.id} className="border-1 rounded-xl">
+                          <PostCard
+                            id={post.id}
+                            username={post.author.username}
+                            content={post.post.content}
+                            timePassed={post.post.timestamp}
+                            likeCount={post.engagement.likes}
+                            initialIsLiked={post.engagement.is_liked}
+                            initialIsBookmarked={post.engagement.is_bookmarked}
+                          />
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-default-500">No liked comments found.</p>
+                    )
+                  )
+                  : 
+                  (type === "follower" || type === "following") &&
+                    (type === "follower" ? followers : followings).length > 0 ? (
+                    (type === "follower" ? followers : followings).map((user) => (
+                      <div key={user.username} className="border-1 rounded-xl">
+                        <UserCard
+                          username={user.username}
+                          bio={user.bio}
+                          follower_count={user.follower_count}
+                          following_count={user.following_count}
+                          is_followed={user.is_followed}
+                          level={user.level}
+                        />
+                      </div>
+                    ))
                   ) : (
                     <p className="text-default-500">
                       No {type === "follower" ? "followers" : "following"}{" "}
