@@ -32,6 +32,7 @@ import {
   IconClipboardText,
   IconAbc,
   IconDotsVertical,
+  IconBan,
 } from "@tabler/icons-react";
 import { AuthActions } from "../components/auth/utils.tsx";
 import {
@@ -223,7 +224,9 @@ export default function Profile() {
       })
       .then((response) => {
         console.log("liked comments", response.data);
-        const likedP = response.data.liked_comments.map(convertCommentResponseToPost);
+        const likedP = response.data.liked_comments.map(
+          convertCommentResponseToPost
+        );
         setLikedComments(likedP);
       })
       .catch((error) => {
@@ -352,7 +355,10 @@ export default function Profile() {
             <div className="flex items-center px-2 rounded-lg">
               <Avatar src={profile.image} className="mr-2 w-24 h-24" />
               <div className="mx-4 max-w-52">
-                <h3 className="text-xl font-semibold">{profile.username}</h3>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-xl font-semibold">{profile.username}</h3>
+                  {profile.is_banned && <IconBan size={20} stroke={3} className="text-red-500" />}
+                </div>
                 <p className="text-gray-500">@{profile.level}</p>
                 <p className="text-zinc-600 break-words">
                   {profile.bio || "Hey, new learner here!"}
@@ -458,8 +464,11 @@ export default function Profile() {
                 isOpen={isOpen}
                 onOpenChange={onOpenChange}
                 placement="top-center"
-                className={`${type === "quiz" || type === "post" || type === "comment" ? "max-w-[760px]" : "max-w-[360px]"
-                  } flex flex-col items-center max-h-[80vh] overflow-y-auto`}
+                className={`${
+                  type === "quiz" || type === "post" || type === "comment"
+                    ? "max-w-[760px]"
+                    : "max-w-[360px]"
+                } flex flex-col items-center max-h-[80vh] overflow-y-auto`}
                 backdrop="blur"
               >
                 <ModalContent className="pb-6 gap-3">
@@ -467,12 +476,12 @@ export default function Profile() {
                     {type === "follower"
                       ? "Followers"
                       : type === "following"
-                        ? "Following"
-                        : type === "post"
-                          ? "Liked Posts"
-                          : type === "quiz"
-                            ? "Liked Quizzes"
-                            : "Liked Comments"}
+                      ? "Following"
+                      : type === "post"
+                      ? "Liked Posts"
+                      : type === "quiz"
+                      ? "Liked Quizzes"
+                      : "Liked Comments"}
                   </ModalHeader>
                   {type === "quiz" ? (
                     likedQuizzes.length > 0 ? (
@@ -497,8 +506,7 @@ export default function Profile() {
                         No liked quizzes found.
                       </p>
                     )
-                  ) 
-                  : type === "post" ? (
+                  ) : type === "post" ? (
                     likedPosts.length > 0 ? (
                       likedPosts.map((post) => (
                         <div key={post.id} className="border-1 rounded-xl">
@@ -518,8 +526,7 @@ export default function Profile() {
                     ) : (
                       <p className="text-default-500">No liked posts found.</p>
                     )
-                  ) 
-                  : type === "comment" ? (
+                  ) : type === "comment" ? (
                     likedComments.length > 0 ? (
                       likedComments.map((post) => (
                         <div key={post.id} className="border-1 rounded-xl">
@@ -535,24 +542,30 @@ export default function Profile() {
                         </div>
                       ))
                     ) : (
-                      <p className="text-default-500">No liked comments found.</p>
+                      <p className="text-default-500">
+                        No liked comments found.
+                      </p>
                     )
-                  )
-                  : 
-                  (type === "follower" || type === "following") &&
-                    (type === "follower" ? followers : followings).length > 0 ? (
-                    (type === "follower" ? followers : followings).map((user) => (
-                      <div key={user.username} className="border-1 rounded-xl">
-                        <UserCard
-                          username={user.username}
-                          bio={user.bio}
-                          follower_count={user.follower_count}
-                          following_count={user.following_count}
-                          is_followed={user.is_followed}
-                          level={user.level}
-                        />
-                      </div>
-                    ))
+                  ) : (type === "follower" || type === "following") &&
+                    (type === "follower" ? followers : followings).length >
+                      0 ? (
+                    (type === "follower" ? followers : followings).map(
+                      (user) => (
+                        <div
+                          key={user.username}
+                          className="border-1 rounded-xl"
+                        >
+                          <UserCard
+                            username={user.username}
+                            bio={user.bio}
+                            follower_count={user.follower_count}
+                            following_count={user.following_count}
+                            is_followed={user.is_followed}
+                            level={user.level}
+                          />
+                        </div>
+                      )
+                    )
                   ) : (
                     <p className="text-default-500">
                       No {type === "follower" ? "followers" : "following"}{" "}
