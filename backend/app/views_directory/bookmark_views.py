@@ -8,6 +8,9 @@ from app.models import Post, Bookmark
 from app.serializers import PostSerializer
 
 
+
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def bookmark_post(request):
@@ -73,3 +76,5 @@ def get_bookmarked_posts(request):
 
     serializer = PostSerializer(bookmarked_posts, many=True, context={'request': request})
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+

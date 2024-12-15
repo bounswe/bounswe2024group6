@@ -11,12 +11,13 @@ class ProfileSerializer(serializers.ModelSerializer):
     follower_count = serializers.SerializerMethodField()
     following_count = serializers.SerializerMethodField()
     is_followed = serializers.SerializerMethodField()
+    profile_picture = serializers.ImageField(required=False)
 
     class Meta:
         model = Profile
         fields = [
             'username', 'name','bio','level', 'posts', 'comments',
-            'follower_count', 'following_count', 'is_followed'
+            'follower_count', 'following_count', 'is_followed','profile_picture'
         ]
 
     def get_posts(self, obj):
@@ -147,6 +148,7 @@ class TagSerializer(serializers.ModelSerializer):
         model = Tags
         fields = ['id', 'name']
 
+
 class QuizSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True)
     level = serializers.ChoiceField(choices=Quiz.LEVEL_CHOICES) 
@@ -156,6 +158,7 @@ class QuizSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'title',
+            'title_image',
             'description',
             'author',
             'tags',
@@ -180,6 +183,22 @@ class QuizSerializer(serializers.ModelSerializer):
 
         return quiz
 
+    def update(self, instance, validated_data):
+        tags_data = validated_data.pop('tags', None)
+        
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        
+        if tags_data is not None:
+            instance.tags.clear()
+            
+            for tag_data in tags_data:
+                tag, created = Tags.objects.get_or_create(name=tag_data['name'])
+                instance.tags.add(tag)
+        
+        return instance
+
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation.pop('bookmarked_by')
@@ -189,12 +208,11 @@ class QuizSerializer(serializers.ModelSerializer):
         total_score = representation.pop('total_score')
         representation['average_score'] = total_score / instance.times_taken if instance.times_taken > 0 else 0
 
-        # Transform tags to a list of names
         representation['tags'] = [tag['name'] for tag in representation['tags']]
         representation['author'] = { 'id' : instance.author.id, 'username' : instance.author.username } 
 
         request = self.context.get('request')
-        if request and request.user.is_authenticated:
+        if request and request.user and request.user.is_authenticated:
             representation['is_bookmarked'] = instance.bookmarked_by.filter(id=request.user.id).exists()
             representation['is_liked'] = instance.liked_by.filter(id=request.user.id).exists()
 
@@ -207,7 +225,8 @@ class QuizProgressSerializer(serializers.ModelSerializer):
 
 
 class QuestionSerializer(serializers.ModelSerializer):
-    level = serializers.ChoiceField(choices=Question.LEVEL_CHOICES) 
+    level = serializers.ChoiceField(choices=Question.LEVEL_CHOICES)
+
     class Meta:
         model = Question
         fields = [
@@ -215,19 +234,31 @@ class QuestionSerializer(serializers.ModelSerializer):
             'id',
             'question_number',
             'question_text',
+            'question_image',
             'choice1',
+            'choice1_image',
             'choice2',
+            'choice2_image',
             'choice3',
+            'choice3_image',
             'choice4',
+            'choice4_image',
             'correct_choice',
             'level',
         ]
+        # Add this to explicitly specify which fields can be written to
+        extra_kwargs = {
+            'id': {'read_only': True},
+            'correct_choice': {'required': True},
+        }
 
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        representation.pop('quiz')
-        representation['quiz_id'] = instance.quiz.id
-        return representation 
+    def validate_correct_choice(self, value):
+        """
+        Check that correct_choice is between 1 and 4
+        """
+        if not (1 <= value <= 4):
+            raise serializers.ValidationError("Correct choice must be between 1 and 4")
+        return value
 
 class QuestionProgressSerializer(serializers.ModelSerializer):
     class Meta:
@@ -267,13 +298,14 @@ class PostSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     replies = serializers.SerializerMethodField()
     is_liked = serializers.SerializerMethodField()
+    is_bookmarked = serializers.SerializerMethodField() 
     author = serializers.CharField(source='author.username')
 
     class Meta:
         model = Comment
         fields = [
             'id', 'post', 'author', 'body', 'created_at', 'parent',
-            'replies', 'is_liked', 'like_count'
+            'replies', 'is_liked', 'like_count','is_bookmarked',
         ]
 
     def get_replies(self, obj):
@@ -286,4 +318,11 @@ class CommentSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return obj.liked_by.filter(id=request.user.id).exists()
+        return False
+
+    def get_is_bookmarked(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            from app.models import CommentBookmark  # or wherever it’s defined
+            return CommentBookmark.objects.filter(user=request.user, comment=obj).exists()
         return False

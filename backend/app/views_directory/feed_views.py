@@ -9,7 +9,7 @@ from app.serializers import CommentSerializer
 import random
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+#@permission_classes([IsAuthenticated])
 def get_user_post_feed(request):
     user = request.user  
 
@@ -29,8 +29,8 @@ def get_user_post_feed(request):
             "created_at": post.created_at,
             "like_count": post.like_count,
             "tags": [tag for tag in post.tags],
-            "is_liked": post.liked_by.filter(id=user.id).exists(),  
-            "is_bookmarked": Bookmark.objects.filter(user=user, post=post).exists(),  
+            "is_liked": post.liked_by.filter(id=user.id).exists() if user.is_authenticated else False,  
+            "is_bookmarked": Bookmark.objects.filter(user=user, post=post).exists() if user.is_authenticated else False,  
 
             "comments": CommentSerializer(
                 Comment.objects.filter(post=post),

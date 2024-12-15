@@ -56,6 +56,14 @@ def unfollow_user(request):
 
         follower_count = user_to_unfollow.followers.count()
 
+        ActivityStream.objects.create(
+            actor=request.user,
+            verb="unfollowed",
+            object_type="Profile",
+            object_id=user_to_unfollow.user.id,
+            affected_username=user_to_unfollow.user.username 
+        )
+
         return JsonResponse(
             {
                 "message": f"Successfully unfollowed {username_to_unfollow}",
