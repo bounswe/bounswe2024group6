@@ -33,6 +33,7 @@ import {
   IconAbc,
   IconDotsVertical,
   IconBan,
+  IconMessage,
 } from "@tabler/icons-react";
 import { AuthActions } from "../components/auth/utils.tsx";
 import {
@@ -62,6 +63,7 @@ export default function Profile() {
   const [isFollowing, setIsFollowing] = useState(false);
   const [followCount, setFollowCount] = useState(0);
   const [bookmarkedPosts, setBookmarkedPosts] = useState<Post[]>([]);
+  const [bookmarkedComments, setBookmarkedComments] = useState<Post[]>([]);
   const [bookmarkedQuizzes, setBookmarkedQuizzes] = useState<Quiz[]>([]);
   const [bookmarkedWords, setBookmarkedWords] = useState<any[]>([]);
   const [solvedQuizzes, setSolvedQuizzes] = useState<Quiz[]>([]);
@@ -236,6 +238,24 @@ export default function Profile() {
 
   useEffect(() => {
     axios
+      .get(`${BASE_URL}/comments/bookmarked/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        console.log("bookmarked comments", response.data);
+        setBookmarkedComments(
+          response.data.map(convertCommentResponseToPost)
+        );
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, [token]);
+
+  useEffect(() => {
+    axios
       .get(`${BASE_URL}/quiz/created/${username}/`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -357,7 +377,9 @@ export default function Profile() {
               <div className="mx-4 max-w-52">
                 <div className="flex items-center gap-2">
                   <h3 className="text-xl font-semibold">{profile.username}</h3>
-                  {profile.is_banned && <IconBan size={20} stroke={3} className="text-red-500" />}
+                  {profile.is_banned && (
+                    <IconBan size={20} stroke={3} className="text-red-500" />
+                  )}
                 </div>
                 <p className="text-gray-500">@{profile.level}</p>
                 <p className="text-zinc-600 break-words">
@@ -709,6 +731,36 @@ export default function Profile() {
                             tags={post.post.tags}
                             initialIsLiked={post.engagement.is_liked}
                             initialIsBookmarked={post.engagement.is_bookmarked}
+                          />
+                        </Suspense>
+                      ))}
+                    </div>
+                  </Tab>
+                  <Tab
+                    key="comments"
+                    title={
+                      <div className="flex items-start text-left space-x-2">
+                        <IconMessage size={20} stroke={1.5} />
+                        <span>Comments</span>
+                      </div>
+                    }
+                  >
+                    <div className="flex flex-col gap-4 items-left w-[740px]">
+                      {bookmarkedComments.map((comment) => (
+                        <Suspense
+                          key={comment.id}
+                          fallback={<PostCardSkeleton />}
+                        >
+                          <PostCard
+                            id={comment.id}
+                            username={comment.author.username}
+                            content={comment.post.content}
+                            timePassed={comment.post.timestamp}
+                            likeCount={comment.engagement.likes}
+                            initialIsLiked={comment.engagement.is_liked}
+                            initialIsBookmarked={
+                              comment.engagement.is_bookmarked
+                            }
                           />
                         </Suspense>
                       ))}
