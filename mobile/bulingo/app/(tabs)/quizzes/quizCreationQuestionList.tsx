@@ -107,39 +107,42 @@ const QuizCreationQuestionList = () => {
       return null;
     }
 
-  const formattedTags = [{"name": quizDetails["level"]}];
+    const formattedTags = [{"name": quizDetails["level"]}];
+    const formData = new FormData();
+
+    formData.append('title', quizDetails['title']);
+    formData.append('description', quizDetails['description']);
+    formData.append('level', quizDetails['level']);
+
+    console.log(formData);
+  
+    formData.append(
+      'questions',
+      JSON.stringify(
+        questions.map((q, index) => ({
+          question_number: index + 1,
+          question_text: q.name,
+          choice1: q.answers[0],
+          choice2: q.answers[1],
+          choice3: q.answers[2],
+          choice4: q.answers[3],
+          correct_choice: Number(q.correctAnswer) + 1,
+        }))
+      )
+    );
 
 
-    return {
-      quiz: {
-        title: quizDetails["title"],
-        description: quizDetails["description"],
-        level: quizDetails["level"],
-        tags: formattedTags || [], 
-      },
-      questions: questions.map((q, index) => ({
-        question_number: index + 1,
-        question_text: q.name,
-        choice1: q.answers[0],
-        choice2: q.answers[1],
-        choice3: q.answers[2],
-        choice4: q.answers[3],
-        correct_choice: Number(q.correctAnswer) + 1,
-      })),
-    };
+    return formData;
   };
 
   const createQuiz = async () => {
     const quizData = prepareQuizData();
-    if (!quizData) return; // Ensure data is prepared
-  
+    if (!quizData) return;
+
     try {
       const response = await TokenManager.authenticatedFetch(`/quiz/create/`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(quizData),
+        body: quizData
       });
   
       if (!response.ok) {
