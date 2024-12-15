@@ -50,9 +50,11 @@ export default function Profile() {
   usePageTitle("Profile");
   const { username } = useParams<{ username: string }>();
   const [profile, setProfile] = useState<Profile | null>(null);
-  const { getToken } = AuthActions();
+  const { getToken, useIsAdmin } = AuthActions();
   const token = getToken("access");
   const isGuest = !token;
+  const isAdmin = useIsAdmin();
+  console.log("isAdmin", isAdmin);
   const [sortedPosts, setSortedPosts] = useState<Post[]>([]);
   const [isFollowing, setIsFollowing] = useState(false);
   const [followCount, setFollowCount] = useState(0);
@@ -70,7 +72,6 @@ export default function Profile() {
   const [guestModalOpen, setGuestModalOpen] = useState(false);
   const [popoverOpen, setPopoverOpen] = useState(false);
 
-
   const handleOpen = (type) => {
     setType(type);
     onOpen();
@@ -87,7 +88,7 @@ export default function Profile() {
         })
         .then((response) => {
           const data: ProfileResponse = response.data;
-          console.log("profile",data);
+          console.log("profile", data);
           const profile = convertProfileResponseToProfile(data);
           const sortedVersion = [...profile.posts].sort((a, b) => {
             return (
@@ -310,10 +311,7 @@ export default function Profile() {
         profile && (
           <div className="flex justify-center gap-6 items-center w-full px-32 py-3">
             <div className="flex items-center px-2 rounded-lg">
-              <Avatar
-                src={profile.image}
-                className="mr-2 w-24 h-24"
-              />
+              <Avatar src={profile.image} className="mr-2 w-24 h-24" />
               <div className="mx-4 max-w-52">
                 <h3 className="text-xl font-semibold">{profile.username}</h3>
                 <p className="text-gray-500">@{profile.level}</p>
@@ -323,8 +321,9 @@ export default function Profile() {
               </div>
             </div>
             <div
-              className={`flex flex-row ${profile.username === Cookies.get("username") ? "pl-32" : "pl-0"
-                } gap-6 items-center`}
+              className={`flex flex-row ${
+                profile.username === Cookies.get("username") ? "pl-32" : "pl-0"
+              } gap-6 items-center`}
             >
               {profile.username !== Cookies.get("username") && (
                 <Button
@@ -333,8 +332,9 @@ export default function Profile() {
                   onClick={
                     isGuest ? () => setGuestModalOpen(true) : toggleFollow
                   }
-                  className={`border-2 rounded-lg min-w-36 font-bold px-8 py-6 ${isFollowing ? "text-blue-900" : ""
-                    }`}
+                  className={`border-2 rounded-lg min-w-36 font-bold px-8 py-6 ${
+                    isFollowing ? "text-blue-900" : ""
+                  }`}
                 >
                   {isFollowing ? "Unfollow" : "Follow"}
                 </Button>
@@ -355,7 +355,12 @@ export default function Profile() {
               >
                 {followCount} Followers
               </Button>
-              <Popover key="bottom-end" placement="bottom-end" onOpenChange={(isOpen) => setPopoverOpen(isOpen)} isOpen={popoverOpen}>
+              <Popover
+                key="bottom-end"
+                placement="bottom-end"
+                onOpenChange={(isOpen) => setPopoverOpen(isOpen)}
+                isOpen={popoverOpen}
+              >
                 <PopoverTrigger>
                   <IconDotsVertical size={30} />
                 </PopoverTrigger>
@@ -386,8 +391,11 @@ export default function Profile() {
                 isOpen={isOpen}
                 onOpenChange={onOpenChange}
                 placement="top-center"
-                className={`${type === "quiz" || type === "post" ? "max-w-[740px]" : "max-w-[360px]"
-                  } flex flex-col items-center`}
+                className={`${
+                  type === "quiz" || type === "post"
+                    ? "max-w-[740px]"
+                    : "max-w-[360px]"
+                } flex flex-col items-center`}
                 backdrop="blur"
               >
                 <ModalContent className="pb-6 gap-3">
@@ -395,12 +403,12 @@ export default function Profile() {
                     {type === "follower"
                       ? "Followers"
                       : type === "following"
-                        ? "Following"
-                        : type === "post"
-                          ? "Liked Posts"
-                          : type === "quiz"
-                            ? "Liked Quizzes"
-                            : ""}
+                      ? "Following"
+                      : type === "post"
+                      ? "Liked Posts"
+                      : type === "quiz"
+                      ? "Liked Quizzes"
+                      : ""}
                   </ModalHeader>
                   {type === "quiz" ? (
                     likedQuizzes.length > 0 ? (
@@ -421,29 +429,36 @@ export default function Profile() {
                         </div>
                       ))
                     ) : (
-                      <p className="text-default-500">No liked quizzes found.</p>
+                      <p className="text-default-500">
+                        No liked quizzes found.
+                      </p>
                     )
-                  ) 
-                  : type === "post" ? (
+                  ) : type === "post" ? (
                     <p>No liked post found.</p>
-                  )
-                  : (type === "follower" || type === "following") &&
-                    (type === "follower" ? followers : followings).length > 0 ? (
-                    (type === "follower" ? followers : followings).map((user) => (
-                      <div key={user.username} className="border-1 rounded-xl">
-                        <UserCard
-                          username={user.username}
-                          bio={user.bio}
-                          follower_count={user.follower_count}
-                          following_count={user.following_count}
-                          is_followed={user.is_followed}
-                          level={user.level}
-                        />
-                      </div>
-                    ))
+                  ) : (type === "follower" || type === "following") &&
+                    (type === "follower" ? followers : followings).length >
+                      0 ? (
+                    (type === "follower" ? followers : followings).map(
+                      (user) => (
+                        <div
+                          key={user.username}
+                          className="border-1 rounded-xl"
+                        >
+                          <UserCard
+                            username={user.username}
+                            bio={user.bio}
+                            follower_count={user.follower_count}
+                            following_count={user.following_count}
+                            is_followed={user.is_followed}
+                            level={user.level}
+                          />
+                        </div>
+                      )
+                    )
                   ) : (
                     <p className="text-default-500">
-                      No {type === "follower" ? "followers" : "following"} found.
+                      No {type === "follower" ? "followers" : "following"}{" "}
+                      found.
                     </p>
                   )}
                 </ModalContent>
