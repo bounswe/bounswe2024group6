@@ -60,7 +60,7 @@ export default function Navbar() {
         })
         .then((response) => {
           const data: ProfileResponse = response.data;
-          console.log("profile",data);
+          console.log("profile", data);
           setProfileImage(response.data.profile_picture);
         })
         .catch((error) => {
@@ -95,7 +95,17 @@ export default function Navbar() {
                   </a>{" "}
                   followed you
                 </div>
-              ) : activity.verb == "liked" ? (
+              ) : activity.verb == "unfollowed" ? (
+                <div>
+                  <a
+                    href={`/profile/${activity.actor}`}
+                    className="text-blue-500"
+                  >
+                    {activity.actor}
+                  </a>{" "}
+                  unfollowed you
+                </div>
+              ) : activity.verb == "liked" && activity.object_type == "Post" ? (
                 <div>
                   <a
                     href={`/profile/${activity.actor}`}
@@ -109,6 +119,81 @@ export default function Navbar() {
                     className="text-blue-500"
                   >
                     post
+                  </a>
+                </div>
+              ) : activity.verb == "liked" && activity.object_type == "Quiz" ? (
+                <div>
+                  <a
+                    href={`/profile/${activity.actor}`}
+                    className="text-blue-500"
+                  >
+                    {activity.actor}
+                  </a>{" "}
+                  liked your{" "}
+                  <a
+                    href={`/quiz/${activity.object_id}`}
+                    className="text-blue-500"
+                  >
+                    quiz
+                  </a>
+                </div>
+              ) : activity.verb == "liked" &&
+                activity.object_type == "Comment" ? (
+                <div>
+                  <a
+                    href={`/profile/${activity.actor}`}
+                    className="text-blue-500"
+                  >
+                    {activity.actor}
+                  </a>{" "}
+                  liked your{" "}
+                  <a
+                    href={`/comment/${activity.object_id}`}
+                    className="text-blue-500"
+                  >
+                    comment
+                  </a>
+                </div>
+              ) : activity.verb == "commented" ? (
+                <div>
+                  <a
+                    href={`/profile/${activity.actor}`}
+                    className="text-blue-500"
+                  >
+                    {activity.actor}
+                  </a>{" "}
+                  commented on your{" "}
+                  <a
+                    href={`/post/${activity.object_id}`}
+                    className="text-blue-500"
+                  >
+                    post
+                  </a>
+                </div>
+              ) : activity.verb == "deleted" ? (
+                <div>
+                  <a
+                    href={`/profile/${activity.actor}`}
+                    className="text-blue-500"
+                  >
+                    {activity.actor}
+                  </a>{" "}
+                  deleted your {activity.object_type.toLowerCase()}
+                </div>
+              ) : activity.verb == "solved" ? (
+                <div>
+                  <a
+                    href={`/profile/${activity.actor}`}
+                    className="text-blue-500"
+                  >
+                    {activity.actor}
+                  </a>{" "}
+                  solved your{" "}
+                  <a
+                    href={`/quiz/${activity.object_id}`}
+                    className="text-blue-500"
+                  >
+                    quiz
                   </a>
                 </div>
               ) : (
