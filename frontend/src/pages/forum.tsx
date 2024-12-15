@@ -63,6 +63,7 @@ export default function Forum() {
             .map((post) => post.tags)
             .flat()
             .filter((tag) => !DifficultyTags.includes(tag))
+            .filter((value, index, self) => self.indexOf(value) === index)
             .map((tag) => ({ key: tag, label: tag }))
         );
       })
