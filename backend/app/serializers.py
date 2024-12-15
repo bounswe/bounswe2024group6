@@ -81,6 +81,11 @@ class ProfileSerializer(serializers.ModelSerializer):
         if not request or not request.user.is_authenticated:
             return False
         return obj.followers.filter(id=request.user.id).exists()
+    
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['is_banned'] = not instance.user.is_active
+        return representation
 
 
 
