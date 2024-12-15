@@ -3,6 +3,7 @@ import { ScrollView, Keyboard, Pressable, StyleSheet, Text, TextInput, View, Tou
 import { router, useLocalSearchParams } from 'expo-router';
 import TokenManager from '@/app/TokenManager';
 import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
 
 const QuizCreationInfo = () => {
   const [question, setQuestion] = useState('');
@@ -29,7 +30,7 @@ const QuizCreationInfo = () => {
   const colorScheme = useColorScheme();
   const styles = getStyles(colorScheme);
 
-  const { initialQuestion, initialAnswers, initialCorrectAnswer, type, index, trigger} = useLocalSearchParams();
+  const { initialQuestion, initalQuestionImage, initialAnswers, initialCorrectAnswer, type, index, trigger} = useLocalSearchParams();
 
 
   const fetchVerticalOptions = async () => {
@@ -79,7 +80,9 @@ const QuizCreationInfo = () => {
       setAnswers(JSON.parse(Array.isArray(initialAnswers) ? initialAnswers[0] : initialAnswers));
       setCorrectAnswerIndex(Number(initialCorrectAnswer));
       setSelectedType(type instanceof Array ? type[0] : type);
+      setLocalImage(initalQuestionImage instanceof Array ? encodeURI(initalQuestionImage[0]) : encodeURI(initalQuestionImage));
     }
+    console.log(initalQuestionImage);
   }, [initialQuestion, initialAnswers, initialCorrectAnswer]);
 
   const handleGoBack = () => {
@@ -114,7 +117,7 @@ const QuizCreationInfo = () => {
   };
 
   const handleAddQuestion = () => {
-    router.navigate({ pathname: '/(tabs)/quizzes/quizCreationQuestionList', params: { question: question, answers: JSON.stringify(answers), correctAnswer: correctAnswerIndex, selectedType: selectedType, index: index, trigger: trigger} });
+    router.navigate({ pathname: '/(tabs)/quizzes/quizCreationQuestionList', params: { question: question, answers: JSON.stringify(answers), correctAnswer: correctAnswerIndex, selectedType: selectedType, index: index, trigger: trigger, questionImage: localImage} });
   };
 
   const handleTypeSelect = (type: string) => {
@@ -354,6 +357,7 @@ const QuizCreationInfo = () => {
               </Text>
             </TouchableOpacity>
           </View>
+
           <View style={styles.answerGridContainer}>
             {answerGrid.map((row, rowIndex) => (
               <View key={rowIndex} style={styles.answerRow}>
