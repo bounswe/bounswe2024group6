@@ -43,16 +43,14 @@ export default function Post() {
             post_id: postID,
           },
           {
-            headers
+            headers,
           }
         )
         .then((response) => {
           console.log(response.data);
           const postData: PostResponse = response.data.post;
           setPost(convertPostResponseToPost(postData));
-          setComments(
-            convertPostResponseToPost(postData).comments.filter(comment => comment.parent === null)
-          );
+          setComments(convertPostResponseToPost(postData).comments);
         })
         .catch((error) => {
           console.log(error);
@@ -77,11 +75,11 @@ export default function Post() {
             comment_id: commentID,
           },
           {
-            headers
+            headers,
           }
         )
         .then((response) => {
-          console.log("comment:",response.data);
+          console.log("comment:", response.data);
           const postData: CommentResponse = response.data.comment;
           setPost(convertCommentResponseToPost(postData));
           setComments(convertCommentResponseToPost(postData).comments);
@@ -96,10 +94,10 @@ export default function Post() {
   }, [commentID]);
 
   const handleSubmit = () => {
-    if(postID) {
+    if (postID) {
       const { getToken } = AuthActions();
       const token = getToken("access");
-  
+
       axios
         .post(
           `${BASE_URL}/post/comment/add/`,
@@ -134,7 +132,7 @@ export default function Post() {
         .catch((error) => {
           console.log(error);
         });
-    } else if(commentID) {
+    } else if (commentID) {
       axios
         .post(
           `${BASE_URL}/post/comment/reply/`,
@@ -150,7 +148,7 @@ export default function Post() {
           }
         )
         .then((response) => {
-          console.log("reply",response.data);
+          console.log("reply", response.data);
           setComment("");
           setComments([
             {
@@ -222,23 +220,22 @@ export default function Post() {
         </Card>
         {isLoading
           ? Array(1)
-            .fill(0)
-            .map((_, index) => <CommentSkeleton key={index} />)
+              .fill(0)
+              .map((_, index) => <CommentSkeleton key={index} />)
           : comments.map((comment) => (
-            <Suspense key={comment.id} fallback={<CommentSkeleton />}>
-              <PostCard
-                id={comment.id}
-                username={comment.author}
-                content={comment.body || comment.content}
-                timePassed={formatTimeAgo(comment.created_at)}
-                likeCount={comment.like_count}
-                initialIsLiked={comment.is_liked}
-                initialIsBookmarked={comment.is_bookmarked}
-              />
-            </Suspense>
-          ))}
+              <Suspense key={comment.id} fallback={<CommentSkeleton />}>
+                <PostCard
+                  id={comment.id}
+                  username={comment.author}
+                  content={comment.body || comment.content}
+                  timePassed={formatTimeAgo(comment.created_at)}
+                  likeCount={comment.like_count}
+                  initialIsLiked={comment.is_liked}
+                  initialIsBookmarked={comment.is_bookmarked}
+                />
+              </Suspense>
+            ))}
       </div>
     </div>
   );
 }
-
