@@ -80,6 +80,7 @@ export default function Tab() {
               ...item.data,
               buttonText: item.data.isFollowing ? "Unfollow" : "Follow",
               buttonStyleNo: item.data.username == username ? 3 : (item.data.isFollowing ? 1 : 2),
+              profilePictureUri: "http://64.226.76.231:8000" + item.data.profile_picture,
             }
           }));
           console.log(transformed_data)
