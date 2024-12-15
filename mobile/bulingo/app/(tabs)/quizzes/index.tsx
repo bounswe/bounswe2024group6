@@ -50,6 +50,7 @@ const QuizFeed = () => {
           level: quiz.level,
           likes: quiz.like_count,
           liked: quiz.is_liked,
+          bookmarked: quiz.is_bookmarked,
         }));
   
         setQuizzes((prevQuizzes: any) => (reset ? formattedResults : [...prevQuizzes, ...formattedResults]));
@@ -124,11 +125,51 @@ const QuizFeed = () => {
     setQuizzes(updatedQuizzes);
   };
 
+
+  const handleBookmarkPress = async (quizId: number) => {
+    const updatedQuizzes = await Promise.all(
+      quizzes.map(async (quiz: any) => {
+        if (quiz.id === quizId) {
+          let data = '';
+          try {
+            const response = await TokenManager.authenticatedFetch(`/quiz/bookmark/`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                quiz_id: quizId,
+              }),
+            });
+            
+            data = await response.json();
+            console.log(data);
+            let bookmarked = quiz.bookmarked;
+            if (response.ok) {
+              bookmarked = !quiz.bookmarked; // Toggle bookmark status
+            }
+            return { ...quiz, bookmarked };
+          } catch (error: any) {
+            setError(
+              'Failed to bookmark the quiz. Please try again. Error: ' +
+                JSON.stringify(data)
+            );
+          }
+        }
+        return quiz;
+      })
+    );
+    setQuizzes(updatedQuizzes);
+  };
+  
+  
+
   const renderQuizItem = ({ item }: { item: any }) => (
     <QuizCard
       {...item}
       onQuizPress={() => handleQuizPress(item.id)}
       onLikePress={() => handleLikePress(item.id)}
+      onBookmarkPress={() => {handleBookmarkPress(item.id)}}
     />
   );
 
