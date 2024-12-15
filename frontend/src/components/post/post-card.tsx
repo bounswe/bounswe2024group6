@@ -83,7 +83,7 @@ export default function PostCard({
         })
         .then((response) => {
           const data: ProfileResponse = response.data;
-          console.log("profile",data);
+          console.log("profile", data);
           setProfileImage(response.data.profile_picture);
         })
         .catch((error) => {
@@ -149,21 +149,37 @@ export default function PostCard({
   };
 
   const toggleBookmark = () => {
-    axios
-      .post(
-        `${BASE_URL}/${isBookmarked ? "unbookmark" : "bookmark"}/`,
-        { post_id: id },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
-      .then((response) => {
-        console.log(response.data);
-        setIsBookmarked(response.data.is_bookmarked);
-      });
-    //setIsBookmarked(!isBookmarked);
+    if (title) {
+      axios
+        .post(
+          `${BASE_URL}/${isBookmarked ? "unbookmark" : "bookmark"}/`,
+          { post_id: id },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+        .then((response) => {
+          console.log(response.data);
+          setIsBookmarked(response.data.is_bookmarked);
+        });
+    } else {
+      axios
+        .post(
+          `${BASE_URL}/comments/${isBookmarked ? "unbookmark" : "bookmark"}/`,
+          { comment_id: id },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+        .then((response) => {
+          console.log(response.data);
+          setIsBookmarked(response.data.is_bookmarked);
+        });
+    }
   };
 
   const displayedText =
@@ -239,8 +255,8 @@ export default function PostCard({
               onClick={
                 isGuest
                   ? () => {
-                      setGuestModalOpen(true);
-                    }
+                    setGuestModalOpen(true);
+                  }
                   : toggleLike
               }
               variant="light"
@@ -261,8 +277,8 @@ export default function PostCard({
             onClick={
               isGuest
                 ? () => {
-                    setGuestModalOpen(true);
-                  }
+                  setGuestModalOpen(true);
+                }
                 : toggleBookmark
             }
             variant="light"

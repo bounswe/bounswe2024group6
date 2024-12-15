@@ -5,6 +5,8 @@ export type Comment = {
   created_at: string;
   like_count: number;
   is_liked: boolean;
+  is_bookmarked: boolean;
+  parent: number;
 };
 
 export type Post = {
@@ -50,6 +52,7 @@ export type CommentResponse = {
   like_count: number;
   tags: string[];
   is_liked: boolean;
+  is_bookmarked: boolean;
   replies?: Comment[]; // TODO: to be made required
 };
 
