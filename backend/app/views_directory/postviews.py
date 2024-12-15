@@ -23,14 +23,15 @@ def like_post(request):
     post.like_count = post.liked_by.count()
     post.save()
 
-    ActivityStream.objects.create(
-        actor=request.user,
-        verb="liked",
-        object_type="Post",
-        object_id=post.id,
-        affected_username=post.author.username
-
-    )
+    if post.author != request.user:
+        ActivityStream.objects.create(
+            actor=request.user,
+            verb="liked",
+            object_type="Post",
+            object_id=post.id,
+            target=f"Post:{post.id}",
+            affected_username=post.author.username
+        )
 
     # Include like and bookmark status in the response
     is_liked = post.liked_by.filter(id=request.user.id).exists()
@@ -96,12 +97,18 @@ def create_post(request):
         created_at=timezone.now()
     )
 
-    ActivityStream.objects.create(
-        actor=request.user,
-        verb="created",
-        object_type="Post",
-        object_id=post.id
-    )
+    user = request.user
+
+    for f in user.profile.followers.all():
+        ActivityStream.objects.create(
+            actor=request.user,
+            verb="created",
+            object_type="Post",
+            object_id=post.id,
+            object_name=title,
+            affected_username=f.user.username
+            )
+    
 
     return Response({"detail": "Post created successfully.", "post_id": post.id}, status=status.HTTP_201_CREATED)
 
@@ -116,15 +123,18 @@ def delete_post(request):
 
     if post.author != request.user.username and not request.user.is_staff:
         return Response({"detail": "You do not have permission to delete this post."}, status=status.HTTP_403_FORBIDDEN)
-
+    post_title = post.title
     post.delete()
-
-    ActivityStream.objects.create(
-        actor=request.user,
-        verb="deleted",
-        object_type="Post",
-        object_id=post_id
-    )
+    
+    if post.author != request.user: 
+        ActivityStream.objects.create(
+            actor=request.user,
+            verb="deleted",
+            object_type="Post",
+            object_id=post_id,
+            object_name=post_title,
+            affected_username=post.author.username
+        )
 
     return Response({"detail": "Post deleted successfully."}, status=status.HTTP_200_OK)
 
@@ -161,15 +171,27 @@ def update_post(request, post_id):
     if not isinstance(tags, list):
         return Response({"detail": "Tags must be a list of strings."}, status=status.HTTP_400_BAD_REQUEST)
 
-    post.tags = tags
 
     title = request.data.get("title")
+    description = request.data.get("description")
+
+    if not (post.title == title and post.description == description and post.tags == tags) and post.author != request.user:
+        ActivityStream.objects.create(
+            actor=request.user,
+            verb="updated",
+            object_type="Post",
+            object_id=post.id,
+            object_name=title,
+            affected_username=post.author.username
+        )
+
     if title:
         post.title = title
     
-    description = request.data.get("description")
     if description:
         post.description = description
+
+    post.tags = tags
     
     post.save()
 

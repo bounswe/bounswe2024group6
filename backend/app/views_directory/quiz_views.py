@@ -5,7 +5,7 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 from app.serializers import QuizSerializer, QuizResultsSerializer, QuestionSerializer, QuizProgressSerializer, QuestionProgressSerializer
 from django.contrib.auth.models import User
-from app.models import Quiz, QuizResults, Question, QuizProgress, QuestionProgress
+from app.models import Quiz, QuizResults, Question, QuizProgress, QuestionProgress, ActivityStream
 import uuid
 from django.core.files.uploadedfile import UploadedFile
 import json
@@ -77,6 +77,20 @@ def create_quiz(request):
             print(f"Choice2 image: {saved_question.choice2_image}")
             print(f"Choice3 image: {saved_question.choice3_image}")
             print(f"Choice4 image: {saved_question.choice4_image}")
+        
+        user = request.user
+        for x in user.profile.followers.all():
+            ActivityStream.objects.create(
+                actor=request.user,
+                verb="created",
+                object_type="Quiz",
+                object_id=quiz.id,
+                object_name = quiz.title,
+                target=f"Quiz:{quiz.id}",
+                affected_username=x.user.username  # Use the associated User's username
+            )
+
+        
 
         return Response(quiz_serializer.data, status=status.HTTP_201_CREATED)
 
@@ -95,7 +109,19 @@ def delete_quiz(request):
     quiz = get_object_or_404(Quiz, id=quiz_id)
     user = request.user
     if user.is_staff:
-        quiz.delete()
+        if quiz.author != user:
+            ActivityStream.objects.create(
+                actor=request.user,
+                verb="deleted",
+                object_type="Quiz",
+                object_id=quiz.id,
+                object_name = quiz.title,
+                target=f"Quiz:{quiz.id}",
+                affected_username= quiz.author.username  # Use the associated User
+            )
+            
+            quiz.delete()
+        
         return Response({'message': 'Quiz deleted'}, status=status.HTTP_200_OK)
     
     return Response({'error': 'You are not authorized to delete this quiz'}, status=status.HTTP_403_FORBIDDEN)
@@ -157,6 +183,17 @@ def submit_quiz(request):
                 'quiz_title_image': request.build_absolute_uri(quiz.title_image.url) if quiz.title_image else None,
             }
         }
+
+        ActivityStream.objects.create(
+            actor=request.user,
+            verb="solved",
+            object_type="Quiz",
+            object_id=quiz.id,
+            object_name = quiz.title,
+            target=f"Quiz:{quiz.id}",
+            affected_username= quiz.author.username  # Use the associated User's username
+        )
+
         return Response(response_data, status=status.HTTP_200_OK)
     
     return Response(quiz_result_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -556,6 +593,18 @@ def like_quiz(request):
     quiz.liked_by.add(request.user) 
     quiz.like_count += 1
     quiz.save()
+
+    if request.user != quiz.author:
+        ActivityStream.objects.create(
+            actor=request.user,
+            verb="liked",
+            object_type="Quiz",
+            object_id=quiz.id,
+            object_name = quiz.title,
+            target=f"Quiz:{quiz.id}",
+            affected_username= quiz.author.username 
+        )
+    
     return Response({'message': 'Quiz liked'}, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
