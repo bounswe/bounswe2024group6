@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, StyleSheet, Text, FlatList, ActivityIndicator } from 'react-native';
+import { View, ScrollView, StyleSheet, Text, FlatList, ActivityIndicator, TouchableOpacity, Modal, TextInput, Button } from 'react-native';
 import PostCard from '../../components/postcard'; // Assuming you already have the PostCard component defined
 import CommentCard from '../../components/commentcard'; // Assuming you already have the CommentCard component defined
 import { useLocalSearchParams } from 'expo-router';
-import { getPostDetails, unlikePost, likePost, unbookmarkPost, bookmarkPost, unlikeComment, likeComment } from '../../api/forum'; // Fetch post and comments API
-// import { bookmarkPost, likePost } from '../../api';
+import { getPostDetails, unlikePost, likePost, unbookmarkPost, bookmarkPost, unlikeComment, likeComment, addComment } from '../../api/forum'; // Fetch post and comments API
 
 interface Comment {
   id: number;
@@ -38,44 +37,22 @@ const ForumPostPage = () => {
     likes: 0,
     liked: false,
     bookmarked: false,
-    tags:[],
+    tags: [],
     comments: []
   });
 
-
-
-  // State for comments data
-  // const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // useEffect(() => {
-  //   var post = getPostDetails(Number(id));
-  //   console.log(post);
-    
-  // //   setPost(
-  // //     {
-  // //     id: 123,
-  // //     title: "Example Title",
-  // //     author: "Example Author",
-  // //     likes: 12,
-  // //     liked: false,
-  // //     bookmarked: true,
-  // //     tags: ["vocabulary", "business"]
-  // //   }
-  // // );
-
-  // }, []);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [newComment, setNewComment] = useState('');
 
   useEffect(() => {
     // Fetch post details
     const fetchPostandComments = async () => {
       try {
         var response = await getPostDetails(Number(id));
-        
-        var post = response.post
+        var post = response.post;
         console.log(post);
-        
-      //   const postData = await fetchForumPostWithId(id);
+
         setPost({
           id: post.id,
           title: post.title,
@@ -86,47 +63,21 @@ const ForumPostPage = () => {
           tags: post.tags,
           comments: post.comments
         });
-
-
-      //   [
-      //     {
-      //         "id": 1,
-      //         "post": 2,
-      //         "author": "asd",
-      //         "body": "bodyyy",
-      //         "created_at": "2024-11-25T12:14:17.313636Z",
-      //         "parent": null,
-      //         "replies": [],
-      //         "is_liked": false,
-      //         "like_count": 0
-      //     }
-      // ]
-
-
-
-      
-        
-        // setComments(
-        //   post.comments
-        // )
       } catch (error) {
         console.error("Failed to fetch post:", error);
-      }finally{
+      } finally {
         setLoading(false);
       }
     }
 
-   
     fetchPostandComments();
   }, [id]);
 
   const handleLikePost = async () => {
-    if(post.liked){
-
+    if (post.liked) {
       try {
         const response = await unlikePost(Number(id));
         if (response) {
-          
           setPost(post => {
             if (post.id === Number(id)) {
               return {
@@ -136,23 +87,15 @@ const ForumPostPage = () => {
               };
             }
             return post;
-          })
+          });
         }
-
       } catch (error) {
         console.error('Failed to unlike post:', error);
       }
-
-
-
-    }
-
-
-    else{
+    } else {
       try {
         const response = await likePost(Number(id));
         if (response) {
-          
           setPost(post => {
             if (post.id === Number(id)) {
               return {
@@ -162,63 +105,21 @@ const ForumPostPage = () => {
               };
             }
             return post;
-          })
+          });
         }
       } catch (error) {
         console.error('Failed to like post:', error);
       }
     }
-
-
   };
 
-
   const handleLikeComment = async (commentId: number) => {
-
-
-
     post.comments.map(async comment => {
-
       if (comment.id === commentId) {
-        if(comment.is_liked){
-
+        if (comment.is_liked) {
           try {
             const response = await unlikeComment(commentId);
             if (response) {
-
-              
-              setPost(post => ({
-                ...post,
-                comments: post.comments.map(comment => {
-                  if (comment.id === commentId) {
-                    return {
-                      ...comment,
-                      is_liked:  !comment.is_liked,
-                      like_count: response.like_count
-                    };
-                  }
-                  return comment;
-                })
-              }));
-
-
-            }
-          } catch (error) {
-            console.error('Failed to unlike comment:', error);
-          }
-
-
-
-        }
-
-
-        else{
-
-          try {
-            const response = await likeComment(commentId);
-            if (response) {
-
-              
               setPost(post => ({
                 ...post,
                 comments: post.comments.map(comment => {
@@ -232,67 +133,41 @@ const ForumPostPage = () => {
                   return comment;
                 })
               }));
-
-
+            }
+          } catch (error) {
+            console.error('Failed to unlike comment:', error);
+          }
+        } else {
+          try {
+            const response = await likeComment(commentId);
+            if (response) {
+              setPost(post => ({
+                ...post,
+                comments: post.comments.map(comment => {
+                  if (comment.id === commentId) {
+                    return {
+                      ...comment,
+                      is_liked: !comment.is_liked,
+                      like_count: response.like_count
+                    };
+                  }
+                  return comment;
+                })
+              }));
             }
           } catch (error) {
             console.error('Failed to like comment:', error);
           }
-
         }
-
       }
-    })
-
-
-
-
-
-
-    // setComments(prevComments =>
-    //   prevComments.map(comment =>
-    //     comment.id === commentId
-    //       ? {
-    //           ...comment,
-    //           likes: !comment.liked ? comment.likes + 1 : comment.likes - 1,
-    //           isBookmarked: !comment.isBookmarked,
-    //           liked: !comment.liked
-    //         }
-    //       : comment
-    //   )
-    // );
-
-    // try {
-    //   const response = await likeComment(commentId);
-    //   if (response.success) {
-    //     setComments(prevComments =>
-    //       prevComments.map(comment =>
-    //         comment.id === commentId
-    //           ? {
-    //               ...comment,
-    //               upvoteCount: comment.isBookmarked ? comment.upvoteCount - 1 : comment.upvoteCount + 1,
-    //               isBookmarked: !comment.isBookmarked,
-    //             }
-    //           : comment
-    //       )
-    //     );
-    //   }
-    // } catch (error) {
-    //   console.error('Failed to like comment:', error);
-    // }
+    });
   };
 
-
-
-
   const handleBookmarkPress = async () => {
-    if(post.bookmarked){
-
+    if (post.bookmarked) {
       try {
         const response = await unbookmarkPost(Number(id));
         if (response) {
-
-          
           setPost(post => {
             if (post.id === Number(id)) {
               return {
@@ -301,24 +176,15 @@ const ForumPostPage = () => {
               };
             }
             return post;
-          })
+          });
         }
-
       } catch (error) {
         console.error('Failed to unbookmark post:', error);
       }
-
-
-
-    }
-
-
-    else{
+    } else {
       try {
-
         const response = await bookmarkPost(Number(id));
         if (response) {
-          
           setPost(post => {
             if (post.id === Number(id)) {
               return {
@@ -327,34 +193,47 @@ const ForumPostPage = () => {
               };
             }
             return post;
-          })
+          });
         }
       } catch (error) {
         console.error('Failed to bookmark post:', error);
       }
     }
+  };
 
+  const handleAddComment = async (postId: number, newComment: string) => {
+    try {
 
+      
+      const response = await addComment(postId, newComment);
+      if (response) {
+        setPost(post => ({
+          ...post,
+          comments: [...post.comments, response]
+        }));
+        setNewComment('');
+        setModalVisible(false);
+      }
+    } catch (error) {
+      console.error('Failed to add comment:', error);
+    }
   };
 
   // Render each comment in a CommentCard component
   const renderComment = ({ item }) => (
-
-  
     <CommentCard
-      id = {item.id}
+      id={item.id}
       username={item.author}
       onUpvote={handleLikeComment}
       comment={item.body}
       isBookmarked={item.isBookmarked}
       liked={item.is_liked}
-      likes= {item.like_count}
+      likes={item.like_count}
     />
   );
 
-
   return (
-    <>    
+    <>
       {loading ? (
         <ActivityIndicator size="large" color="#0000ff" />
       ) : (
@@ -366,37 +245,97 @@ const ForumPostPage = () => {
           ListHeaderComponent={
             <>
               <PostCard
-        id= {String(post.id)}
-        title={post.title}
-        author={post.author}
-        likes={post.likes}
-        liked={post.liked}
-        isBookmarked={post.bookmarked}
-        feedOrPost="post"
-        onUpvote={handleLikePost}
-        onBookmark={handleBookmarkPress}
-        tags={post.tags}
-      />
+                id={String(post.id)}
+                title={post.title}
+                author={post.author}
+                likes={post.likes}
+                liked={post.liked}
+                isBookmarked={post.bookmarked}
+                feedOrPost="post"
+                onUpvote={handleLikePost}
+                onBookmark={handleBookmarkPress}
+                tags={post.tags}
+              />
 
-      {/* Comments Section */}
-      <Text style={styles.sectionTitle}>Comments</Text>
-
+              {/* Comments Section */}
+              <View style={styles.commentsHeader}>
+                <Text style={styles.sectionTitle}>Comments</Text>
+                {/* <TouchableOpacity onPress={() => setModalVisible(true)}>
+                  <Text style={styles.addButton}>+</Text>
+                </TouchableOpacity> */}
+              <TouchableOpacity style={styles.addButtonContainer} onPress={() => setModalVisible(true)}>
+                <Text style={styles.addButtonText}>+</Text>
+              </TouchableOpacity>
+              </View>
             </>
           }
           ListHeaderComponentStyle={styles.container}
         />
       )}
-  </>
-);
+
+      {/* Modal for adding a comment */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalTitle}>Add Comment</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Write your comment..."
+              value={newComment}
+              onChangeText={setNewComment}
+              multiline={true}
+              numberOfLines={4} 
+            />
+            {/* <Button title="Submit" onPress={() => handleAddComment(post.id, newComment)} />
+            <Button title="Cancel" onPress={() => setModalVisible(false)} /> */}
+            <View style={styles.buttonContainer}>
+            <Button title="Cancel" onPress={() => setModalVisible(false)} color="#000000" />
+
+              <View style={styles.buttonSpacing} />
+              <Button title="Submit" onPress={() => handleAddComment(post.id, newComment)} color="#000000" />
+
+            </View>
+          </View>
+        </View>
+      </Modal>
+    </>
+  );
 };
 
 const styles = StyleSheet.create({
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  buttonSpacing: {
+    width: 10, // Adjust the width to set the desired space between buttons
+  },
+
+  addButtonContainer: {
+    backgroundColor: '#000000',
+    borderRadius: 50,
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  addButtonText: {
+    color: 'white',
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+
   container: {
     flex: 1,
     padding: 10,
     backgroundColor: '#f0f0f0',
     marginTop: 25
-
   },
   sectionTitle: {
     fontSize: 18,
@@ -406,6 +345,52 @@ const styles = StyleSheet.create({
   },
   commentsContainer: {
     paddingBottom: 20, // For some padding at the end of the list
+  },
+  commentsHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  addButton: {
+    fontSize: 24,
+    color: '#007BFF',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalView: {
+    width: '80%',
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  input: {
+    width: '100%',
+    height: 100, 
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    textAlignVertical: 'top'
   },
 });
 

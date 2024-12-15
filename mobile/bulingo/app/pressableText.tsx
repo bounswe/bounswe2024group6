@@ -28,7 +28,7 @@ export default function PressableText(props: PressableTextProps){
   };
 
   return (
-    <View style={props.containerStyle ? props.containerStyle : styles.container}>
+    <View style={styles.container}>
       {/* Render each word as a Pressable */}
       
       {props.text.split(' ').map((word, index) => (
@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     marginTop: 5,
     marginBottom: 5,
