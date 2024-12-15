@@ -108,14 +108,13 @@ def get_comment_by_id(request):
     comment = get_object_or_404(Comment, id=comment_id)
 
     is_liked = comment.liked_by.filter(id=request.user.id).exists() if request.user.is_authenticated else False
-
-    is_bookmarked = False
-
-    if request.user.is_authenticated:
-        is_bookmarked = CommentBookmark.objects.filter(user=request.user, comment=comment).exists()
+    is_bookmarked = (
+        CommentBookmark.objects.filter(user=request.user, comment=comment).exists()
+        if request.user.is_authenticated
+        else False
+    )
 
     liked_by_users = comment.liked_by.all().values_list('username', flat=True)
-    
     replies = Comment.objects.filter(parent=comment).select_related('author')
 
     reply_data = [
