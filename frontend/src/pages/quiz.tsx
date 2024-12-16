@@ -2,7 +2,7 @@ import { Button } from "@nextui-org/react";
 import Navbar from "../components/common/navbar.tsx";
 import QuestionCard from "../components/quiz/question-card.tsx";
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import SidebarLayout from "../components/quiz/navigation.tsx";
 import { usePageTitle } from "../components/common/usePageTitle.ts";
 import { BASE_URL } from "../lib/baseURL.ts";
@@ -20,6 +20,10 @@ enum Answer {
 
 export default function Quiz() {
   const { quizID } = useParams<{ quizID: any }>();
+
+  const location = useLocation();
+  const { isNotResuming } = location.state || {};
+
   const [quizData, setQuizData] = useState<any>(null);
   const [currentPage, setCurrentPage] = React.useState(1);
   const [answers, setAnswers] = useState(Array(10).fill(Answer.None));
@@ -30,35 +34,32 @@ export default function Quiz() {
   usePageTitle("Quiz");
 
   useEffect(() => {
-    if (quizID) {
-      setIsLoading(true);
-      axios
-        .post(
-          `${BASE_URL}/quiz/start/`,
-          {
-            quiz_id: quizID,
+    axios
+      .post(
+        `${BASE_URL}/quiz/start/`,
+        {
+          quiz_id: quizID,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        )
-        .then((response) => {
-          console.log(response.data);
-          setQuizData(response.data); // Store response data
-          const initialAnswers = response.data.questions.map(
-            (question: any) => question.previous_answer || Answer.None
-          );
-          setAnswers(initialAnswers);
-        })
-        .catch((error) => {
-          console.log(error);
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-    }
+        }
+      )
+      .then((response) => {
+        console.log(response.data);
+        setQuizData(response.data); // Store response data
+        const initialAnswers = response.data.questions.map(
+          (question: any) => question.previous_answer || Answer.None
+        );
+        setAnswers(initialAnswers);
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   }, [quizID]);
 
   const currentQuestion = quizData?.questions[currentPage - 1];
@@ -70,7 +71,6 @@ export default function Quiz() {
   return (
     <div className="h-screen w-screen flex flex-col">
       <Navbar />
-
       <SidebarLayout
         id={quizID}
         quiz_progress_id={quizData?.quiz_progress_id}
@@ -94,7 +94,7 @@ export default function Quiz() {
             )}
             {isLoading ? (
               <div className="mt-5"><QuizDetailsCardSkeleton /></div>
-              
+
             ) : (
               <div className="flex flex-col items-center py-4">
                 <h1 className="font-semibold text-4xl mt-3 mb-4 text-blue-900">

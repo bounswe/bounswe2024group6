@@ -44,7 +44,7 @@ export default function QuizDetails() {
     const [isLiked, setIsLiked] = useState(quizData?.is_liked);
     const [likes, setLikes] = useState(quizData?.like_count);
     const [isBookmarked, setIsBookmarked] = useState(quizData?.is_bookmarked);
-    const [hasAttempted, setHasAttempted] = useState(quizData?.is_solved);
+    const [hasAttempted, setHasAttempted] = useState(quizData?.has_unfinished_progress);
 
     useEffect(() => {
         if (quizID) {
@@ -62,7 +62,7 @@ export default function QuizDetails() {
                     setIsLiked(response.data.quiz.is_liked);
                     setLikes(response.data.quiz.like_count);
                     setIsBookmarked(response.data.quiz.is_bookmarked);
-                    setHasAttempted(response.data.quiz.is_solved);
+                    setHasAttempted(response.data.has_unfinished_progress);
                 })
                 .catch((error) => {
                     console.error("Error fetching quiz data:", error);
@@ -200,15 +200,10 @@ export default function QuizDetails() {
                                 </div>
 
                                 <div className="w-full flex flex-row justify-start gap-3 items-center">
-                                    <Button color="primary" variant="solid" onClick={() => navigate(`/quiz/${quizData?.id}`)}
+                                    <Button color="primary" variant="solid" onClick={() => navigate(`/quiz/${quizData?.id}`, { state: { isNotResuming: true } })}
                                         className="w-1/3 items-center text-center mt-3">
                                         Start Quiz
                                     </Button>
-                                    {hasAttempted && (
-                                        <Button color="primary" variant="faded" onClick={() => navigate(`/quiz/${quizData?.id}`)} className="w-1/4 items-center text-center mt-3">
-                                            Resume Quiz
-                                        </Button>
-                                    )}
                                 </div>
                             </div>
                         </CardBody>
