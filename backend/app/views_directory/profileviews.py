@@ -31,7 +31,6 @@ def update_profile(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
 def view_other_profile(request, username):
     """
     View a user's profile by their username.
