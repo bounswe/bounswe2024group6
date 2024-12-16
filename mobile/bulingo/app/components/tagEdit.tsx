@@ -24,17 +24,14 @@ export default function TagEdit(props: TagEditProps){
   }, [tags, searchQuery]);
 
   const removeTag = (tag:string) => {
-    console.log("HERE2!")
     return (async () => {
       setTags(tags.filter((item) => item !== tag))
 
-      console.log("here4")
       const username = TokenManager.getUsername()
       if (username === null){
         console.error("username is null")
         return
       }
-      console.log("HERE3")
       const params = props.type == 'Post' ? {
         tags: tags.filter((item) => item !== tag),
        } : {
@@ -48,8 +45,6 @@ export default function TagEdit(props: TagEditProps){
        };
 
       const url = props.type == 'Post' ? `post/update/${props.id}/` : "quiz/update/";
-      console.log(url);
-      console.log(params);
 
       try {
         const response = await TokenManager.authenticatedFetch(url, {

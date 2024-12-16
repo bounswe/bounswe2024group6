@@ -97,7 +97,6 @@ const handleAdminDeleteComment = async () => {
     'user': TokenManager.getUsername(),
   }
   try{
-    console.log("HERE!!")
     const response = await TokenManager.authenticatedFetch(url, {
       method: 'DELETE',
       headers: {
