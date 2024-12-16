@@ -8,6 +8,7 @@ import TokenManager, { BASE_URL } from '../TokenManager';
 import PostCard from '../components/postcard';
 import CommentCard from '../components/commentcard';
 
+import { router, useFocusEffect } from 'expo-router';
 
 export default function Tab() {
   const [searchResults, setSearchResults] = useState<any>(undefined);
@@ -17,6 +18,21 @@ export default function Tab() {
   const [option, setOption] = useState("Users");
   const [isLoading, setIsLoading] = useState(false);
 
+    const handlePostPress = (id: string) => {
+    
+      router.navigate('/(tabs)/forums')
+              setTimeout(() => {
+                // router.push(`/(tabs)/profile/users/${username}`);
+                router.push({pathname: '/(tabs)/forums/forumPostPage', params: {
+                  "id": id,
+                 
+                 }});
+              }, 0);
+
+
+
+     
+    };
 
   const search = async () => {
     if (userInput.length == 0){
@@ -138,10 +154,16 @@ export default function Tab() {
               return (<QuizCard {...item.data} />);
             }
             else if (item.type == "post"){
-              return (<PostCard {...item.data} />);
+              return (<PostCard {...item.data} 
+                onPress={() => {handlePostPress(item.data.id)}}
+                onBookmark={() => {handlePostPress(item.data.id)}}
+                onUpvote={() => {handlePostPress(item.data.id)}}
+                />);
             }
             else if (item.type == "comment"){
-              return (<CommentCard {...item.data} />);
+              return (<CommentCard {...item.data} 
+                onUpvote={() => {}}
+              />);
             }
             return null;
           }}
