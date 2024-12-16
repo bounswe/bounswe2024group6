@@ -117,6 +117,7 @@ export type QuizDetail = {
   tags: string[];
   quiz_result_id: number;
   is_solved: boolean;
+  has_unfinished_progress: boolean;
 };
 
 export type QuizDetailsResponse = {

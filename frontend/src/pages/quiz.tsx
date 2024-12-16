@@ -2,7 +2,7 @@ import { Button } from "@nextui-org/react";
 import Navbar from "../components/common/navbar.tsx";
 import QuestionCard from "../components/quiz/question-card.tsx";
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import SidebarLayout from "../components/quiz/navigation.tsx";
 import { usePageTitle } from "../components/common/usePageTitle.ts";
 import { BASE_URL } from "../lib/baseURL.ts";
@@ -19,6 +19,10 @@ enum Answer {
 
 export default function Quiz() {
   const { quizID } = useParams<{ quizID: any }>();
+
+  const location = useLocation();
+  const { isNotResuming } = location.state || {};
+
   const [quizData, setQuizData] = useState<any>(null);
   const [currentPage, setCurrentPage] = React.useState(1);
   const [answers, setAnswers] = useState(Array(10).fill(Answer.None));
@@ -29,35 +33,39 @@ export default function Quiz() {
   usePageTitle("Quiz");
 
   useEffect(() => {
-    if (quizID) {
-      setIsLoading(true);
-      axios
-        .post(
-          `${BASE_URL}/quiz/start/`,
-          {
-            quiz_id: quizID,
+    axios
+      .post(
+        `${BASE_URL}/quiz/start/`,
+        {
+          quiz_id: quizID,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        )
-        .then((response) => {
-          console.log(response.data);
-          setQuizData(response.data); // Store response data
+        }
+      )
+      .then((response) => {
+        console.log(response.data);
+        setQuizData(response.data); // Store response data
+        if (isNotResuming) {
+          const initialAnswers = response.data.questions.map(
+            (question: any) => Answer.None
+          );
+          setAnswers(initialAnswers);
+        } else {
           const initialAnswers = response.data.questions.map(
             (question: any) => question.previous_answer || Answer.None
           );
           setAnswers(initialAnswers);
-        })
-        .catch((error) => {
-          console.log(error);
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-    }
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   }, [quizID]);
 
   const currentQuestion = quizData?.questions[currentPage - 1];
