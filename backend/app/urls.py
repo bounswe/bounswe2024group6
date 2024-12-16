@@ -49,6 +49,8 @@ urlpatterns = [
     path('quiz/delete/', quiz_views.delete_quiz, name="delete_quiz"),
     path('quiz/update/', quiz_views.update_quiz, name="update_quiz"),
     path('quiz/cancel/', quiz_views.cancel_quiz, name="cancel_quiz"),
+    path('quiz/cancel-id/', quiz_views.cancel_quiz_id, name="cancel_quiz_id"),
+
     path('word/bookmark/<str:word>/', bookmark_word, name='bookmark_word'),
     path('word/unbookmark/<str:word>/', unbookmark_word, name='unbookmark_word'),
     path('word/bookmarks/', get_bookmarked_words, name='get_bookmarked_words'),
