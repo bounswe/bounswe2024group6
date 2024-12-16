@@ -3,7 +3,7 @@ from unittest.mock import patch, MagicMock
 from django.test import TestCase, RequestFactory
 from django.core.cache import cache
 from django.http import JsonResponse, HttpResponseRedirect
-from .views import get_image, get_image_details, get_direct_image
+from ...views_directory import get_image, get_image_details, get_direct_image
 
 class ImageHandlingTests(TestCase):
    def setUp(self):
