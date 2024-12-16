@@ -388,9 +388,8 @@ export default function Profile() {
               </div>
             </div>
             <div
-              className={`flex flex-row ${
-                profile.username === Cookies.get("username") ? "pl-32" : "pl-0"
-              } gap-6 items-center`}
+              className={`flex flex-row ${profile.username === Cookies.get("username") ? "pl-32" : "pl-0"
+                } gap-6 items-center`}
             >
               {profile.username !== Cookies.get("username") && (
                 <Button
@@ -399,9 +398,8 @@ export default function Profile() {
                   onClick={
                     isGuest ? () => setGuestModalOpen(true) : toggleFollow
                   }
-                  className={`border-2 rounded-lg min-w-36 font-bold px-8 py-6 ${
-                    isFollowing ? "text-blue-900" : ""
-                  }`}
+                  className={`border-2 rounded-lg min-w-36 font-bold px-8 py-6 ${isFollowing ? "text-blue-900" : ""
+                    }`}
                 >
                   {isFollowing ? "Unfollow" : "Follow"}
                 </Button>
@@ -486,11 +484,10 @@ export default function Profile() {
                 isOpen={isOpen}
                 onOpenChange={onOpenChange}
                 placement="top-center"
-                className={`${
-                  type === "quiz" || type === "post" || type === "comment"
+                className={`${type === "quiz" || type === "post" || type === "comment"
                     ? "max-w-[760px]"
                     : "max-w-[360px]"
-                } flex flex-col items-center max-h-[80vh] overflow-y-auto`}
+                  } flex flex-col items-center max-h-[80vh] overflow-y-auto`}
                 backdrop="blur"
               >
                 <ModalContent className="pb-6 gap-3">
@@ -498,12 +495,12 @@ export default function Profile() {
                     {type === "follower"
                       ? "Followers"
                       : type === "following"
-                      ? "Following"
-                      : type === "post"
-                      ? "Liked Posts"
-                      : type === "quiz"
-                      ? "Liked Quizzes"
-                      : "Liked Comments"}
+                        ? "Following"
+                        : type === "post"
+                          ? "Liked Posts"
+                          : type === "quiz"
+                            ? "Liked Quizzes"
+                            : "Liked Comments"}
                   </ModalHeader>
                   {type === "quiz" ? (
                     likedQuizzes.length > 0 ? (
@@ -570,7 +567,7 @@ export default function Profile() {
                     )
                   ) : (type === "follower" || type === "following") &&
                     (type === "follower" ? followers : followings).length >
-                      0 ? (
+                    0 ? (
                     (type === "follower" ? followers : followings).map(
                       (user) => (
                         <div
@@ -612,29 +609,36 @@ export default function Profile() {
               </div>
             }
           >
-            {profile && (
-              <div className="flex flex-col p-5 items-center">
-                <div className="flex flex-col gap-4 items-center">
-                  {profile &&
-                    sortedPosts.map((post) => {
-                      return (
-                        <Suspense key={post.id} fallback={<PostCardSkeleton />}>
-                          <PostCard
-                            id={post.id}
-                            username={profile.username}
-                            title={post.post.title}
-                            content={post.post.content}
-                            timePassed={post.post.timestamp}
-                            likeCount={post.engagement.likes}
-                            tags={post.post.tags}
-                            initialIsLiked={post.engagement.is_liked}
-                            initialIsBookmarked={post.engagement.is_bookmarked}
-                          />
-                        </Suspense>
-                      );
-                    })}
-                </div>
+            {isLoading ? (
+              <div className="flex flex-col p-5 gap-4 items-center">
+                {Array(2)
+                  .fill(0)
+                  .map((_, index) => (
+                    <PostCardSkeleton key={index} />
+                  ))}
               </div>
+            ) : (
+              profile && (
+                <div className="flex flex-col p-5 items-center">
+                  <div className="flex flex-col gap-4 items-center">
+                    {sortedPosts.map((post) => (
+                      <Suspense key={post.id} fallback={<PostCardSkeleton />}>
+                        <PostCard
+                          id={post.id}
+                          username={profile.username}
+                          title={post.post.title}
+                          content={post.post.content}
+                          timePassed={post.post.timestamp}
+                          likeCount={post.engagement.likes}
+                          tags={post.post.tags}
+                          initialIsLiked={post.engagement.is_liked}
+                          initialIsBookmarked={post.engagement.is_bookmarked}
+                        />
+                      </Suspense>
+                    ))}
+                  </div>
+                </div>
+              )
             )}
           </Tab>
           <Tab
