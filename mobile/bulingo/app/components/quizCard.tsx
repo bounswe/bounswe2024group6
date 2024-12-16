@@ -31,6 +31,7 @@ export default function QuizCard(props: QuizCardProps){
   const [tags, setTags] = useState<string[]>([]);
   const [guestModalVisible, setGuestModalVisible] = useState(false);
   const [level, setLevel] = useState(props.level);
+  const [uniqueTags, setUniqueTags] = useState<string[]>([]);
 
   const colorScheme = useColorScheme();
   const styles = getStyles(colorScheme);
@@ -108,6 +109,7 @@ export default function QuizCard(props: QuizCardProps){
         const res = await response.json()
         setTags(res.quiz.tags);
         setLevel(res.quiz.level);
+        setUniqueTags(Array.from(new Set([...res.quiz.tags, res.quiz.level])))
         console.log(res);
       } else{
         console.warn(response.status)
@@ -154,7 +156,14 @@ export default function QuizCard(props: QuizCardProps){
         <View style={styles.quizBottom}>
           <View style={styles.quizBottomLeft}>
             <Text style={styles.quizAuthor}>by {props.author}</Text>
-            {level && <Text style={styles.quizLevel}>{level}</Text>}
+            <View style={{flexDirection: 'row'}}>
+              {uniqueTags.map((tag, index) => (
+                <Text key={index} style={styles.quizTag}>
+                  {tag}
+                </Text>
+              ))}
+            </View>
+            {/* {level && <Text style={styles.quizLevel}>{level}</Text>} */}
           </View>
           <TouchableOpacity style={styles.likeButton} onPress={() => handleLikePress(props.id)} testID='likeButton'>
             <Text style={styles.quizLikes}>
@@ -225,6 +234,17 @@ const getStyles = (colorScheme: any) => {
       marginTop: 4,
       color: isDark ? '#ddd' : '#333',
       alignSelf: 'flex-start',
+    },
+    quizTag: {
+      backgroundColor: isDark ? '#333' : '#dfe4ea',
+      paddingHorizontal: 8,
+      paddingVertical: 2,
+      borderRadius: 4,
+      fontSize: 12,
+      marginTop: 4,
+      color: isDark ? '#ddd' : '#333',
+      alignSelf: 'flex-start',
+      marginHorizontal: 1,
     },
     quizActions: {
       position: 'absolute',
