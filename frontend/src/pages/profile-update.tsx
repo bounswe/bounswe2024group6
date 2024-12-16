@@ -154,7 +154,8 @@ export default function EditProfile() {
             ) : (
               <Textarea
                 id="bio"
-                data-testid="bio-input"
+                inputMode="text"
+                data-testid="bio-textarea"
                 name="bio"
                 value={formData.bio}
                 onChange={handleInputChange}
@@ -177,13 +178,13 @@ export default function EditProfile() {
               <Skeleton className="h-10 w-full rounded-lg" />
             ) : (
               <Select
-                data-testid="level-select"
+                data-testid="level-select-button"
                 selectedKeys={new Set([formData.level])} // Use `selectedKeys` with a Set for controlled component
                 onSelectionChange={(keys) => handleLevelChange([...keys][0])} // Convert the Set to an array and get the first value
                 className="w-full mb-1"
               >
                 {tags.map((tag) => (
-                  <SelectItem key={tag} data-testid={`level-option-${tag}`}>{tag}</SelectItem>
+                  <SelectItem key={tag} value={tag} data-testid={`level-option-${tag}`}>{tag}</SelectItem>
                 ))}
               </Select>
             )}
