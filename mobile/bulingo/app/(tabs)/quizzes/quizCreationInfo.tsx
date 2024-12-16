@@ -1,9 +1,10 @@
 import React, { useState, useEffect} from 'react';
 import { ScrollView, Keyboard, Pressable, StyleSheet, Text, TextInput, View, TouchableWithoutFeedback, Image, TouchableOpacity, useColorScheme, Modal } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import TokenManager from '@/app/TokenManager';
+import TokenManager, { BASE_URL } from '@/app/TokenManager';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
+
 
 const QuizCreationInfo = () => {
   const [question, setQuestion] = useState('');
@@ -135,6 +136,7 @@ const QuizCreationInfo = () => {
   const handleNewSuggestions = async () => {
     try {
       if (selectedType === 'Type I') {
+        console.log('localImage value:', localImage);
         const response = await TokenManager.authenticatedFetch(`/get-turkish/${question}/`, {
           method: 'GET',
           headers: {
@@ -284,7 +286,27 @@ const QuizCreationInfo = () => {
   const handleRemoveQuestionImage = () => {
     setLocalImage(null);
   };
-  
+
+
+  const generateImage = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/image/url/${question}/`,  {
+        method: "GET"
+      });
+      const data = await response.json();
+      
+      if (!response.ok) {
+        console.log('Error generating image:', data);
+        return;
+      }
+
+      setLocalImage(data["image_url"]);
+    }
+    catch (error) {
+      console.error('Error generating image:', error);
+    }
+    
+  };
 
   return (
     <TouchableWithoutFeedback onPress={resetSelections} accessible={false}>
@@ -351,6 +373,18 @@ const QuizCreationInfo = () => {
                 {localImage ? 'Change Image' : 'Add Image'}
               </Text>
             </TouchableOpacity>
+
+            {!localImage && (
+              <TouchableOpacity
+                style={styles.generateImageButton}
+                onPress={generateImage}
+              >
+                <Text style={styles.generateImageButtonText}>
+                  Generate Image
+                </Text>
+              </TouchableOpacity>
+            )}
+
           </View>
 
           <View style={styles.answerGridContainer}>
@@ -820,6 +854,17 @@ const getStyles = (colorScheme: any) => {
     removeImageButtonText: {
       color: '#fff',
       fontSize: 14,
+      fontWeight: 'bold',
+    },
+    generateImageButton: {
+      marginTop: 10,
+      padding: 10,
+      backgroundColor: 'green',
+      borderRadius: 5,
+      alignItems: 'center',
+    },
+    generateImageButtonText: {
+      color: 'white',
       fontWeight: 'bold',
     },
     
