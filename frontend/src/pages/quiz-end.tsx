@@ -15,6 +15,7 @@ import { set } from "react-hook-form";
 import QuizCard from "../components/quiz/quiz-card.tsx";
 import { Quiz, QuizResponse } from "../types.ts";
 import { convertQuizResponseToQuiz } from "../components/common/utils.tsx";
+import QuizEndSkeleton from "../components/quiz/quiz-end-skeleton.tsx";
 
 export default function QuizEnd() {
     const { quizID } = useParams<{ quizID: any }>();
@@ -23,7 +24,8 @@ export default function QuizEnd() {
     const navigate = useNavigate();
     const { getToken } = AuthActions();
     const token = getToken("access");
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoadingQuiz, setIsLoadingQuiz] = useState(true);
+    const [isLoadingRecommendation, setIsLoadingRecommendation] = useState(false);
     const best_messages = ["Good job!", "Well done!", "Great work!", "Nice job!", "Keep it up!", "You're doing great!", "You're on fire!", "You're unstoppable!", "You're a genius!", "You're a master!"];
     const medium_messages = ["Not bad!", "Nice try!", "Good effort!", "You're getting there!", "You're improving!", "You're on the right track!", "You're doing well!", "You're almost there!", "You're so close!"];
     const bad_messages = ["Try again!", "Keep practicing!", "You can do better!", "You're getting closer!", "You're on the right path!", "Good luck next time!"];
@@ -33,7 +35,7 @@ export default function QuizEnd() {
 
     useEffect(() => {
         if (quizID) {
-            setIsLoading(true);
+            setIsLoadingQuiz(true);
             axios
                 .get(`${BASE_URL}/quiz/result/${quizID}/`, {
                     headers: {
@@ -53,7 +55,7 @@ export default function QuizEnd() {
                     console.error("Error fetching quiz data:", error);
                 })
                 .finally(() => {
-                    setIsLoading(false);
+                    setIsLoadingQuiz(false);
                 });
         } else {
             console.error("No quiz ID provided");
@@ -62,7 +64,7 @@ export default function QuizEnd() {
 
     useEffect(() => {
         if (quiz_id) {
-            setIsLoading(true);
+            setIsLoadingRecommendation(true);
             axios
                 .get(`${BASE_URL}/quiz/recommend/${quiz_id}/`, {
                     headers: {
@@ -78,7 +80,7 @@ export default function QuizEnd() {
                     console.error("Error fetching quiz data:", error);
                 })
                 .finally(() => {
-                    setIsLoading(false);
+                    setIsLoadingRecommendation(false);
                 });
         } else {
             console.error("No quiz ID provided");
@@ -154,78 +156,82 @@ export default function QuizEnd() {
     return (
         <div className="w-screen flex flex-col overflow-hidden">
             <Navbar />
-            <div className="flex flex-col items-center overflow-hidden w-min">
-                <h1 className="font-semibold text-4xl mt-3 mb-1 text-blue-900">{quizData?.quiz.title}</h1>
-                <div className="flex flex-col items-center pt-4 w-screen">
-                    <Card className="max-w-[600px]">
-                        <CardHeader className="flex justify-center items-center">
-                            <Chip color={
-                                scorePercentage >= 70
-                                    ? "success"
-                                    : scorePercentage >= 40
-                                        ? "warning"
-                                        : "danger"
-                            } variant="shadow" className="mt-4 h-12">You got {quizData?.score} out of {quizData?.question_count}</Chip>
-                        </CardHeader>
-                        <CardBody className="flex flex-col justify-center shadow-lg rounded-lg shadow-default-200 pb-12 w-[550px] h-[200px]">
-                            <p className="text-center text-5xl text-blue-900">{message}</p>
-                        </CardBody>
-                        <CardFooter>
-                            <div className="flex gap-1 justify-between w-full items-center mx-1">
-                                <div className="flex justify-between gap-1 items-center">
-                                    <p
-                                        className={cn("font-semibold text-xl text-default-500", {
-                                            "font-semibold text-red-500": isLiked,
-                                        })}
-                                        style={{ width: "15px" }}
-                                    >
-                                        {likes}
-                                    </p>
-                                    <Button
-                                        isIconOnly
-                                        color="danger"
-                                        aria-label="Like"
-                                        onClick={toggleLike}
-                                        variant="light"
-                                        className="flex items-center gap-3"
-                                    >
-                                        {isLiked ? (
-                                            <IconThumbUpFilled size={25} stroke={1.5} />
-                                        ) : (
-                                            <IconThumbUp size={25} stroke={1.5} />
-                                        )}
-                                    </Button>
+            {isLoadingQuiz ? (
+                <QuizEndSkeleton />
+            ) : (
+                <div className="flex flex-col items-center overflow-hidden w-min">
+                    <h1 className="font-semibold text-4xl mt-3 mb-1 text-blue-900">{quizData?.quiz.title}</h1>
+                    <div className="flex flex-col items-center pt-4 w-screen">
+                        <Card className="max-w-[600px]">
+                            <CardHeader className="flex justify-center items-center">
+                                <Chip color={
+                                    scorePercentage >= 70
+                                        ? "success"
+                                        : scorePercentage >= 40
+                                            ? "warning"
+                                            : "danger"
+                                } variant="shadow" className="mt-4 h-12">You got {quizData?.score} out of {quizData?.question_count}</Chip>
+                            </CardHeader>
+                            <CardBody className="flex flex-col justify-center shadow-lg rounded-lg shadow-default-200 pb-12 w-[550px] h-[200px]">
+                                <p className="text-center text-5xl text-blue-900">{message}</p>
+                            </CardBody>
+                            <CardFooter>
+                                <div className="flex gap-1 justify-between w-full items-center mx-1">
+                                    <div className="flex justify-between gap-1 items-center">
+                                        <p
+                                            className={cn("font-semibold text-xl text-default-500", {
+                                                "font-semibold text-red-500": isLiked,
+                                            })}
+                                            style={{ width: "15px" }}
+                                        >
+                                            {likes}
+                                        </p>
+                                        <Button
+                                            isIconOnly
+                                            color="danger"
+                                            aria-label="Like"
+                                            onClick={toggleLike}
+                                            variant="light"
+                                            className="flex items-center gap-3"
+                                        >
+                                            {isLiked ? (
+                                                <IconThumbUpFilled size={25} stroke={1.5} />
+                                            ) : (
+                                                <IconThumbUp size={25} stroke={1.5} />
+                                            )}
+                                        </Button>
+                                    </div>
+                                    <div className="flex flex-row gap-4">
+                                        <Button color="primary" variant="flat" onClick={() => navigate(`/quiz/${quizData?.quiz.id}`)} className="text-lg w-24 h-12">
+                                            Retake
+                                        </Button>
+                                        <Button color="primary" variant="flat" onClick={() => navigate(`/quiz/${quizID}/review`)} className="text-lg w-24 h-12">
+                                            Review
+                                        </Button>
+                                    </div>
+                                    <div className="ml-9">
+                                        <Button
+                                            isIconOnly
+                                            color="secondary"
+                                            aria-label="Bookmark"
+                                            onClick={toggleBookmark}
+                                            variant="light"
+                                        >
+                                            {isBookmarked ? (
+                                                <IconBookmarkFilled size={25} stroke={1.5} />
+                                            ) : (
+                                                <IconBookmark size={25} stroke={1.5} />
+                                            )}
+                                        </Button>
+                                    </div>
                                 </div>
-                                <div className="flex flex-row gap-4">
-                                    <Button color="primary" variant="flat" onClick={() => navigate(`/quiz/${quizData?.quiz.id}`)} className="text-lg w-24 h-12">
-                                        Retake
-                                    </Button>
-                                    <Button color="primary" variant="flat" onClick={() => navigate(`/quiz/${quizID}/review`)} className="text-lg w-24 h-12">
-                                        Review
-                                    </Button>
-                                </div>
-                                <div className="ml-9">
-                                    <Button
-                                        isIconOnly
-                                        color="secondary"
-                                        aria-label="Bookmark"
-                                        onClick={toggleBookmark}
-                                        variant="light"
-                                    >
-                                        {isBookmarked ? (
-                                            <IconBookmarkFilled size={25} stroke={1.5} />
-                                        ) : (
-                                            <IconBookmark size={25} stroke={1.5} />
-                                        )}
-                                    </Button>
-                                </div>
-                            </div>
-                        </CardFooter>
-                    </Card>
-                </div>
-                <div className=" p-4 w-min overflow-hidden items-center mb-1">
-                    {
-                        quizRecommend ?
+                            </CardFooter>
+                        </Card>
+                    </div>
+                    <div className=" p-4 w-min overflow-hidden items-center mb-1">
+                        {isLoadingRecommendation ? (
+                            <QuizEndSkeleton showOnlyRecommendation />
+                        ) : quizRecommend ? (
                             <div className="flex flex-col justify-center gap-2 items-center w-min">
                                 <h1 className="font-semibold text-3xl mt-3 mb-1 text-blue-900">Recommended for you</h1>
                                 <QuizCard
@@ -243,11 +249,12 @@ export default function QuizEnd() {
                                     timesTaken={quizRecommend.quiz.times_taken}
                                 />
                             </div>
-                            :
+                        ) : (
                             <p className="text-center text-2xl text-blue-900">No recommendations available</p>
-                    }
+                        )}
+                    </div>
                 </div>
-            </div>
+            )}
         </div >
     );
 }
