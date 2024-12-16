@@ -196,6 +196,8 @@ export type Question = {
   choice3: string;
   choice4: string;
   correct_choice: number;
+  image?: File | null;
+  generatedImage?: string;
 };
 
 export type UserCardType = {
