@@ -9,6 +9,7 @@ import { BASE_URL } from "../lib/baseURL.ts";
 import axios from "axios";
 import { AuthActions } from "../components/auth/utils.tsx";
 import QuizDetailsCardSkeleton from "../components/quiz/quiz-details-skeleton.tsx";
+import QuizQuestionSkeleton from "../components/quiz/quiz-question-skeleton.tsx";
 
 enum Answer {
   None,
@@ -93,8 +94,7 @@ export default function Quiz() {
               </div>
             )}
             {isLoading ? (
-              <div className="mt-5"><QuizDetailsCardSkeleton /></div>
-
+              <QuizQuestionSkeleton />
             ) : (
               <div className="flex flex-col items-center py-4">
                 <h1 className="font-semibold text-4xl mt-3 mb-4 text-blue-900">
