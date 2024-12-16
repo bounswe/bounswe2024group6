@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableWithoutFeedback, Image, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableWithoutFeedback, Image, TouchableOpacity, FlatList, ActivityIndicator, TextInputComponent } from 'react-native';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { QuizInfo, isQuizInfo } from '../..';
@@ -90,7 +90,6 @@ export default function Profile() {
         } else {
           console.log(createdQuizResponse.status)
         };
-        console.warn({...updatedUserInfo, solvedQuizzes: solvedQuizResponse})
       } catch (error) {
         console.error(error);
       }
@@ -293,6 +292,7 @@ export default function Profile() {
           return (
             <PostCard title={item.title} id={item.id} author={TokenManager.getUsername() || ''} likes={item.like_count} 
               liked={item.is_liked} tags={item.tags} feedOrPost='feed' isBookmarked={item.is_bookmarked} 
+              description={item.description}
               onUpvote={() => handleLikePress(item.id)}
               onBookmark={() => handleBookmarkPress(item.id)}
               onPress={() => handlePostPress(item.id)}

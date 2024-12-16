@@ -17,6 +17,7 @@ interface ForumPost {
   liked: boolean;
   bookmarked: boolean;
   tags: string[];
+  description: string,
 }
 
 
@@ -69,7 +70,6 @@ const ForumFeed: React.FC = () => {
       tags: post.tags,
       title: post.title,
     }));
-
     setPosts(posts);
   } catch (error) {
     console.error('Error loading posts:', error);
@@ -237,6 +237,7 @@ const ForumFeed: React.FC = () => {
 
   const renderPostItem: ListRenderItem<ForumPost> = ({ item }) => (
     <PostCard
+      description={item.description}
       id= {String(item.id)}
       title={item.title}
       author={item.author}
