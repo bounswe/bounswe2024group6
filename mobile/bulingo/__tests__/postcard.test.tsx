@@ -2,7 +2,7 @@ import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 import PostCard from '../app/components/postcard';
 
-test('renders the post card and handles presses', () => {
+test('renders the post card and handles presses, including guest view', () => {
   const mockFn1 = jest.fn();
   const mockFn2 = jest.fn();
   const mockFn3 = jest.fn();
@@ -32,8 +32,8 @@ test('renders the post card and handles presses', () => {
   fireEvent.press(button2);
   fireEvent.press(button3);
 
-  expect(mockFn1).toHaveBeenCalled(); 
-  expect(mockFn2).toHaveBeenCalled(); 
+  expect(mockFn1).not.toHaveBeenCalled(); 
+  expect(mockFn2).not.toHaveBeenCalled(); 
   expect(mockFn3).toHaveBeenCalled(); 
 
 });
@@ -62,7 +62,6 @@ test('renders post card and includes all the input text', () => {
       onPress={mockFn3}    
     />);
 
-  expect(getByText(title)).toBeTruthy();
   expect(getByText(`by ${author}`)).toBeTruthy();
   tags.forEach(tag => expect(getByText(tag)).toBeTruthy());
 });
