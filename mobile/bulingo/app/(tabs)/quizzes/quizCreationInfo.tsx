@@ -52,8 +52,6 @@ const QuizCreationInfo = () => {
       });
 
       const data = await response.json();
-      console.log(response);
-      console.log(data);
 
       if (!response.ok) {
         setVerticalOptions([]);
@@ -62,7 +60,6 @@ const QuizCreationInfo = () => {
       }
 
       
-      console.log(data);
       const options = [...data.options];
       setVerticalOptions(options);
       setError('');
@@ -80,9 +77,14 @@ const QuizCreationInfo = () => {
       setAnswers(JSON.parse(Array.isArray(initialAnswers) ? initialAnswers[0] : initialAnswers));
       setCorrectAnswerIndex(Number(initialCorrectAnswer));
       setSelectedType(type instanceof Array ? type[0] : type);
-      setLocalImage(initalQuestionImage instanceof Array ? encodeURI(initalQuestionImage[0]) : encodeURI(initalQuestionImage));
+      if (initalQuestionImage === undefined){
+        setLocalImage(null);
+      }
+      else{
+        setLocalImage(initalQuestionImage instanceof Array ? initalQuestionImage[0] : initalQuestionImage);
+      }
+      
     }
-    console.log(initalQuestionImage);
   }, [initialQuestion, initialAnswers, initialCorrectAnswer]);
 
   const handleGoBack = () => {
@@ -165,7 +167,6 @@ const QuizCreationInfo = () => {
         return;
       }
       const data = await response.json();
-      console.log(data);
       const translation = data["english_word"];
       setNewAnswer(translation);
       setError('');
@@ -190,7 +191,6 @@ const QuizCreationInfo = () => {
           return;
         }
         const data = await response.json();
-        console.log(data);
         let meaning = data["meaning"];
 
         if (meaning === undefined) {
@@ -205,7 +205,6 @@ const QuizCreationInfo = () => {
             tempList[i] = tempList[i].trim();
           }
           for (let i = 0; i < tempList.length; i++) {
-            console.log(tempList[i].charAt(tempList[i].length - 1));
             if (tempList[i].charAt(tempList[i].length - 1) === ';') {
               tempList[i] = tempList[i].substring(0, tempList[i].length - 1);
             }
@@ -224,7 +223,6 @@ const QuizCreationInfo = () => {
             tempList.splice(i, 1);
           }
         }
-        console.log(tempList);
         setMeaningList(tempList); 
         setNewAnswer(tempList[0]);
         setError('');
@@ -239,7 +237,6 @@ const QuizCreationInfo = () => {
         setMeaningIndex(tempIndex);
       }
       if (meaningList.length > 0){
-        console.log(tempIndex);
         setNewAnswer(meaningList[tempIndex]);
         setError('');
       }
@@ -268,7 +265,6 @@ const QuizCreationInfo = () => {
 
       if (!result.canceled) {
         const originalUri = result.assets[0].uri;
-        console.log('Original URI:', originalUri);
 
         const fileName = originalUri.split('/').pop();
         const newUri = `${FileSystem.documentDirectory}${fileName}`;
@@ -278,7 +274,6 @@ const QuizCreationInfo = () => {
           to: newUri,
         });
 
-        console.log('File moved to:', newUri);
         setLocalImage(newUri);
       }
     } catch (error) {
