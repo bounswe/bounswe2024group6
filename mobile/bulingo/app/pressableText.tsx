@@ -6,6 +6,7 @@ type PressableTextProps = {
   text: string,
   style?: StyleProp<TextStyle>
   containerStyle?: StyleProp<ViewStyle>
+  onPress?: (word: string) => void
 };
 
 export default function PressableText(props: PressableTextProps){
@@ -35,6 +36,7 @@ export default function PressableText(props: PressableTextProps){
         <Pressable
           key={index}
           onLongPress={() => handleLongPress(word)}
+          onPress={() => {props.onPress && props.onPress(word)}}
           // style={}
         >
             <Text style={props.style}>
