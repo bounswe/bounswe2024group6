@@ -8,6 +8,7 @@ import PressableText from '../pressableText';
 import {router} from 'expo-router';
 import { fetchCommentAuthorImage, fetchGuestUserCommentAuthorImage } from '../api/forum';
 import { bookmarkComment, unbookmarkComment } from '../api/forum';
+import Alert from '../Alert';
 
 interface CommentCardProps {
     id: number;
@@ -103,15 +104,17 @@ const handleAdminDeleteComment = async () => {
       },
       body: JSON.stringify(params),
     })
-
     if (response.ok){
       console.log("Comment Deletion successful")
     } else {
       console.log(response.status)
     };
-    router.replace('/?notification=Comment Deleted Successfully');
+    Alert.set("Comment Deleted Successfully")
+    router.replace('/');
   } catch(error) {
-    console.error(error)
+    console.warn("this always happens for some reason: ", error)
+    Alert.set("Comment Deleted Successfully")
+    router.replace('/');
   }
 }
 

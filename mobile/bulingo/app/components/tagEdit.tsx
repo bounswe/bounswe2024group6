@@ -7,7 +7,8 @@ type TagEditProps={
   type: 'Post'|'Quiz';
   id: string,  // The id of the post or quiz
   tags: string[],
-  onClose: ()=>void;
+  onClose: ()=>void,
+  extra?: any,
 }
 
 
@@ -34,14 +35,16 @@ export default function TagEdit(props: TagEditProps){
       const params = props.type == 'Post' ? {
         tags: tags.filter((item) => item !== tag),
        } : {
+        quiz_id: props.id,
         quiz: {
           tags: tags.filter((item) => item !== tag),
+          title: props.extra?.title,
+          description: props.extra?.description,
+          level: props.extra?.level,
         }
        };
 
       const url = props.type == 'Post' ? `post/update/${props.id}/` : "quiz/update/";
-      console.log(url);
-      console.log(params);
 
       try {
         const response = await TokenManager.authenticatedFetch(url, {
@@ -76,8 +79,12 @@ export default function TagEdit(props: TagEditProps){
       const params = props.type == 'Post' ? {
         'tags': [...tags, addTagInput],
        } : {
+        quiz_id: props.id,
         quiz: {
           tags: [...tags, addTagInput],
+          title: props.extra?.title,
+          description: props.extra?.description,
+          level: props.extra?.level,
         }
        };
 
