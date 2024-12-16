@@ -231,7 +231,7 @@ export default function QuizDetails() {
                     "font-semibold text-red-500": isLiked,
                   })}
                 >
-                  {quizData?.like_count}
+                  {likes}
                 </p>
                 <Button
                   isIconOnly

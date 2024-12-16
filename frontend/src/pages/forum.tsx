@@ -18,14 +18,12 @@ import { convertPostResponseToPost } from "../components/common/utils.tsx";
 import { usePageTitle } from "../components/common/usePageTitle.ts";
 
 const DifficultyTags = ["#A1", "#A2", "#B1", "#B2", "#C1", "#C2"];
-const SortFilters = ["Most Recent", "Most Liked", "Most Commented"];
+const SortFilters = ["Most Recent", "Most Liked"];
 
 export default function Forum() {
   usePageTitle("Forum");
   const [posts, setPosts] = useState<Post[]>([]);
-  const [selectedDifficultyTags, setSelectedDifficultyTags] = useState<
-    string[]
-  >([]);
+  const [selectedDifficultyTags, setSelectedDifficultyTags] = useState<string[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [tags, setTags] = useState<{ key: string; label: string }[]>([]);
@@ -161,24 +159,24 @@ export default function Forum() {
       <div className="flex flex-col gap-6 m-6">
         {isLoading
           ? // Show multiple skeletons while loading
-            Array(2)
-              .fill(0)
-              .map((_, index) => <PostCardSkeleton key={index} />)
+          Array(2)
+            .fill(0)
+            .map((_, index) => <PostCardSkeleton key={index} />)
           : // Show actual posts when loaded
-            sortedPosts.map((post) => (
-              <PostCard
-                key={post.id}
-                id={post.id}
-                username={post.author.username}
-                title={post.post.title}
-                content={post.post.content}
-                timePassed={post.post.timestamp}
-                likeCount={post.engagement.likes}
-                tags={post.post.tags}
-                initialIsLiked={post.engagement.is_liked}
-                initialIsBookmarked={post.engagement.is_bookmarked}
-              />
-            ))}
+          sortedPosts.map((post) => (
+            <PostCard
+              key={post.id}
+              id={post.id}
+              username={post.author.username}
+              title={post.post.title}
+              content={post.post.content}
+              timePassed={post.post.timestamp}
+              likeCount={post.engagement.likes}
+              tags={post.post.tags}
+              initialIsLiked={post.engagement.is_liked}
+              initialIsBookmarked={post.engagement.is_bookmarked}
+            />
+          ))}
       </div>
     </div>
   );
