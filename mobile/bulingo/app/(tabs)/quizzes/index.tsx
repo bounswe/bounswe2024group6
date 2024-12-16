@@ -73,6 +73,8 @@ const QuizFeed = () => {
           likes: quiz.like_count,
           liked: quiz.is_liked,
           bookmarked: quiz.is_bookmarked,
+          image: quiz.title_image ? quiz.title_image : require('@/assets/images/logo.jpeg'),
+          
         }));
   
         setQuizzes((prevQuizzes: any) => (reset ? formattedResults : [...prevQuizzes, ...formattedResults]));
