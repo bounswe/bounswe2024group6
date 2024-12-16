@@ -7,7 +7,7 @@ import TokenManager from '@/app/TokenManager';
 import GuestModal from '@/app/components/guestModal';
 import CommentCard from '@/app/components/commentcard';
 import PostCard from '@/app/components/postcard';
-import { likePost, bookmarkPost, unlikePost, unbookmarkPost } from '../../api/forum'; // Import the functions from forum.tsx
+import { likePost, bookmarkPost, unlikePost, unbookmarkPost, likeComment, unlikeComment } from '../../api/forum'; // Import the functions from forum.tsx
 
 const defaultUserInfo: UserInfo = {
   username: 'ygz',
@@ -102,6 +102,7 @@ export default function Profile() {
           const profileResponse = await profileRequest.json();
           if (profileRequest.ok){
             updatedUserInfo = profileResponse
+            console.log("HERE!")
             console.log(profileResponse);
           } else {
             console.log(profileRequest.status)
@@ -174,7 +175,6 @@ export default function Profile() {
   };
 
   const handleLikePress = async (postId: number): Promise<void> => { 
-    console.log(userInfo);
     userInfo.posts.map(async post => {
       if (post.id === postId) {
         if(post.is_liked){
@@ -283,11 +283,63 @@ export default function Profile() {
     
   };
 
+  const handleLikeComment = async (commentId: number) => {
+    console.log(userInfo.comments);
+    userInfo.comments.map(async comment => {
+      if (comment.id === commentId) {
+        if (comment.is_liked) {
+          try {
+            const response = await unlikeComment(commentId);
+            if (response) {
+              setUserInfo(
+                {
+                ...userInfo,
+                comments: userInfo.comments.map(comment => {
+                  if (comment.id === commentId) {
+                    return {
+                      ...comment,
+                      is_liked: !comment.is_liked,
+                      like_count: response.like_count
+                    };
+                  }
+                  return comment;
+                })
+              });
+            }
+          } catch (error) {
+            console.error('Failed to unlike comment:', error);
+          }
+        } else {
+          try {
+            const response = await likeComment(commentId);
+            if (response) {
+              setUserInfo(
+                {
+                ...userInfo,
+                comments: userInfo.comments.map(comment => {
+                  if (comment.id === commentId) {
+                    return {
+                      ...comment,
+                      is_liked: !comment.is_liked,
+                      like_count: response.like_count
+                    };
+                  }
+                  return comment;
+                })
+              });
+            }
+          } catch (error) {
+            console.error('Failed to like comment:', error);
+          }
+        }
+      }
+    });
+  };
 
   return (
     <FlatList 
       data={tabData[tab-1]}
-      keyExtractor={(item) => item.id}
+      keyExtractor={(item) => `${item.id}${item.comments ? 'yes' : 'no'}`}
       renderItem={({item}) => {
         if (isQuizInfo(item)){
           return (
@@ -297,7 +349,6 @@ export default function Profile() {
         }
         else if(item.comments){
           // Post
-          console.log("Post: ", item)
           return (
             <PostCard title={item.title} id={item.id} author={TokenManager.getUsername() || ''} likes={item.like_count} 
               liked={item.is_liked} tags={item.tags} feedOrPost='feed' isBookmarked={item.is_bookmarked} 
@@ -311,9 +362,15 @@ export default function Profile() {
           // Comment
           // console.log(item)
           return (
-            <View style={{height: 100, borderWidth: 3, borderColor: 'black', borderRadius: 15, justifyContent: 'center', alignItems: 'center', marginHorizontal: 15, marginVertical: 5,}}>
-              <Text>Placeholder Item {item.id}: {item.desc}</Text>
-            </View>
+            <CommentCard
+            id={item.id}
+            username={item.author}
+            onUpvote={handleLikeComment}
+            comment={item.body}
+            isBookmarked={item.is_bookmarked}
+            liked={item.is_liked}
+            likes={item.like_count}
+          />
           );
         }
       }}
