@@ -1,0 +1,13 @@
+ id | name |          bio           | level |           profile_picture            | user_id 
+----+------+------------------------+-------+--------------------------------------+---------
+  1 |      |                        | NA    |                                      |       1
+  3 |      |                        | NA    |                                      |       3
+  4 |      |                        | NA    |                                      |       4
+  5 |      |                        | NA    |                                      |       5
+  6 |      |                        | NA    |                                      |       6
+  7 |      |                        | NA    |                                      |       7
+  9 |      |                        | NA    |                                      |       9
+  2 |      | Hey, new learner here! | A2    | profile_pictures/flicker.png         |       2
+  8 |      | Wanna play Minecraft?  | B1    | profile_pictures/Userbox_creeper.jpg |       8
+ 10 |      | Hey, new learner here! | C1    | profile_pictures/images.jpeg         |      10
+(10 rows)
