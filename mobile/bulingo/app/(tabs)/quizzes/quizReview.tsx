@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TouchableOpacity, StyleSheet, Text, View, ActivityIndicator, Image } from 'react-native';
+import { TouchableOpacity, StyleSheet, Text, View, ActivityIndicator, Image, ScrollView } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import TokenManager from '@/app/TokenManager';
 import { Dimensions, useColorScheme } from 'react-native';
@@ -160,8 +160,13 @@ useEffect(() => {
                         onPress={() => handleOptionSelect(index)}
                         testID='button'
                     >
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        style={styles.textContainer}
+                    >
                       <PressableText style={styles.optionText} text={choice}/>
-                      
+                    </ScrollView> 
                         {/* <Text style={styles.optionText}>{choice}</Text> */}
                     </TouchableOpacity>
                 </View>
@@ -364,6 +369,9 @@ export const getStyles = (colorScheme: any) => {
       textBelowImage: {
         textAlign: 'center',
         marginTop: 10, 
+      },
+      textContainer: {
+        marginHorizontal: 5,
       },
       
   });

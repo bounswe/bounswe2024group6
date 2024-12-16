@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TouchableOpacity, StyleSheet, Text, View, Image } from 'react-native';
+import { TouchableOpacity, Pressable, StyleSheet, Text, View, Image, ScrollView } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import TokenManager from '@/app/TokenManager';
 import { Dimensions, useColorScheme } from 'react-native';
@@ -80,6 +80,7 @@ const QuizQuestion = () => {
   };
 
   const handleOptionSelect = (choiceIndex: number) => {
+    console.log(choiceIndex);
     const updatedChoices = [...selectedChoices];
     updatedChoices[currentQuestionIndex] = choiceIndex;
     setSelectedChoices(updatedChoices);
@@ -253,17 +254,25 @@ const QuizQuestion = () => {
           <View style={styles.optionsContainer}>
             {currentQuestion?.choices.map((choice, index) => (
               <View key={index} style={styles.optionWrapper}>
-                  <TouchableOpacity
+                  <Pressable
                     style={[
                       styles.optionButton,
                       selectedChoices[currentQuestionIndex] === index ? styles.selectedOption : null,
                     ]}
                     onPress={() => handleOptionSelect(index)}
                   >
-                    <PressableText style={styles.optionText} text={choice}/>
-
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        style={styles.textContainer}
+                    >
+                      <PressableText 
+                      style={styles.optionText}  
+                      onPress={() => handleOptionSelect(index)}
+                      text={choice}/>
+                    </ScrollView>
                     {/* <Text style={styles.optionText}>{choice}</Text> */}
-                  </TouchableOpacity>
+                  </Pressable>
               </View>
             ))}
           </View>
@@ -455,6 +464,9 @@ export const getStyles = (colorScheme: any) => {
     textBelowImage: {
       textAlign: 'center',
       marginTop: 10, 
+    },
+    textContainer: {
+      marginHorizontal: 5,
     },
     
     
