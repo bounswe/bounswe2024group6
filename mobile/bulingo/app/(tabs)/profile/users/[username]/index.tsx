@@ -5,6 +5,10 @@ import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { QuizInfo, isQuizInfo } from '../..';
 import QuizCard from '@/app/components/quizCard';
 import TokenManager from '@/app/TokenManager';
+import CommentCard from '@/app/components/commentcard';
+import PostCard from '@/app/components/postcard';
+import { likePost, bookmarkPost, unlikePost, unbookmarkPost, likeComment, unlikeComment } from '../../../../api/forum'; // Import the functions from forum.tsx
+
 
 const emptyUserInfo: OtherUserInfo = {
   bio: "",
@@ -27,8 +31,8 @@ type OtherUserInfo = {
   is_followed: boolean,
   createdQuizzes: QuizInfo[], 
   solvedQuizzes: QuizInfo[],
-  posts: [],
-  comments: [],
+  posts: any[],
+  comments: any[],
   profile_picture: string,
 };
 
@@ -86,7 +90,7 @@ export default function Profile() {
         } else {
           console.log(createdQuizResponse.status)
         };
-        setUserInfo(updatedUserInfo);
+        console.warn({...updatedUserInfo, solvedQuizzes: solvedQuizResponse})
       } catch (error) {
         console.error(error);
       }
@@ -108,6 +112,172 @@ export default function Profile() {
     );
   };
 
+  const handlePostPress = (id: number) => {
+    router.navigate({pathname: '/(tabs)/forums/forumPostPage', params: {
+       "id": id,
+      }});
+  };
+
+  const handleLikePress = async (postId: number): Promise<void> => { 
+    userInfo.posts.map(async post => {
+      if (post.id === postId) {
+        if(post.is_liked){
+          try {
+            const response = await unlikePost(postId);
+            if (response) {
+              setUserInfo(
+                {
+                  ...userInfo,
+                  posts: userInfo.posts.map(post => {
+                    if (post.id === postId) {
+                      return {
+                        ...post,
+                        is_liked: response.is_liked,
+                        like_count: response.like_count
+                      };
+                    }
+                    return post;})
+                }
+              );
+            }
+          } catch (error) {
+            console.error('Failed to unlike post:', error);
+          }
+        }
+        else{
+          try {
+            const response = await likePost(postId);
+            if (response) {
+              setUserInfo(
+                {
+                ...userInfo,
+                posts: userInfo.posts.map(post => {
+                if (post.id === postId) {
+                  return {
+                    ...post,
+                    is_liked: response.is_liked,
+                    like_count: response.like_count
+                  };
+                }
+                return post; }
+              )});
+            }
+          } catch (error) {
+            console.error('Failed to like post:', error);
+          }
+        }
+
+      }
+    })
+    
+
+
+  };
+
+  const handleBookmarkPress = async (postId: number): Promise<void> => {
+    userInfo.posts.map(async post => {
+      if (post.id === postId) {
+        if(post.is_bookmarked){
+
+          try {
+            const response = await unbookmarkPost(postId);
+            if (response) {
+
+              setUserInfo(
+                {
+                ...userInfo,
+                posts: userInfo.posts.map(post => {
+                if (post.id === postId) {
+                  return {
+                    ...post,
+                    is_bookmarked: response.is_bookmarked,
+                  };
+                }
+                return post;
+              })}
+            );}
+          } catch (error) {
+            console.error('Failed to unbookmark post:', error);
+          }
+        }
+        else{
+          try {
+            const response = await bookmarkPost(postId);
+            if (response) {
+              setUserInfo(
+                {
+                ...userInfo,
+                posts: userInfo.posts.map(post => {
+                if (post.id === postId) {
+                  return {
+                    ...post,
+                    is_bookmarked: response.is_bookmarked,
+                  };
+                }
+                return post;
+              })});
+            }
+          } catch (error) {
+            console.error('Failed to bookmark post:', error);
+          }
+        }
+      }
+    })
+    
+  };
+
+  const handleLikeComment = async (commentId: number) => {
+    userInfo.comments.map(async comment => {
+      if (comment.id === commentId) {
+        if (comment.is_liked) {
+          try {
+            const response = await unlikeComment(commentId);
+            if (response) {
+              setUserInfo(
+                {
+                ...userInfo,
+                comments: userInfo.comments.map(comment => {
+                  if (comment.id === commentId) {
+                    return {
+                      ...comment,
+                      is_liked: !comment.is_liked,
+                      like_count: response.like_count
+                    };
+                  }
+                  return comment;
+                })
+              });
+            }
+          } catch (error) {
+            console.error('Failed to unlike comment:', error);
+          }
+        } else {
+          try {
+            const response = await likeComment(commentId);
+            if (response) {
+              setUserInfo(
+                {
+                ...userInfo,
+                comments: userInfo.comments.map(comment => {
+                  if (comment.id === commentId) {
+                    return {
+                      ...comment,
+                      is_liked: !comment.is_liked,
+                      like_count: response.like_count
+                    };
+                  }
+                  return comment;
+                })
+              });
+            }
+          } catch (error) {
+            console.error('Failed to like comment:', error);
+          }
+        }
+      }
+    });
+  };
+
   return (
     <FlatList 
       data={tabData[tab-1]}
@@ -115,14 +285,33 @@ export default function Profile() {
         if (isQuizInfo(item)){
           return (
             <QuizCard id={item.id} author={item.author.username} title={item.title} level={item.level} 
-              description={item.description} liked={item.is_liked} likes={item.like_count}/>
+              description={item.description} liked={item.is_liked} likes={item.like_count} bookmarked={item.is_bookmarked}/>
+          );
+        }
+        else if(item.comments){
+          // Post
+          return (
+            <PostCard title={item.title} id={item.id} author={TokenManager.getUsername() || ''} likes={item.like_count} 
+              liked={item.is_liked} tags={item.tags} feedOrPost='feed' isBookmarked={item.is_bookmarked} 
+              onUpvote={() => handleLikePress(item.id)}
+              onBookmark={() => handleBookmarkPress(item.id)}
+              onPress={() => handlePostPress(item.id)}
+            />
           );
         }
         else{
+          // Comment
+          // console.log(item)
           return (
-            <View style={{height: 100, borderWidth: 3, borderColor: 'black', borderRadius: 15, justifyContent: 'center', alignItems: 'center', marginHorizontal: 15, marginVertical: 5,}}>
-              <Text>Placeholder Item</Text>
-            </View>
+            <CommentCard
+            id={item.id}
+            username={item.author}
+            onUpvote={handleLikeComment}
+            comment={item.body}
+            isBookmarked={item.is_bookmarked}
+            liked={item.is_liked}
+            likes={item.like_count}
+          />
           );
         }
       }}
