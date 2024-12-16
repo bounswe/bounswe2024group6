@@ -100,6 +100,52 @@ TEMPLATES = [
 WSGI_APPLICATION = 'backend_project.wsgi.application'
 
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}
+
+# Cache timeout configurations (in seconds)
+CACHE_TIMEOUTS = {
+    'quiz_list': 300,          # 5 minutes - general quiz listings
+    'quiz_detail': 600,        # 10 minutes - individual quiz details
+    'user_profile': 900,       # 15 minutes - user profile information
+    
+    'liked_quizzes': 1800,     # 30 minutes - user's liked quizzes
+    'bookmarked_quizzes': 1800,# 30 minutes - user's bookmarked quizzes
+    'created_quizzes': 1800,   # 30 minutes - quizzes created by user
+    
+    'quiz_results': 3600,      # 1 hour - quiz results list
+    'specific_quiz_result': 3600, # 1 hour - specific quiz result details
+    
+    'quiz_progress': 300,      # 5 minutes - active quiz progress
+    'question_progress': 300,  # 5 minutes - question progress
+    
+    'quiz_recommendations': 1800, # 30 minutes - quiz recommendations
+    
+    'quiz_review': 1200,      # 20 minutes - quiz review data
+    
+    'quiz_stats': 3600,       # 1 hour - quiz statistics
+    'user_stats': 3600 ,     # 1 hour - user statistics
+
+
+    'question': 600,          # 10 minutes for individual questions
+    'question_progress': 300, # 5 minutes for question progress
+    'quiz_review': 1800, 
+
+    'post_detail': 300,      # 5 minutes for post details
+    'liked_posts': 600,      # 10 minutes for liked posts list
+    'user_posts': 600,       # 10 minutes for user's posts list
+}
+
+
+if DEBUG:
+    CACHES['default']['TIMEOUT'] = 60  # 1 minute in development
+    for key in CACHE_TIMEOUTS:
+        CACHE_TIMEOUTS[key] = 60       # 1 minute for all caches in development
+
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 

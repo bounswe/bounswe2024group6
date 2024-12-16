@@ -7,6 +7,12 @@ from rest_framework import status
 from app.models import Post, ActivityStream, Comment , Bookmark
 from django.utils import timezone
 from app.serializers import CommentSerializer
+from ..utils.cache_handlers import PostCacheHandler
+
+
+from ..utils.cache_manager import CacheManager
+
+cache_manager = CacheManager() 
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -22,6 +28,11 @@ def like_post(request):
     post.liked_by.add(request.user)
     post.like_count = post.liked_by.count()
     post.save()
+
+    cache_manager.invalidate('post_detail', f'post_detail_{post_id}_user_{request.user.id}')
+    cache_manager.invalidate('liked_posts', f'liked_posts_user_{request.user.id}')
+    cache_manager.invalidate('user_posts', f'user_posts_{post.author.username}')
+
 
     if post.author != request.user:
         ActivityStream.objects.create(
@@ -62,6 +73,10 @@ def unlike_post(request):
     post.like_count = post.liked_by.count()
     post.save()
 
+    cache_manager.invalidate('post_detail', f'post_detail_{post_id}_user_{request.user.id}')
+    cache_manager.invalidate('liked_posts', f'liked_posts_user_{request.user.id}')
+    cache_manager.invalidate('user_posts', f'user_posts_{post.author.username}')
+
     # Include like and bookmark status in the response
     is_liked = post.liked_by.filter(id=request.user.id).exists()
     is_bookmarked = post.bookmarked_by.filter(id=request.user.id).exists()
@@ -80,30 +95,11 @@ def unlike_post(request):
 @permission_classes([IsAuthenticated])
 def get_liked_posts(request):
     """
-    Fetch all posts liked by the authenticated user.
+    Fetch all posts liked by the authenticated user, using caching for better performance.
     """
-    user = request.user
-
-    # Fetch posts liked by the user
-    liked_posts = Post.objects.filter(liked_by=user).order_by('-created_at')
-
-    # Serialize the posts
-    liked_posts_data = [
-        {
-            "id": post.id,
-            "title": post.title,
-            "description": post.description,
-            "created_at": post.created_at,
-            "like_count": post.like_count,
-            "tags": post.tags,  # Assuming tags are stored as a list of strings
-            "author": post.author.username,
-            "is_liked": True,  # User liked these posts
-            "is_bookmarked": post.bookmarked_by.filter(id=user.id).exists(),  # Check bookmark status
-        }
-        for post in liked_posts
-    ]
-
+    liked_posts_data = PostCacheHandler.get_user_liked_posts(request.user, request)
     return Response({"liked_posts": liked_posts_data}, status=status.HTTP_200_OK)
+
 
 
 @api_view(['POST'])
@@ -126,6 +122,8 @@ def create_post(request):
         tags=tags,  # Directly assign the list of tags
         created_at=timezone.now()
     )
+
+    cache_manager.invalidate('user_posts', f'user_posts_{request.user.username}')
 
     user = request.user
 
@@ -155,6 +153,10 @@ def delete_post(request):
         return Response({"detail": "You do not have permission to delete this post."}, status=status.HTTP_403_FORBIDDEN)
     post_title = post.title
     post.delete()
+
+    cache_manager.invalidate('post_detail', f'post_detail_{post_id}_user_{request.user.id}')
+    cache_manager.invalidate('user_posts', f'user_posts_{post.author.username}')
+    cache_manager.invalidate('liked_posts', f'liked_posts_user_{request.user.id}')
     
     if post.author != request.user: 
         ActivityStream.objects.create(
@@ -172,20 +174,7 @@ def delete_post(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_posts_of_user(request):
-    user_posts = Post.objects.filter(author=request.user.username).order_by('-created_at')
-
-    posts_data = [
-        {
-            "id": post.id,
-            "title": post.title,
-            "description": post.description,
-            "created_at": post.created_at,
-            "like_count": post.like_count,
-            "tags": post.tags  # Access tags directly as a list of strings
-        }
-        for post in user_posts
-    ]
-
+    posts_data = PostCacheHandler.get_user_posts(request.user, request)
     return Response({"posts": posts_data}, status=status.HTTP_200_OK)
 
 
@@ -198,6 +187,8 @@ def update_post(request, post_id):
         return Response({"detail": "You do not have permission to update this post."}, status=status.HTTP_403_FORBIDDEN)
 
     tags = request.data.get("tags", [])
+    cache_manager.invalidate('post_detail', f'post_detail_{post_id}_user_{request.user.id}')
+    cache_manager.invalidate('user_posts', f'user_posts_{post.author.username}')
     if not isinstance(tags, list):
         return Response({"detail": "Tags must be a list of strings."}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -232,36 +223,19 @@ def update_post(request, post_id):
 
 @api_view(['POST'])
 def get_post_details(request):
-    post_id = request.data.get("post_id")  
-
+    post_id = request.data.get("post_id")
+    
     if not post_id:
         return Response({"detail": "Post ID is required."}, status=status.HTTP_400_BAD_REQUEST)
-
-    post = get_object_or_404(Post, id=post_id)
-    is_liked = False
-    is_bookmarked = False
-    if request.user.is_authenticated:
-        is_liked = post.liked_by.filter(id=request.user.id).exists()
-        is_bookmarked = Bookmark.objects.filter(user=request.user, post=post).exists() 
-
-    comments = post.comments.all().order_by("-created_at")
-    comments_data = CommentSerializer(comments, many=True, context={'request': request}).data
-
-
-    post_data = {
-        "id": post.id,
-        "title": post.title,
-        "description": post.description,
-        "created_at": post.created_at,
-        "like_count": post.like_count,
-        "tags": post.tags,
-        "is_liked": is_liked,
-        "author": post.author.username,
-        "is_bookmarked": is_bookmarked,
-        "comments": comments_data,
-    }
-
-    return Response({"post": post_data}, status=status.HTTP_200_OK)
-
+    
+    try:
+        post_data = PostCacheHandler.get_post_detail(
+            post_id=post_id,
+            user=request.user if request.user.is_authenticated else None,
+            request=request
+        )
+        return Response({"post": post_data}, status=status.HTTP_200_OK)
+    except Post.DoesNotExist:
+        return Response({"detail": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
 
 

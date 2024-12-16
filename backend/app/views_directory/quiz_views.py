@@ -11,6 +11,13 @@ from django.core.files.uploadedfile import UploadedFile
 import json
 from django.core.files.base import ContentFile
 import base64
+from django.core.paginator import Paginator
+from ..utils.cache_manager import CacheManager
+from django.db.models import Prefetch
+from ..utils.cache_handlers import QuizCacheHandler
+
+
+cache_manager = CacheManager()
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -41,6 +48,7 @@ def create_quiz(request):
         quiz = quiz_serializer.save()
         print("Quiz saved successfully")
 
+        cache_manager.invalidate('quiz_list', 'page_1')
         for question in questions_data:
             print(f"\nProcessing question {question['question_number']}")
             question['quiz'] = quiz.id
@@ -129,10 +137,12 @@ def delete_quiz(request):
 
 @api_view(['GET'])
 def view_quizzes(request):
-    quizzes = Quiz.objects.all()
-    # TODO: paginate the results
-    serializer = QuizSerializer(quizzes, many=True, context = {'request': request})
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    """
+    Shows a list of all quizzes, now using our caching system to improve performance.
+    """
+    page = int(request.GET.get('page', 1))
+    quizzes = QuizCacheHandler.get_quiz_list(page=page, request=request)
+    return Response(quizzes, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -166,6 +176,7 @@ def submit_quiz(request):
 
     if quiz_result_serializer.is_valid():
         quiz_result = quiz_result_serializer.save()
+        cache_manager.invalidate('quiz_detail', f'quiz_detail_{quiz.id}_user_{request.user.id}')
         quiz_progress.completed = True
         quiz_progress.save()
 
@@ -229,50 +240,55 @@ def cancel_quiz_id(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_quiz_results(request):
-    quizResults = QuizResults.objects.filter(user=request.user)
-    serializer = QuizResultsSerializer(quizResults, many=True, context = {'request': request})
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    cache_key = f'quiz_results_user_{request.user.id}'
+    
+    def fetch_quiz_results():
+        quiz_results = QuizResults.objects.filter(user=request.user)\
+                                        .select_related('quiz', 'quiz_progress')
+        return QuizResultsSerializer(quiz_results, many=True, context={'request': request}).data
+    
+    data = cache_manager.get_or_set('quiz_results', cache_key, fetch_quiz_results)
+    return Response(data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_specific_quiz_result(request, quiz_result_id):
-    quiz_result = get_object_or_404(QuizResults, id=quiz_result_id, user=request.user)
-
-    quiz = quiz_result.quiz
-    quiz_progress = quiz_result.quiz_progress
+    cache_key = f'specific_quiz_result_{quiz_result_id}_user_{request.user.id}'
     
-    questions_data = []
-    for question_progress in QuestionProgress.objects.filter(quiz_progress=quiz_progress):
-        question = question_progress.question
-        question_data = {
-            'question_text': question.question_text,
-            'question_image': request.build_absolute_uri(question.question_image.url) if question.question_image else None,
-            'choices': [
-                question.choice1,
-                question.choice2,
-                question.choice3,
-                question.choice4
-            ],
-            'choice_images': [
-                request.build_absolute_uri(question.choice1_image.url) if question.choice1_image else None,
-                request.build_absolute_uri(question.choice2_image.url) if question.choice2_image else None,
-                request.build_absolute_uri(question.choice3_image.url) if question.choice3_image else None,
-                request.build_absolute_uri(question.choice4_image.url) if question.choice4_image else None,
-            ],
-            'question_number': question.question_number,
-            'correct_choice': question.correct_choice,
-            'user_answer': question_progress.answer,
-            'is_correct': question_progress.answer == question.correct_choice
+    def fetch_specific_result():
+        quiz_result = get_object_or_404(QuizResults, id=quiz_result_id, user=request.user)
+        quiz = quiz_result.quiz
+        quiz_progress = quiz_result.quiz_progress
+        
+        questions_data = []
+        for question_progress in QuestionProgress.objects.filter(quiz_progress=quiz_progress)\
+                                                       .select_related('question'):
+            question = question_progress.question
+            question_data = {
+                'question_text': question.question_text,
+                'question_image': request.build_absolute_uri(question.question_image.url) if question.question_image else None,
+                'choices': [question.choice1, question.choice2, question.choice3, question.choice4],
+                'choice_images': [
+                    request.build_absolute_uri(question.choice1_image.url) if question.choice1_image else None,
+                    request.build_absolute_uri(question.choice2_image.url) if question.choice2_image else None,
+                    request.build_absolute_uri(question.choice3_image.url) if question.choice3_image else None,
+                    request.build_absolute_uri(question.choice4_image.url) if question.choice4_image else None,
+                ],
+                'question_number': question.question_number,
+                'correct_choice': question.correct_choice,
+                'user_answer': question_progress.answer,
+                'is_correct': question_progress.answer == question.correct_choice
+            }
+            questions_data.append(question_data)
+
+        return {
+            'quiz_result': QuizResultsSerializer(quiz_result, context={'request': request}).data,
+            'questions': sorted(questions_data, key=lambda x: x['question_number']),
+            'quiz_title_image': request.build_absolute_uri(quiz.title_image.url) if quiz.title_image else None
         }
-        questions_data.append(question_data)
-
-    response_data = {
-        'quiz_result': QuizResultsSerializer(quiz_result, context={'request': request}).data,
-        'questions': sorted(questions_data, key=lambda x: x['question_number']),
-        'quiz_title_image': request.build_absolute_uri(quiz.title_image.url) if quiz.title_image else None
-    }
     
-    return Response(response_data, status=status.HTTP_200_OK)
+    data = cache_manager.get_or_set('specific_quiz_result', cache_key, fetch_specific_result)
+    return Response(data, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
@@ -454,17 +470,14 @@ def solve_question(request):
     if question_progress_serializer.is_valid():
         question_progress_serializer.save()
         
+        cache_manager.invalidate('question', f'question_{quiz.id}_{question.question_number}_user_{request.user.id}')
+        
         response_data = {
             "detail": "Question progress updated.",
             "question": {
                 "question_text": question.question_text,
                 "question_image": request.build_absolute_uri(question.question_image.url) if question.question_image else None,
-                "choices": [
-                    question.choice1,
-                    question.choice2,
-                    question.choice3,
-                    question.choice4
-                ],
+                "choices": [question.choice1, question.choice2, question.choice3, question.choice4],
                 "choice_images": [
                     request.build_absolute_uri(question.choice1_image.url) if question.choice1_image else None,
                     request.build_absolute_uri(question.choice2_image.url) if question.choice2_image else None,
@@ -482,83 +495,34 @@ def solve_question(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_question(request):
-    question = get_object_or_404(Question, 
-        question_number=request.data['question_number'], 
-        quiz=request.data['quiz_id']
-    )
-    
-    quiz_progress, _ = QuizProgress.objects.get_or_create(
-        quiz_id=request.data['quiz_id'],
-        user=request.user,
-        completed=False
-    )
-
-    question_progress, _ = QuestionProgress.objects.get_or_create(
-        question=question,
-        quiz_progress=quiz_progress
-    )
-    
-    response_data = {
-        'question': question.question_text,
-        'question_image': request.build_absolute_uri(question.question_image.url) if question.question_image else None,
-        'choices': [
-            question.choice1,
-            question.choice2,
-            question.choice3,
-            question.choice4
-        ],
-        'choice_images': [
-            request.build_absolute_uri(question.choice1_image.url) if question.choice1_image else None,
-            request.build_absolute_uri(question.choice2_image.url) if question.choice2_image else None,
-            request.build_absolute_uri(question.choice3_image.url) if question.choice3_image else None,
-            request.build_absolute_uri(question.choice4_image.url) if question.choice4_image else None,
-        ],
-        'previous_answer': question_progress.answer,
-        'question_number': question.question_number
-    }
-    
-    return Response(response_data, status=status.HTTP_200_OK)
+    try:
+        question_data = QuizCacheHandler.get_question_detail(
+            question_number=request.data['question_number'],
+            quiz_id=request.data['quiz_id'],
+            user=request.user,
+            request=request
+        )
+        return Response(question_data, status=status.HTTP_200_OK)
+    except Question.DoesNotExist:
+        return Response(
+            {'error': 'Question not found'}, 
+            status=status.HTTP_404_NOT_FOUND
+        )
 
 @api_view(['GET'])
 def get_quiz(request, quiz_id):
+    """
+    Shows details of a specific quiz, using our caching system for faster retrieval.
+    """
     try:
-        quiz = get_object_or_404(Quiz, id=quiz_id)
-        serializer = QuizSerializer(quiz, context={'request': request})
-        data = {
-            'quiz': serializer.data
-        }
-        
-        if request.user.is_authenticated:    
-            data['is_solved'] = QuizProgress.objects.filter(quiz=quiz, user=request.user, completed=True).exists()
-            data['quiz_result_id'] = QuizResults.objects.filter(quiz=quiz, user=request.user).order_by('-id').first().id if data['is_solved'] else None
-            data['has_unfinished_progress'] = QuizProgress.objects.filter(
-                quiz=quiz,
-                user=request.user,
-                completed=False
-            ).exists()
-
-        if data.get('is_solved'):
-            latest_result = QuizResults.objects.filter(
-                quiz=quiz,
-                user=request.user
-            ).order_by('-id').first()
-            
-            data['quiz_result_id'] = latest_result.id if latest_result else None
-            data['latest_score'] = latest_result.score if latest_result else None
-            
-            best_result = QuizResults.objects.filter(
-                quiz=quiz,
-                user=request.user
-            ).order_by('-score').first()
-            data['best_score'] = best_result.score if best_result else None
-        
-        
+        data = QuizCacheHandler.get_quiz_detail(
+            quiz_id, 
+            request=request,
+            user=request.user if request.user.is_authenticated else None
+        )
         return Response(data, status=status.HTTP_200_OK)
-        
-    except Exception as e:
-        return Response({
-            'error': f'Error retrieving quiz: {str(e)}'
-        }, status=status.HTTP_400_BAD_REQUEST)
+    except Quiz.DoesNotExist:
+        return Response({'error': 'Quiz not found'}, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -601,11 +565,18 @@ def like_quiz(request):
         quiz.liked_by.remove(request.user)  
         quiz.like_count -= 1
         quiz.save()
+        # Invalidate relevant caches
+        cache_manager.invalidate('liked_quizzes', f'liked_quizzes_user_{request.user.id}')
+        cache_manager.invalidate('quiz_detail', f'quiz_detail_{quiz.id}')
         return Response({'message': 'Quiz unliked'}, status=status.HTTP_200_OK)
 
     quiz.liked_by.add(request.user) 
     quiz.like_count += 1
     quiz.save()
+    
+    # Invalidate relevant caches
+    cache_manager.invalidate('liked_quizzes', f'liked_quizzes_user_{request.user.id}')
+    cache_manager.invalidate('quiz_detail', f'quiz_detail_{quiz.id}')
 
     if request.user != quiz.author:
         ActivityStream.objects.create(
@@ -613,9 +584,9 @@ def like_quiz(request):
             verb="liked",
             object_type="Quiz",
             object_id=quiz.id,
-            object_name = quiz.title,
+            object_name=quiz.title,
             target=f"Quiz:{quiz.id}",
-            affected_username= quiz.author.username 
+            affected_username=quiz.author.username 
         )
     
     return Response({'message': 'Quiz liked'}, status=status.HTTP_200_OK)
@@ -623,24 +594,45 @@ def like_quiz(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def view_liked_quizzes(request):
-    quizzes = Quiz.objects.filter(liked_by=request.user.id)
-    serializer = QuizSerializer(quizzes, many=True, context = {'request': request})
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    cache_key = f'liked_quizzes_user_{request.user.id}'
+    
+    def fetch_liked_quizzes():
+        quizzes = Quiz.objects.filter(liked_by=request.user.id)\
+                             .select_related('author')\
+                             .prefetch_related('tags')
+        return QuizSerializer(quizzes, many=True, context={'request': request}).data
+    
+    data = cache_manager.get_or_set('liked_quizzes', cache_key, fetch_liked_quizzes)
+    return Response(data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def view_bookmarked_quizzes(request):
-    quizzes = Quiz.objects.filter(bookmarked_by=request.user.id)
-    serializer = QuizSerializer(quizzes, many=True, context = {'request': request})
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    cache_key = f'bookmarked_quizzes_user_{request.user.id}'
+    
+    def fetch_bookmarked_quizzes():
+        quizzes = Quiz.objects.filter(bookmarked_by=request.user.id)\
+                             .select_related('author')\
+                             .prefetch_related('tags')
+        return QuizSerializer(quizzes, many=True, context={'request': request}).data
+    
+    data = cache_manager.get_or_set('bookmarked_quizzes', cache_key, fetch_bookmarked_quizzes)
+    return Response(data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def view_created_quizzes(request, username):
-    user = get_object_or_404(User, username=username)
-    quizzes = Quiz.objects.filter(author=user)
-    serializer = QuizSerializer(quizzes, many=True, context = {'request': request})
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    cache_key = f'created_quizzes_user_{username}'
+    
+    def fetch_created_quizzes():
+        user = get_object_or_404(User, username=username)
+        quizzes = Quiz.objects.filter(author=user)\
+                             .select_related('author')\
+                             .prefetch_related('tags')
+        return QuizSerializer(quizzes, many=True, context={'request': request}).data
+    
+    data = cache_manager.get_or_set('created_quizzes', cache_key, fetch_created_quizzes)
+    return Response(data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
