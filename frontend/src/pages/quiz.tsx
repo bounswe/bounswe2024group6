@@ -49,17 +49,10 @@ export default function Quiz() {
       .then((response) => {
         console.log(response.data);
         setQuizData(response.data); // Store response data
-        if (isNotResuming) {
-          const initialAnswers = response.data.questions.map(
-            (question: any) => Answer.None
-          );
-          setAnswers(initialAnswers);
-        } else {
-          const initialAnswers = response.data.questions.map(
-            (question: any) => question.previous_answer || Answer.None
-          );
-          setAnswers(initialAnswers);
-        }
+        const initialAnswers = response.data.questions.map(
+          (question: any) => question.previous_answer || Answer.None
+        );
+        setAnswers(initialAnswers);
       })
       .catch((error) => {
         console.log(error);
@@ -78,7 +71,6 @@ export default function Quiz() {
   return (
     <div className="h-screen w-screen flex flex-col">
       <Navbar />
-
       <SidebarLayout
         id={quizID}
         quiz_progress_id={quizData?.quiz_progress_id}
@@ -102,7 +94,7 @@ export default function Quiz() {
             )}
             {isLoading ? (
               <div className="mt-5"><QuizDetailsCardSkeleton /></div>
-              
+
             ) : (
               <div className="flex flex-col items-center py-4">
                 <h1 className="font-semibold text-4xl mt-3 mb-4 text-blue-900">

@@ -204,11 +204,6 @@ export default function QuizDetails() {
                                         className="w-1/3 items-center text-center mt-3">
                                         Start Quiz
                                     </Button>
-                                    {hasAttempted && (
-                                        <Button color="primary" variant="faded" onClick={() => navigate(`/quiz/${quizData?.id}`, { state: { isNotResuming: false } })} className="w-1/4 items-center text-center mt-3">
-                                            Resume Quiz
-                                        </Button>
-                                    )}
                                 </div>
                             </div>
                         </CardBody>
