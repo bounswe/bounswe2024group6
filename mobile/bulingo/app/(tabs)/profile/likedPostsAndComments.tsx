@@ -15,7 +15,7 @@ export default function Followers() {
   ])
 
   useEffect(() => {
-    const ENDPOINT_URL = "http://64.226.76.231:8000/likedpostandcomments";  // Placeholder
+    const ENDPOINT_URL = "http://161.35.208.249:800000/likedpostandcomments";  // Placeholder
     const fetchFollowers = async () => {
       const params = {
         // TODO

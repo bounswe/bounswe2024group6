@@ -102,8 +102,6 @@ export default function Profile() {
           const profileResponse = await profileRequest.json();
           if (profileRequest.ok){
             updatedUserInfo = profileResponse
-            console.log("HERE!")
-            console.log(profileResponse);
           } else {
             console.log(profileRequest.status)
           };
@@ -284,7 +282,6 @@ export default function Profile() {
   };
 
   const handleLikeComment = async (commentId: number) => {
-    console.log(userInfo.comments);
     userInfo.comments.map(async comment => {
       if (comment.id === commentId) {
         if (comment.is_liked) {
