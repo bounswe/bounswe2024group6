@@ -7,6 +7,7 @@ import { router } from 'expo-router';
 import GuestModal from './guestModal';
 import { FontAwesome } from '@expo/vector-icons';
 import PressableText from '../pressableText';
+import Alert from '../Alert';
 
 type QuizCardProps = {
   title: string,
@@ -84,9 +85,12 @@ export default function QuizCard(props: QuizCardProps){
       } else {
         console.log(response.status)
       };
-      router.replace('/?notification=Quiz Deleted Successfully');
+      Alert.set("Quiz Deleted Successfully")
+      router.replace('/');
     } catch(error) {
-      console.error(error)
+      console.warn(error)
+      Alert.set("Quiz Deleted Successfully")
+      router.replace('/');
     }
   }
 
@@ -121,7 +125,9 @@ export default function QuizCard(props: QuizCardProps){
     <>
       {guestModalVisible && <GuestModal onClose={() => setGuestModalVisible(false)}/>}
       { isTagEditVisible && 
-        <TagEdit type="Quiz" id='placeholder' onClose={() => setIsTagEditVisible(false)} tags={tags}/>
+        <TagEdit type="Quiz" id={props.id.toString()} onClose={() => setIsTagEditVisible(false)} tags={tags}
+          extra={{title: props.title, description: props.description, level: level}}
+        />
       }
       { isAdminOptionsVisible &&
         <AdminOptions onClose={()=>setIsAdminOptionsVisible(false)} options={[

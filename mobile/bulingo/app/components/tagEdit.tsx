@@ -7,7 +7,8 @@ type TagEditProps={
   type: 'Post'|'Quiz';
   id: string,  // The id of the post or quiz
   tags: string[],
-  onClose: ()=>void;
+  onClose: ()=>void,
+  extra?: any,
 }
 
 
@@ -23,19 +24,26 @@ export default function TagEdit(props: TagEditProps){
   }, [tags, searchQuery]);
 
   const removeTag = (tag:string) => {
+    console.log("HERE2!")
     return (async () => {
       setTags(tags.filter((item) => item !== tag))
 
+      console.log("here4")
       const username = TokenManager.getUsername()
       if (username === null){
         console.error("username is null")
         return
       }
+      console.log("HERE3")
       const params = props.type == 'Post' ? {
         tags: tags.filter((item) => item !== tag),
        } : {
+        quiz_id: props.id,
         quiz: {
           tags: tags.filter((item) => item !== tag),
+          title: props.extra?.title,
+          description: props.extra?.description,
+          level: props.extra?.level,
         }
        };
 
@@ -76,8 +84,12 @@ export default function TagEdit(props: TagEditProps){
       const params = props.type == 'Post' ? {
         'tags': [...tags, addTagInput],
        } : {
+        quiz_id: props.id,
         quiz: {
           tags: [...tags, addTagInput],
+          title: props.extra?.title,
+          description: props.extra?.description,
+          level: props.extra?.level,
         }
        };
 

@@ -5,6 +5,7 @@ import { router } from 'expo-router';
 import TokenManager from '@/app/TokenManager';
 import AdminOptions from '@/app/components/adminOptions';
 import GuestModal from '@/app/components/guestModal';
+import Alert from '@/app/Alert';
 
 type UserCardProps = {
   profilePictureUri: string,
@@ -103,7 +104,9 @@ const UserCard = (props: UserCardProps) => {
       } else {
         console.log(response.status)
       };
+      Alert.set("User Successfully Banned")
       setIsAdminOptionsVisible(false);
+      router.navigate("/");
     } catch(error) {
       console.error(error)
     }
