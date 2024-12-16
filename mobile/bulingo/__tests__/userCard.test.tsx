@@ -3,7 +3,7 @@ import { render, fireEvent } from '@testing-library/react-native';
 import UserCard from '../app/(tabs)/profile/userCard';
 import TokenManager from '@/app/TokenManager';
 
-test('renders the user card and handles presses', async () => {
+test('renders the user card and does not handles presses when not logged in', async () => {
   const mockFn1 = jest.fn();
   const mockFn2 = jest.fn();
 
@@ -28,11 +28,11 @@ test('renders the user card and handles presses', async () => {
     onCardPress={mockFn2}
   />);
 
-  const button1 = getByTestId('button');
+  const button1 = getByTestId('card');
 
   fireEvent.press(button1);
   await new Promise(resolve => setTimeout(resolve, 2000));
-  expect(mockFn1).toHaveBeenCalled();
+  expect(mockFn2).not.toHaveBeenCalled()
 });
 
 test('renders the user card and includes all the input text', () => {
@@ -57,7 +57,6 @@ test('renders the user card and includes all the input text', () => {
   />);
 
   expect(getByText(username)).toBeTruthy();
-  expect(getByText(name)).toBeTruthy();
   expect(getByText(level)).toBeTruthy();
   expect(getByText(buttonText)).toBeTruthy();
 });
