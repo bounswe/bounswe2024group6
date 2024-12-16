@@ -13,7 +13,7 @@ from app.views_directory.feed_views import get_user_post_feed
 from app.views_directory.bookmark_views import bookmark_post, unbookmark_post, get_bookmarked_posts
 from app.views_directory.searchview import SearchView
 
-from app.views_directory.image_view import get_image_details, get_direct_image
+from app.views_directory.image_view import get_image_details, get_direct_image, get_image_url
 from app.views_directory.admin_views import ban_user, admin_check
 from django.conf.urls.static import static
 from django.conf import settings
@@ -91,6 +91,7 @@ urlpatterns = [
     path('search/', SearchView.as_view(), name='search'),
     path('image-details/<str:query>/', get_image_details, name='image-search'),
     path('image/<str:query>/', get_direct_image, name='direct-image'),
+    path('image/url/<str:query>/', get_image_url, name='image-url'),
     path('comments/bookmark/', bookmark_comment, name='bookmark_comment'),
     path('comments/unbookmark/', unbookmark_comment, name='unbookmark_comment'),
     path('comments/bookmarked/', get_bookmarked_comments, name='get_bookmarked_comments'),

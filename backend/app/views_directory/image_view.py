@@ -80,3 +80,17 @@ def get_direct_image(request, query):
         return JsonResponse({
             'error': 'Internal server error'
         }, status=500)
+    
+@api_view(['GET'])
+def get_image_url(request, query):
+    try:
+        result = get_image(query)
+        if result and result.get('url'):
+            return JsonResponse({'image_url' : result['url']})
+        return JsonResponse({
+            'error': 'Image not found'
+        }, status=404)
+    except Exception as e:
+        return JsonResponse({
+            'error': 'Internal server error'
+        }, status=500)
