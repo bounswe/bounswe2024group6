@@ -66,7 +66,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     def get_comments(self, obj):
         """Get comments created by the user."""
         comments = Comment.objects.filter(author=obj.user)
-        return CommentSerializer(comments, many=True).data
+        return CommentSerializer(comments, many=True, context=self.context).data
 
     def get_follower_count(self, obj):
         """Get the count of followers."""
