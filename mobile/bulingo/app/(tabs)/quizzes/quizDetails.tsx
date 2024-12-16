@@ -24,6 +24,7 @@ type QuizDetails = {
   is_bookmarked: boolean;
   is_liked: boolean;
   is_solved: boolean;
+  image: string;
 };
 
 
@@ -106,6 +107,7 @@ const QuizDetails = () => {
           is_liked: data.quiz.is_liked,
           is_solved: data.is_solved,
           quiz_result_id: data.quiz_result_id, // This could be null
+          image: data.quiz.title_image,
         };
         
         setQuizDetails(formattedQuizDetails);
@@ -154,6 +156,13 @@ const QuizDetails = () => {
     
     <View style={styles.container}>
       <View style={[styles.elevation, styles.quizDetailsBox]}>
+      {quizDetails.image && (
+          <Image
+            source={{ uri: quizDetails.image }}
+            style={{ width: '100%', height: 200, borderRadius: 5 }}
+          />
+        )}
+
         <PressableText style={styles.quizTitle} text={quizDetails.title}/>
         
         {/* <Text style={styles.quizTitle}>{quizDetails.title}</Text> */}
