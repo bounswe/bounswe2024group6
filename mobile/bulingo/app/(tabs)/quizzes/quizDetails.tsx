@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, useColorScheme, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useLocalSearchParams } from 'expo-router';
-import TokenManager from '@/app/TokenManager';
+import TokenManager, { BASE_URL } from '@/app/TokenManager';
 import PressableText from '@/app/pressableText';
+import GuestModal from '@/app/components/guestModal';
 
 type QuizDetails = {
   id: number;
@@ -37,6 +38,7 @@ const QuizDetails = () => {
   const styles = getStyles(colorScheme);
 
   const quizId = id ? Number(id) : null;
+  const [guestModalVisible, setGuestModalVisible] = useState(false);
 
 
   if (quizId === null || isNaN(quizId)) {
@@ -57,12 +59,32 @@ const QuizDetails = () => {
     setLoading(true);
   
     try {
-      const response = await TokenManager.authenticatedFetch(`/quiz/${quizId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+
+
+         let response;
+            if(!TokenManager.getUsername()){
+                response = await fetch(`${BASE_URL}/quiz/${quizId}/`, {
+                          method: 'GET',
+                          headers: {
+                              'Content-Type': 'application/json',
+                          },
+                      });
+             }else{
+              response = await TokenManager.authenticatedFetch(`/quiz/${quizId}`, {
+                method: 'GET',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+              });
+            }
+
+
+      // const response = await TokenManager.authenticatedFetch(`/quiz/${quizId}`, {
+      //   method: 'GET',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      // });
       
 
       const data = await response.json();
@@ -127,6 +149,9 @@ const QuizDetails = () => {
   }
 
   return (
+    <>
+    {guestModalVisible && <GuestModal onClose={() => setGuestModalVisible(false)}/>}
+    
     <View style={styles.container}>
       <View style={[styles.elevation, styles.quizDetailsBox]}>
         <PressableText style={styles.quizTitle} text={quizDetails.title}/>
@@ -142,7 +167,17 @@ const QuizDetails = () => {
       </View>
 
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.quizButton} onPress={() => router.push({ pathname: '/(tabs)/quizzes/quizQuestion', params: { quizId: id } })}
+        <TouchableOpacity style={styles.quizButton} onPress={() => 
+        
+        {
+          if(!TokenManager.getUsername()){
+            setGuestModalVisible(true);
+            return
+        }
+          
+          router.push({ pathname: '/(tabs)/quizzes/quizQuestion', params: { quizId: id } })}
+      
+      }
         >
           <Text style={styles.buttonText}>Take Quiz</Text>
         </TouchableOpacity>
@@ -156,6 +191,7 @@ const QuizDetails = () => {
       
 
     </View>
+    </>
   );
 };
 

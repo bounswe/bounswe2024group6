@@ -3,6 +3,7 @@ import { View, Text, FlatList, TouchableOpacity, StyleSheet, TextInput, Image, u
 import { router } from 'expo-router';
 import QuizCard from '@/app/components/quizCard';
 import TokenManager from '@/app/TokenManager';
+import GuestModal from '@/app/components/guestModal';
 
 const BASE_URL = 'http://64.226.76.231:8000';
 
@@ -15,6 +16,7 @@ const QuizFeed = () => {
   const colorScheme = useColorScheme();
   const styles = getStyles(colorScheme);
   const isDark = colorScheme === 'dark';
+  const [guestModalVisible, setGuestModalVisible] = useState(false);
 
   useEffect(() => {
     fetchQuizzes();
@@ -33,13 +35,33 @@ const QuizFeed = () => {
     }
   
     try {
-      const response = await TokenManager.authenticatedFetch(`/feed/quiz/`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      // const response = await TokenManager.authenticatedFetch(`/feed/quiz/`, {
+      //   method: 'GET',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      // });
   
+
+      let response;
+      if(!TokenManager.getUsername()){
+          response = await fetch(`${BASE_URL}/feed/quiz/`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+       }else{
+        response = await TokenManager.authenticatedFetch(`/feed/quiz/`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+      }
+
+
+      
       const data = await response.json();
       if (response.ok) {
         const formattedResults = data.map((quiz: any) => ({
@@ -198,6 +220,8 @@ return (
 
     {!error && (
       <>
+        {guestModalVisible && <GuestModal onClose={() => setGuestModalVisible(false)}/>}
+      
         <View style={styles.searchContainer}>
           <TextInput
             style={styles.searchBar}
@@ -206,7 +230,12 @@ return (
             value={searchTerm}
             onChangeText={handleSearch}
           />
-          <TouchableOpacity style={styles.addButton} onPress={() => router.push('/(tabs)/quizzes/quizCreationSettings')}>
+          <TouchableOpacity style={styles.addButton} onPress={() => {
+              if(!TokenManager.getUsername()){
+                  setGuestModalVisible(true);
+                  return
+              }
+            router.push('/(tabs)/quizzes/quizCreationSettings')}}>
             <Image source={require('@/assets/images/add-icon.png')} style={styles.icon} />
           </TouchableOpacity>
         </View>
