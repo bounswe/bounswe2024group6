@@ -185,21 +185,91 @@ const NotificationItem = ( {activity} : any ) => {
       }
     }
 
+    // return (
+    //   <Text style={styles.notificationText}>
+    //     <Text style={styles.clickableText} onPress={() => goToProfile(activity.actor)}>
+    //       {activity.actor==username ? "You" : activity.actor}
+    //     </Text>
+    //     {' '}
+    //     {getMiddle()}
+    //     {' '}
+    //     <Text style={activity.verb == "deleted" ? null : styles.clickableText} onPress={() => handlePress()}>
+    //       {getLast()}
+    //     </Text>
+    //     {' '}
+    //     {timeDifferenceToString(activity.timestamp)}
+    //   </Text>
+    // );
+    // return (
+    //   <View style={styles.notificationTextContainer}>
+    //     <Text style={styles.notificationText}>
+    //       <Text style={styles.clickableText} onPress={() => goToProfile(activity.actor)}>
+    //         {activity.actor == username ? "You" : activity.actor}
+    //       </Text>
+    //       {' '}
+    //       {getMiddle()}
+    //       {' '}
+    //       <Text style={activity.verb == "deleted" ? null : styles.clickableText} onPress={() => handlePress()}>
+    //         {getLast()}
+    //       </Text>
+    //       {' '}
+    //       {timeDifferenceToString(activity.timestamp)}
+    //     </Text>
+    //   </View>
+    // );
+    // return (
+    //   <View style={styles.notificationTextContainer}>
+    //     {/* <View> */}
+    //       <Text style={styles.clickableText} onPress={() => goToProfile(activity.actor)}>
+    //         {activity.actor == username ? "You" : activity.actor}
+    //       </Text>
+    //       <Text>{' '}</Text>
+    //       <Text>{getMiddle()}</Text>
+    //       <Text>{' '}</Text>
+    //       <Text style={activity.verb == "deleted" ? null : styles.clickableText} onPress={() => handlePress()}>
+    //         {getLast()}
+    //       </Text>
+    //       <Text>{' '}</Text>
+    //       <Text>{timeDifferenceToString(activity.timestamp)}</Text>
+    //     {/* </View> */}
+    //   </View>
+    // );
+
     return (
-      <Text style={styles.notificationText}>
-        <Text style={styles.clickableText} onPress={() => goToProfile(activity.actor)}>
-          {activity.actor==username ? "You" : activity.actor}
-        </Text>
-        {' '}
-        {getMiddle()}
-        {' '}
-        <Text style={activity.verb == "deleted" ? null : styles.clickableText} onPress={() => handlePress()}>
-          {getLast()}
-        </Text>
-        {' '}
-        {timeDifferenceToString(activity.timestamp)}
-      </Text>
+      <View style={styles.notificationTextContainer}>
+        <View style={styles.fullWidthContainer}>
+          <Text style={styles.clickableText} onPress={() => goToProfile(activity.actor)}>
+            {activity.actor == username ? "You" : activity.actor}
+          </Text>
+          <Text>{' '}</Text>
+          <Text >{getMiddle()}</Text>
+          <Text>{' '}</Text>
+          <Text style={activity.verb == "deleted" ? null : styles.clickableText} onPress={() => handlePress()}>
+            {getLast()}
+          </Text>
+          <Text>{' '}</Text>
+          <Text>{timeDifferenceToString(activity.timestamp)}</Text>
+        </View>
+      </View>
     );
+    // return (
+    //   <View style={styles.notificationTextContainer}>
+    //     <View style={styles.fullWidthContainer}>
+    //       <Text style={styles.clickableText} onPress={() => goToProfile(activity.actor)}>
+    //         {activity.actor == username ? "You" : activity.actor}
+    //       </Text>
+    //       <Text> {getMiddle()} </Text>
+    //       <Text
+    //         style={activity.verb == "deleted" ? null : styles.clickableText}
+    //         onPress={() => handlePress()}
+    //       >
+    //         {getLast()}
+    //       </Text>
+    //       <Text> {timeDifferenceToString(activity.timestamp)} </Text>
+    //     </View>
+    //   </View>
+    // );
+    
   }
 
   const act: Activity = activity;
@@ -284,6 +354,24 @@ const Notifications = () => {
 };
 
 const styles = StyleSheet.create({
+  notificationTextContainer: {
+    flex: 1,
+    flexWrap: 'wrap',
+    overflow: 'hidden',
+    // backgroundColor: 'red'
+  },
+  fullWidthContainer: {
+    width: '100%',
+  },
+  // notificationTextContainer: {
+  //   flexDirection: 'row', // Ensures text aligns horizontally
+  //   flex: 1,             // Takes full width of the parent container
+  //   alignItems: 'center', // Align items vertically centered
+  // },
+  // fullWidthContainer: {
+  //   flexDirection: 'row',  // Forces horizontal alignment
+  //   flexShrink: 1,         // Prevents overflow issues
+  // },
   container: {
     flex: 1,
     padding: 16,
@@ -330,8 +418,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   clickableText: {
+    // marginVertical: -7,
     fontSize: 14,
     color: '#1a73e8', // Blue for clickable text
+  },
+  nonclickableText: {
+    marginVertical: -7,
+    fontSize: 14,
+    // color: '#1a73e8', // Blue for clickable text
   },
 });
 
