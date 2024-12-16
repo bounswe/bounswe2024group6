@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TouchableOpacity, StyleSheet, Text, View, ActivityIndicator } from 'react-native';
+import { TouchableOpacity, StyleSheet, Text, View, ActivityIndicator, Image } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import TokenManager from '@/app/TokenManager';
 import { Dimensions, useColorScheme } from 'react-native';
@@ -10,7 +10,8 @@ export type QuizQuestionReview = {
     question_number: number;       
     question: string;              
     choices: string[];             
-    correct_choice: number;        
+    correct_choice: number;
+    question_image: string | null;        
     previous_answer: number;
   };
   
@@ -112,11 +113,36 @@ useEffect(() => {
         </View>
 
         <View style={[styles.questionWrapper, styles.elevation]}>
-          <View style={[styles.questionContainer, styles.questionAnswerElevation]}>
-            <PressableText style={styles.questionText} text={currentQuestion?.question || 'No question available'}/>
-           
-            {/* <Text style={styles.questionText}>{currentQuestion?.question || 'No question available'}</Text> */}
-          </View>
+            <View
+              style={[
+                styles.questionContainer,
+                styles.questionAnswerElevation,
+                !currentQuestion?.question_image && styles.centerContent, // Add centering style when no image
+              ]}
+            >
+              {/* Conditionally Render Image */}
+              {currentQuestion?.question_image ? (
+                <Image
+                  source={{ uri: currentQuestion.question_image }}
+                  style={styles.questionImage}
+                  resizeMode="contain"
+                />
+              ) : (
+                // If no image, ensure text centers vertically
+                <PressableText
+                  style={[styles.questionText, styles.centerText]} // Additional centering
+                  text={currentQuestion?.question || 'No question available'}
+                />
+              )}
+            </View>
+
+            {/* If image exists, show text below it */}
+            {currentQuestion?.question_image && (
+              <PressableText
+                style={[styles.questionText, styles.textBelowImage]}
+                text={currentQuestion?.question || 'No question available'}
+              />
+            )}
 
           <View style={styles.optionsContainer}>
             {currentQuestion?.choices.map((choice, index) => {
@@ -180,6 +206,30 @@ export const getStyles = (colorScheme: any) => {
     navbarContainer: {
       flex: 1,
     },
+    questionWrapper: {
+      backgroundColor: isDark ? '#1e1e2e' : 'white',
+      borderRadius: 10,
+      marginVertical: 10,
+      borderColor: isDark ? '#333' : 'transparent',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 10,
+    },
+    questionContainer: {
+      width: '100%',
+      minHeight: 200, 
+      alignItems: 'center',
+      justifyContent: 'flex-start',
+      backgroundColor: isDark ? '#1e1e2e' : 'white',
+      marginBottom: 40,
+      borderRadius: 10,
+    },
+    questionImage: {
+      width: '100%',
+      height: 200,
+      marginBottom: 10,
+      borderRadius: 10,
+    },
     page: {
       flex: 9,
       justifyContent: "space-around",
@@ -213,24 +263,6 @@ export const getStyles = (colorScheme: any) => {
       fontSize: 18,
       fontWeight: 'bold',
       color: 'white',
-    },
-    questionWrapper: {
-      backgroundColor: isDark ? '#1e1e2e' : 'white',
-      borderRadius: 10,
-      justifyContent: "space-around",
-      padding: 20,
-      marginVertical: 10,
-      borderColor: isDark ? '#333' : 'transparent',
-    },
-    questionContainer: {
-      justifyContent: 'center',
-      backgroundColor: isDark ? '#1e1e2e' : 'white',
-      height: height * 0.25,
-      marginBottom: 40,
-      borderRadius: 10,
-      borderColor: isDark ? '#333' : '#222',
-      paddingHorizontal: 20,
-      alignItems: 'center',
     },
     questionText: {
       fontSize: 28,
@@ -322,6 +354,16 @@ export const getStyles = (colorScheme: any) => {
       },
       wrongAnswer: {
         backgroundColor: 'lightcoral',
+      },
+      centerContent: {
+        justifyContent: 'center',
+      },
+      centerText: {
+        textAlign: 'center', 
+      },
+      textBelowImage: {
+        textAlign: 'center',
+        marginTop: 10, 
       },
       
   });
