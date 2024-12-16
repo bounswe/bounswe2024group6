@@ -199,7 +199,7 @@ export default function Post() {
             </div>
           </Card>
         </div>
-        <Card className="w-[740px] p-4">
+        <Card className="w-[740px] p-4 mb-1">
           <div className="flex flex-col gap-2">
             <Textarea
               placeholder="Write a comment..."

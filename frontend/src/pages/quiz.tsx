@@ -8,6 +8,7 @@ import { usePageTitle } from "../components/common/usePageTitle.ts";
 import { BASE_URL } from "../lib/baseURL.ts";
 import axios from "axios";
 import { AuthActions } from "../components/auth/utils.tsx";
+import QuizDetailsCardSkeleton from "../components/quiz/quiz-details-skeleton.tsx";
 
 enum Answer {
   None,
@@ -99,53 +100,58 @@ export default function Quiz() {
                 />
               </div>
             )}
-            <div className="flex flex-col items-center py-4">
-              <h1 className="font-semibold text-4xl mt-3 mb-4 text-blue-900">
-                {quizData?.quiz_title}
-              </h1>
-              <QuestionCard
-                quiz_progress_id={quizData?.quiz_progress_id}
-                ques_count={quizData?.question_count}
-                answers={answers}
-                setAnswers={setAnswers}
-                cur_question={currentPage}
-                option_a={currentQuestion?.choices[0]}
-                option_b={currentQuestion?.choices[1]}
-                option_c={currentQuestion?.choices[2]}
-                option_d={currentQuestion?.choices[3]}
-                question={currentQuestion?.question}
-              />
-              <div className="flex justify-center items-center gap-24 mt-4 my-1">
-                <Button
-                  size="lg"
-                  variant="flat"
-                  color="primary"
-                  {...(currentPage === 1 && { disabled: true })}
-                  onPress={() =>
-                    setCurrentPage((prev) => (prev > 1 ? prev - 1 : prev))
-                  }
-                  className="w-32"
-                >
-                  Previous
-                </Button>
-                <Button
-                  size="lg"
-                  variant="flat"
-                  color="primary"
-                  {...(currentPage === quizData?.question_count && {
-                    disabled: true,
-                  })}
-                  onPress={() =>
-                    setCurrentPage((prev) =>
-                      prev < quizData?.question_count ? prev + 1 : prev
-                    )
-                  }
-                  className="w-32"
-                >
-                  Next
-                </Button>
+            {isLoading ? (
+              <div className="mt-5"><QuizDetailsCardSkeleton /></div>
+              
+            ) : (
+              <div className="flex flex-col items-center py-4">
+                <h1 className="font-semibold text-4xl mt-3 mb-4 text-blue-900">
+                  {quizData?.quiz_title}
+                </h1>
+                <QuestionCard
+                  quiz_progress_id={quizData?.quiz_progress_id}
+                  ques_count={quizData?.question_count}
+                  answers={answers}
+                  setAnswers={setAnswers}
+                  cur_question={currentPage}
+                  option_a={currentQuestion?.choices[0]}
+                  option_b={currentQuestion?.choices[1]}
+                  option_c={currentQuestion?.choices[2]}
+                  option_d={currentQuestion?.choices[3]}
+                  question={currentQuestion?.question}
+                />
+                <div className="flex justify-center items-center gap-24 mt-4 my-1">
+                  <Button
+                    size="lg"
+                    variant="flat"
+                    color="primary"
+                    {...(currentPage === 1 && { disabled: true })}
+                    onPress={() =>
+                      setCurrentPage((prev) => (prev > 1 ? prev - 1 : prev))
+                    }
+                    className="w-32"
+                  >
+                    Previous
+                  </Button>
+                  <Button
+                    size="lg"
+                    variant="flat"
+                    color="primary"
+                    {...(currentPage === quizData?.question_count && {
+                      disabled: true,
+                    })}
+                    onPress={() =>
+                      setCurrentPage((prev) =>
+                        prev < quizData?.question_count ? prev + 1 : prev
+                      )
+                    }
+                    className="w-32"
+                  >
+                    Next
+                  </Button>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </SidebarLayout>

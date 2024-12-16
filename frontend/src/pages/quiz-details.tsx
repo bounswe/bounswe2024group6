@@ -27,6 +27,7 @@ import { AuthActions } from "../components/auth/utils.tsx";
 import { convertQuizDetailsResponseToQuizDetails } from "../components/common/utils.tsx";
 import { QuizDetail } from "../types.ts";
 import { UserCard } from "../components/common/user-card.tsx";
+import QuizDetailsCardSkeleton from "../components/quiz/quiz-details-skeleton.tsx";
 
 const quiz = {
     picture: "https://nextui.org/avatars/avatar-1.png",
@@ -50,7 +51,7 @@ export default function QuizDetails() {
             setIsLoading(true);
             const headers = {
                 ...(token && { Authorization: `Bearer ${token}` }),
-              };
+            };
             axios
                 .get(`${BASE_URL}/quiz/${quizID}/`, {
                     headers
@@ -121,80 +122,82 @@ export default function QuizDetails() {
     return (
         <div className="h-screen w-screen items-center gap-2 flex flex-col">
             <Navbar />
-
-            <Card className="max-w-[600px] items-center">
-                <CardHeader className="flex flex-col items-start gap-2">
-                    <div className="flex w-full justify-between items-center px-1">
-                        <div className="flex items-center gap-3 my-2">
-                            <Popover showArrow placement="bottom">
-                                <PopoverTrigger>
-                                    <div className="flex flex-row gap-3 items-center">
-                                        <Avatar
-                                            as="button"
-                                            isBordered
-                                            radius="full"
-                                            className="w-6 h-6 text-tiny"
-                                            src="https://nextui.org/avatars/avatar-1.png"
-                                        />
-                                        <div className="flex flex-col gap-1 items-start justify-center">
-                                            <h5 className="text-small tracking-tight text-default-400">
-                                                {quizData?.author.username}
-                                            </h5>
+            {isLoading
+                ? <QuizDetailsCardSkeleton />
+                : (
+                    <Card className="max-w-[600px] items-center">
+                        <CardHeader className="flex flex-col items-start gap-2">
+                            <div className="flex w-full justify-between items-center px-1">
+                                <div className="flex items-center gap-3 my-2">
+                                    <Popover showArrow placement="bottom">
+                                        <PopoverTrigger>
+                                            <div className="flex flex-row gap-3 items-center">
+                                                <Avatar
+                                                    as="button"
+                                                    isBordered
+                                                    radius="full"
+                                                    className="w-6 h-6 text-tiny"
+                                                    src="https://nextui.org/avatars/avatar-1.png"
+                                                />
+                                                <div className="flex flex-col gap-1 items-start justify-center">
+                                                    <h5 className="text-small tracking-tight text-default-400">
+                                                        {quizData?.author.username}
+                                                    </h5>
+                                                </div>
+                                            </div>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="p-1">
+                                            <UserCard username={quizData?.author.username || ""} />
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
+                                <p className="text-default-400 items-center text-small">{quizData?.timestamp}</p>
+                            </div>
+                            <Divider className="mt-1.5 bg-zinc-200" />
+                        </CardHeader>
+                        <CardBody className="flex flex-col justify-start rounded-lg shadow-zinc-200 w-[550px] h-[300px] overflow-hidden mb-2">
+                            <div className="flex flex-row justify-between w-full mx-2 mb-4">
+                                <h2 className="text-3xl font-semibold leading-none text-default-900">
+                                    {quizData?.title}
+                                </h2>
+                            </div>
+                            <div className="flex flex-col justify-center mx-3">
+                                <div className="flex flex-row justify-between">
+                                    <div >
+                                        <p className="w-full items-center text-lg mb-4">{quizData?.description}</p>
+                                        <div className="flex flex-col justify-center gap-1 my-4">
+                                            <p>Attempts: {quizData?.times_taken}</p>
+                                            <p>Question Count: {quizData?.question_count}</p>
+                                            <p>Average Score: {quizData?.average_score}</p>
                                         </div>
                                     </div>
-                                </PopoverTrigger>
-                                <PopoverContent className="p-1">
-                                    <UserCard username={quizData?.author.username || ""} />
-                                </PopoverContent>
-                            </Popover>
-                        </div>
-                        <p className="text-default-400 items-center text-small">{quizData?.timestamp}</p>
-                    </div>
-                    <Divider className="mt-1.5 bg-zinc-200" />
-                </CardHeader>
-                <CardBody className="flex flex-col justify-start rounded-lg shadow-zinc-200 w-[550px] h-[300px] overflow-hidden mb-2">
-                    <div className="flex flex-row justify-between w-full mx-2 mb-4">
-                        <h2 className="text-3xl font-semibold leading-none text-default-900">
-                            {quizData?.title}
-                        </h2>
-                    </div>
-                    <div className="flex flex-col justify-center mx-3">
-                        <div className="flex flex-row justify-between">
-                            <div >
-                                <p className="w-full items-center text-lg mb-4">{quizData?.description}</p>
-                                <div className="flex flex-col justify-center gap-1 my-4">
-                                    <p>Attempts: {quizData?.times_taken}</p>
-                                    <p>Question Count: {quizData?.question_count}</p>
-                                    <p>Average Score: {quizData?.average_score}</p>
+                                    {quiz.picture ? (
+                                        <img
+                                            src={quiz.picture}
+                                            alt="quiz"
+                                            style={{
+                                                width: "170px",
+                                                height: "170px",
+                                                objectFit: "cover",
+                                                objectPosition: "center",
+                                            }}
+                                        />
+                                    ) : (
+                                        <div
+                                            style={{
+                                                width: "200px",
+                                                height: "200px",
+                                                display: "flex",
+                                                justifyContent: "center",
+                                                alignItems: "center",
+                                                backgroundColor: "#f0f0f0", // Light gray background for the fallback
+                                                borderRadius: "8px",
+                                            }}
+                                        >
+                                            <IconPhotoOff style={{ width: '70%', height: '70%', position: 'center', top: '50%', left: '50%' }} stroke={1.5} color="gray" />
+                                        </div>
+                                    )}
                                 </div>
-                            </div>
-                            {quiz.picture ? (
-                                <img
-                                    src={quiz.picture}
-                                    alt="quiz"
-                                    style={{
-                                        width: "170px",
-                                        height: "170px",
-                                        objectFit: "cover",
-                                        objectPosition: "center",
-                                    }}
-                                />
-                            ) : (
-                                <div
-                                    style={{
-                                        width: "200px",
-                                        height: "200px",
-                                        display: "flex",
-                                        justifyContent: "center",
-                                        alignItems: "center",
-                                        backgroundColor: "#f0f0f0", // Light gray background for the fallback
-                                        borderRadius: "8px",
-                                    }}
-                                >
-                                    <IconPhotoOff style={{ width: '70%', height: '70%', position: 'center', top: '50%', left: '50%' }} stroke={1.5} color="gray" />
-                                </div>
-                            )}
-                        </div>
 
                         <div className="w-full flex flex-row justify-start gap-3 items-center">
                             <Button color="primary" variant="solid" onClick={() => navigate(`/quiz/${quizData?.id}`, { state: { isNotResuming: true } })}
