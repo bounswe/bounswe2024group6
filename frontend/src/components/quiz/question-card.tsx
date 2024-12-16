@@ -6,12 +6,25 @@ import {
   Divider,
   Button,
 } from "@nextui-org/react";
+import { BASE_URL } from "../../lib/baseURL.ts";
+import axios from "axios";
+import { AuthActions } from "../../components/auth/utils.tsx";
+import ClickableText from "../common/clickable-text.tsx";
 
 type Props = {
+  quiz_progress_id: number;
   ques_count: number;
   cur_question: number;
   answers: Answer[];
   setAnswers: (answers: Answer[]) => void;
+  option_a: string;
+  option_b: string;
+  option_c: string;
+  option_d: string;
+  question: string;
+  correct?: number;
+  previous_answer?: number;
+  isReview?: boolean;
 };
 enum Answer {
   None,
@@ -21,25 +34,59 @@ enum Answer {
   D,
 }
 
-export default function App({
+export default function QuestionCard({
+  quiz_progress_id,
   ques_count,
   cur_question,
   answers,
   setAnswers,
+  option_a,
+  option_b,
+  option_c,
+  option_d,
+  question,
+  correct,
+  previous_answer,
+  isReview,
 }: Props) {
-  function handleClick(answer: Answer) {
-    return () => {
-      setAnswers((prev) => {
-        const newAnswers = [...prev];
-        if (newAnswers[cur_question - 1] === answer) {
-          newAnswers[cur_question - 1] = Answer.None;
-        } else {
-          newAnswers[cur_question - 1] = answer;
+  const { getToken } = AuthActions();
+  const token = getToken("access");
+
+  const handleClick = (answer: number) => async () => {
+    setAnswers((prevAnswers) => {
+      const updatedAnswers = [...prevAnswers];
+      if (updatedAnswers[cur_question - 1] === answer) {
+        updatedAnswers[cur_question - 1] = Answer.None;
+        answer = 0;
+      } else {
+        updatedAnswers[cur_question - 1] = answer;
+      }
+      console.log("Updated answers:", updatedAnswers);
+      return updatedAnswers;
+    });
+
+    // Send the answer to the backend
+    try {
+      console.log("Submitting answer:", answer);
+      const response = await axios.post(
+        `${BASE_URL}/quiz/question/solve/`,
+        {
+          quiz_progress_id: quiz_progress_id,
+          question_number: cur_question,
+          answer: answer,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-        return newAnswers;
-      });
-    };
-  }
+      );
+      console.log("Answer submitted:", response.data);
+    } catch (error) {
+      console.error("Error submitting answer:", error);
+      alert("Failed to submit answer. Please try again.");
+    }
+  };
 
   return (
     <Card className="max-w-[600px]">
@@ -50,50 +97,271 @@ export default function App({
       </CardHeader>
       <Divider />
       <CardBody className="flex flex-col justify-center shadow-lg rounded-lg w-[550px] h-[200px]">
-        <p className="text-center text-5xl text-blue-900">Lamb</p>
+        <div className="text-center text-5xl text-blue-900">
+          {isReview ? <ClickableText text={question} /> : question}
+        </div>
       </CardBody>
-
-      <CardFooter className="w-[550px] h-[170px] py-6">
+      <CardFooter className="w-[550px] h-auto py-6">
         <div className="grid grid-cols-2 grid-rows-2 gap-4 w-full h-full">
           <Button
-            color="primary"
-            onClick={handleClick(Answer.A)}
-            variant={
-              answers[cur_question - 1] === Answer.A ? "solid" : "bordered"
+            color={
+              correct == 1
+                ? "success"
+                : previous_answer == 1
+                  ? "danger"
+                  : "primary"
             }
-            className=" flex items-center justify-center text-xl h-12 mx-3"
+            onClick={
+              previous_answer !== undefined && correct !== undefined
+                ? undefined
+                : handleClick(1)
+            }
+            variant={
+              answers[cur_question - 1] === Answer.A ||
+                correct == 1 ||
+                previous_answer == 1
+                ? "solid"
+                : "bordered"
+            }
+            className={`flex items-center justify-center text-xl h-12 mx-3 ${answers[cur_question - 1] === Answer.A ||
+              correct == 1 ||
+              previous_answer == 1
+              ? ""
+              : ""
+              }`}
           >
-            Kuzu
+            {option_a.length > 25 ? (
+              <div
+                className="relative w-full h-full whitespace-nowrap cursor-grab"
+                style={{ position: "relative", overflow: "hidden", whiteSpace: "nowrap" }}
+                onMouseMove={(e) => {
+                  const button = e.currentTarget;
+                  const text = button.querySelector("div");
+                  if (text) {
+                    const rect = button.getBoundingClientRect();
+                    const mouseX = e.clientX - rect.left;
+                    const width = rect.width;
+                    const move = Math.max(
+                      0,
+                      Math.min(mouseX / width, 1)
+                    );
+                    text.style.transform = `translateX(-${move * 100}%)`;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  const text = e.currentTarget.querySelector("div");
+                  if (text) {
+                    text.style.transform = "translateX(0%)"; // Reset position when mouse leaves
+                  }
+                }}
+              >
+                <div
+                  className="absolute mt-1"
+                  style={{
+                    display: "inline-block",
+                    position: "relative",
+                    transition: "transform 0.1s ease-out",
+                  }}
+                >
+                  {isReview ? <ClickableText text={option_a} /> : option_a}
+                </div>
+              </div>)
+              : (isReview ? <ClickableText text={option_a} /> : option_a)}
           </Button>
           <Button
-            color="primary"
-            onClick={handleClick(Answer.B)}
-            variant={
-              answers[cur_question - 1] === Answer.B ? "solid" : "bordered"
+            color={
+              correct == 2
+                ? "success"
+                : previous_answer == 2
+                  ? "danger"
+                  : "primary"
             }
-            className=" flex items-center justify-center text-xl h-12 mx-3"
+            onClick={
+              previous_answer !== undefined && correct !== undefined
+                ? undefined
+                : handleClick(2)
+            }
+            variant={
+              answers[cur_question - 1] === Answer.B ||
+                correct == 2 ||
+                previous_answer == 2
+                ? "solid"
+                : "bordered"
+            }
+            className={`flex items-center justify-center text-xl h-12 mx-3 ${answers[cur_question - 1] === Answer.B ||
+              correct == 2 ||
+              previous_answer == 2
+              ? ""
+              : ""
+              }`}
           >
-            Lamba
+            {option_a.length > 25 ? (
+              <div
+                className="relative w-full h-full whitespace-nowrap cursor-grab"
+                style={{ position: "relative", overflow: "hidden", whiteSpace: "nowrap" }}
+                onMouseMove={(e) => {
+                  const button = e.currentTarget;
+                  const text = button.querySelector("div");
+                  if (text) {
+                    const rect = button.getBoundingClientRect();
+                    const mouseX = e.clientX - rect.left; // Mouse X relative to the button
+                    const width = rect.width; // Width of the button
+                    const move = Math.max(
+                      0,
+                      Math.min(mouseX / width, 1) // Limit the move ratio between 0 and 1
+                    );
+                    text.style.transform = `translateX(-${move * 100}%)`;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  const text = e.currentTarget.querySelector("div");
+                  if (text) {
+                    text.style.transform = "translateX(0%)"; // Reset position when mouse leaves
+                  }
+                }}
+              >
+                <div
+                  className="absolute mt-1"
+                  style={{
+                    display: "inline-block",
+                    position: "relative",
+                    transition: "transform 0.1s ease-out",
+                  }}
+                >
+                  {isReview ? <ClickableText text={option_b} /> : option_b}
+                </div>
+              </div>)
+              : (isReview ? <ClickableText text={option_b} /> : option_b)}
           </Button>
           <Button
-            color="primary"
-            onClick={handleClick(Answer.C)}
-            variant={
-              answers[cur_question - 1] === Answer.C ? "solid" : "bordered"
+            color={
+              correct == 3
+                ? "success"
+                : previous_answer == 3
+                  ? "danger"
+                  : "primary"
             }
-            className=" flex items-center justify-center text-xl h-12 mx-3"
+            onClick={
+              previous_answer !== undefined && correct !== undefined
+                ? undefined
+                : handleClick(3)
+            }
+            variant={
+              answers[cur_question - 1] === Answer.C ||
+                correct == 3 ||
+                previous_answer == 3
+                ? "solid"
+                : "bordered"
+            }
+            className={`flex items-center justify-center text-xl h-12 mx-3 ${answers[cur_question - 1] === Answer.C ||
+              correct == 3 ||
+              previous_answer == 3
+              ? ""
+              : ""
+              }`}
           >
-            Koç
+            {option_a.length > 25 ? (
+              <div
+                className="relative w-full h-full whitespace-nowrap cursor-grab"
+                style={{ position: "relative", overflow: "hidden", whiteSpace: "nowrap" }}
+                onMouseMove={(e) => {
+                  const button = e.currentTarget;
+                  const text = button.querySelector("div");
+                  if (text) {
+                    const rect = button.getBoundingClientRect();
+                    const mouseX = e.clientX - rect.left; // Mouse X relative to the button
+                    const width = rect.width; // Width of the button
+                    const move = Math.max(
+                      0,
+                      Math.min(mouseX / width, 1) // Limit the move ratio between 0 and 1
+                    );
+                    text.style.transform = `translateX(-${move * 100}%)`;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  const text = e.currentTarget.querySelector("div");
+                  if (text) {
+                    text.style.transform = "translateX(0%)"; // Reset position when mouse leaves
+                  }
+                }}
+              >
+                <div
+                  className="absolute mt-1"
+                  style={{
+                    display: "inline-block",
+                    position: "relative",
+                    transition: "transform 0.1s ease-out",
+                  }}
+                >
+                  {isReview ? <ClickableText text={option_c} /> : option_c}
+                </div>
+              </div>)
+              : (isReview ? <ClickableText text={option_c} /> : option_c)}
           </Button>
           <Button
-            color="primary"
-            onClick={handleClick(Answer.D)}
-            variant={
-              answers[cur_question - 1] === Answer.D ? "solid" : "bordered"
+            color={
+              correct == 4
+                ? "success"
+                : previous_answer == 4
+                  ? "danger"
+                  : "primary"
             }
-            className=" flex items-center justify-center text-xl h-12 mx-3"
+            onClick={
+              previous_answer !== undefined && correct !== undefined
+                ? undefined
+                : handleClick(4)
+            }
+            variant={
+              answers[cur_question - 1] === Answer.D ||
+                correct == 4 ||
+                previous_answer == 4
+                ? "solid"
+                : "bordered"
+            }
+            className={`flex items-center justify-center text-xl h-12 mx-3 ${answers[cur_question - 1] === Answer.D ||
+              correct == 4 ||
+              previous_answer == 4
+              ? ""
+              : ""
+              }`}
           >
-            Işık
+            {option_a.length > 25 ? (
+              <div
+                className="relative w-full h-full whitespace-nowrap cursor-grab"
+                style={{ position: "relative", overflow: "hidden", whiteSpace: "nowrap" }}
+                onMouseMove={(e) => {
+                  const button = e.currentTarget;
+                  const text = button.querySelector("div");
+                  if (text) {
+                    const rect = button.getBoundingClientRect();
+                    const mouseX = e.clientX - rect.left; // Mouse X relative to the button
+                    const width = rect.width; // Width of the button
+                    const move = Math.max(
+                      0,
+                      Math.min(mouseX / width, 1) // Limit the move ratio between 0 and 1
+                    );
+                    text.style.transform = `translateX(-${move * 100}%)`;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  const text = e.currentTarget.querySelector("div");
+                  if (text) {
+                    text.style.transform = "translateX(0%)"; // Reset position when mouse leaves
+                  }
+                }}
+              >
+                <div
+                  className="absolute mt-1"
+                  style={{
+                    display: "inline-block",
+                    position: "relative",
+                    transition: "transform 0.1s ease-out",
+                  }}
+                >
+                  {isReview ? <ClickableText text={option_d} /> : option_d}
+                </div>
+              </div>)
+              : (isReview ? <ClickableText text={option_d} /> : option_d)}
           </Button>
         </div>
       </CardFooter>

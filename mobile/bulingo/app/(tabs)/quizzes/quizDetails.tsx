@@ -2,7 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, useColorScheme, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useLocalSearchParams } from 'expo-router';
-import TokenManager from '@/app/TokenManager';
+import TokenManager, { BASE_URL } from '@/app/TokenManager';
+import PressableText from '@/app/pressableText';
+import GuestModal from '@/app/components/guestModal';
 
 type QuizDetails = {
   id: number;
@@ -22,6 +24,7 @@ type QuizDetails = {
   is_bookmarked: boolean;
   is_liked: boolean;
   is_solved: boolean;
+  image: string;
 };
 
 
@@ -36,6 +39,7 @@ const QuizDetails = () => {
   const styles = getStyles(colorScheme);
 
   const quizId = id ? Number(id) : null;
+  const [guestModalVisible, setGuestModalVisible] = useState(false);
 
 
   if (quizId === null || isNaN(quizId)) {
@@ -56,12 +60,32 @@ const QuizDetails = () => {
     setLoading(true);
   
     try {
-      const response = await TokenManager.authenticatedFetch(`/quiz/${quizId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+
+
+         let response;
+            if(!TokenManager.getUsername()){
+                response = await fetch(`${BASE_URL}/quiz/${quizId}/`, {
+                          method: 'GET',
+                          headers: {
+                              'Content-Type': 'application/json',
+                          },
+                      });
+             }else{
+              response = await TokenManager.authenticatedFetch(`/quiz/${quizId}`, {
+                method: 'GET',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+              });
+            }
+
+
+      // const response = await TokenManager.authenticatedFetch(`/quiz/${quizId}`, {
+      //   method: 'GET',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      // });
       
 
       const data = await response.json();
@@ -83,6 +107,7 @@ const QuizDetails = () => {
           is_liked: data.quiz.is_liked,
           is_solved: data.is_solved,
           quiz_result_id: data.quiz_result_id, // This could be null
+          image: data.quiz.title_image,
         };
         
         setQuizDetails(formattedQuizDetails);
@@ -126,9 +151,21 @@ const QuizDetails = () => {
   }
 
   return (
+    <>
+    {guestModalVisible && <GuestModal onClose={() => setGuestModalVisible(false)}/>}
+    
     <View style={styles.container}>
       <View style={[styles.elevation, styles.quizDetailsBox]}>
-        <Text style={styles.quizTitle}>{quizDetails.title}</Text>
+      {quizDetails.image && (
+          <Image
+            source={{ uri: quizDetails.image }}
+            style={{ width: '100%', height: 200, borderRadius: 5 }}
+          />
+        )}
+
+        <PressableText style={styles.quizTitle} text={quizDetails.title}/>
+        
+        {/* <Text style={styles.quizTitle}>{quizDetails.title}</Text> */}
         <Text style={styles.quizDescription}>
           Times Taken: {quizDetails.times_taken || 0} {'\n'}
           Number of Questions: {quizDetails.question_count || 0} {'\n'}
@@ -136,14 +173,20 @@ const QuizDetails = () => {
           Level: {quizDetails.level || 'N/A'}
         </Text>
 
-        {/* Bookmark button in the bottom right corner */}
-        <TouchableOpacity style={styles.bookmarkButton}>
-          <Image source={require('@/assets/images/bookmark-icon.png')} style={styles.bookmarkIcon} />
-        </TouchableOpacity>
       </View>
 
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.quizButton} onPress={() => router.push({ pathname: '/(tabs)/quizzes/quizQuestion', params: { quizId: id } })}
+        <TouchableOpacity style={styles.quizButton} onPress={() => 
+        
+        {
+          if(!TokenManager.getUsername()){
+            setGuestModalVisible(true);
+            return
+        }
+          
+          router.push({ pathname: '/(tabs)/quizzes/quizQuestion', params: { quizId: id } })}
+      
+      }
         >
           <Text style={styles.buttonText}>Take Quiz</Text>
         </TouchableOpacity>
@@ -157,6 +200,7 @@ const QuizDetails = () => {
       
 
     </View>
+    </>
   );
 };
 
@@ -248,16 +292,6 @@ const getStyles = (colorScheme: any) => {
       alignItems: 'center',
       color: '#ffffff',
       fontWeight: 'bold',
-    },
-    bookmarkButton: {
-      position: 'absolute',
-      bottom: 10,
-      right: 10,
-    },
-    bookmarkIcon: {
-      width: 24,
-      height: 24,
-      tintColor: isDark ? 'white' : 'black',
     },
   });
 };

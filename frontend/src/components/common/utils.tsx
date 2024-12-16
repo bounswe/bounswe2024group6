@@ -1,6 +1,6 @@
 import { Post } from "../../types";
 
-import type { PostResponse, Profile, ProfileResponse, Quiz, QuizResponse } from "../../types.ts";
+import type { PostResponse, Profile, ProfileResponse, Quiz, QuizResponse, QuizDetail, QuizDetailsResponse, CommentResponse  } from "../../types.ts";
 
 export const formatTimeAgo = (timestamp: string): string => {
   const now = new Date();
@@ -49,6 +49,30 @@ export const convertPostResponseToPost = (postResponse: PostResponse): Post => {
   };
 };
 
+export const convertCommentResponseToPost = (commentResponse: CommentResponse): Post => {
+  return {
+    id: commentResponse.id,
+    author: {
+      username: commentResponse.author,
+      profile_image: "",
+    },
+    post: {
+      title: "", // Comments don't have titles
+      content: commentResponse.body,
+      tags: commentResponse.tags,
+      timestamp: formatTimeAgo(commentResponse.created_at),
+      created_at: commentResponse.created_at,
+    },
+    engagement: {
+      likes: commentResponse.like_count,
+      comments: commentResponse.replies ? commentResponse.replies.length : 0,
+      is_liked: commentResponse.is_liked,
+      is_bookmarked: commentResponse.is_bookmarked,
+    },
+    comments: commentResponse.replies || [], // Nested comments, if any
+  };
+};
+
 export const convertQuizResponseToQuiz = (quizResponse: QuizResponse): Quiz => {
   return {
     id: quizResponse.id,
@@ -62,6 +86,7 @@ export const convertQuizResponseToQuiz = (quizResponse: QuizResponse): Quiz => {
       tags: quizResponse.tags,
       timestamp: formatTimeAgo(quizResponse.created_at),
       created_at: quizResponse.created_at,
+      picture: quizResponse.title_image,
       level: quizResponse.level,
       times_taken: quizResponse.times_taken,
     },
@@ -73,6 +98,36 @@ export const convertQuizResponseToQuiz = (quizResponse: QuizResponse): Quiz => {
   };
 };
 
+export const convertQuizDetailsResponseToQuizDetails = (
+  response: QuizDetailsResponse
+): QuizDetail => {
+  const { quiz, quiz_result_id, is_solved } = response;
+
+  return {
+    id: quiz.id,
+    title: quiz.title,
+    description: quiz.description,
+    author: {
+      username: quiz.author.username,
+      profile_image: "",
+    },
+    average_score: parseFloat(quiz.average_score.toFixed(2)),
+    created_at: quiz.created_at,
+    timestamp: formatTimeAgo(quiz.created_at),
+    is_liked: quiz.is_liked,
+    is_bookmarked: quiz.is_bookmarked,
+    like_count: quiz.like_count,
+    question_count: quiz.question_count,
+    level: quiz.level,
+    times_taken: quiz.times_taken,
+    title_image: quiz.title_image,
+    tags: quiz.tags,
+    quiz_result_id: quiz_result_id,
+    is_solved: is_solved,
+  };
+};
+
+
 export const convertProfileResponseToProfile = (profileResponse: ProfileResponse): Profile => {
   return {
     id: 0,
@@ -81,9 +136,10 @@ export const convertProfileResponseToProfile = (profileResponse: ProfileResponse
     bio: profileResponse.bio,
     followers: profileResponse.follower_count,
     following: profileResponse.following_count,
-    image: profileResponse.image || '',
+    image: profileResponse.profile_picture || 'https://nextui.org/avatars/avatar-1.png',
     posts: profileResponse.posts.map(convertPostResponseToPost),
     quizzes: profileResponse.quizzes || [],
     is_followed: profileResponse.is_followed,
+    is_banned: profileResponse.is_banned,
   };
 };

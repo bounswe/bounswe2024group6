@@ -1,5 +1,5 @@
 import TokenManager  from '../TokenManager'; // Ensure TokenManager is properly implemented
-
+import { BASE_URL } from '../TokenManager';
 
 // const BASE_URL = 'http://54.93.52.38/'; // Replace with your actual API base URL
 
@@ -54,8 +54,8 @@ export const getPostsOfUser = async () => {
 };
 
 // **Comments**
-export const addComment = async (postId: number, text: string) => {
-    return await makeAuthenticatedRequest('post/comment/add/', 'POST', { post_id: postId, text });
+export const addComment = async (postId: number, body: string) => {
+    return await makeAuthenticatedRequest('post/comment/add/', 'POST', { post_id: postId, body: body });
 };
 
 export const deleteComment = async (commentId: number) => {
@@ -73,6 +73,19 @@ export const unlikeComment = async (commentId: number) => {
 export const getCommentById = async (commentId: number) => {
     return await makeAuthenticatedRequest('comment/', 'POST', { comment_id: commentId });
 };
+
+export const fetchCommentAuthorImage = async (username: string) => {
+    return await makeAuthenticatedRequest(`profile/${username}/`, 'GET');
+};
+
+export const bookmarkComment = async (commentId: number) => {
+    return await makeAuthenticatedRequest('comments/bookmark/', 'POST', { comment_id: commentId });
+};
+
+export const unbookmarkComment = async (commentId: number) => {
+    return await makeAuthenticatedRequest('comments/unbookmark/', 'POST', { comment_id: commentId });
+};
+
 
 // **Bookmarks**
 export const bookmarkPost = async (postId: number) => {
@@ -99,4 +112,71 @@ export const getUserActivitiesAsObject = async () => {
 // **Feed**
 export const getUserPostFeed = async () => {
     return await makeAuthenticatedRequest('feed/', 'GET');
+};
+
+
+export const getGuestUserPostFeed = async () => {
+    try {
+        const response = await fetch(`${BASE_URL}/feed/`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || response.statusText);
+        }
+
+        return await response.json();
+    } catch (error: any) {
+        console.error('Error fetching feed for guest user:', error.message || error);
+        throw error;
+    }
+};
+
+
+export const getGuestUserPostDetails = async (postId: number) => {
+    try {
+        const response = await fetch(`${BASE_URL}/post/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ post_id: postId }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || response.statusText);
+        }
+
+        return await response.json();
+    } catch (error: any) {
+        console.error('Error fetching post details for guest user:', error.message || error);
+        throw error;
+    }
+};
+
+
+export const fetchGuestUserCommentAuthorImage = async (username: string) => {
+    try {
+        const response = await fetch(`${BASE_URL}/profile/${username}/`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || response.statusText);
+        }
+
+        return await response.json();
+    } catch (error: any) {
+        console.error('Error fetching comment author image for guest user:', error.message || error);
+        throw error;
+    }
 };

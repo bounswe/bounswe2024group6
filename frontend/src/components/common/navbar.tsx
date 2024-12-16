@@ -23,8 +23,10 @@ import { useState } from "react";
 import { useEffect } from "react";
 import axios from "axios";
 import { BASE_URL } from "../../lib/baseURL";
-import { formatTimeAgo } from "./utils";
+import { convertProfileResponseToProfile, formatTimeAgo } from "./utils";
 import NotificationCard from "../notification/notification-card";
+import GuestAuthModal from "../auth/guest-auth-modal";
+import { Profile, ProfileResponse } from "../../types";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -32,10 +34,43 @@ export default function Navbar() {
   const username = Cookies.get("username");
 
   const { logout, removeTokens, getToken } = AuthActions();
-
+  const [profileImage, setProfileImage] = useState<string | null>(null);
   const token = getToken("access");
+  const isGuest = !token;
   const [notifications, setNotifications] = useState([]);
   const [isNotificationsViewed, setIsNotificationsViewed] = useState(false);
+  const [search, setSearch] = useState("");
+  const [guestModalOpen, setGuestModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!username) {
+      setIsNotificationsViewed(true);
+    }
+  }, [username]);
+
+  useEffect(() => {
+    if (username) {
+      setIsLoading(true);
+      axios
+        .get(`${BASE_URL}/profile/${username}/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((response) => {
+          const data: ProfileResponse = response.data;
+          console.log("profile", data);
+          setProfileImage(response.data.profile_picture);
+        })
+        .catch((error) => {
+          console.log(error);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
+  }, [username, token]);
 
   useEffect(() => {
     axios
@@ -60,7 +95,17 @@ export default function Navbar() {
                   </a>{" "}
                   followed you
                 </div>
-              ) : activity.verb == "liked" ? (
+              ) : activity.verb == "unfollowed" ? (
+                <div>
+                  <a
+                    href={`/profile/${activity.actor}`}
+                    className="text-blue-500"
+                  >
+                    {activity.actor}
+                  </a>{" "}
+                  unfollowed you
+                </div>
+              ) : activity.verb == "liked" && activity.object_type == "Post" ? (
                 <div>
                   <a
                     href={`/profile/${activity.actor}`}
@@ -74,6 +119,81 @@ export default function Navbar() {
                     className="text-blue-500"
                   >
                     post
+                  </a>
+                </div>
+              ) : activity.verb == "liked" && activity.object_type == "Quiz" ? (
+                <div>
+                  <a
+                    href={`/profile/${activity.actor}`}
+                    className="text-blue-500"
+                  >
+                    {activity.actor}
+                  </a>{" "}
+                  liked your{" "}
+                  <a
+                    href={`/quiz/${activity.object_id}`}
+                    className="text-blue-500"
+                  >
+                    quiz
+                  </a>
+                </div>
+              ) : activity.verb == "liked" &&
+                activity.object_type == "Comment" ? (
+                <div>
+                  <a
+                    href={`/profile/${activity.actor}`}
+                    className="text-blue-500"
+                  >
+                    {activity.actor}
+                  </a>{" "}
+                  liked your{" "}
+                  <a
+                    href={`/comment/${activity.object_id}`}
+                    className="text-blue-500"
+                  >
+                    comment
+                  </a>
+                </div>
+              ) : activity.verb == "commented" ? (
+                <div>
+                  <a
+                    href={`/profile/${activity.actor}`}
+                    className="text-blue-500"
+                  >
+                    {activity.actor}
+                  </a>{" "}
+                  commented on your{" "}
+                  <a
+                    href={`/post/${activity.object_id}`}
+                    className="text-blue-500"
+                  >
+                    post
+                  </a>
+                </div>
+              ) : activity.verb == "deleted" ? (
+                <div>
+                  <a
+                    href={`/profile/${activity.actor}`}
+                    className="text-blue-500"
+                  >
+                    {activity.actor}
+                  </a>{" "}
+                  deleted your {activity.object_type.toLowerCase()}
+                </div>
+              ) : activity.verb == "solved" ? (
+                <div>
+                  <a
+                    href={`/profile/${activity.actor}`}
+                    className="text-blue-500"
+                  >
+                    {activity.actor}
+                  </a>{" "}
+                  solved your{" "}
+                  <a
+                    href={`/quiz/${activity.object_id}`}
+                    className="text-blue-500"
+                  >
+                    quiz
                   </a>
                 </div>
               ) : (
@@ -92,7 +212,6 @@ export default function Navbar() {
     logout()
       .res(() => {
         removeTokens();
-
         navigate("/");
       })
       .catch(() => {
@@ -101,36 +220,53 @@ export default function Navbar() {
       });
   };
 
+  function handleSearch(query) {
+    navigate(`/browse?q=${query}`);
+    navigate(0);
+  }
+
   const content = (
     <PopoverContent>
       <div className="px-2 pb-2">
         <div className="text-medium font-semibold px-5 py-2 text-center">
-          {username}
+          {isGuest ? "Guest" : username}
         </div>
         <Divider className="w-full bg-zinc-300" />
         <div className="flex flex-col">
-          <Button
-            variant="light"
-            onClick={() => navigate(`/profile/${username}`)}
-            className="text-medium mt-2"
-          >
-            Profile
-          </Button>
-          <Button
-            variant="light"
-            onClick={() => navigate(`/profile/${username}/edit`)}
-            className="text-medium w-full"
-          >
-            Edit Profile
-          </Button>
-          <Button
-            variant="light"
-            color="danger"
-            className="text-medium w-full"
-            onClick={handleLogout}
-          >
-            Log out
-          </Button>
+          {!isGuest ? (
+            <>
+              <Button
+                variant="light"
+                onClick={() => navigate(`/profile/${username}`)}
+                className="text-medium mt-2"
+              >
+                Profile
+              </Button>
+              <Button
+                variant="light"
+                onClick={() => navigate(`/profile/${username}/edit`)}
+                className="text-medium w-full"
+              >
+                Edit Profile
+              </Button>
+              <Button
+                variant="light"
+                color="danger"
+                className="text-medium w-full"
+                onClick={handleLogout}
+              >
+                Log out
+              </Button>
+            </>
+          ) : (
+            <Button
+              variant="light"
+              onClick={() => setGuestModalOpen(true)}
+              className="text-medium mt-2"
+            >
+              Login
+            </Button>
+          )}
         </div>
       </div>
     </PopoverContent>
@@ -138,6 +274,7 @@ export default function Navbar() {
 
   return (
     <div className="w-screen p-2 shadow-none" data-testid="navbar">
+      <GuestAuthModal isOpen={guestModalOpen} setIsOpen={setGuestModalOpen} />
       <Card className="flex flex-row w-full px-5 py-3 rounded-full shadow-md">
         <div className="flex-1 flex flex-row gap-6 items-center">
           <Link
@@ -153,6 +290,13 @@ export default function Navbar() {
             size="sm"
             className="w-64"
             radius="full"
+            value={search}
+            onValueChange={setSearch}
+            onKeyUp={(e) => {
+              if (e.key === "Enter") {
+                handleSearch(search);
+              }
+            }}
           />
         </div>
         <div className="flex-1 flex justify-center items-center">
@@ -181,41 +325,43 @@ export default function Navbar() {
         </div>
         <div className="flex-1 flex justify-end items-center flex-row">
           <ThemeSwitcher />
-          <Dropdown>
-            <DropdownTrigger>
-              <Button
-                radius="full"
-                isIconOnly
-                aria-label="more than 99 notifications"
-                variant="light"
-                onClick={() => setIsNotificationsViewed(true)}
-              >
-                {!isNotificationsViewed ? (
-                  <Badge content="" shape="circle" color="danger" size="sm">
+          {!isGuest && (
+            <Dropdown>
+              <DropdownTrigger>
+                <Button
+                  radius="full"
+                  isIconOnly
+                  aria-label="more than 99 notifications"
+                  variant="light"
+                  onClick={() => setIsNotificationsViewed(true)}
+                >
+                  {!isNotificationsViewed ? (
+                    <Badge content="" shape="circle" color="danger" size="sm">
+                      <IconBell size={24} />
+                    </Badge>
+                  ) : (
                     <IconBell size={24} />
-                  </Badge>
-                ) : (
-                  <IconBell size={24} />
-                )}
-              </Button>
-            </DropdownTrigger>
-            <DropdownMenu
-              aria-label="Dropdown menu with description"
-              className="max-h-[360px] overflow-y-auto"
-            >
-              <DropdownSection title="Notifications" showDivider>
-                {notifications.map((notification) => (
-                  <DropdownItem isReadOnly className="cursor-default">
-                    <NotificationCard
-                      key={notification.id}
-                      content={notification.content}
-                      timePassed={notification.timePassed}
-                    />
-                  </DropdownItem>
-                ))}
-              </DropdownSection>
-            </DropdownMenu>
-          </Dropdown>
+                  )}
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                aria-label="Dropdown menu with description"
+                className="max-h-[360px] overflow-y-auto"
+              >
+                <DropdownSection title="Notifications" showDivider>
+                  {notifications.map((notification) => (
+                    <DropdownItem isReadOnly className="cursor-default">
+                      <NotificationCard
+                        key={notification.id}
+                        content={notification.content}
+                        timePassed={notification.timePassed}
+                      />
+                    </DropdownItem>
+                  ))}
+                </DropdownSection>
+              </DropdownMenu>
+            </Dropdown>
+          )}
 
           <Popover key="bottom-end" placement="bottom-end">
             <PopoverTrigger>
@@ -223,7 +369,7 @@ export default function Navbar() {
                 as="button"
                 isBordered
                 color="success"
-                src="https://nextui.org/avatars/avatar-1.png"
+                src={profileImage || "https://nextui.org/avatars/avatar-1.png"}
                 className="ml-4"
               />
             </PopoverTrigger>
@@ -234,4 +380,3 @@ export default function Navbar() {
     </div>
   );
 }
-

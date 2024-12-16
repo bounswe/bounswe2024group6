@@ -3,8 +3,9 @@ import { View, Text, FlatList, TouchableOpacity, StyleSheet, TextInput, Image, u
 import { router } from 'expo-router';
 import QuizCard from '@/app/components/quizCard';
 import TokenManager from '@/app/TokenManager';
+import GuestModal from '@/app/components/guestModal';
 
-const BASE_URL = 'http://161.35.208.249:8000';
+const BASE_URL = 'http://64.226.76.231:8000';
 
 const QuizFeed = () => {
   const [quizzes, setQuizzes] = useState<any>([]);
@@ -15,6 +16,7 @@ const QuizFeed = () => {
   const colorScheme = useColorScheme();
   const styles = getStyles(colorScheme);
   const isDark = colorScheme === 'dark';
+  const [guestModalVisible, setGuestModalVisible] = useState(false);
 
   useEffect(() => {
     fetchQuizzes();
@@ -30,19 +32,37 @@ const QuizFeed = () => {
     if (reset) {
       setQuizzes([]);
       setPage(1); 
-      console.log('reset');
     }
   
     try {
-      const response = await TokenManager.authenticatedFetch(`/feed/quiz/`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      // const response = await TokenManager.authenticatedFetch(`/feed/quiz/`, {
+      //   method: 'GET',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      // });
   
+
+      let response;
+      if(!TokenManager.getUsername()){
+          response = await fetch(`${BASE_URL}/feed/quiz/`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+       }else{
+        response = await TokenManager.authenticatedFetch(`/feed/quiz/`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+      }
+
+
+      
       const data = await response.json();
-      console.log(data);
       if (response.ok) {
         const formattedResults = data.map((quiz: any) => ({
           id: quiz.id,
@@ -52,6 +72,9 @@ const QuizFeed = () => {
           level: quiz.level,
           likes: quiz.like_count,
           liked: quiz.is_liked,
+          bookmarked: quiz.is_bookmarked,
+          image: quiz.title_image ? quiz.title_image : require('@/assets/images/logo.jpeg'),
+          
         }));
   
         setQuizzes((prevQuizzes: any) => (reset ? formattedResults : [...prevQuizzes, ...formattedResults]));
@@ -73,9 +96,9 @@ const QuizFeed = () => {
     setSearchTerm(text);
   };
 
-  const filteredQuizzes = quizzes.filter((quiz: any) =>
-    quiz.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    quiz.author.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredQuizzes = quizzes.filter((quiz: any) => {
+    return quiz.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    quiz.author.toLowerCase().includes(searchTerm.toLowerCase()) }
   );
 
   // const loadMoreQuizzes = () => {
@@ -91,23 +114,86 @@ const QuizFeed = () => {
     });
   };
 
-  const handleLikePress = (quizId: number) => {
-    const updatedQuizzes = quizzes.map((quiz: any) => {
+  const handleLikePress = async (quizId: number) => {
+    const updatedQuizzes = await Promise.all( quizzes.map( async (quiz: any) => {
       if (quiz.id === quizId) {
-        const liked = !quiz.liked;
-        const likes = liked ? quiz.likes + 1 : quiz.likes - 1;
-        return { ...quiz, liked, likes };
-      }
-      return quiz;
-    });
+        let data = '';
+        try {
+          const response = await TokenManager.authenticatedFetch(`/quiz/like/`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              quiz_id: quizId,
+            }),
+          });
+      
+          data = await response.json();
+          let liked = quiz.liked;
+          let likes = quiz.likes;
+          if (response.ok) {
+            liked = !quiz.liked;
+            likes = liked ? quiz.likes + 1 : quiz.likes - 1;
+          }
+          return { ...quiz, liked, likes };
+        }
+        catch(error: any)
+        {
+          setError('Failed to fetch quizzes. Please try again. Error: ' + JSON.stringify(data));
+        }
+
+    }
+    return quiz;
+    }));
     setQuizzes(updatedQuizzes);
   };
+
+
+  const handleBookmarkPress = async (quizId: number) => {
+    const updatedQuizzes = await Promise.all(
+      quizzes.map(async (quiz: any) => {
+        if (quiz.id === quizId) {
+          let data = '';
+          try {
+            const response = await TokenManager.authenticatedFetch(`/quiz/bookmark/`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                quiz_id: quizId,
+              }),
+            });
+            
+            data = await response.json();
+            console.log(data);
+            let bookmarked = quiz.bookmarked;
+            if (response.ok) {
+              bookmarked = !quiz.bookmarked; // Toggle bookmark status
+            }
+            return { ...quiz, bookmarked };
+          } catch (error: any) {
+            setError(
+              'Failed to bookmark the quiz. Please try again. Error: ' +
+                JSON.stringify(data)
+            );
+          }
+        }
+        return quiz;
+      })
+    );
+    setQuizzes(updatedQuizzes);
+  };
+  
+  
 
   const renderQuizItem = ({ item }: { item: any }) => (
     <QuizCard
       {...item}
       onQuizPress={() => handleQuizPress(item.id)}
       onLikePress={() => handleLikePress(item.id)}
+      onBookmarkPress={() => {handleBookmarkPress(item.id)}}
     />
   );
 
@@ -136,6 +222,8 @@ return (
 
     {!error && (
       <>
+        {guestModalVisible && <GuestModal onClose={() => setGuestModalVisible(false)}/>}
+      
         <View style={styles.searchContainer}>
           <TextInput
             style={styles.searchBar}
@@ -144,7 +232,12 @@ return (
             value={searchTerm}
             onChangeText={handleSearch}
           />
-          <TouchableOpacity style={styles.addButton} onPress={() => router.push('/(tabs)/quizzes/quizCreationSettings')}>
+          <TouchableOpacity style={styles.addButton} onPress={() => {
+              if(!TokenManager.getUsername()){
+                  setGuestModalVisible(true);
+                  return
+              }
+            router.push('/(tabs)/quizzes/quizCreationSettings')}}>
             <Image source={require('@/assets/images/add-icon.png')} style={styles.icon} />
           </TouchableOpacity>
         </View>

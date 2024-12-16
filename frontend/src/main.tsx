@@ -11,6 +11,7 @@ import Post from "./pages/post.tsx";
 import Profile from "./pages/profile.tsx";
 import Browse from "./pages/browse.tsx";
 import ComposePost from "./pages/compose-post.tsx";
+import EditPost from "./pages/edit-post.tsx";
 import QuizEnd from "./pages/quiz-end.tsx";
 import QuizDetails from "./pages/quiz-details.tsx";
 import QuizCreation from "./pages/quiz-creation.tsx";
@@ -18,6 +19,7 @@ import Home from "./pages/home.tsx";
 import ProtectedRoute from "./components/auth/protect-routes.tsx";
 import "./index.css";
 import ProfileUpdate from "./pages/profile-update.tsx";
+import QuizReview from "./pages/quiz-review.tsx";
 
 const router = createBrowserRouter([
   {
@@ -26,11 +28,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/quizzes",
-    element: (
-      <ProtectedRoute>
-        <Quizzes />
-      </ProtectedRoute>
-    ),
+    element: <Quizzes />,
   },
   {
     path: "/quiz/:quizID",
@@ -42,9 +40,13 @@ const router = createBrowserRouter([
   },
   {
     path: "/quiz/:quizID/details",
+    element: <QuizDetails />,
+  },
+  {
+    path: "/quiz/:quizResultID/review",
     element: (
       <ProtectedRoute>
-        <QuizDetails />
+        <QuizReview />
       </ProtectedRoute>
     ),
   },
@@ -53,14 +55,6 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <QuizEnd />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/quiz/:quizID/details",
-    element: (
-      <ProtectedRoute>
-        <QuizDetails />
       </ProtectedRoute>
     ),
   },
@@ -73,28 +67,16 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: "/quiz/:quizID/end",
-    element: (
-      <ProtectedRoute>
-        <QuizEnd />
-      </ProtectedRoute>
-    ),
-  },
-  {
     path: "/forum",
-    element: (
-      <ProtectedRoute>
-        <Forum />
-      </ProtectedRoute>
-    ),
+    element: <Forum />,
   },
   {
     path: "/post/:postID",
-    element: (
-      <ProtectedRoute>
-        <Post />
-      </ProtectedRoute>
-    ),
+    element: <Post />,
+  },
+  {
+    path: "/comment/:commentID",
+    element: <Post />,
   },
   {
     path: "/compose-post",
@@ -105,12 +87,16 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: "/profile/:username",
+    path: "/edit-post/:postID",
     element: (
       <ProtectedRoute>
-        <Profile />
+        <EditPost />
       </ProtectedRoute>
     ),
+  },
+  {
+    path: "/profile/:username",
+    element: <Profile />,
   },
   {
     path: "/profile/:username/edit",
@@ -122,11 +108,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/browse",
-    element: (
-      <ProtectedRoute>
-        <Browse />
-      </ProtectedRoute>
-    ),
+    element: <Browse />,
   },
 ]);
 
@@ -139,4 +121,3 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     </NextUIProvider>
   </React.StrictMode>
 );
-

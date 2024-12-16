@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
-import { Select, SelectItem } from "@nextui-org/react";
+import {
+  Select,
+  SelectItem,
+  Autocomplete,
+  AutocompleteItem,
+} from "@nextui-org/react";
 import axios from "axios";
 
 import Navbar from "../components/common/navbar.tsx";
@@ -12,26 +17,16 @@ import { AuthActions } from "../components/auth/utils.tsx";
 import { convertPostResponseToPost } from "../components/common/utils.tsx";
 import { usePageTitle } from "../components/common/usePageTitle.ts";
 
-const Tags = [
-  "#Vocabulary",
-  "#Grammar",
-  "#Vocabulary Tips",
-  "#Idioms & Expressions",
-  "#Cultural Insights",
-  "#Challenges",
-  "#Learning Material",
-  "#Common Mistakes",
-  "#General",
-  "#Fun",
-];
 const DifficultyTags = ["#A1", "#A2", "#B1", "#B2", "#C1", "#C2"];
-const SortFilters = ["Most Recent", "Most Liked", "Most Commented"];
+const SortFilters = ["Most Recent", "Most Liked"];
 
 export default function Forum() {
   usePageTitle("Forum");
   const [posts, setPosts] = useState<Post[]>([]);
+  const [selectedDifficultyTags, setSelectedDifficultyTags] = useState<string[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [tags, setTags] = useState<{ key: string; label: string }[]>([]);
   const { getToken } = AuthActions();
   const token = getToken("access");
   const [sortFilter, setSortFilter] = useState<string>("Most Recent");
@@ -39,26 +34,36 @@ export default function Forum() {
     setSortFilter(e.target.value);
   };
 
-  const handleTagClick = (tag: string) => {
-    if (selectedTags.includes(tag)) {
-      setSelectedTags(selectedTags.filter((t) => t !== tag));
+  const handleDifficultyTagClick = (tag: string) => {
+    if (selectedDifficultyTags.includes(tag)) {
+      setSelectedDifficultyTags(
+        selectedDifficultyTags.filter((t) => t !== tag)
+      );
     } else {
-      setSelectedTags([...selectedTags, tag]);
+      setSelectedDifficultyTags([...selectedDifficultyTags, tag]);
     }
   };
 
   useEffect(() => {
     setIsLoading(true);
+    const headers = {
+      "Content-Type": "application/json",
+      ...(token && { Authorization: `Bearer ${token}` }),
+    };
     axios
-      .get(`${BASE_URL}/feed/`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+      .get(`${BASE_URL}/feed/`, { headers })
       .then((response) => {
         console.log(response.data);
         const postData: PostResponse[] = response.data.feed;
         setPosts(postData.map(convertPostResponseToPost));
+        setTags(
+          response.data.feed
+            .map((post) => post.tags)
+            .flat()
+            .filter((tag) => !DifficultyTags.includes(tag))
+            .filter((value, index, self) => self.indexOf(value) === index)
+            .map((tag) => ({ key: tag, label: tag }))
+        );
       })
       .catch((error) => {
         console.log(error);
@@ -69,8 +74,17 @@ export default function Forum() {
   }, []);
 
   const filteredPosts = posts.filter((post) => {
+    if (
+      selectedDifficultyTags.length > 0 &&
+      !post.post.tags.some((tag) => selectedDifficultyTags.includes(tag))
+    ) {
+      return false;
+    }
+
     // Show all posts if no tags are selected
-    if (selectedTags.length === 0) return true;
+    if (!selectedTags || selectedTags.length === 0 || !selectedTags[0]) {
+      return true;
+    }
 
     // Check if the post has at least one tag from the selectedTags
     return post.post.tags.some((tag) => selectedTags.includes(tag));
@@ -98,6 +112,7 @@ export default function Forum() {
       <ComposePostButton />
       <div className="flex w-[740px] justify-between items-center  mt-4">
         <Select
+          size="lg"
           onChange={handleSelectionChange}
           placeholder="Sort By"
           defaultSelectedKeys={["Most Recent"]}
@@ -109,53 +124,60 @@ export default function Forum() {
         </Select>
         <div className="flex flex-row gap-2">
           <Select
+            size="lg"
             placeholder="Difficulty"
             selectionMode="multiple"
-            className="w-32 text-black"
+            className="w-40 text-black"
           >
             {DifficultyTags.map((tag) => (
-              <SelectItem onPress={() => handleTagClick(tag)} key={tag}>
+              <SelectItem
+                onPress={() => handleDifficultyTagClick(tag)}
+                key={tag}
+              >
                 {tag}
               </SelectItem>
             ))}
           </Select>
-          <Select
-            placeholder="Categories"
-            selectionMode="multiple"
-            className="w-32 text-black"
+          <Autocomplete
+            size="sm"
+            radius="lg"
+            className="max-w-[200px]"
+            defaultItems={tags}
+            label="Tags"
+            placeholder="Search a tag"
+            onSelectionChange={(e) => {
+              setSelectedTags([e]);
+            }}
           >
-            {Tags.map((tag) => (
-              <SelectItem onPress={() => handleTagClick(tag)} key={tag}>
-                {tag}
-              </SelectItem>
-            ))}
-          </Select>
+            {(item) => (
+              <AutocompleteItem key={item.key}>{item.label}</AutocompleteItem>
+            )}
+          </Autocomplete>
         </div>
       </div>
 
       <div className="flex flex-col gap-6 m-6">
         {isLoading
           ? // Show multiple skeletons while loading
-            Array(2)
-              .fill(0)
-              .map((_, index) => <PostCardSkeleton key={index} />)
+          Array(2)
+            .fill(0)
+            .map((_, index) => <PostCardSkeleton key={index} />)
           : // Show actual posts when loaded
-            sortedPosts.map((post) => (
-              <PostCard
-                key={post.id}
-                id={post.id}
-                username={post.author.username}
-                title={post.post.title}
-                content={post.post.content}
-                timePassed={post.post.timestamp}
-                likeCount={post.engagement.likes}
-                tags={post.post.tags}
-                initialIsLiked={post.engagement.is_liked}
-                initialIsBookmarked={post.engagement.is_bookmarked}
-              />
-            ))}
+          sortedPosts.map((post) => (
+            <PostCard
+              key={post.id}
+              id={post.id}
+              username={post.author.username}
+              title={post.post.title}
+              content={post.post.content}
+              timePassed={post.post.timestamp}
+              likeCount={post.engagement.likes}
+              tags={post.post.tags}
+              initialIsLiked={post.engagement.is_liked}
+              initialIsBookmarked={post.engagement.is_bookmarked}
+            />
+          ))}
       </div>
     </div>
   );
 }
-

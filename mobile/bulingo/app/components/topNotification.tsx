@@ -15,7 +15,7 @@ const Notification: React.FC<NotificationProps> = ({ message, duration = 3000, o
         // Fade in the notification
         Animated.timing(fadeAnim, {
             toValue: 1,
-            duration: 300,
+            duration: 200,
             useNativeDriver: true,
         }).start();
 

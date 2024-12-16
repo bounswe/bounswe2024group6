@@ -1,19 +1,26 @@
 import React, {useState} from 'react';
-import { View, Pressable, Text, StyleSheet, Modal} from 'react-native';
+import { View, Pressable, Text, StyleSheet, StyleProp, TextStyle, ViewStyle} from 'react-native';
 
 
 type PressableTextProps = {
   text: string,
-  getWordInfo: (word: string) => string;
+  style?: StyleProp<TextStyle>
+  containerStyle?: StyleProp<ViewStyle>
+  onPress?: (word: string) => void
 };
 
 export default function PressableText(props: PressableTextProps){
   const [selectedWord, setSelectedWord] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);// Function to handle press and show modal
+  const ModalDictionary = React.lazy(() => import('./components/modalDictionary'));
+
+
   const handleLongPress = (word: string) => {
     setSelectedWord(word);
     setModalVisible(true);
   };
+  // let wordCount = 0;
+  let wordCount = props.text.split(' ').length;
 
   // Function to close modal
   const closeModal = () => {
@@ -24,35 +31,35 @@ export default function PressableText(props: PressableTextProps){
   return (
     <View style={styles.container}>
       {/* Render each word as a Pressable */}
+      
       {props.text.split(' ').map((word, index) => (
         <Pressable
           key={index}
           onLongPress={() => handleLongPress(word)}
-          style={styles.wordPressable}
+          onPress={() => {props.onPress && props.onPress(word)}}
+          // style={}
         >
-          <Text style={styles.wordText}>{word} </Text>
+            <Text style={props.style}>
+            {word}
+            {/* {"Add a space after each word except the last"} */}
+            {index < wordCount - 1 ? ' ' : ''}
+          </Text>
+
+          {/* <Text style={props.style}>{word} </Text> */}
         </Pressable>
       ))}
 
+      
+   
+
+
+
+
       {/* Modal for additional information */}
-      {selectedWord && (
-        <Modal
-          // animationType="slide"
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={closeModal}
-        >
-          <View style={styles.modalBackground}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalText}>
-                {props.getWordInfo(selectedWord)}
-              </Text>
-              <Pressable onPress={closeModal} style={styles.closeButton}>
-                <Text style={styles.closeButtonText}>Close</Text>
-              </Pressable>
-            </View>
-          </View>
-        </Modal>
+      {selectedWord && modalVisible && (
+        <React.Suspense>
+          <ModalDictionary onClose={closeModal} word={selectedWord} />
+        </React.Suspense>
       )}
     </View>
   );
@@ -62,37 +69,17 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    marginTop: 5,
+    marginBottom: 5,
   },
   wordPressable: {
-    margin: 2,
+    margin: -4,
+    marginRight: 0,
   },
   wordText: {
     fontSize: 16,
     color: 'blue',
-  },
-  modalBackground: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    padding: 20,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  modalText: {
-    fontSize: 18,
-    marginBottom: 10,
-  },
-  closeButton: {
-    marginTop: 10,
-    padding: 10,
-    backgroundColor: 'grey',
-    borderRadius: 5,
-  },
-  closeButtonText: {
-    color: 'white',
   },
 });

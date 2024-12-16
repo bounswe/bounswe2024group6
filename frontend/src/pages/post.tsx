@@ -7,9 +7,10 @@ import { IconChevronDown } from "@tabler/icons-react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { BASE_URL } from "../lib/baseURL";
-import type { Comment, Post, PostResponse } from "../types.ts";
+import type { Comment, CommentResponse, Post, PostResponse } from "../types.ts";
 import { AuthActions } from "../components/auth/utils.tsx";
 import {
+  convertCommentResponseToPost,
   convertPostResponseToPost,
   formatTimeAgo,
 } from "../components/common/utils.tsx";
@@ -18,6 +19,7 @@ import CommentSkeleton from "../components/post/comment-skeleton.tsx";
 
 export default function Post() {
   const { postID } = useParams();
+  const { commentID } = useParams();
   const [post, setPost] = useState<Post | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [comment, setComment] = useState("");
@@ -27,70 +29,145 @@ export default function Post() {
   const username = Cookies.get("username");
 
   useEffect(() => {
-    setIsLoading(true);
-    axios
-      .post(
-        `${BASE_URL}/post/`,
-        {
-          post_id: postID,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
+    if (postID) {
+      setIsLoading(true);
+      const headers = {
+        "Content-Type": "application/json",
+        ...(token && { Authorization: `Bearer ${token}` }),
+      };
+      axios
+        .post(
+          `${BASE_URL}/post/`,
+          {
+            post_id: postID,
           },
-        }
-      )
-      .then((response) => {
-        console.log(response.data);
-        const postData: PostResponse = response.data.post;
-        setPost(convertPostResponseToPost(postData));
-        setComments(convertPostResponseToPost(postData).comments);
-      })
-      .catch((error) => {
-        console.log(error);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+          {
+            headers,
+          }
+        )
+        .then((response) => {
+          console.log(response.data);
+          const postData: PostResponse = response.data.post;
+          setPost(convertPostResponseToPost(postData));
+          setComments(
+            convertPostResponseToPost(postData).comments.filter((comment) => ((comment.parent === Number(postID)) || (comment.parent === null)))
+          );          
+        })
+        .catch((error) => {
+          console.log(error);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
   }, [postID]);
 
-  const handleSubmit = () => {
-    const { getToken } = AuthActions();
-    const token = getToken("access");
-
-    axios
-      .post(
-        `${BASE_URL}/post/comment/add/`,
-        {
-          post_id: postID,
-          body: comment,
-          parent_id: postID,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
-      .then((response) => {
-        console.log(response.data);
-        setComment("");
-        setComments([
+  useEffect(() => {
+    if (commentID) {
+      setIsLoading(true);
+      const headers = {
+        "Content-Type": "application/json",
+        ...(token && { Authorization: `Bearer ${token}` }),
+      };
+      axios
+        .post(
+          `${BASE_URL}/comment/`,
           {
-            id: response.data.id,
-            content: response.data.body,
-            author: username || "Me",
-            created_at: response.data.created_at,
-            like_count: 0,
-            is_liked: false,
+            comment_id: commentID,
           },
-          ...comments,
-        ]);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+          {
+            headers,
+          }
+        )
+        .then((response) => {
+          console.log("comment:", response.data);
+          const postData: CommentResponse = response.data.comment;
+          setPost(convertCommentResponseToPost(postData));
+          setComments(convertCommentResponseToPost(postData).comments);
+        })
+        .catch((error) => {
+          console.log(error);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
+  }, [commentID]);
+
+  const handleSubmit = () => {
+    if (postID) {
+      const { getToken } = AuthActions();
+      const token = getToken("access");
+
+      axios
+        .post(
+          `${BASE_URL}/post/comment/add/`,
+          {
+            post_id: postID,
+            body: comment,
+            parent_id: postID,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+        .then((response) => {
+          console.log(response.data);
+          setComment("");
+          setComments([
+            {
+              id: response.data.id,
+              content: response.data.body,
+              author: username || "Me",
+              created_at: response.data.created_at,
+              like_count: 0,
+              is_liked: false,
+              is_bookmarked: false,
+            },
+            ...comments,
+          ]);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } else if (commentID) {
+      axios
+        .post(
+          `${BASE_URL}/post/comment/reply/`,
+          {
+            body: comment,
+            parent_id: commentID,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+        .then((response) => {
+          console.log("reply", response.data);
+          setComment("");
+          setComments([
+            {
+              id: response.data.id,
+              content: response.data.body,
+              author: username || "Me",
+              created_at: response.data.created_at,
+              like_count: 0,
+              is_liked: false,
+              is_bookmarked: false,
+            },
+            ...comments,
+          ]);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
   };
   return (
     <div className="flex flex-col items-center overflow-hidden mb-4">
@@ -123,7 +200,7 @@ export default function Post() {
             </div>
           </Card>
         </div>
-        <Card className="w-[740px] p-4">
+        <Card className="w-[740px] p-4 mb-1">
           <div className="flex flex-col gap-2">
             <Textarea
               placeholder="Write a comment..."
@@ -155,7 +232,7 @@ export default function Post() {
                   timePassed={formatTimeAgo(comment.created_at)}
                   likeCount={comment.like_count}
                   initialIsLiked={comment.is_liked}
-                  initialIsBookmarked={false}
+                  initialIsBookmarked={comment.is_bookmarked}
                 />
               </Suspense>
             ))}
@@ -163,4 +240,3 @@ export default function Post() {
     </div>
   );
 }
-

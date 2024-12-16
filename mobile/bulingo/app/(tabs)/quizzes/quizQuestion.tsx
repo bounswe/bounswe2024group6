@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { TouchableOpacity, StyleSheet, Text, View } from 'react-native';
+import { TouchableOpacity, Pressable, StyleSheet, Text, View, Image, ScrollView } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import TokenManager from '@/app/TokenManager';
 import { Dimensions, useColorScheme } from 'react-native';
+import PressableText from '@/app/pressableText';
 
 const { width, height } = Dimensions.get('window');
 
 export type QuizQuestion = {
   question_number: number;
   question: string;
+  question_image: string | null;
   choices: string[];
   previous_answer: number | null;
 };
@@ -78,6 +80,7 @@ const QuizQuestion = () => {
   };
 
   const handleOptionSelect = (choiceIndex: number) => {
+    console.log(choiceIndex);
     const updatedChoices = [...selectedChoices];
     updatedChoices[currentQuestionIndex] = choiceIndex;
     setSelectedChoices(updatedChoices);
@@ -215,22 +218,61 @@ const QuizQuestion = () => {
         </View>
 
         <View style={[styles.questionWrapper, styles.elevation]}>
-          <View style={[styles.questionContainer, styles.questionAnswerElevation]}>
-            <Text style={styles.questionText}>{currentQuestion?.question || 'No question available'}</Text>
-          </View>
+            <View
+              style={[
+                styles.questionContainer,
+                styles.questionAnswerElevation,
+                !currentQuestion?.question_image && styles.centerContent, // Add centering style when no image
+              ]}
+            >
+              {/* Conditionally Render Image */}
+              {currentQuestion?.question_image ? (
+                <Image
+                  source={{ uri: currentQuestion.question_image }}
+                  style={styles.questionImage}
+                  resizeMode="contain"
+                />
+              ) : (
+                // If no image, ensure text centers vertically
+                <PressableText
+                  style={[styles.questionText, styles.centerText]} // Additional centering
+                  text={currentQuestion?.question || 'No question available'}
+                />
+              )}
+            </View>
+
+            {/* If image exists, show text below it */}
+            {currentQuestion?.question_image && (
+              <PressableText
+                style={[styles.questionText, styles.textBelowImage]}
+                text={currentQuestion?.question || 'No question available'}
+              />
+            )}
+
+
 
           <View style={styles.optionsContainer}>
             {currentQuestion?.choices.map((choice, index) => (
               <View key={index} style={styles.optionWrapper}>
-                  <TouchableOpacity
+                  <Pressable
                     style={[
                       styles.optionButton,
                       selectedChoices[currentQuestionIndex] === index ? styles.selectedOption : null,
                     ]}
                     onPress={() => handleOptionSelect(index)}
                   >
-                    <Text style={styles.optionText}>{choice}</Text>
-                  </TouchableOpacity>
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        style={styles.textContainer}
+                    >
+                      <PressableText 
+                      style={styles.optionText}  
+                      onPress={() => handleOptionSelect(index)}
+                      text={choice}/>
+                    </ScrollView>
+                    {/* <Text style={styles.optionText}>{choice}</Text> */}
+                  </Pressable>
               </View>
             ))}
           </View>
@@ -257,7 +299,7 @@ const QuizQuestion = () => {
           )}
         </View>
       </View>
-    </View>
+      </View>
   );
 };
 
@@ -285,6 +327,30 @@ export const getStyles = (colorScheme: any) => {
       justifyContent: 'space-between',
       alignItems: 'center',
     },
+    questionWrapper: {
+      backgroundColor: isDark ? '#1e1e2e' : 'white',
+      borderRadius: 10,
+      marginVertical: 10,
+      borderColor: isDark ? '#333' : 'transparent',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 10,
+    },
+    questionContainer: {
+      width: '100%',
+      minHeight: 200, // Set a minimum height to reserve space for image or text
+      alignItems: 'center',
+      justifyContent: 'flex-start', // Align items at the top by default
+      backgroundColor: isDark ? '#1e1e2e' : 'white',
+      marginBottom: 40,
+      borderRadius: 10,
+    },
+    questionImage: {
+      width: '100%',
+      height: 200,
+      marginBottom: 10,
+      borderRadius: 10,
+    },
     cancelQuizButton: {
       backgroundColor: isDark ? '#8b0000' : '#b22222',
       borderRadius: 10,
@@ -307,29 +373,13 @@ export const getStyles = (colorScheme: any) => {
       fontWeight: 'bold',
       color: 'white',
     },
-    questionWrapper: {
-      backgroundColor: isDark ? '#1e1e2e' : 'white',
-      borderRadius: 10,
-      justifyContent: "space-around",
-      padding: 20,
-      marginVertical: 10,
-      borderColor: isDark ? '#333' : 'transparent',
-    },
-    questionContainer: {
-      justifyContent: 'center',
-      backgroundColor: isDark ? '#1e1e2e' : 'white',
-      height: height * 0.25,
-      marginBottom: 40,
-      borderRadius: 10,
-      borderColor: isDark ? '#333' : '#222',
-      paddingHorizontal: 20,
-      alignItems: 'center',
-    },
+
     questionText: {
       fontSize: 28,
       fontWeight: 'bold',
       color: isDark ? 'white' : 'black',
       textAlign: 'center',
+      alignContent: 'center',
     },
     optionsContainer: {
       flexDirection: 'row',
@@ -404,6 +454,22 @@ export const getStyles = (colorScheme: any) => {
       textAlign: 'center',
       marginBottom: 16,
     },
+
+    centerContent: {
+      justifyContent: 'center',
+    },
+    centerText: {
+      textAlign: 'center', 
+    },
+    textBelowImage: {
+      textAlign: 'center',
+      marginTop: 10, 
+    },
+    textContainer: {
+      marginHorizontal: 5,
+    },
+    
+    
   });
 };
 

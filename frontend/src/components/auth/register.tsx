@@ -3,6 +3,7 @@ import { Button, Input } from "@nextui-org/react";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { AuthActions } from "./utils";
+import { useNavigate } from "react-router-dom";
 
 import Cookies from "js-cookie";
 
@@ -14,14 +15,16 @@ type FormData = {
 
 export default function Register({
   setIsRegister,
+  isGuestView,
 }: {
   setIsRegister: (value: boolean) => void;
+  isGuestView?: boolean;
 }) {
   const [username, setUserName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -152,6 +155,15 @@ export default function Register({
             className="text-blue-600 hover:underline"
           >
             Login
+          </button>
+        </div>
+        <div className="text-center">
+          <span className="text-sm">Or continue as a </span>
+          <button
+            onClick={isGuestView ? () => navigate(0) : () => navigate("/forum")}
+            className="text-blue-600 hover:underline"
+          >
+            Guest
           </button>
         </div>
       </div>

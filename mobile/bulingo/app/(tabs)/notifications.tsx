@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, FlatList, Image, StyleSheet } from 'react-native';
 import TokenManager from '../TokenManager';
-import { FontAwesome } from '@expo/vector-icons';
-import {router} from "expo-router";
+import GuestModal from '@/app/components/guestModal';
+import {router, useFocusEffect} from "expo-router";
 
 function timeDifferenceToString(isoTimestamp: string): string {
   const now: Date = new Date();
@@ -37,51 +37,251 @@ function timeDifferenceToString(isoTimestamp: string): string {
 }
 
 
-const dbg_notifications = [
-  {
-    actor: "ygz", 
-    affected_username: "ygz2",
-    object_id: 2,
-    object_type: "Profile", 
-    timestamp: "2024-11-24T17:06:46.710414Z", 
-    verb: "followed"
-  }
-];
+const dbg_notifications: any[] = [];
+
+type Activity = {
+  actor: string,
+  affected_username: string,
+  object_id: number,
+  object_name: string,
+  object_type: string,
+  timestamp: string,
+  verb: string,
+};
 
 const NotificationItem = ( {activity} : any ) => {
-  const ActivityToComponent = (activity: any) => {
+  const ActivityToComponent = (activity: Activity) => {
     const username = TokenManager.getUsername();
-    const handlePress = (user: any) => {
-      if (user == username){
-        router.navigate("/(tabs)/profile")
-      } else {
-        router.navigate('/(tabs)/profile')
+
+    const handlePress = () => {
+      if(activity.verb == "deleted"){
+        return
+      }
+      else if(getLast() == "Quiz"){
+        goToQuiz();
+      }
+      else if(getLast() == "Post"){
+        goToPost();
+      }
+      else if(getLast() == "Comment"){
+        goToComment();
+      }
+      else {
+        console.error("Unhandled getLast: ", getLast());
+      }
+    };
+
+    const goToProfile = (_username: string) => {
+      router.navigate("/(tabs)/profile")
+      if(username != _username){
         setTimeout(() => {
-          router.push(`/(tabs)/profile/users/${user}`);
+          router.push(`/(tabs)/profile/users/${_username}`);
         }, 0);
       }
-      console.log("text Pressed");
-    };
+    }
+
+    const goToQuiz = () => {
+      router.push({
+        pathname: '/(tabs)/quizzes/quizDetails',
+        params: { id: activity.object_id },
+      });
+    }
+
+    const goToPost = () => {
+      router.push({pathname: '/(tabs)/forums/forumPostPage', params: {"id": activity.object_id }});
+    }
+
+    const goToComment = () => {
+      console.log("Comment pressed")
+    }
+
+    const getMiddle = () => {
+      if(activity.verb == 'solved'){
+        return 'solved your'
+      } 
+      else if(activity.verb == "followed") {
+        return "followed"
+      }
+      else if(activity.verb == 'unfollowed'){
+        return 'unfollowed'
+      }
+      else if(activity.verb == "deleted"){
+        return "deleted your"
+      }
+      else if(activity.verb == "liked"){
+        return "liked your"
+      }
+      else if(activity.verb == "created"){
+        return "created a"
+      }
+      else if(activity.verb == 'commented'){
+        return "commented under your"
+      }
+      else if(activity.verb == 'updated'){
+        return "updated your"
+      }
+      else if(activity.verb == "banned"){
+        return "was banned!"
+      }
+      else {
+        return "UNH: " + activity.verb
+      }
+    }
+
+    const getLast = () => {
+      if(activity.verb == 'solved'){
+        return 'Quiz'
+      } 
+      else if(activity.verb == "followed" || activity.verb == 'unfollowed') {
+        return activity.actor == username ? activity.actor : "You"
+      }
+      else if(activity.verb == "liked" || activity.verb == "created"){
+        if(activity.object_type == "Quiz"){
+          return "Quiz";
+        } 
+        else if(activity.object_type == "Post") {
+          return "Post"
+        }
+        else if (activity.object_type == "Comment"){
+          return "Comment"
+        } 
+        else {
+          return "UNH2 " + activity.object_type
+        }
+      }
+      else if(activity.verb == 'commented'){
+        return "Post"
+      }
+      else if(activity.verb == "updated"){
+        if(activity.object_type == "Quiz"){
+          return "Quiz";
+        } 
+        else if(activity.object_type == "Post") {
+          return "Post"
+        }
+        else {
+          return "UNH2 " + activity.object_type
+        }
+      }
+      else if(activity.verb == 'deleted'){
+        if(activity.object_type == "Quiz"){
+          return `Quiz (${activity.object_name})`;
+        } 
+        else if(activity.object_type == "Post") {
+          return `Post (${activity.object_name})`
+        }
+        else if (activity.object_type == "Comment"){
+          return `Comment (${activity.object_name})`
+        } 
+        else {
+          return "UNH2 " + activity.object_type
+        }
+      }
+      else if(activity.verb == "banned"){
+        return "";
+      }
+      else {
+        return "UNH: " + activity.verb
+      }
+    }
+
     return (
       <Text style={styles.notificationText}>
-        <Text style={styles.clickableText} onPress={() => handlePress(activity.actor)}>
+        <Text style={styles.clickableText} onPress={() => goToProfile(activity.actor)}>
           {activity.actor==username ? "You" : activity.actor}
-        </Text>{' '}
-        {activity.verb}{' '}
-        <Text style={styles.clickableText} onPress={() => handlePress(activity.affected_username)}>
-          {activity.affected_username==username ? "You" : activity.affected_username}
-        </Text>{' '}
+        </Text>
+        {' '}
+        {getMiddle()}
+        {' '}
+        <Text style={activity.verb == "deleted" ? null : styles.clickableText} onPress={() => handlePress()}>
+          {getLast()}
+        </Text>
+        {'\n'}
         {timeDifferenceToString(activity.timestamp)}
       </Text>
     );
+    // return (
+    //   <View style={styles.notificationTextContainer}>
+    //     <Text style={styles.notificationText}>
+    //       <Text style={styles.clickableText} onPress={() => goToProfile(activity.actor)}>
+    //         {activity.actor == username ? "You" : activity.actor}
+    //       </Text>
+    //       {' '}
+    //       {getMiddle()}
+    //       {' '}
+    //       <Text style={activity.verb == "deleted" ? null : styles.clickableText} onPress={() => handlePress()}>
+    //         {getLast()}
+    //       </Text>
+    //       {' '}
+    //       {timeDifferenceToString(activity.timestamp)}
+    //     </Text>
+    //   </View>
+    // );
+    // return (
+    //   <View style={styles.notificationTextContainer}>
+    //     {/* <View> */}
+    //       <Text style={styles.clickableText} onPress={() => goToProfile(activity.actor)}>
+    //         {activity.actor == username ? "You" : activity.actor}
+    //       </Text>
+    //       <Text>{' '}</Text>
+    //       <Text>{getMiddle()}</Text>
+    //       <Text>{' '}</Text>
+    //       <Text style={activity.verb == "deleted" ? null : styles.clickableText} onPress={() => handlePress()}>
+    //         {getLast()}
+    //       </Text>
+    //       <Text>{' '}</Text>
+    //       <Text>{timeDifferenceToString(activity.timestamp)}</Text>
+    //     {/* </View> */}
+    //   </View>
+    // );
+
+    // return (
+    //   <View style={styles.notificationTextContainer}>
+    //     <View style={styles.fullWidthContainer}>
+    //       <Text style={styles.clickableText} onPress={() => goToProfile(activity.actor)}>
+    //         {activity.actor == username ? "You" : activity.actor}
+    //       </Text>
+    //       <Text>{' '}</Text>
+    //       <Text >{getMiddle()}</Text>
+    //       <Text>{' '}</Text>
+    //       <Text style={activity.verb == "deleted" ? null : styles.clickableText} onPress={() => handlePress()}>
+    //         {getLast()}
+    //       </Text>
+    //       <Text>{' '}</Text>
+    //       <Text>{timeDifferenceToString(activity.timestamp)}</Text>
+    //     </View>
+    //   </View>
+    // );
+    // return (
+    //   <View style={styles.notificationTextContainer}>
+    //     <View style={styles.fullWidthContainer}>
+    //       <Text style={styles.clickableText} onPress={() => goToProfile(activity.actor)}>
+    //         {activity.actor == username ? "You" : activity.actor}
+    //       </Text>
+    //       <Text> {getMiddle()} </Text>
+    //       <Text
+    //         style={activity.verb == "deleted" ? null : styles.clickableText}
+    //         onPress={() => handlePress()}
+    //       >
+    //         {getLast()}
+    //       </Text>
+    //       <Text> {timeDifferenceToString(activity.timestamp)} </Text>
+    //     </View>
+    //   </View>
+    // );
+    
   }
 
+  const act: Activity = activity;
+  console.log(act);
   return (
     <View style={styles.notificationContainer}>
       <View style={styles.profileInfoTopPictureContainer}>
         <Image source={require("@/assets/images/profile-icon.png")} style={styles.profileInfoTopPicture}/>
       </View>
-      {ActivityToComponent(activity)}
+      <View style={styles.textWrapper}>
+        {ActivityToComponent(act)}
+      </View>
     </View>
   );
 }
@@ -89,11 +289,25 @@ const NotificationItem = ( {activity} : any ) => {
 
 
 const Notifications = () => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [notifications, setNotifications] = useState(dbg_notifications);
+  const [guestModalVisible, setGuestModalVisible] = useState(false);
+
+  useFocusEffect(
+    useCallback(()=>{
+      const username = TokenManager.getUsername();
+      if (!username){
+        setGuestModalVisible(true);
+        return
+      }
+    }, [])
+  );
 
   useEffect(() => {
     const fetchFollowers = async () => {
+      if(!TokenManager.getUsername()){
+        return;
+      }
       try {
         const response = await TokenManager.authenticatedFetch("user-activities-as-object/", {
           method: 'GET',
@@ -117,6 +331,14 @@ const Notifications = () => {
   }, []);
 
 
+  const onGuestModalClose = () => {
+    setGuestModalVisible(false);
+    router.replace("/");
+  }
+  if(guestModalVisible){
+    return <GuestModal onClose={onGuestModalClose}/>
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.titleContainer}>
@@ -132,6 +354,24 @@ const Notifications = () => {
 };
 
 const styles = StyleSheet.create({
+  notificationTextContainer: {
+    flex: 1,
+    flexWrap: 'wrap',
+    overflow: 'hidden',
+    // backgroundColor: 'red'
+  },
+  fullWidthContainer: {
+    width: '100%',
+  },
+  // notificationTextContainer: {
+  //   flexDirection: 'row', // Ensures text aligns horizontally
+  //   flex: 1,             // Takes full width of the parent container
+  //   alignItems: 'center', // Align items vertically centered
+  // },
+  // fullWidthContainer: {
+  //   flexDirection: 'row',  // Forces horizontal alignment
+  //   flexShrink: 1,         // Prevents overflow issues
+  // },
   container: {
     flex: 1,
     padding: 16,
@@ -151,6 +391,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
   },
+  textWrapper: {
+    flexWrap: 'wrap',
+    alignItems: 'center',
+  },
   profileInfoTopPictureContainer: {
     marginRight: 12,
   },
@@ -160,7 +404,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   notificationText: {
-    fontSize: 16,
+    fontSize: 14,
     color: 'black',
   },
   title: {
@@ -174,8 +418,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   clickableText: {
-    fontSize: 16,
+    marginVertical: -3,
+    fontSize: 14,
     color: '#1a73e8', // Blue for clickable text
+  },
+  nonclickableText: {
+    marginVertical: -7,
+    fontSize: 14,
+    // color: '#1a73e8', // Blue for clickable text
   },
 });
 

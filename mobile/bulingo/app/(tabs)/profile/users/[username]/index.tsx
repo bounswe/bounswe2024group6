@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableWithoutFeedback, Image, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableWithoutFeedback, Image, TouchableOpacity, FlatList, ActivityIndicator, TextInputComponent } from 'react-native';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { QuizInfo, isQuizInfo } from '../..';
 import QuizCard from '@/app/components/quizCard';
 import TokenManager from '@/app/TokenManager';
+import CommentCard from '@/app/components/commentcard';
+import PostCard from '@/app/components/postcard';
+import { likePost, bookmarkPost, unlikePost, unbookmarkPost, likeComment, unlikeComment } from '../../../../api/forum'; // Import the functions from forum.tsx
+
 
 const emptyUserInfo: OtherUserInfo = {
-  name: '',
   bio: "",
   level: 'NA',
   follower_count: 0,
@@ -17,10 +20,10 @@ const emptyUserInfo: OtherUserInfo = {
   solvedQuizzes: [],
   posts: [],
   comments: [],
+  profile_picture: "",
 };
 
 type OtherUserInfo = {
-  name: string,
   bio: string,
   level: string,
   follower_count: number,
@@ -28,8 +31,9 @@ type OtherUserInfo = {
   is_followed: boolean,
   createdQuizzes: QuizInfo[], 
   solvedQuizzes: QuizInfo[],
-  posts: [],
-  comments: [],
+  posts: any[],
+  comments: any[],
+  profile_picture: string,
 };
 
 export default function Profile() {
@@ -86,7 +90,6 @@ export default function Profile() {
         } else {
           console.log(createdQuizResponse.status)
         };
-        setUserInfo(updatedUserInfo);
       } catch (error) {
         console.error(error);
       }
@@ -108,22 +111,207 @@ export default function Profile() {
     );
   };
 
+  const handlePostPress = (id: number) => {
+    router.navigate({pathname: '/(tabs)/forums/forumPostPage', params: {
+       "id": id,
+      }});
+  };
+
+  const handleLikePress = async (postId: number): Promise<void> => { 
+    userInfo.posts.map(async post => {
+      if (post.id === postId) {
+        if(post.is_liked){
+          try {
+            const response = await unlikePost(postId);
+            if (response) {
+              setUserInfo(
+                {
+                  ...userInfo,
+                  posts: userInfo.posts.map(post => {
+                    if (post.id === postId) {
+                      return {
+                        ...post,
+                        is_liked: response.is_liked,
+                        like_count: response.like_count
+                      };
+                    }
+                    return post;})
+                }
+              );
+            }
+          } catch (error) {
+            console.error('Failed to unlike post:', error);
+          }
+        }
+        else{
+          try {
+            const response = await likePost(postId);
+            if (response) {
+              setUserInfo(
+                {
+                ...userInfo,
+                posts: userInfo.posts.map(post => {
+                if (post.id === postId) {
+                  return {
+                    ...post,
+                    is_liked: response.is_liked,
+                    like_count: response.like_count
+                  };
+                }
+                return post; }
+              )});
+            }
+          } catch (error) {
+            console.error('Failed to like post:', error);
+          }
+        }
+
+      }
+    })
+    
+
+
+  };
+
+  const handleBookmarkPress = async (postId: number): Promise<void> => {
+    userInfo.posts.map(async post => {
+      if (post.id === postId) {
+        if(post.is_bookmarked){
+
+          try {
+            const response = await unbookmarkPost(postId);
+            if (response) {
+
+              setUserInfo(
+                {
+                ...userInfo,
+                posts: userInfo.posts.map(post => {
+                if (post.id === postId) {
+                  return {
+                    ...post,
+                    is_bookmarked: response.is_bookmarked,
+                  };
+                }
+                return post;
+              })}
+            );}
+          } catch (error) {
+            console.error('Failed to unbookmark post:', error);
+          }
+        }
+        else{
+          try {
+            const response = await bookmarkPost(postId);
+            if (response) {
+              setUserInfo(
+                {
+                ...userInfo,
+                posts: userInfo.posts.map(post => {
+                if (post.id === postId) {
+                  return {
+                    ...post,
+                    is_bookmarked: response.is_bookmarked,
+                  };
+                }
+                return post;
+              })});
+            }
+          } catch (error) {
+            console.error('Failed to bookmark post:', error);
+          }
+        }
+      }
+    })
+    
+  };
+
+  const handleLikeComment = async (commentId: number) => {
+    userInfo.comments.map(async comment => {
+      if (comment.id === commentId) {
+        if (comment.is_liked) {
+          try {
+            const response = await unlikeComment(commentId);
+            if (response) {
+              setUserInfo(
+                {
+                ...userInfo,
+                comments: userInfo.comments.map(comment => {
+                  if (comment.id === commentId) {
+                    return {
+                      ...comment,
+                      is_liked: !comment.is_liked,
+                      like_count: response.like_count
+                    };
+                  }
+                  return comment;
+                })
+              });
+            }
+          } catch (error) {
+            console.error('Failed to unlike comment:', error);
+          }
+        } else {
+          try {
+            const response = await likeComment(commentId);
+            if (response) {
+              setUserInfo(
+                {
+                ...userInfo,
+                comments: userInfo.comments.map(comment => {
+                  if (comment.id === commentId) {
+                    return {
+                      ...comment,
+                      is_liked: !comment.is_liked,
+                      like_count: response.like_count
+                    };
+                  }
+                  return comment;
+                })
+              });
+            }
+          } catch (error) {
+            console.error('Failed to like comment:', error);
+          }
+        }
+      }
+    });
+  };
+
   return (
     <FlatList 
       data={tabData[tab-1]}
-      keyExtractor={(item) => item.id}
       renderItem={({item}) => {
         if (isQuizInfo(item)){
           return (
             <QuizCard id={item.id} author={item.author.username} title={item.title} level={item.level} 
-              description={item.description} liked={item.is_liked} likes={item.like_count}/>
+              description={item.description} liked={item.is_liked} likes={item.like_count} bookmarked={item.is_bookmarked}/>
+          );
+        }
+        else if(item.comments){
+          // Post
+          return (
+            <PostCard title={item.title} id={item.id} author={TokenManager.getUsername() || ''} likes={item.like_count} 
+              liked={item.is_liked} tags={item.tags} feedOrPost='feed' isBookmarked={item.is_bookmarked} 
+              description={item.description}
+              onUpvote={() => handleLikePress(item.id)}
+              onBookmark={() => handleBookmarkPress(item.id)}
+              onPress={() => handlePostPress(item.id)}
+            />
           );
         }
         else{
+          // Comment
+          // console.log(item)
           return (
-            <View style={{height: 100, borderWidth: 3, borderColor: 'black', borderRadius: 15, justifyContent: 'center', alignItems: 'center', marginHorizontal: 15, marginVertical: 5,}}>
-              <Text>Placeholder Item</Text>
-            </View>
+            <CommentCard
+            id={item.id}
+            username={item.author}
+            onUpvote={handleLikeComment}
+            comment={item.body}
+            isBookmarked={item.is_bookmarked}
+            liked={item.is_liked}
+            likes={item.like_count}
+          />
           );
         }
       }}
@@ -132,12 +320,12 @@ export default function Profile() {
         <>
           <ProfileInfo
             username={username}
-            name={userInfo.name}
             level={userInfo.level}
             about={userInfo.bio}
             followerCount={userInfo.follower_count}
             followingCount={userInfo.following_count}
             isFollowedByUser={userInfo.is_followed}
+            profile_picture_uri={userInfo.profile_picture != "" ? userInfo.profile_picture : undefined}
           />
           <Tabs tab={tab} setTab={setTab}/>
         </>
@@ -150,10 +338,10 @@ type ProfileInfoProps = {
   followerCount: number,
   followingCount: number,
   isFollowedByUser: boolean,
-  name: string,
   about: string,
   level: string,
   username: string,
+  profile_picture_uri?: string,
 }
 
 const ProfileInfo = (props:ProfileInfoProps) => {
@@ -193,7 +381,10 @@ const ProfileInfo = (props:ProfileInfoProps) => {
     <View style={styles.profileInfoContainer}>
       <View style={styles.profileInfoTopContainer}>
         <View style={styles.profileInfoTopPictureContainer}>
-          <Image source={require('@/assets/images/profile-icon.png')} style={styles.profileInfoTopPicture}></Image>
+          <Image 
+            source={props.profile_picture_uri ? { uri: props.profile_picture_uri } : require('@/assets/images/profile-icon.png')}
+            style={styles.profileInfoTopPicture}
+          />
         </View>
         <View style={styles.profileInfoTopFollowContainer}>
           <View style={styles.profileInfoTopFollowItemContainer}>
@@ -211,7 +402,7 @@ const ProfileInfo = (props:ProfileInfoProps) => {
         </View>
       </View>
       <View style={styles.profileInfoAboutContainer}>
-        <Text style={styles.profileInfoNameText}>{props.name}</Text>
+        <Text style={styles.profileInfoNameText}>{props.username}</Text>
         <Text style={styles.profileInfoAboutText}>{props.about}</Text>
       </View>
       <View style={styles.profileInfoButtonContainer}>

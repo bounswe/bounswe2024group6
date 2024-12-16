@@ -1,8 +1,10 @@
 import React, {useState, useCallback} from 'react';
 import {Image, TouchableOpacity, StyleSheet, Text, View, Dimensions} from 'react-native';
-import { router, useLocalSearchParams, useFocusEffect } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import TokenManager from '../TokenManager';
 import Notification from '../components/topNotification';
+import Alert from '../Alert';
+import PressableText from '../pressableText';
 
 const { width, height } = Dimensions.get('window');
 
@@ -10,20 +12,65 @@ export default function Home() {
   const handleRegister = () => {
     router.navigate("/register");
   };
-  const searchParams = useLocalSearchParams();
   const username = TokenManager.getUsername();
-  const [logoutTrigger, setLogoutTrigger] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
+  const [profilePictureUri, setProfilePictureUri] = useState("");
 
 
 
   useFocusEffect(
+    // useCallback(() => {
+    //   if (searchParams?.notification == 'login_success'){
+    //     setNotification("Login Successful!");
+    //   } else if (searchParams?.notification == 'register_success'){
+    //     setNotification("Registration Successful!");
+    //   }
+    // }, [])
     useCallback(() => {
-      if (searchParams?.notification == 'login_success'){
-        setNotification("Login Successful!");
-      } else if (searchParams?.notification == 'register_success'){
-        setNotification("Registration Successful!");
+      if(Alert.get()){
+        setNotification(Alert.get());
+        Alert.clear();
       }
+
+      const fetchProfileInfo = async () => {
+        const username = TokenManager.getUsername()
+        if (!username){
+          return
+        }
+        const params = {
+          'user': username,
+         };
+  
+        const baseUrl = 'profile/'; 
+        // Convert the parameters to a query string
+        const queryString = new URLSearchParams(params).toString();
+        const profileUrl = `${baseUrl}?${queryString}`;
+  
+        try {
+          const profileRequest = await TokenManager.authenticatedFetch(profileUrl, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+          const profileResponse = await profileRequest.json();
+          if (profileRequest.ok){
+            setProfilePictureUri(profileResponse.profile_picture)
+          } else {
+            console.log(profileRequest.status)
+          };
+        } catch (error) {
+          console.error(error);
+        }
+      };
+
+      fetchProfileInfo();
+
+      // Optional cleanup (runs when page loses focus)
+      return () => {
+        console.log('Page is no longer focused.');
+      };
+
     }, [])
   );
 
@@ -47,13 +94,16 @@ export default function Home() {
       <View style={styles.page}>
       <View style={styles.profilePictureContainer}>
       <Image
-            source={require('@/assets/images/profile-icon.png')}
+            source={profilePictureUri ? { uri: profilePictureUri} : require('@/assets/images/profile-icon.png')}
             style={styles.profilePicture}
         />
       </View>
       <View style={styles.messageContainer}>
         <Text style={styles.bigText}>Welcome!</Text>
-        <Text style={username? styles.username : styles.text}>{username ? username :"You are not logged in. Register or Log In to access all features."}</Text>
+        <Text 
+          style={username? styles.username : styles.text}>
+          {username ? username :"You are not logged in. Register or Log In to access all features."}
+        </Text>
       </View>
       {username ?
         <View style={styles.buttonsContainer}>

@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   CardHeader,
@@ -9,17 +9,26 @@ import {
   Divider,
   Button,
   cn,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
 } from "@nextui-org/react";
 import {
   IconBookmark,
   IconBookmarkFilled,
   IconThumbUp,
   IconThumbUpFilled,
+  IconDotsVertical,
 } from "@tabler/icons-react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { AuthActions } from "../auth/utils";
 import axios from "axios";
 import { BASE_URL } from "../../lib/baseURL";
+import { UserCard } from "../common/user-card";
+import GuestAuthModal from "../auth/guest-auth-modal";
+import { ProfileResponse } from "../../types";
+import DeleteQuizModal from "../admin/delete-quiz-modal";
+import EditQuizTagsModal from "../admin/edit-quiz-tags-modal";
 
 const maxLength = 250; // Maximum length of the content to be displayed
 
@@ -55,12 +64,43 @@ export default function QuizCard({
   const [likes, setLikes] = useState(likeCount);
   const [isBookmarked, setIsBookmarked] = useState(initialIsBookmarked);
   const navigate = useNavigate();
-  const { getToken } = AuthActions();
+  const { getToken, useIsAdmin } = AuthActions();
   const token = getToken("access");
-  
+  const isGuest = !token;
+  const isAdmin = useIsAdmin();
+  const [guestModalOpen, setGuestModalOpen] = useState(false);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [deleteQuizModalOpen, setDeleteQuizModalOpen] = useState(false);
+  const [editQuizTagsModalOpen, setEditQuizTagsModalOpen] = useState(false);
+  const [popoverOpen, setPopoverOpen] = useState(false);
+
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
   };
+
+  useEffect(() => {
+    if (username) {
+      setIsLoading(true);
+      axios
+        .get(`${BASE_URL}/profile/${username}/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((response) => {
+          const data: ProfileResponse = response.data;
+          console.log("profile", data);
+          setProfileImage(response.data.profile_picture);
+        })
+        .catch((error) => {
+          console.log(error);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
+  }, [username, token]);
 
   const toggleLike = () => {
     axios
@@ -75,16 +115,16 @@ export default function QuizCard({
       )
       .then((response) => {
         console.log(response.data);
-        if(isLiked) {
+        if (isLiked) {
           setLikes(likes - 1);
         } else {
           setLikes(likes + 1);
         }
+        setIsLiked(!isLiked);
       })
       .catch((error) => {
         console.log(error.response.data);
       });
-    setIsLiked(!isLiked);
   };
 
   const toggleBookmark = () => {
@@ -110,27 +150,93 @@ export default function QuizCard({
       : `${content.slice(0, maxLength)}... `;
 
   return (
-    <Card className="w-[740px] px-2 pt-2">
+    <Card className="w-[740px] pt-2" isPressable>
       <CardHeader className="flex flex-col items-start gap-2">
         <div className="flex w-full justify-between">
           <div className="flex gap-3">
-            <Avatar
-              isBordered
-              radius="full"
-              className="w-6 h-6 text-tiny"
-              src="https://nextui.org/avatars/avatar-1.png"
-            />
-            <div className="flex flex-col gap-1 items-start justify-center">
-              <h5 className="text-small tracking-tight text-default-400">
-                {username}
-              </h5>
-            </div>
+            <Popover showArrow placement="bottom">
+              <PopoverTrigger>
+                <div className="flex flex-row gap-3 items-center">
+                  <Avatar
+                    as="button"
+                    isBordered
+                    radius="full"
+                    className="w-6 h-6 text-tiny"
+                    src={
+                      profileImage || "https://nextui.org/avatars/avatar-1.png"
+                    }
+                  />
+                  <div className="flex flex-col gap-1 items-start justify-center">
+                    <h5 className="text-small tracking-tight text-default-400">
+                      {username}
+                    </h5>
+                  </div>
+                </div>
+              </PopoverTrigger>
+              <PopoverContent className="p-1">
+                <UserCard username={username} />
+              </PopoverContent>
+            </Popover>
           </div>
-          <p className="text-default-400 text-small">{timePassed}</p>
+          <div className="flex flex-row items-center justify-end gap-2">
+            <p className="text-default-400 text-small text-nowrap">
+              {timePassed}
+            </p>
+            <DeleteQuizModal
+              isOpen={deleteQuizModalOpen}
+              setIsOpen={setDeleteQuizModalOpen}
+              quiz_id={id}
+            />
+            <EditQuizTagsModal
+              isOpen={editQuizTagsModalOpen}
+              setIsOpen={setEditQuizTagsModalOpen}
+              quizId={id}
+              title={title}
+              description={content}
+              initialTags={tags}
+            />
+            {isAdmin && (
+              <Popover
+                key="bottom-end"
+                placement="bottom-end"
+                onOpenChange={(isOpen) => setPopoverOpen(isOpen)}
+                isOpen={popoverOpen}
+              >
+                <PopoverTrigger>
+                  <IconDotsVertical size={20} />
+                </PopoverTrigger>
+                <PopoverContent className="p-1 pb-2">
+                  {title && (
+                    <Button
+                      variant="light"
+                      onClick={() => {
+                        setEditQuizTagsModalOpen(true);
+                        setPopoverOpen(false); // Close the popover
+                      }}
+                      className="text-medium mt-2"
+                    >
+                      Edit Quiz
+                    </Button>
+                  )}
+                  <Button
+                    variant="light"
+                    color="danger"
+                    onClick={() => {
+                      setDeleteQuizModalOpen(true);
+                      setPopoverOpen(false); // Close the popover
+                    }}
+                    className="text-medium mt-2"
+                  >
+                    Delete Quiz
+                  </Button>
+                </PopoverContent>
+              </Popover>
+            )}
+          </div>
         </div>
         <Divider className="mt-1.5 bg-zinc-200" />
       </CardHeader>
-      <div className="flex flex-row justify-between items-center mb-5">
+      <div className="flex flex-row justify-between items-center mb-4 ml-4 mr-4">
         {picture ? (
           <img
             src={picture}
@@ -140,29 +246,42 @@ export default function QuizCard({
               height: "200px",
               objectFit: "cover",
               objectPosition: "center",
+              borderRadius: "10px",
             }}
+            onClick={() => navigate(`/quiz/${id}/details`)}
           />
         ) : (
-          <div className="w-[200px] h-[200px] flex justify-center items-center p-8">
-          <div className="text-blue-800 text-7xl md:text-7xl font-semibold items-center mb-3 pb-6 pl-3">
-            <div className="relative">
-              <span className="inline-block transform -rotate-12 translate-y-2">bu</span>
-              <span className="text-blue-600 inline-block transform rotate-12 translate-y-2">lingo</span>
+          <div
+            className="w-[200px] h-[200px] flex justify-center items-center p-8"
+            onClick={() => navigate(`/quiz/${id}/details`)}
+          >
+            <div className="text-blue-800 text-7xl md:text-7xl font-semibold items-center mb-3 pb-6 pl-3">
+              <div className="relative">
+                <span className="inline-block transform -rotate-12 translate-y-2">
+                  bu
+                </span>
+                <span className="text-blue-600 inline-block transform rotate-12 translate-y-2">
+                  lingo
+                </span>
+              </div>
             </div>
           </div>
-        </div>
         )}
         <div className="w-[500px] h-[200px] flex flex-col justify-between pt-4">
-          <CardBody className="px-3 py-0 text-small text-default-600 text-justify leading-relaxed overflow-hidden">
+          <CardBody
+            className="px-3 py-0 text-small text-default-600 text-justify leading-relaxed overflow-hidden"
+            onClick={() => navigate(`/quiz/${id}/details`)}
+          >
             <div className="flex flex-row justify-between w-full">
-              <h2 className="text-2xl font-semibold leading-none text-default-800 mb-1">
-                <h2 onClick={() => navigate(`/quiz/${id}/details`)} className="text-default-800 hover:underline">
-                  {title}
-                </h2>
+              <h2 
+                className="text-2xl font-semibold leading-none text-default-800 mb-1"
+                data-testid="quiz-title"
+              >
+                {title}
               </h2>
               <p className="text-default-600 text-sm">{timesTaken} Attemps</p>
             </div>
-            <p>
+            <p data-testid="quiz-description">
               {displayedText}
               {content.length > maxLength && (
                 <span
@@ -184,11 +303,16 @@ export default function QuizCard({
                 >
                   {likes}
                 </p>
+                <GuestAuthModal
+                  isOpen={guestModalOpen}
+                  setIsOpen={setGuestModalOpen}
+                />
                 <Button
+                  data-testid="like-button"
                   isIconOnly
                   color="danger"
                   aria-label="Like"
-                  onClick={toggleLike}
+                  onClick={isGuest ? () => setGuestModalOpen(true) : toggleLike}
                   variant="light"
                   className="flex items-center gap-3"
                 >
@@ -200,10 +324,13 @@ export default function QuizCard({
                 </Button>
               </div>
               <Button
+                data-testid="bookmark-button"
                 isIconOnly
                 color="secondary"
                 aria-label="Bookmark"
-                onClick={toggleBookmark}
+                onClick={
+                  isGuest ? () => setGuestModalOpen(true) : toggleBookmark
+                }
                 variant="light"
               >
                 {isBookmarked ? (
@@ -218,13 +345,14 @@ export default function QuizCard({
                 tags.map((tag) => (
                   <Button
                     key={tag}
+                    data-testid={`tag-${tag}`}
                     color="primary"
                     variant="flat"
                     className="text-sm h-8"
                     size="sm"
                     radius="full"
                   >
-                    #{tag}
+                    {tag}
                   </Button>
                 ))}
             </div>

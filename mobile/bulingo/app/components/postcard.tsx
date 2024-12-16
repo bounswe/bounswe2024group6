@@ -1,6 +1,12 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
+import TokenManager from '../TokenManager';
+import AdminOptions from './adminOptions';
+import TagEdit from './tagEdit';
+import { router } from 'expo-router';
+import GuestModal from './guestModal';
+import PressableText from '../pressableText';
 
 interface PostCardProps {
     id: string;
@@ -11,7 +17,8 @@ interface PostCardProps {
   liked: boolean;
   isBookmarked: boolean;
   feedOrPost: string;
-  onUpvote: () => void;
+  description: string;
+  onUpvote: (id:any) => void;
   onBookmark: () => void;
   onPress?: () => void;
 }
@@ -26,51 +33,126 @@ const PostCard: React.FC<PostCardProps> = ({
   liked,
   isBookmarked,
   feedOrPost,
+  description,
   onUpvote,
   onBookmark,
   onPress,
 }) => {
+  const [isAdminOptionsVisible, setIsAdminOptionsVisible] = useState(false);
+  const [isTagEditVisible, setIsTagEditVisible] = useState(false);
+  const [guestModalVisible, setGuestModalVisible] = useState(false);
 
+
+  const handleLikePress = () => {
+    if(!TokenManager.getUsername()){
+      setGuestModalVisible(true);
+      return;
+    }
+    onUpvote(id);
+  }
+
+  const handleBookmarkPress = () => {
+    if(!TokenManager.getUsername()){
+      setGuestModalVisible(true);
+      return;
+    }
+    onBookmark();
+  }
+
+  const handleAdminDeletePost = async () => {
+    const url = 'post/delete/';
+    const params = {
+      'post_id': id,
+    }
+    try{
+      const response = await TokenManager.authenticatedFetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(params),
+      })
+
+      if (response.ok){
+        console.log("Post Deletion successful")
+        router.replace('/?notification=Post Deleted Successfully');
+      } else {
+        console.log(response.status)
+      };
+    } catch(error) {
+      console.error(error)
+    }
+  }
+  
 
   return (
-    <TouchableOpacity onPress={onPress} testID='card'>
-      <View style={styles.cardContainer}>
-        <View style={styles.header}>
-          <Text style={styles.title}>{title}</Text>
-          <Text style={styles.author}>by {author}</Text>
-        </View>
-        <View style={styles.tagsContainer}>
-          {tags && tags.map((tag, index) => (
-            <View key={index} style={styles.levelBadge}>
-              <Text style={styles.levelText}>{tag}</Text>
-            </View>
-          ))}
-        </View>
-        <View style={styles.footer}>
-          <View style={styles.actionsContainer}>
-            {/* <TouchableOpacity onPress={onUpvote} style={styles.upvoteButton}>
-              <FontAwesome name="arrow-up" size={20} color="green" />
-              <Text style={styles.upvoteCount}>{likes}</Text>
-            </TouchableOpacity>
-             */}
-            <TouchableOpacity style={styles.likeButton} onPress={() => onUpvote(id)} testID={'likeButton'}>
-             <Text style={styles.quizLikes}>
-            <Image source={liked ? require('../../assets/images/like-2.png') : require('../../assets/images/like-1.png')}style={styles.icon} /> 
-            {likes}
-            </Text>
-            </TouchableOpacity>
+    <>
+      {guestModalVisible && <GuestModal onClose={() => setGuestModalVisible(false)}/>}
+      { isTagEditVisible && 
+        <TagEdit type="Post" id={id} onClose={() => setIsTagEditVisible(false)} tags={tags}/>
+      }
+      { isAdminOptionsVisible &&
+        <AdminOptions onClose={()=>setIsAdminOptionsVisible(false)} options={[
+          {
+            text: "Delete Post",
+            onPress: handleAdminDeletePost
+          },
+          {
+            text: "Change Post Tags",
+            onPress: ()=>{
+              setIsTagEditVisible(true);
+              console.log("Change Post Tags Pressed") /* Placeholder until endpoint is ready */ 
+            }
+          },
+        ]}
+        />
+      }
+      <TouchableOpacity 
+        onPress={onPress} 
+        onLongPress={() => TokenManager.getIsAdmin() && setIsAdminOptionsVisible(true)}
+        testID='card'
+      >
+        <View style={styles.cardContainer}>
+          <View style={styles.header}>
+            {/* <PressableText style={styles.title}</> */}
+          <PressableText style={styles.title} text={title}/>
+          <PressableText style={styles.description} text={description}/>
+            {/* <Text style={styles.title}>{title}</Text> */}
+            <Text style={styles.author}>by {author}</Text>
+          </View>
+          <View style={styles.tagsContainer}>
+            {tags && tags.map((tag, index) => (
+              <View key={index} style={styles.levelBadge}>
+                <Text style={styles.levelText}>{tag}</Text>
+              </View>
+            ))}
+          </View>
+          <View style={styles.footer}>
+            <View style={styles.actionsContainer}>
+              {/* <TouchableOpacity onPress={onUpvote} style={styles.upvoteButton}>
+                <FontAwesome name="arrow-up" size={20} color="green" />
+                <Text style={styles.upvoteCount}>{likes}</Text>
+              </TouchableOpacity>
+                */}
+              <TouchableOpacity style={styles.likeButton} onPress={handleLikePress} testID={'likeButton'}>
+                <Text style={styles.quizLikes}>
+              <Image source={liked ? require('../../assets/images/like-2.png') : require('../../assets/images/like-1.png')}style={styles.icon} /> 
+              {likes}
+              </Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity onPress={onBookmark} style={styles.bookmarkButton} testID={'bookmarkButton'}>
-              <FontAwesome 
-                name={isBookmarked ? 'bookmark' : 'bookmark-o'} 
-                size={20} 
-                color="black" 
-              />
-            </TouchableOpacity>
+              <TouchableOpacity onPress={handleBookmarkPress} style={styles.bookmarkButton} testID={'bookmarkButton'}>
+                <FontAwesome 
+                  name={isBookmarked ? 'bookmark' : 'bookmark-o'} 
+                  size={20} 
+                  color="black" 
+                />
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-      </View>
-    </TouchableOpacity>
+      </TouchableOpacity>
+    </>
   );
 };
 
@@ -90,6 +172,10 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: 'bold',
+    color: '#333',
+  },
+  description: {
+    fontSize: 14,
     color: '#333',
   },
   author: {

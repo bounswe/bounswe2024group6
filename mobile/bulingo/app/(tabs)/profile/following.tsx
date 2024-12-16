@@ -8,7 +8,7 @@ type UserInfoCompact = {
   username: string,
   name: string,
   level: string,
-  profilePictureUri: string,
+  profile_picture: string,
   is_followed: boolean,
 };
 
@@ -17,7 +17,6 @@ export default function Following() {
   const [following, setFollowing] = useState<UserInfoCompact[]>([])
 
   useEffect(() => {
-    const ENDPOINT_URL = "http://161.35.208.249:8000/following";  // Placeholder
     const fetchFollowing = async () => {
       const username = TokenManager.getUsername();
       if (username === undefined){
@@ -67,7 +66,7 @@ export default function Following() {
           <UserCard 
             name={item.name}
             username={item.username} 
-            profilePictureUri={item.profilePictureUri} 
+            profilePictureUri={item.profile_picture} 
             level={item.level}
             buttonText={item.is_followed ? 'Unfollow' : 'Follow'}
             buttonStyleNo={item.is_followed ? 1 : 2}

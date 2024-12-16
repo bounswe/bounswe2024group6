@@ -4,23 +4,48 @@ import { useLocalSearchParams } from "expo-router";
 import { router } from "expo-router";
 import { Dimensions } from 'react-native';
 import TokenManager from '@/app/TokenManager';
+import { FontAwesome } from '@expo/vector-icons';
+import PressableText from '@/app/pressableText';
 
 const { width, height } = Dimensions.get('window');
-
-
 
 const QuizResults = () => {
   const { resultUrl, quizId } = useLocalSearchParams<{ resultUrl: string, quizId: string }>();
   const colorScheme = useColorScheme();
   const styles = getStyles(colorScheme);
+  const [resultQuizLiked, setResultQuizLiked] = useState<boolean>(false);
+  const [reccQuizLiked, setReccQuizLiked] = useState<boolean>(false);
+  const [resultQuizBookmarked, setResultQuizBookmarked] = useState<boolean>(false);
+  const [reccQuizBookmarked, setReccQuizBookmarked] = useState<boolean>(false);
 
   const [quizResult, setQuizResult] = useState<{
-    quiz: { id: number; title: string };
-    score: number;
-    time_taken: number;
-    level: string;
-    question_count: number;
+    questions: {
+      choice_images: any[];
+      choices: any[]; 
+      correct_choice: number;
+      is_correct: boolean;
+      question_image: string | null;
+      question_number: number;
+      question_text: string;
+      user_answer: number | null;
+    }[];
+    quiz_result: {
+      author: { id: number; username: string };
+      id: number;
+      is_bookmarked: boolean;
+      is_liked: boolean;
+      level: string;
+      like_count: number;
+      question_count: number;
+      quiz: { id: number; title: string };
+      quiz_progress: number;
+      score: number;
+      time_taken: number;
+      user: { id: number; username: string };
+    };
+    quiz_title_image: string | null;
   } | null>(null);
+  
 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -34,7 +59,72 @@ const QuizResults = () => {
     level: string;
     likes: number;
     liked: boolean;
+    bookmarked: boolean;
   } | null>(null);
+
+
+  const handleBookmarkPress = async (bookmarked: any, quizId: any) => {
+    let data = '';
+    try {
+      const response = await TokenManager.authenticatedFetch(`/quiz/bookmark/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          quiz_id: quizId,
+        }),
+      });
+      console.log(quizId);
+      data = await response.json();
+      console.log(data);
+      if (response.ok) {
+        bookmarked = !bookmarked;
+        if (quizId === quizResult?.quiz_result.quiz.id) {
+          setResultQuizBookmarked(bookmarked);
+        }
+        else {
+          setReccQuizBookmarked(bookmarked);
+        };
+      }
+    }
+    catch(error: any)
+    {
+      setError('Failed to fetch quizzes. Please try again. Error: ' + JSON.stringify(data));
+    }
+  }
+
+
+  const handleLikePress = async (liked: any, quizId: any) => {
+      let data = '';
+      try {
+        const response = await TokenManager.authenticatedFetch(`/quiz/like/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            quiz_id: quizId,
+          }),
+        });
+        console.log(quizId);
+        data = await response.json();
+        console.log(data);
+        if (response.ok) {
+          liked = !liked;
+          if (quizId === quizResult?.quiz_result.quiz.id) {
+            setResultQuizLiked(liked);
+          }
+          else {
+            setReccQuizLiked(liked);
+          };
+        }
+      }
+      catch(error: any)
+      {
+        setError('Failed to fetch quizzes. Please try again. Error: ' + JSON.stringify(data));
+      }
+    };
 
   useEffect(() => {
     const fetchQuizResult = async () => {
@@ -46,7 +136,7 @@ const QuizResults = () => {
             'Content-Type': 'application/json',
           },
         });
-
+        
         const url = resultUrl.split('/');
         const resultNum = url[url.length - 1];
         setQuizResultNum(resultNum)
@@ -54,6 +144,9 @@ const QuizResults = () => {
         if (response.ok) {
           const data = await response.json();
           setQuizResult(data);
+          setResultQuizLiked(data.quiz_result.is_liked);
+          setResultQuizBookmarked(data.quiz_result.is_bookmarked);
+
         } else {
           const errorData = await response.json();
           setError(errorData.detail || 'Failed to fetch quiz result.');
@@ -88,8 +181,10 @@ const QuizResults = () => {
             level: quiz.level,
             likes: quiz.like_count,
             liked: quiz.is_liked,
+            bookmarked: quiz.is_bookmarked,
           };
-          
+          setReccQuizLiked(quiz.is_liked);
+          setReccQuizBookmarked(quiz.is_bookmarked);
           setRecommendedQuiz(formattedResults);
           setError(null);
         } else {
@@ -105,6 +200,86 @@ const QuizResults = () => {
   
     fetchQuizzes(); 
   }, []);
+
+    const QuizResultsCard = (props: QuizResultsCardProps) => {
+      const { styles } = props.styles;
+    return (
+      <View style={[styles.resultsCard, styles.elevation]}>
+        <View style={styles.resultsTitleContainer}>
+          <Text style={styles.resultsTitle}>{props.quizName}</Text>
+        </View>
+        <View style={[styles.resultsScoreContainer, styles.elevation]}>
+          <Text style={styles.scoreText}>Score</Text>
+          <View style={[styles.scoreBox, styles.elevation]}>
+            <Text style={styles.scoreBoxText}>{props.score}/{props.maxScore}</Text>
+          </View>
+        </View>
+        <View style={styles.bottomMessageContainer}>
+            <Text style={styles.bottomMessage}>Congrats!</Text>
+            <Text style={styles.bottomMessage}>Keep it up!</Text>
+          </View>
+        <View style={styles.resultsBottomContainer}>
+        <View style={styles.resultsTagsContainer}>
+          {props.tags.map((item, index) => (
+              <View style={styles.tagBox} key={index}>
+                <Text style={styles.tagText}>{item}</Text>
+              </View>
+          ))}
+        </View>
+            <TouchableOpacity onPress={() => handleLikePress(resultQuizLiked, quizResult?.quiz_result.quiz.id)}>
+            <Image source={resultQuizLiked ? require('@/assets/images/like-2.png') : require('@/assets/images/like-1.png')} style={styles.icon} />
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => handleBookmarkPress(resultQuizBookmarked, quizResult?.quiz_result.quiz.id)} >
+              <FontAwesome 
+              name={resultQuizBookmarked ? 'bookmark' : 'bookmark-o'} 
+              size={20}
+              color="black" 
+            />
+            </TouchableOpacity>
+          </View>
+      </View>
+    );
+  };
+
+  const QuizCard = (props: {
+    name: string;
+    desc: string;
+    author: string;
+    tags: string[];
+    styles: any;
+    id?: number;
+  }) => {
+    const { styles } = props.styles;
+    return (
+      <TouchableOpacity
+      style={[styles.quizItem, styles.elevation]}
+      onPress={() => router.navigate({
+        pathname: '/(tabs)/quizzes/quizDetails', 
+        params:{id : props?.id},})}
+    >
+      <View style={styles.quizInfo}>
+        <Text style={styles.quizTitle}>{props.name}</Text>
+        <Text style={styles.quizDescription}>{props.desc}</Text>
+        <Text style={styles.quizAuthor}>by {props.author}</Text>
+        <Text style={styles.quizLevel}>{props.tags}</Text>
+      </View>
+      <View style={styles.quizActions}>
+        <TouchableOpacity style={styles.likeButton} onPress={() => handleLikePress(reccQuizLiked, props.id)}>
+        <Image source={reccQuizLiked ? require('@/assets/images/like-2.png') : require('@/assets/images/like-1.png')} style={styles.icon} />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.bookmarkButton} onPress={() => handleBookmarkPress(reccQuizBookmarked, props.id)} >
+          <FontAwesome 
+            name={reccQuizBookmarked ? 'bookmark' : 'bookmark-o'} 
+            size={20}
+            color="black" 
+          />
+        </TouchableOpacity>
+      </View>
+    </TouchableOpacity>
+    );
+  };
   
 
   return (
@@ -118,10 +293,10 @@ const QuizResults = () => {
       <View style={styles.resultsCardContainer}>
         {quizResult ? (
           <QuizResultsCard
-            quizName={quizResult.quiz.title}
-            tags={[quizResult.level || 'A1']}
-            score={quizResult.score}
-            maxScore={quizResult.question_count}
+            quizName={quizResult.quiz_result.quiz.title}
+            tags={[quizResult.quiz_result.level || 'A1']}
+            score={quizResult.quiz_result.score}
+            maxScore={quizResult.quiz_result.question_count}
             styles={{ styles }}
           />
         ) : (
@@ -241,7 +416,9 @@ export const QuizCard = (props: {
   >
     <View style={styles.quizInfo}>
       <Text style={styles.quizTitle}>{props.name}</Text>
-      <Text style={styles.quizDescription}>{props.desc}</Text>
+      <PressableText style={styles.quizDescription} text={props.desc}/>
+      
+      {/* <Text style={styles.quizDescription}>{props.desc}</Text> */}
       <Text style={styles.quizAuthor}>by {props.author}</Text>
       <Text style={styles.quizLevel}>{props.tags}</Text>
     </View>
@@ -466,7 +643,7 @@ const getStyles = (colorScheme: any) => {
     },
     likeButton: {
       position: 'absolute',
-      bottom: height * 0.02,
+      bottom: height * 0.008,  
       left: -width * 0.15,
     },
     bookmarkButton: {
@@ -479,6 +656,7 @@ const getStyles = (colorScheme: any) => {
       height: height * 0.05,
       resizeMode: 'contain',
       tintColor: isDark ? '#fff' : '#000',
+
     },
     loadingText: {
       textAlign: 'center',

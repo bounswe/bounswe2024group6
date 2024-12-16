@@ -3,10 +3,11 @@ import {Pressable, StyleSheet, Text, View, TextInput, TouchableWithoutFeedback, 
 import {router} from 'expo-router'
 import TokenManager from './TokenManager'; // Import the TokenManager
 import Notification from './components/topNotification';
+import Alert from './Alert';
 
 
 
-const LOGIN_URL = "http://161.35.208.249:8000/login/";
+const LOGIN_URL = "http://64.226.76.231:8000/login/";
 
 export default function Home() {
   const [username, setUsername] = useState('');    // State for username
@@ -35,14 +36,42 @@ export default function Home() {
         },
         body: JSON.stringify(params),
       });
-      const json = await response.json();
-      if ("access" in json){
-        const { access, refresh } = json;
-        TokenManager.saveTokens(access, refresh);
-        TokenManager.setUsername(username);
-        router.replace('/?notification=login_success');
+
+      if (response.ok){
+        const json = await response.json();
+        if ("access" in json){
+          const { access, refresh } = json;
+          TokenManager.saveTokens(access, refresh);
+          TokenManager.setUsername(username);
+          Alert.set("Login Successful");
+          try{
+            const isAdminUrl = 'admin-check/';
+            const responseIsAdmin = await TokenManager.authenticatedFetch(isAdminUrl, {
+              method: 'GET',
+              headers: {
+                "Content-Type": "application/json",
+              },
+            })
+
+            if (response.ok){
+              const result = await responseIsAdmin.json();
+              TokenManager.setIsAdmin(result.is_admin)
+            } else {
+              console.warn(response.status);
+            }
+          } catch (error) {
+            console.error(error);
+          }
+
+
+
+
+          router.navigate('/');
+        } else {
+          console.warn(json);
+        }
       } else {
-        setNotification("Incorrect Login information.")
+        setNotification("Incorrect Login information. You may be banned. ")
         setIsErrorVisible(true);
       };
     } catch (error) {

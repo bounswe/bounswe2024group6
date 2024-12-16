@@ -5,6 +5,8 @@ export type Comment = {
   created_at: string;
   like_count: number;
   is_liked: boolean;
+  is_bookmarked: boolean;
+  parent: number;
 };
 
 export type Post = {
@@ -42,6 +44,18 @@ export type PostResponse = {
   comments?: Comment[]; // TODO: to be made required
 };
 
+export type CommentResponse = {
+  author: string;
+  created_at: string;
+  body: string;
+  id: number;
+  like_count: number;
+  tags: string[];
+  is_liked: boolean;
+  is_bookmarked: boolean;
+  replies?: Comment[]; // TODO: to be made required
+};
+
 export type Quiz = {
   id: number;
   author: {
@@ -54,6 +68,7 @@ export type Quiz = {
     tags: string[];
     timestamp: string;
     created_at: string;
+    picture: string;
     level: string;
     times_taken: number;
   };
@@ -78,10 +93,11 @@ export type QuizResponse = {
   is_liked: boolean;
   is_bookmarked: boolean;
   times_taken: number;
+  title_image: string;
   tags: string[];
 };
 
-export type QuizDetails = {
+export type QuizDetail = {
   id: number;
   title: string;
   description: string;
@@ -91,6 +107,7 @@ export type QuizDetails = {
   };
   average_score: number;
   created_at: string;
+  timestamp: string;
   is_liked: boolean;
   is_bookmarked: boolean;
   like_count: number;
@@ -98,6 +115,34 @@ export type QuizDetails = {
   level: string;
   times_taken: number;
   tags: string[];
+  quiz_result_id: number;
+  title_image?: string;
+  is_solved: boolean;
+  has_unfinished_progress: boolean;
+};
+
+export type QuizDetailsResponse = {
+  quiz: {
+    id: number;
+    title: string;
+    description: string;
+    author: {
+      username: string;
+      id: number;
+    };
+    average_score: number;
+    created_at: string;
+    is_liked: boolean;
+    is_bookmarked: boolean;
+    like_count: number;
+    title_image: string;
+    question_count: number;
+    level: string;
+    times_taken: number;
+    tags: string[];
+  };
+  quiz_result_id: number;
+  is_solved: boolean;
 };
 
 export type Profile = {
@@ -111,6 +156,7 @@ export type Profile = {
   posts: Post[];
   quizzes: Quiz[];
   is_followed: boolean;
+  is_banned: boolean;
 };
 
 export type ProfileResponse = {
@@ -118,6 +164,7 @@ export type ProfileResponse = {
   follower_count: number;
   following_count: number;
   is_followed: boolean;
+  profile_picture: string;
   level: string;
   bio: string;
   name: string;
@@ -125,4 +172,45 @@ export type ProfileResponse = {
   posts: PostResponse[];
   image?: string; // TODO: to be made required
   quizzes?: Quiz[]; // TODO: to be made required
+  is_banned: boolean;
 };
+
+
+export type QuizCreationModel = {
+  quiz: QuizHeader;
+  questions: Question[];
+};
+
+export type QuizHeader = {
+  title: string;
+  description: string;
+  tags: {
+    name: string;
+  }[];
+  level: string;
+  title_image?: File;
+};
+
+export type Question = {
+  question_number: number;
+  question_text: string;
+  choice1: string;
+  choice2: string;
+  choice3: string;
+  choice4: string;
+  correct_choice: number;
+  image?: File | null;
+  generatedImage?: string;
+};
+
+export type UserCardType = {
+  id: number;
+  username: string;
+  level: string;
+  bio: string;
+  followers: number;
+  following: number;
+  image: string;
+  is_followed: boolean;
+};
+

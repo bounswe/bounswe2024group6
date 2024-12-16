@@ -207,6 +207,7 @@ def get_turkish_translation(request, word):
 
 @api_view(['GET'])
 def get_word_meanings(request, word):
+    """Get a single meaning for an English word"""
     try:
         word_instance = Word.objects.filter(word=word).first()
 
@@ -214,7 +215,17 @@ def get_word_meanings(request, word):
             if not word_instance.meaning or word_instance.meaning == "Meaning not available":
                 return fetch_and_update_word_meaning(word_instance, word)
 
-            meaning = extract_single_meaning(word_instance.meaning)
+            if isinstance(word_instance.meaning, list):
+                meaning = word_instance.meaning[0]
+            elif isinstance(word_instance.meaning, str):
+                try:
+                    meanings = eval(word_instance.meaning)
+                    meaning = meanings[0] if isinstance(meanings, list) else word_instance.meaning
+                except:
+                    meaning = word_instance.meaning
+            else:
+                meaning = str(word_instance.meaning)
+
             return Response({"word": word_instance.word, "meaning": meaning}, status=status.HTTP_200_OK)
 
         word_instance = Word.objects.create(
@@ -231,30 +242,6 @@ def get_word_meanings(request, word):
             {"error": f"An unexpected error occurred: {str(e)}"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
-    
-
-def extract_single_meaning(meaning_data):
-    try:
-        if isinstance(meaning_data, str):
-            try:
-                evaluated_data = eval(meaning_data)
-                if isinstance(evaluated_data, list):
-                    meaning_data = evaluated_data
-            except:
-                definitions = meaning_data.split(';')
-                return clean_definition(definitions[0]) if definitions else "Meaning not available"
-        if isinstance(meaning_data, list):
-            return clean_definition(meaning_data[0]) if meaning_data else "Meaning not available"
-        return clean_definition(str(meaning_data))
-
-    except Exception:
-        return "Meaning not available"
-
-def clean_definition(definition):
-    if not definition:
-        return "Meaning not available"
-    cleaned = definition.strip().rstrip(',')
-    return cleaned if cleaned else "Meaning not available"
 
 @api_view(['GET'])
 def fetch_english_words(request, turkish_word):

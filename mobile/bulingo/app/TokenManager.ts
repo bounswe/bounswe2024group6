@@ -1,13 +1,15 @@
 import * as SecureStore from "expo-secure-store";
 
 
-const BASE_URL = "http://161.35.208.249:8000";
+export const BASE_URL = "http://64.226.76.231:8000";
 
 class TokenManager {
   private username: string | null;
+  private isAdmin: boolean;
 
   constructor() {
     this.username = null;
+    this.isAdmin = false;
   }
 
   async saveTokens(accessToken: string, refreshToken: string){
@@ -24,7 +26,7 @@ class TokenManager {
   
     if (!refreshToken) throw new Error("No refresh token found");
   
-    const response = await fetch("http://161.35.208.249:8000/refresh", {
+    const response = await fetch("http://64.226.76.231:8000/refresh", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -54,10 +56,17 @@ class TokenManager {
     this.username = username;
   }
 
+  setIsAdmin(isAdmin: boolean): void {
+    this.isAdmin = isAdmin;
+  }
+
   getUsername(): string|null {
     return this.username;
   }
 
+  getIsAdmin(): boolean {
+    return this.isAdmin;
+  }
   // Method to clear tokens
   async clearTokens() {
     await SecureStore.deleteItemAsync("accessToken");
@@ -69,7 +78,6 @@ class TokenManager {
     options: RequestInit = {}
   ): Promise<Response> {
     let accessToken = await this.getAccessToken();
-  
     if (!accessToken) {
       throw new Error("No access token found. User needs to log in again.");
     }

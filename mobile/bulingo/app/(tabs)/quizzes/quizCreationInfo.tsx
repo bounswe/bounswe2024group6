@@ -1,7 +1,10 @@
 import React, { useState, useEffect} from 'react';
 import { ScrollView, Keyboard, Pressable, StyleSheet, Text, TextInput, View, TouchableWithoutFeedback, Image, TouchableOpacity, useColorScheme, Modal } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import TokenManager from '@/app/TokenManager';
+import TokenManager, { BASE_URL } from '@/app/TokenManager';
+import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
+
 
 const QuizCreationInfo = () => {
   const [question, setQuestion] = useState('');
@@ -13,9 +16,11 @@ const QuizCreationInfo = () => {
   const [correctAnswerIndex, setCorrectAnswerIndex] = useState<number | null>(null)
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [prevWord, setPrevWord] = useState('');
+  const [verticalOptions, setVerticalOptions] = useState<string[]>([]);
   const [meaningList, setMeaningList] = useState<any>([]);
   const [meaningIndex, setMeaningIndex] = useState(0);
   const [error, setError] = useState('');
+  const [localImage, setLocalImage] = useState<string | null>(null); // Local file URI
 
   const isButtonDisabled = () => {
     const nonEmptyAnswers = answers.filter(answer => answer.trim() !== "");
@@ -26,9 +31,45 @@ const QuizCreationInfo = () => {
   const colorScheme = useColorScheme();
   const styles = getStyles(colorScheme);
 
-  const { initialQuestion, initialAnswers, initialCorrectAnswer, type, index, trigger} = useLocalSearchParams();
+  const { initialQuestion, initalQuestionImage, initialAnswers, initialCorrectAnswer, type, index, trigger} = useLocalSearchParams();
 
 
+  const fetchVerticalOptions = async () => {
+    try {
+      let endpoint = '';
+      if (selectedType === 'Type I') {
+        endpoint = `/quiz/choices/${question}/EN_TO_TR/`;
+      } else if (selectedType === 'Type II') {
+        endpoint = `/quiz/choices/${question}/TR_TO_EN/`;
+      } else if (selectedType === 'Type III') {
+        endpoint = `/quiz/choices/${question}/EN_TO_MEANING/`;
+      }
+      
+      const response = await TokenManager.authenticatedFetch(endpoint, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setVerticalOptions([]);
+        setError('Options not available.');
+        return;
+      }
+
+      
+      const options = [...data.options];
+      setVerticalOptions(options);
+      setError('');
+    } catch (error) {
+      console.error('Error fetching vertical options:', error);
+      setVerticalOptions([]);
+      setError('Options not available.');
+    }
+  };
 
 
   useEffect(() => {
@@ -37,6 +78,13 @@ const QuizCreationInfo = () => {
       setAnswers(JSON.parse(Array.isArray(initialAnswers) ? initialAnswers[0] : initialAnswers));
       setCorrectAnswerIndex(Number(initialCorrectAnswer));
       setSelectedType(type instanceof Array ? type[0] : type);
+      if (initalQuestionImage === undefined){
+        setLocalImage(null);
+      }
+      else{
+        setLocalImage(initalQuestionImage instanceof Array ? initalQuestionImage[0] : initalQuestionImage);
+      }
+      
     }
   }, [initialQuestion, initialAnswers, initialCorrectAnswer]);
 
@@ -72,7 +120,7 @@ const QuizCreationInfo = () => {
   };
 
   const handleAddQuestion = () => {
-    router.navigate({ pathname: '/(tabs)/quizzes/quizCreationQuestionList', params: { question: question, answers: JSON.stringify(answers), correctAnswer: correctAnswerIndex, selectedType: selectedType, index: index, trigger: trigger} });
+    router.navigate({ pathname: '/(tabs)/quizzes/quizCreationQuestionList', params: { question: question, answers: JSON.stringify(answers), correctAnswer: correctAnswerIndex, selectedType: selectedType, index: index, trigger: trigger, questionImage: localImage} });
   };
 
   const handleTypeSelect = (type: string) => {
@@ -88,6 +136,7 @@ const QuizCreationInfo = () => {
   const handleNewSuggestions = async () => {
     try {
       if (selectedType === 'Type I') {
+        console.log('localImage value:', localImage);
         const response = await TokenManager.authenticatedFetch(`/get-turkish/${question}/`, {
           method: 'GET',
           headers: {
@@ -120,7 +169,6 @@ const QuizCreationInfo = () => {
         return;
       }
       const data = await response.json();
-      console.log(data);
       const translation = data["english_word"];
       setNewAnswer(translation);
       setError('');
@@ -145,7 +193,6 @@ const QuizCreationInfo = () => {
           return;
         }
         const data = await response.json();
-        console.log(data);
         let meaning = data["meaning"];
 
         if (meaning === undefined) {
@@ -160,7 +207,6 @@ const QuizCreationInfo = () => {
             tempList[i] = tempList[i].trim();
           }
           for (let i = 0; i < tempList.length; i++) {
-            console.log(tempList[i].charAt(tempList[i].length - 1));
             if (tempList[i].charAt(tempList[i].length - 1) === ';') {
               tempList[i] = tempList[i].substring(0, tempList[i].length - 1);
             }
@@ -179,7 +225,6 @@ const QuizCreationInfo = () => {
             tempList.splice(i, 1);
           }
         }
-        console.log(tempList);
         setMeaningList(tempList); 
         setNewAnswer(tempList[0]);
         setError('');
@@ -194,7 +239,6 @@ const QuizCreationInfo = () => {
         setMeaningIndex(tempIndex);
       }
       if (meaningList.length > 0){
-        console.log(tempIndex);
         setNewAnswer(meaningList[tempIndex]);
         setError('');
       }
@@ -213,16 +257,67 @@ const QuizCreationInfo = () => {
     }
   };
 
+  const handlePickQuestionImage = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        const originalUri = result.assets[0].uri;
+
+        const fileName = originalUri.split('/').pop();
+        const newUri = `${FileSystem.documentDirectory}${fileName}`;
+
+        await FileSystem.moveAsync({
+          from: originalUri,
+          to: newUri,
+        });
+
+        setLocalImage(newUri);
+      }
+    } catch (error) {
+      console.error('Error saving image locally:', error);
+    }
+  };
+  
+  const handleRemoveQuestionImage = () => {
+    setLocalImage(null);
+  };
+
+
+  const generateImage = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/image/url/${question}/`,  {
+        method: "GET"
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.log('Error generating image:', data);
+        return;
+      }
+
+      setLocalImage(data["image_url"]);
+    }
+    catch (error) {
+      console.error('Error generating image:', error);
+    }
+    
+  };
+
   return (
     <TouchableWithoutFeedback onPress={resetSelections} accessible={false}>
     <View style={styles.container}>
-      <View style={styles.page}>
         {/* Type Selection Buttons */}
       <View style={styles.topContainer}>
                   
       <TouchableOpacity style={styles.infoButton} onPress={() => setShowInfoModal(true)}>
-         <Image source={require('@/assets/images/info.png')} style={styles.icon}  />
+        <Image source={require('@/assets/images/info.png')} style={styles.icon}  />
         </TouchableOpacity>
+
         <View style={styles.typeContainer}>
           {['Type I', 'Type II', 'Type III'].map((type, index) => (
             <TouchableOpacity
@@ -238,17 +333,60 @@ const QuizCreationInfo = () => {
           ))}
         </View>
         </View>
+        <ScrollView>
+        <TouchableWithoutFeedback>
+        <View style={styles.page}>
+
         {/* Question and Answers Section */}
         <View style={[styles.questionAnswersContainer, styles.elevation]}>
           {/* Editable question title area */}
           <View style={styles.questionBox}>
-            <TextInput
-              style={styles.questionText}
-              value={question}
-              onChangeText={(text) => setQuestion(text)}
-              editable={true} 
-            />
+              <TextInput
+                style={styles.questionText}
+                value={question}
+                onChangeText={(text) => setQuestion(text)}
+                editable={true}
+                placeholder="Type your question here..."
+              />
+
+            {localImage && (
+              <View>
+                <Image
+                  source={{ uri: localImage }}
+                  style={styles.questionImageStyle}
+                  resizeMode="contain"
+                />
+                <TouchableOpacity
+                  style={styles.removeImageButton}
+                  onPress={handleRemoveQuestionImage}
+                >
+                  <Text style={styles.removeImageButtonText}>Remove Image</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            <TouchableOpacity
+              style={styles.addImageButton}
+              onPress={handlePickQuestionImage}
+            >
+              <Text style={styles.addImageButtonText}>
+                {localImage ? 'Change Image' : 'Add Image'}
+              </Text>
+            </TouchableOpacity>
+
+            {!localImage && (
+              <TouchableOpacity
+                style={styles.generateImageButton}
+                onPress={generateImage}
+              >
+                <Text style={styles.generateImageButtonText}>
+                  Generate Image
+                </Text>
+              </TouchableOpacity>
+            )}
+
           </View>
+
           <View style={styles.answerGridContainer}>
             {answerGrid.map((row, rowIndex) => (
               <View key={rowIndex} style={styles.answerRow}>
@@ -275,9 +413,9 @@ const QuizCreationInfo = () => {
                         style={styles.textContainer}
                       >
                         <View onStartShouldSetResponder={() => true}>
-                           <Text style={styles.answerText}
-                           onPress={() => handleAnswerClick(answerIndex)}
-                           onLongPress={() => handleLongPress(answerIndex)}
+                          <Text style={styles.answerText}
+                          onPress={() => handleAnswerClick(answerIndex)}
+                          onLongPress={() => handleLongPress(answerIndex)}
                           >{answer}</Text>
                           
                         </View>
@@ -333,6 +471,24 @@ const QuizCreationInfo = () => {
           </View>
         </View>
 
+        <View style={styles.verticalOptionsContainer}>
+          <TouchableOpacity style={styles.newSuggestionButton} onPress={fetchVerticalOptions}>
+            <Text style={styles.newSuggestionText}>Fetch Options</Text>
+          </TouchableOpacity>
+          <ScrollView style={styles.verticalOptions}>
+            {verticalOptions.map((option, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.optionButton}
+                onPress={() => setNewAnswer(option)}
+              >
+                <Text style={styles.optionText}>{option}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+
+
         <View style={styles.navButtonsContainer}>
           <TouchableOpacity style={styles.backButton} onPress={() => handleGoBack()}>
             
@@ -347,6 +503,10 @@ const QuizCreationInfo = () => {
         </TouchableOpacity>
         </View>
       </View>
+      </TouchableWithoutFeedback>
+      </ScrollView>
+      
+      
       <Modal
         transparent={true}
         visible={showInfoModal}
@@ -392,7 +552,6 @@ const getStyles = (colorScheme: any) => {
       flex: 9,
       backgroundColor: isDark ? '#121212' : 'white',
       padding: 20,
-      paddingTop: 50,
       justifyContent: 'flex-start',
     },
     typeButton: {
@@ -486,7 +645,6 @@ const getStyles = (colorScheme: any) => {
     suggestionsContainer: {
       flexDirection: 'column',
       justifyContent: 'space-between',
-      marginBottom: 20,
     },
     suggestionButton: {
       backgroundColor: isDark ? '#444' : '#d1e7dd',
@@ -527,6 +685,10 @@ const getStyles = (colorScheme: any) => {
     },
     disabledButton: {
       backgroundColor: isDark ? '#444' : '#ccc',
+    },
+    scrollableContent: {
+      flex: 1,
+      width: '100%',
     },
     selectButton: {
       position: 'absolute',
@@ -618,7 +780,6 @@ const getStyles = (colorScheme: any) => {
     },
     newSuggestionButton: {
       paddingVertical: 10,
-      marginVertical: 10,
       paddingHorizontal: 6,
       alignSelf: 'center',
       width: 200,
@@ -630,7 +791,6 @@ const getStyles = (colorScheme: any) => {
       color: '#fff',
       textAlign: 'center',
     },
-    
     scrollContainer: {
       flexGrow: 1,
       alignItems: 'center',
@@ -646,6 +806,69 @@ const getStyles = (colorScheme: any) => {
       textAlign: 'center',
       fontWeight: 'bold',
     },
+    verticalOptionsContainer: {
+      marginBottom: 40,
+    },
+    verticalOptions: {
+    },
+    optionButton: {
+      padding: 10,
+      borderBottomWidth: 1,
+      borderBottomColor: isDark ? '#333' : '#ccc',
+    },
+    optionText: {
+      fontSize: 16,
+      color: isDark ? '#fff' : '#000',
+    },
+    questionImageStyle: {
+      width: '100%',
+      height: 200,
+      borderRadius: 10,
+      marginTop:10,
+      marginBottom: 10,
+    },
+    imageTypeText: {
+      fontSize: 14,
+      color: '#888',
+      textAlign: 'center',
+      marginVertical: 5,
+    },
+    addImageButton: {
+      backgroundColor: '#007BFF',
+      padding: 10,
+      borderRadius: 5,
+      alignItems: 'center',
+      marginTop: 10,
+    },
+    addImageButtonText: {
+      color: '#fff',
+      fontSize: 16,
+      fontWeight: 'bold',
+    },
+    removeImageButton: {
+      backgroundColor: '#FF0000',
+      padding: 10,
+      borderRadius: 5,
+      alignItems: 'center',
+      marginVertical: 10,
+    },
+    removeImageButtonText: {
+      color: '#fff',
+      fontSize: 14,
+      fontWeight: 'bold',
+    },
+    generateImageButton: {
+      marginTop: 10,
+      padding: 10,
+      backgroundColor: 'green',
+      borderRadius: 5,
+      alignItems: 'center',
+    },
+    generateImageButtonText: {
+      color: 'white',
+      fontWeight: 'bold',
+    },
+    
   });
 };
 
