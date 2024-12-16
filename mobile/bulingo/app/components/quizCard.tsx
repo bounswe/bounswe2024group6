@@ -20,7 +20,8 @@ type QuizCardProps = {
   bookmarked: boolean,
   onQuizPress?: (id: number) => void;
   onLikePress?: (id: number) => void;
-  onBookmarkPress?: (id: number) => void;  
+  onBookmarkPress?: (id: number) => void;
+  image?: string;  
 };
 
 
@@ -153,6 +154,16 @@ export default function QuizCard(props: QuizCardProps){
         onLongPress={() => TokenManager.getIsAdmin() && setIsAdminOptionsVisible(true)}
         testID='quiz'
       >
+        {props.image && (
+          <Image
+            source={
+              typeof props.image === 'string'
+                ? { uri: props.image }
+                : props.image 
+            }
+            style={{ width: '100%', height: 100, borderRadius: 8, marginBottom: 8,  }}
+          />
+        )}
         <View style={styles.quizTop}>
           <PressableText style={styles.quizTitle} text={props.title}/>
           <PressableText style={styles.quizDescription} text={props.description}/>
