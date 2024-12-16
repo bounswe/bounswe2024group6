@@ -242,7 +242,7 @@ export default function PostCard({
                 onOpenChange={(isOpen) => setPopoverOpen(isOpen)}
                 isOpen={popoverOpen}
               >
-                <PopoverTrigger>
+                <PopoverTrigger data-testid="admin-popover">
                   <IconDotsVertical size={20} />
                 </PopoverTrigger>
                 <PopoverContent className="p-1 pb-2">
