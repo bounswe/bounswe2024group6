@@ -101,16 +101,15 @@ export default function QuestionCard({
           {isReview ? <ClickableText text={question} /> : question}
         </div>
       </CardBody>
-
-      <CardFooter className="w-[550px] h-[170px] py-6">
+      <CardFooter className="w-[550px] h-auto py-6">
         <div className="grid grid-cols-2 grid-rows-2 gap-4 w-full h-full">
           <Button
             color={
               correct == 1
                 ? "success"
                 : previous_answer == 1
-                ? "danger"
-                : "primary"
+                  ? "danger"
+                  : "primary"
             }
             onClick={
               previous_answer !== undefined && correct !== undefined
@@ -119,28 +118,63 @@ export default function QuestionCard({
             }
             variant={
               answers[cur_question - 1] === Answer.A ||
-              correct == 1 ||
-              previous_answer == 1
+                correct == 1 ||
+                previous_answer == 1
                 ? "solid"
                 : "bordered"
             }
-            className={`flex items-center justify-center text-xl h-12 mx-3 ${
-              answers[cur_question - 1] === Answer.C ||
+            className={`flex items-center justify-center text-xl h-12 mx-3 ${answers[cur_question - 1] === Answer.A ||
               correct == 1 ||
               previous_answer == 1
-                ? ""
-                : ""
-            }`}
+              ? ""
+              : ""
+              }`}
           >
-            {isReview ? <ClickableText text={option_a} /> : option_a}
+            {option_a.length > 25 ? (
+              <div
+                className="relative w-full h-full whitespace-nowrap cursor-grab"
+                style={{ position: "relative", overflow: "hidden", whiteSpace: "nowrap" }}
+                onMouseMove={(e) => {
+                  const button = e.currentTarget;
+                  const text = button.querySelector("div");
+                  if (text) {
+                    const rect = button.getBoundingClientRect();
+                    const mouseX = e.clientX - rect.left;
+                    const width = rect.width;
+                    const move = Math.max(
+                      0,
+                      Math.min(mouseX / width, 1)
+                    );
+                    text.style.transform = `translateX(-${move * 100}%)`;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  const text = e.currentTarget.querySelector("div");
+                  if (text) {
+                    text.style.transform = "translateX(0%)"; // Reset position when mouse leaves
+                  }
+                }}
+              >
+                <div
+                  className="absolute mt-1"
+                  style={{
+                    display: "inline-block",
+                    position: "relative",
+                    transition: "transform 0.1s ease-out",
+                  }}
+                >
+                  {isReview ? <ClickableText text={option_a} /> : option_a}
+                </div>
+              </div>)
+              : (isReview ? <ClickableText text={option_a} /> : option_a)}
           </Button>
           <Button
             color={
               correct == 2
                 ? "success"
                 : previous_answer == 2
-                ? "danger"
-                : "primary"
+                  ? "danger"
+                  : "primary"
             }
             onClick={
               previous_answer !== undefined && correct !== undefined
@@ -149,28 +183,63 @@ export default function QuestionCard({
             }
             variant={
               answers[cur_question - 1] === Answer.B ||
-              correct == 2 ||
-              previous_answer == 2
+                correct == 2 ||
+                previous_answer == 2
                 ? "solid"
                 : "bordered"
             }
-            className={`flex items-center justify-center text-xl h-12 mx-3 ${
-              answers[cur_question - 1] === Answer.C ||
+            className={`flex items-center justify-center text-xl h-12 mx-3 ${answers[cur_question - 1] === Answer.B ||
               correct == 2 ||
               previous_answer == 2
-                ? ""
-                : ""
-            }`}
+              ? ""
+              : ""
+              }`}
           >
-            {isReview ? <ClickableText text={option_b} /> : option_b}
+            {option_a.length > 25 ? (
+              <div
+                className="relative w-full h-full whitespace-nowrap cursor-grab"
+                style={{ position: "relative", overflow: "hidden", whiteSpace: "nowrap" }}
+                onMouseMove={(e) => {
+                  const button = e.currentTarget;
+                  const text = button.querySelector("div");
+                  if (text) {
+                    const rect = button.getBoundingClientRect();
+                    const mouseX = e.clientX - rect.left; // Mouse X relative to the button
+                    const width = rect.width; // Width of the button
+                    const move = Math.max(
+                      0,
+                      Math.min(mouseX / width, 1) // Limit the move ratio between 0 and 1
+                    );
+                    text.style.transform = `translateX(-${move * 100}%)`;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  const text = e.currentTarget.querySelector("div");
+                  if (text) {
+                    text.style.transform = "translateX(0%)"; // Reset position when mouse leaves
+                  }
+                }}
+              >
+                <div
+                  className="absolute mt-1"
+                  style={{
+                    display: "inline-block",
+                    position: "relative",
+                    transition: "transform 0.1s ease-out",
+                  }}
+                >
+                  {isReview ? <ClickableText text={option_b} /> : option_b}
+                </div>
+              </div>)
+              : (isReview ? <ClickableText text={option_b} /> : option_b)}
           </Button>
           <Button
             color={
               correct == 3
                 ? "success"
                 : previous_answer == 3
-                ? "danger"
-                : "primary"
+                  ? "danger"
+                  : "primary"
             }
             onClick={
               previous_answer !== undefined && correct !== undefined
@@ -179,28 +248,63 @@ export default function QuestionCard({
             }
             variant={
               answers[cur_question - 1] === Answer.C ||
-              correct == 3 ||
-              previous_answer == 3
+                correct == 3 ||
+                previous_answer == 3
                 ? "solid"
                 : "bordered"
             }
-            className={`flex items-center justify-center text-xl h-12 mx-3 ${
-              answers[cur_question - 1] === Answer.C ||
+            className={`flex items-center justify-center text-xl h-12 mx-3 ${answers[cur_question - 1] === Answer.C ||
               correct == 3 ||
               previous_answer == 3
-                ? ""
-                : ""
-            }`}
+              ? ""
+              : ""
+              }`}
           >
-            {isReview ? <ClickableText text={option_c} /> : option_c}
+            {option_a.length > 25 ? (
+              <div
+                className="relative w-full h-full whitespace-nowrap cursor-grab"
+                style={{ position: "relative", overflow: "hidden", whiteSpace: "nowrap" }}
+                onMouseMove={(e) => {
+                  const button = e.currentTarget;
+                  const text = button.querySelector("div");
+                  if (text) {
+                    const rect = button.getBoundingClientRect();
+                    const mouseX = e.clientX - rect.left; // Mouse X relative to the button
+                    const width = rect.width; // Width of the button
+                    const move = Math.max(
+                      0,
+                      Math.min(mouseX / width, 1) // Limit the move ratio between 0 and 1
+                    );
+                    text.style.transform = `translateX(-${move * 100}%)`;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  const text = e.currentTarget.querySelector("div");
+                  if (text) {
+                    text.style.transform = "translateX(0%)"; // Reset position when mouse leaves
+                  }
+                }}
+              >
+                <div
+                  className="absolute mt-1"
+                  style={{
+                    display: "inline-block",
+                    position: "relative",
+                    transition: "transform 0.1s ease-out",
+                  }}
+                >
+                  {isReview ? <ClickableText text={option_c} /> : option_c}
+                </div>
+              </div>)
+              : (isReview ? <ClickableText text={option_c} /> : option_c)}
           </Button>
           <Button
             color={
               correct == 4
                 ? "success"
                 : previous_answer == 4
-                ? "danger"
-                : "primary"
+                  ? "danger"
+                  : "primary"
             }
             onClick={
               previous_answer !== undefined && correct !== undefined
@@ -209,20 +313,55 @@ export default function QuestionCard({
             }
             variant={
               answers[cur_question - 1] === Answer.D ||
-              correct == 4 ||
-              previous_answer == 4
+                correct == 4 ||
+                previous_answer == 4
                 ? "solid"
                 : "bordered"
             }
-            className={`flex items-center justify-center text-xl h-12 mx-3 ${
-              answers[cur_question - 1] === Answer.C ||
+            className={`flex items-center justify-center text-xl h-12 mx-3 ${answers[cur_question - 1] === Answer.D ||
               correct == 4 ||
               previous_answer == 4
-                ? ""
-                : ""
-            }`}
+              ? ""
+              : ""
+              }`}
           >
-            {isReview ? <ClickableText text={option_d} /> : option_d}
+            {option_a.length > 25 ? (
+              <div
+                className="relative w-full h-full whitespace-nowrap cursor-grab"
+                style={{ position: "relative", overflow: "hidden", whiteSpace: "nowrap" }}
+                onMouseMove={(e) => {
+                  const button = e.currentTarget;
+                  const text = button.querySelector("div");
+                  if (text) {
+                    const rect = button.getBoundingClientRect();
+                    const mouseX = e.clientX - rect.left; // Mouse X relative to the button
+                    const width = rect.width; // Width of the button
+                    const move = Math.max(
+                      0,
+                      Math.min(mouseX / width, 1) // Limit the move ratio between 0 and 1
+                    );
+                    text.style.transform = `translateX(-${move * 100}%)`;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  const text = e.currentTarget.querySelector("div");
+                  if (text) {
+                    text.style.transform = "translateX(0%)"; // Reset position when mouse leaves
+                  }
+                }}
+              >
+                <div
+                  className="absolute mt-1"
+                  style={{
+                    display: "inline-block",
+                    position: "relative",
+                    transition: "transform 0.1s ease-out",
+                  }}
+                >
+                  {isReview ? <ClickableText text={option_d} /> : option_d}
+                </div>
+              </div>)
+              : (isReview ? <ClickableText text={option_d} /> : option_d)}
           </Button>
         </div>
       </CardFooter>

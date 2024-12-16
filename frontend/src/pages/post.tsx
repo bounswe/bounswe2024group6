@@ -20,7 +20,6 @@ import CommentSkeleton from "../components/post/comment-skeleton.tsx";
 export default function Post() {
   const { postID } = useParams();
   const { commentID } = useParams();
-  console.log(postID, commentID);
   const [post, setPost] = useState<Post | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [comment, setComment] = useState("");
@@ -51,7 +50,7 @@ export default function Post() {
           const postData: PostResponse = response.data.post;
           setPost(convertPostResponseToPost(postData));
           setComments(
-            convertPostResponseToPost(postData).comments.filter((comment) => comment.parent === Number(postID))
+            convertPostResponseToPost(postData).comments.filter((comment) => ((comment.parent === Number(postID)) || (comment.parent === null)))
           );          
         })
         .catch((error) => {

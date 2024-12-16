@@ -49,7 +49,7 @@ export default function QuizEnd() {
                     setIsLiked(response.data.quiz_result.is_liked);
                     setLikes(response.data.quiz_result.like_count);
                     setIsBookmarked(response.data.quiz_result.is_bookmarked);
-                    setquiz_id(response.data.quiz_result.id);
+                    setquiz_id(response.data.quiz_result.quiz.id);
                 })
                 .catch((error) => {
                     console.error("Error fetching quiz data:", error);
