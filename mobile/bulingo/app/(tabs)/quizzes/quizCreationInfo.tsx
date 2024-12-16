@@ -77,7 +77,7 @@ const QuizCreationInfo = () => {
       setAnswers(JSON.parse(Array.isArray(initialAnswers) ? initialAnswers[0] : initialAnswers));
       setCorrectAnswerIndex(Number(initialCorrectAnswer));
       setSelectedType(type instanceof Array ? type[0] : type);
-      if (initalQuestionImage === ''){
+      if (initalQuestionImage === undefined){
         setLocalImage(null);
       }
       else{
