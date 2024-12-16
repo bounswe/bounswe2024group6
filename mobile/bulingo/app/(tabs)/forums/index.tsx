@@ -4,7 +4,9 @@ import { useNavigation } from '@react-navigation/native';
 import Navbar from '../../navbar';
 import { router, useFocusEffect } from 'expo-router';
 import PostCard from '../../components/postcard'; 
-import { likePost, bookmarkPost, getUserPostFeed, unlikePost, unbookmarkPost } from '../../api/forum'; // Import the functions from forum.tsx
+import { likePost, bookmarkPost, getUserPostFeed, getGuestUserPostFeed, unlikePost, unbookmarkPost } from '../../api/forum'; // Import the functions from forum.tsx
+import GuestModal from '@/app/components/guestModal';
+import TokenManager from '@/app/TokenManager';
 
 
 interface ForumPost {
@@ -27,6 +29,7 @@ const ForumFeed: React.FC = () => {
   const flatListRef = useRef<FlatList<ForumPost>>(null);
   const navigation = useNavigation();
   
+  const [guestModalVisible, setGuestModalVisible] = useState(false);
   
   
   useFocusEffect(
@@ -39,7 +42,12 @@ const ForumFeed: React.FC = () => {
   const loadPosts = async (): Promise<void> => {
 
   try {
-    var response =  await getUserPostFeed();
+    if(!TokenManager.getUsername()){
+      var response =  await getGuestUserPostFeed();
+    }else{
+        var response =  await getUserPostFeed();
+    }
+
     if (loading) return;
     setLoading(true);
 
@@ -96,6 +104,11 @@ const ForumFeed: React.FC = () => {
   };
 
   const handleAddButton = () => {
+    if(!TokenManager.getUsername()){
+        setGuestModalVisible(true);
+        return
+    }
+
     router.push({
       pathname: '/(tabs)/forums/forumPostCreation',
       params: {
@@ -239,6 +252,8 @@ const ForumFeed: React.FC = () => {
   );
 
   return (
+    <>
+    {guestModalVisible && <GuestModal onClose={() => setGuestModalVisible(false)}/>}
     <View style={styles.container}>
 
       <View style={styles.searchContainer}>
@@ -271,6 +286,7 @@ const ForumFeed: React.FC = () => {
         }
       />
     </View>
+    </>
   );
 };
 

@@ -5,7 +5,7 @@ import GuestModal from './guestModal';
 import TokenManager from '../TokenManager';
 import PressableText from '../pressableText';
 import {router} from 'expo-router';
-import { fetchCommentAuthorImage } from '../api/forum';
+import { fetchCommentAuthorImage, fetchGuestUserCommentAuthorImage } from '../api/forum';
 import { bookmarkComment, unbookmarkComment } from '../api/forum';
 
 interface CommentCardProps {
@@ -27,7 +27,13 @@ const CommentCard: React.FC<CommentCardProps> = ({ id, isBookmarked: initialBook
     useEffect(() => {
         const fetchImage = async () => {
             try {
-                const response = await fetchCommentAuthorImage(username);
+              if(!TokenManager.getUsername()){
+                var response =  await fetchGuestUserCommentAuthorImage(username);
+              }else{
+                  var response =  await fetchCommentAuthorImage(username);
+              }
+              
+                // const response = await fetchCommentAuthorImage(username);
                 console.log(response.profile_picture)
                 setImageLink(response.profile_picture);
             } catch (error) {
