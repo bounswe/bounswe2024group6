@@ -199,76 +199,77 @@ export default function QuizDetails() {
                                     )}
                                 </div>
 
-                        <div className="w-full flex flex-row justify-start gap-3 items-center">
-                            <Button color="primary" variant="solid" onClick={() => navigate(`/quiz/${quizData?.id}`, { state: { isNotResuming: true } })}
-                                className="w-1/3 items-center text-center mt-3">
-                                Start Quiz
-                            </Button>
-                            {hasAttempted && (
-                                <Button color="primary" variant="faded" onClick={() => navigate(`/quiz/${quizData?.id}`, { state: { isNotResuming: false } })} className="w-1/4 items-center text-center mt-3">
-                                    Resume Quiz
-                                </Button>
-                            )}
-                        </div>
-                    </div>
-                </CardBody>
-                <Divider className="bg-zinc-200" />
-                <CardFooter className="flex justify-between gap-2">
-                    <div className="flex gap-0 items-center">
-                        <div className="flex justify-between items-center">
-                            <p
-                                className={cn("font-semibold text-default-500", {
-                                    "font-semibold text-red-500": isLiked,
-                                })}
-                            >
-                                {quizData?.like_count}
-                            </p>
-                            <Button
-                                isIconOnly
-                                color="danger"
-                                aria-label="Like"
-                                onClick={toggleLike}
-                                variant="light"
-                                className="flex items-center gap-3"
-                            >
-                                {isLiked ? (
-                                    <IconThumbUpFilled size={20} stroke={1.5} />
-                                ) : (
-                                    <IconThumbUp size={20} stroke={1.5} />
-                                )}
-                            </Button>
-                        </div>
-                        <Button
-                            isIconOnly
-                            color="secondary"
-                            aria-label="Bookmark"
-                            onClick={toggleBookmark}
-                            variant="light"
-                        >
-                            {isBookmarked ? (
-                                <IconBookmarkFilled size={20} stroke={1.5} />
-                            ) : (
-                                <IconBookmark size={20} stroke={1.5} />
-                            )}
-                        </Button>
-                    </div>
-                    <div className="flex gap-2">
-                        {quizData?.tags &&
-                            quizData?.tags.map((tag) => (
+                                <div className="w-full flex flex-row justify-start gap-3 items-center">
+                                    <Button color="primary" variant="solid" onClick={() => navigate(`/quiz/${quizData?.id}`, { state: { isNotResuming: true } })}
+                                        className="w-1/3 items-center text-center mt-3">
+                                        Start Quiz
+                                    </Button>
+                                    {hasAttempted && (
+                                        <Button color="primary" variant="faded" onClick={() => navigate(`/quiz/${quizData?.id}`, { state: { isNotResuming: false } })} className="w-1/4 items-center text-center mt-3">
+                                            Resume Quiz
+                                        </Button>
+                                    )}
+                                </div>
+                            </div>
+                        </CardBody>
+                        <Divider className="bg-zinc-200" />
+                        <CardFooter className="flex justify-between gap-2">
+                            <div className="flex gap-0 items-center">
+                                <div className="flex justify-between items-center">
+                                    <p
+                                        className={cn("font-semibold text-default-500", {
+                                            "font-semibold text-red-500": isLiked,
+                                        })}
+                                    >
+                                        {quizData?.like_count}
+                                    </p>
+                                    <Button
+                                        isIconOnly
+                                        color="danger"
+                                        aria-label="Like"
+                                        onClick={toggleLike}
+                                        variant="light"
+                                        className="flex items-center gap-3"
+                                    >
+                                        {isLiked ? (
+                                            <IconThumbUpFilled size={20} stroke={1.5} />
+                                        ) : (
+                                            <IconThumbUp size={20} stroke={1.5} />
+                                        )}
+                                    </Button>
+                                </div>
                                 <Button
-                                    key={tag}
-                                    color="primary"
-                                    variant="flat"
-                                    className="text-sm h-8"
-                                    size="sm"
-                                    radius="full"
+                                    isIconOnly
+                                    color="secondary"
+                                    aria-label="Bookmark"
+                                    onClick={toggleBookmark}
+                                    variant="light"
                                 >
-                                    #{tag}
+                                    {isBookmarked ? (
+                                        <IconBookmarkFilled size={20} stroke={1.5} />
+                                    ) : (
+                                        <IconBookmark size={20} stroke={1.5} />
+                                    )}
                                 </Button>
-                            ))}
-                    </div>
-                </CardFooter>
-            </Card>
+                            </div>
+                            <div className="flex gap-2">
+                                {quizData?.tags &&
+                                    quizData?.tags.map((tag) => (
+                                        <Button
+                                            key={tag}
+                                            color="primary"
+                                            variant="flat"
+                                            className="text-sm h-8"
+                                            size="sm"
+                                            radius="full"
+                                        >
+                                            #{tag}
+                                        </Button>
+                                    ))}
+                            </div>
+                        </CardFooter>
+                    </Card>
+                )}
         </div>
     );
 }
