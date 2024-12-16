@@ -185,21 +185,21 @@ const NotificationItem = ( {activity} : any ) => {
       }
     }
 
-    // return (
-    //   <Text style={styles.notificationText}>
-    //     <Text style={styles.clickableText} onPress={() => goToProfile(activity.actor)}>
-    //       {activity.actor==username ? "You" : activity.actor}
-    //     </Text>
-    //     {' '}
-    //     {getMiddle()}
-    //     {' '}
-    //     <Text style={activity.verb == "deleted" ? null : styles.clickableText} onPress={() => handlePress()}>
-    //       {getLast()}
-    //     </Text>
-    //     {' '}
-    //     {timeDifferenceToString(activity.timestamp)}
-    //   </Text>
-    // );
+    return (
+      <Text style={styles.notificationText}>
+        <Text style={styles.clickableText} onPress={() => goToProfile(activity.actor)}>
+          {activity.actor==username ? "You" : activity.actor}
+        </Text>
+        {' '}
+        {getMiddle()}
+        {' '}
+        <Text style={activity.verb == "deleted" ? null : styles.clickableText} onPress={() => handlePress()}>
+          {getLast()}
+        </Text>
+        {'\n'}
+        {timeDifferenceToString(activity.timestamp)}
+      </Text>
+    );
     // return (
     //   <View style={styles.notificationTextContainer}>
     //     <Text style={styles.notificationText}>
@@ -235,23 +235,23 @@ const NotificationItem = ( {activity} : any ) => {
     //   </View>
     // );
 
-    return (
-      <View style={styles.notificationTextContainer}>
-        <View style={styles.fullWidthContainer}>
-          <Text style={styles.clickableText} onPress={() => goToProfile(activity.actor)}>
-            {activity.actor == username ? "You" : activity.actor}
-          </Text>
-          <Text>{' '}</Text>
-          <Text >{getMiddle()}</Text>
-          <Text>{' '}</Text>
-          <Text style={activity.verb == "deleted" ? null : styles.clickableText} onPress={() => handlePress()}>
-            {getLast()}
-          </Text>
-          <Text>{' '}</Text>
-          <Text>{timeDifferenceToString(activity.timestamp)}</Text>
-        </View>
-      </View>
-    );
+    // return (
+    //   <View style={styles.notificationTextContainer}>
+    //     <View style={styles.fullWidthContainer}>
+    //       <Text style={styles.clickableText} onPress={() => goToProfile(activity.actor)}>
+    //         {activity.actor == username ? "You" : activity.actor}
+    //       </Text>
+    //       <Text>{' '}</Text>
+    //       <Text >{getMiddle()}</Text>
+    //       <Text>{' '}</Text>
+    //       <Text style={activity.verb == "deleted" ? null : styles.clickableText} onPress={() => handlePress()}>
+    //         {getLast()}
+    //       </Text>
+    //       <Text>{' '}</Text>
+    //       <Text>{timeDifferenceToString(activity.timestamp)}</Text>
+    //     </View>
+    //   </View>
+    // );
     // return (
     //   <View style={styles.notificationTextContainer}>
     //     <View style={styles.fullWidthContainer}>
@@ -418,7 +418,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   clickableText: {
-    // marginVertical: -7,
+    marginVertical: -3,
     fontSize: 14,
     color: '#1a73e8', // Blue for clickable text
   },
