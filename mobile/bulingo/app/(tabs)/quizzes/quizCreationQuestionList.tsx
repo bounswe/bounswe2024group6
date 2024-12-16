@@ -122,9 +122,11 @@ const QuizCreationQuestionList = () => {
 
     const questionsWithImages = questions.map((q, index) => {
       if (q.image) {
-        const fileName = q.image.split('/').pop();
-        const fileType = fileName!.split('.').pop();
-  
+        console.log(q.image)
+        const fileName = q.image.split('?')[0].split('/').pop() || 'image';
+        const fileType = fileName.split('.').pop() || 'jpeg';
+        console.log(fileName);
+        console.log(fileType);
         formData.append(`question_image_${index + 1}`, {
           uri: q.image,
           name: fileName,
