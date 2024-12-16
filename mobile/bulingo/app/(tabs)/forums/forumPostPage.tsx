@@ -3,7 +3,9 @@ import { View, ScrollView, StyleSheet, Text, FlatList, ActivityIndicator, Toucha
 import PostCard from '../../components/postcard'; // Assuming you already have the PostCard component defined
 import CommentCard from '../../components/commentcard'; // Assuming you already have the CommentCard component defined
 import { useLocalSearchParams } from 'expo-router';
-import { getPostDetails, unlikePost, likePost, unbookmarkPost, bookmarkPost, unlikeComment, likeComment, addComment } from '../../api/forum'; // Fetch post and comments API
+import { getPostDetails,getGuestUserPostDetails, unlikePost, likePost, unbookmarkPost, bookmarkPost, unlikeComment, likeComment, addComment } from '../../api/forum'; // Fetch post and comments API
+import TokenManager from '@/app/TokenManager';
+import GuestModal from '@/app/components/guestModal';
 
 interface Comment {
   id: number;
@@ -45,12 +47,18 @@ const ForumPostPage = () => {
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [newComment, setNewComment] = useState('');
+  const [guestModalVisible, setGuestModalVisible] = useState(false);
 
   useEffect(() => {
     // Fetch post details
     const fetchPostandComments = async () => {
       try {
-        var response = await getPostDetails(Number(id));
+        if(!TokenManager.getUsername()){
+          var response =  await getGuestUserPostDetails(Number(id));
+        }else{
+            var response =  await getPostDetails(Number(id));
+        }
+        // var response = await getPostDetails(Number(id));
         var post = response.post;
         console.log(post);
 
@@ -203,6 +211,7 @@ const ForumPostPage = () => {
   };
 
   const handleAddComment = async (postId: number, newComment: string) => {
+    
     try {
 
       
@@ -238,6 +247,9 @@ const ForumPostPage = () => {
       {loading ? (
         <ActivityIndicator size="large" color="#0000ff" />
       ) : (
+        <>
+        {guestModalVisible && <GuestModal onClose={() => setGuestModalVisible(false)}/>}
+
         <FlatList
           data={post.comments}
           keyExtractor={(item) => item.id.toString()}
@@ -264,7 +276,13 @@ const ForumPostPage = () => {
                 {/* <TouchableOpacity onPress={() => setModalVisible(true)}>
                   <Text style={styles.addButton}>+</Text>
                 </TouchableOpacity> */}
-              <TouchableOpacity style={styles.addButtonContainer} onPress={() => setModalVisible(true)}>
+              <TouchableOpacity style={styles.addButtonContainer} 
+              onPress={() => {
+                if(!TokenManager.getUsername()){
+                  setGuestModalVisible(true);
+                  return
+              }
+                setModalVisible(true)}}>
                 <Text style={styles.addButtonText}>+</Text>
               </TouchableOpacity>
               </View>
@@ -272,6 +290,7 @@ const ForumPostPage = () => {
           }
           ListHeaderComponentStyle={styles.container}
         />
+        </>
       )}
 
       {/* Modal for adding a comment */}

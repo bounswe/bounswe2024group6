@@ -1,5 +1,5 @@
 import TokenManager  from '../TokenManager'; // Ensure TokenManager is properly implemented
-
+import { BASE_URL } from '../TokenManager';
 
 // const BASE_URL = 'http://54.93.52.38/'; // Replace with your actual API base URL
 
@@ -112,4 +112,71 @@ export const getUserActivitiesAsObject = async () => {
 // **Feed**
 export const getUserPostFeed = async () => {
     return await makeAuthenticatedRequest('feed/', 'GET');
+};
+
+
+export const getGuestUserPostFeed = async () => {
+    try {
+        const response = await fetch(`${BASE_URL}/feed/`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || response.statusText);
+        }
+
+        return await response.json();
+    } catch (error: any) {
+        console.error('Error fetching feed for guest user:', error.message || error);
+        throw error;
+    }
+};
+
+
+export const getGuestUserPostDetails = async (postId: number) => {
+    try {
+        const response = await fetch(`${BASE_URL}/post/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ post_id: postId }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || response.statusText);
+        }
+
+        return await response.json();
+    } catch (error: any) {
+        console.error('Error fetching post details for guest user:', error.message || error);
+        throw error;
+    }
+};
+
+
+export const fetchGuestUserCommentAuthorImage = async (username: string) => {
+    try {
+        const response = await fetch(`${BASE_URL}/profile/${username}/`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || response.statusText);
+        }
+
+        return await response.json();
+    } catch (error: any) {
+        console.error('Error fetching comment author image for guest user:', error.message || error);
+        throw error;
+    }
 };
