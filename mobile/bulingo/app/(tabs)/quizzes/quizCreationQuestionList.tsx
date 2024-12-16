@@ -8,6 +8,7 @@ import TokenManager from '@/app/TokenManager';
 type Question = {
   id: number;
   name: string;
+  image: string;
   correctAnswer: string;
   answers: string[]; 
   type: string;
@@ -56,7 +57,7 @@ const QuizCreationQuestionList = () => {
   const colorScheme = useColorScheme();
   const styles = getStyles(colorScheme);
   
-  const { question, answers, correctAnswer, selectedType, index, trigger } = useLocalSearchParams();
+  const { question, questionImage, answers, correctAnswer, selectedType, index, trigger } = useLocalSearchParams();
   const parsedAnswers = Array.isArray(answers) ? answers.join(', ') : answers ? JSON.parse(answers) : [];
 
   const key = questions.length === 0 ? 0 : questions[questions.length - 1].id + 1;
@@ -67,6 +68,7 @@ const QuizCreationQuestionList = () => {
       const newQuestion = {
         id: index !== undefined ? questions[Number(index)].id : key,
         name: Array.isArray(question) ? question[0] : question,
+        image: Array.isArray(questionImage) ? questionImage[0] : questionImage ,
         correctAnswer: Array.isArray(correctAnswer) ? correctAnswer[0] : correctAnswer,
         answers: parsedAnswers,
         type: Array.isArray(selectedType) ? selectedType[0] : selectedType 
@@ -93,7 +95,7 @@ const QuizCreationQuestionList = () => {
   };
 
   const handleUpdateQuestion = (index: number) => {
-    router.navigate({pathname: '/(tabs)/quizzes/quizCreationInfo', params: { "initialQuestion": questions[index].name , "initialAnswers": JSON.stringify(questions[index].answers), "initialCorrectAnswer": Number(questions[index].correctAnswer), "type": questions[index].type, "index": index, "trigger": key + 50}});
+    router.navigate({pathname: '/(tabs)/quizzes/quizCreationInfo', params: { "initialQuestion": questions[index].name, "initalQuestionImage": questions[index].image, "initialAnswers": JSON.stringify(questions[index].answers), "initialCorrectAnswer": Number(questions[index].correctAnswer), "type": questions[index].type, "index": index, "trigger": key + 50}});
   };
 
   const handleCreateQuiz = async () => {
@@ -115,21 +117,45 @@ const QuizCreationQuestionList = () => {
     formData.append('level', quizDetails['level']);
 
     console.log(formData);
+
+    
+
+    const questionsWithImages = questions.map((q, index) => {
+      if (q.image) {
+        const fileName = q.image.split('/').pop();
+        const fileType = fileName!.split('.').pop();
   
-    formData.append(
-      'questions',
-      JSON.stringify(
-        questions.map((q, index) => ({
+        formData.append(`question_image_${index + 1}`, {
+          uri: q.image,
+          name: fileName,
+          type: `image/${fileType}`,
+        });
+  
+        return {
           question_number: index + 1,
+          question_image: `question_image_${index + 1}`, // Image key for server to map
           question_text: q.name,
           choice1: q.answers[0],
           choice2: q.answers[1],
           choice3: q.answers[2],
           choice4: q.answers[3],
           correct_choice: Number(q.correctAnswer) + 1,
-        }))
-      )
-    );
+        };
+      } else {
+        return {
+          question_number: index + 1,
+          question_image: null, 
+          question_text: q.name,
+          choice1: q.answers[0],
+          choice2: q.answers[1],
+          choice3: q.answers[2],
+          choice4: q.answers[3],
+          correct_choice: Number(q.correctAnswer) + 1,
+        };
+      }
+    });
+  
+    formData.append('questions', JSON.stringify(questionsWithImages));;
 
 
     return formData;

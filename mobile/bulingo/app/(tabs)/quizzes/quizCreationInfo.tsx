@@ -2,6 +2,8 @@ import React, { useState, useEffect} from 'react';
 import { ScrollView, Keyboard, Pressable, StyleSheet, Text, TextInput, View, TouchableWithoutFeedback, Image, TouchableOpacity, useColorScheme, Modal } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import TokenManager from '@/app/TokenManager';
+import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
 
 const QuizCreationInfo = () => {
   const [question, setQuestion] = useState('');
@@ -17,6 +19,7 @@ const QuizCreationInfo = () => {
   const [meaningList, setMeaningList] = useState<any>([]);
   const [meaningIndex, setMeaningIndex] = useState(0);
   const [error, setError] = useState('');
+  const [localImage, setLocalImage] = useState<string | null>(null); // Local file URI
 
   const isButtonDisabled = () => {
     const nonEmptyAnswers = answers.filter(answer => answer.trim() !== "");
@@ -27,7 +30,7 @@ const QuizCreationInfo = () => {
   const colorScheme = useColorScheme();
   const styles = getStyles(colorScheme);
 
-  const { initialQuestion, initialAnswers, initialCorrectAnswer, type, index, trigger} = useLocalSearchParams();
+  const { initialQuestion, initalQuestionImage, initialAnswers, initialCorrectAnswer, type, index, trigger} = useLocalSearchParams();
 
 
   const fetchVerticalOptions = async () => {
@@ -77,7 +80,9 @@ const QuizCreationInfo = () => {
       setAnswers(JSON.parse(Array.isArray(initialAnswers) ? initialAnswers[0] : initialAnswers));
       setCorrectAnswerIndex(Number(initialCorrectAnswer));
       setSelectedType(type instanceof Array ? type[0] : type);
+      setLocalImage(initalQuestionImage instanceof Array ? encodeURI(initalQuestionImage[0]) : encodeURI(initalQuestionImage));
     }
+    console.log(initalQuestionImage);
   }, [initialQuestion, initialAnswers, initialCorrectAnswer]);
 
   const handleGoBack = () => {
@@ -112,7 +117,7 @@ const QuizCreationInfo = () => {
   };
 
   const handleAddQuestion = () => {
-    router.navigate({ pathname: '/(tabs)/quizzes/quizCreationQuestionList', params: { question: question, answers: JSON.stringify(answers), correctAnswer: correctAnswerIndex, selectedType: selectedType, index: index, trigger: trigger} });
+    router.navigate({ pathname: '/(tabs)/quizzes/quizCreationQuestionList', params: { question: question, answers: JSON.stringify(answers), correctAnswer: correctAnswerIndex, selectedType: selectedType, index: index, trigger: trigger, questionImage: localImage} });
   };
 
   const handleTypeSelect = (type: string) => {
@@ -253,6 +258,39 @@ const QuizCreationInfo = () => {
     }
   };
 
+  const handlePickQuestionImage = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        const originalUri = result.assets[0].uri;
+        console.log('Original URI:', originalUri);
+
+        const fileName = originalUri.split('/').pop();
+        const newUri = `${FileSystem.documentDirectory}${fileName}`;
+
+        await FileSystem.moveAsync({
+          from: originalUri,
+          to: newUri,
+        });
+
+        console.log('File moved to:', newUri);
+        setLocalImage(newUri);
+      }
+    } catch (error) {
+      console.error('Error saving image locally:', error);
+    }
+  };
+  
+  const handleRemoveQuestionImage = () => {
+    setLocalImage(null);
+  };
+  
+
   return (
     <TouchableWithoutFeedback onPress={resetSelections} accessible={false}>
     <View style={styles.container}>
@@ -286,13 +324,40 @@ const QuizCreationInfo = () => {
         <View style={[styles.questionAnswersContainer, styles.elevation]}>
           {/* Editable question title area */}
           <View style={styles.questionBox}>
-            <TextInput
-              style={styles.questionText}
-              value={question}
-              onChangeText={(text) => setQuestion(text)}
-              editable={true} 
-            />
+              <TextInput
+                style={styles.questionText}
+                value={question}
+                onChangeText={(text) => setQuestion(text)}
+                editable={true}
+                placeholder="Type your question here..."
+              />
+
+            {localImage && (
+              <View>
+                <Image
+                  source={{ uri: localImage }}
+                  style={styles.questionImageStyle}
+                  resizeMode="contain"
+                />
+                <TouchableOpacity
+                  style={styles.removeImageButton}
+                  onPress={handleRemoveQuestionImage}
+                >
+                  <Text style={styles.removeImageButtonText}>Remove Image</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            <TouchableOpacity
+              style={styles.addImageButton}
+              onPress={handlePickQuestionImage}
+            >
+              <Text style={styles.addImageButtonText}>
+                {localImage ? 'Change Image' : 'Add Image'}
+              </Text>
+            </TouchableOpacity>
           </View>
+
           <View style={styles.answerGridContainer}>
             {answerGrid.map((row, rowIndex) => (
               <View key={rowIndex} style={styles.answerRow}>
@@ -726,6 +791,43 @@ const getStyles = (colorScheme: any) => {
       fontSize: 16,
       color: isDark ? '#fff' : '#000',
     },
+    questionImageStyle: {
+      width: '100%',
+      height: 200,
+      borderRadius: 10,
+      marginBottom: 10,
+    },
+    imageTypeText: {
+      fontSize: 14,
+      color: '#888',
+      textAlign: 'center',
+      marginVertical: 5,
+    },
+    addImageButton: {
+      backgroundColor: '#007BFF',
+      padding: 10,
+      borderRadius: 5,
+      alignItems: 'center',
+      marginTop: 10,
+    },
+    addImageButtonText: {
+      color: '#fff',
+      fontSize: 16,
+      fontWeight: 'bold',
+    },
+    removeImageButton: {
+      backgroundColor: '#FF0000',
+      padding: 10,
+      borderRadius: 5,
+      alignItems: 'center',
+      marginVertical: 10,
+    },
+    removeImageButtonText: {
+      color: '#fff',
+      fontSize: 14,
+      fontWeight: 'bold',
+    },
+    
   });
 };
 
