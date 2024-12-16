@@ -273,12 +273,15 @@ export default function QuizCard({
             onClick={() => navigate(`/quiz/${id}/details`)}
           >
             <div className="flex flex-row justify-between w-full">
-              <h2 className="text-2xl font-semibold leading-none text-default-800 mb-1">
-                <h2 className="text-default-800">{title}</h2>
+              <h2 
+                className="text-2xl font-semibold leading-none text-default-800 mb-1"
+                data-testid="quiz-title"
+              >
+                {title}
               </h2>
               <p className="text-default-600 text-sm">{timesTaken} Attemps</p>
             </div>
-            <p>
+            <p data-testid="quiz-description">
               {displayedText}
               {content.length > maxLength && (
                 <span
@@ -305,6 +308,7 @@ export default function QuizCard({
                   setIsOpen={setGuestModalOpen}
                 />
                 <Button
+                  data-testid="like-button"
                   isIconOnly
                   color="danger"
                   aria-label="Like"
@@ -320,6 +324,7 @@ export default function QuizCard({
                 </Button>
               </div>
               <Button
+                data-testid="bookmark-button"
                 isIconOnly
                 color="secondary"
                 aria-label="Bookmark"
@@ -340,6 +345,7 @@ export default function QuizCard({
                 tags.map((tag) => (
                   <Button
                     key={tag}
+                    data-testid={`tag-${tag}`}
                     color="primary"
                     variant="flat"
                     className="text-sm h-8"
