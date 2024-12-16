@@ -56,6 +56,7 @@ class ProfileSerializer(serializers.ModelSerializer):
                 "created_at": post.created_at,
                 "like_count": post.like_count,
                 "tags": post.tags,
+                "author": post.author,
                 "is_liked": is_liked,
                 "is_bookmarked": is_bookmarked,
                 "comments": comments_data
