@@ -43,13 +43,23 @@ export default function QuizCreation() {
       formData.append("title_image", quizHeader.title_image);
     }
 
-    formData.append(
-      `questions`,
-      JSON.stringify(
-        quizQuestions,
-      )
-    );
-    console.log("Form data:", formData);
+    // Handle questions with images
+    
+    const questionsWithImages = quizQuestions.map((question, index) => {
+      if (question.image) {
+        formData.append(`question_image_${index + 1}`, question.image);
+      }
+      return {
+        ...question,
+      };
+    });
+
+    formData.append('questions', JSON.stringify(questionsWithImages));
+    // Log FormData contents for debugging
+    console.log('FormData content:');
+    for (const pair of formData.entries()) {
+      console.log(pair[0], pair[1]);
+    }
     
     axios
       .post(`${BASE_URL}/quiz/create/`, formData, {
@@ -59,7 +69,7 @@ export default function QuizCreation() {
         },
       })
       .then((response) => {
-        console.log(response);
+        console.log("quiz created", response);
         navigate("/quizzes");
       })
       .catch((error) => {
