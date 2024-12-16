@@ -116,6 +116,7 @@ export type QuizDetail = {
   times_taken: number;
   tags: string[];
   quiz_result_id: number;
+  title_image?: string;
   is_solved: boolean;
   has_unfinished_progress: boolean;
 };
@@ -134,6 +135,7 @@ export type QuizDetailsResponse = {
     is_liked: boolean;
     is_bookmarked: boolean;
     like_count: number;
+    title_image: string;
     question_count: number;
     level: string;
     times_taken: number;

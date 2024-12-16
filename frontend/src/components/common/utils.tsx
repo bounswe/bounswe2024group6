@@ -120,6 +120,7 @@ export const convertQuizDetailsResponseToQuizDetails = (
     question_count: quiz.question_count,
     level: quiz.level,
     times_taken: quiz.times_taken,
+    title_image: quiz.title_image,
     tags: quiz.tags,
     quiz_result_id: quiz_result_id,
     is_solved: is_solved,
