@@ -326,14 +326,9 @@ def start_quiz(request):
         quiz=quiz, 
         user=request.user, 
         completed=False
-    )
+    ).order_by('-id')
 
-    if quiz_progresses.count() > 1:
-        return Response(
-            {'error': 'Multiple quiz progresses found'}, 
-            status=status.HTTP_400_BAD_REQUEST
-        )
-    elif quiz_progresses.count() == 1:
+    if quiz_progresses.count() >= 1:
         quiz_progress = quiz_progresses[0]
         question_progresses = QuestionProgress.objects.filter(quiz_progress=quiz_progress)
         if question_progresses.count() == 0:
