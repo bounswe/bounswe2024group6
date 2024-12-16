@@ -5,6 +5,9 @@ import {router, useFocusEffect} from 'expo-router';
 import QuizCard from '@/app/components/quizCard';
 import TokenManager from '@/app/TokenManager';
 import GuestModal from '@/app/components/guestModal';
+import CommentCard from '@/app/components/commentcard';
+import PostCard from '@/app/components/postcard';
+import { likePost, bookmarkPost, unlikePost, unbookmarkPost } from '../../api/forum'; // Import the functions from forum.tsx
 
 const defaultUserInfo: UserInfo = {
   username: 'ygz',
@@ -99,6 +102,7 @@ export default function Profile() {
           const profileResponse = await profileRequest.json();
           if (profileRequest.ok){
             updatedUserInfo = profileResponse
+            console.log(profileResponse);
           } else {
             console.log(profileRequest.status)
           };
@@ -163,6 +167,123 @@ export default function Profile() {
     return <GuestModal onClose={onGuestModalClose}/>
   }
 
+  const handlePostPress = (id: number) => {
+    router.navigate({pathname: '/(tabs)/forums/forumPostPage', params: {
+       "id": id,
+      }});
+  };
+
+  const handleLikePress = async (postId: number): Promise<void> => { 
+    console.log(userInfo);
+    userInfo.posts.map(async post => {
+      if (post.id === postId) {
+        if(post.is_liked){
+          try {
+            const response = await unlikePost(postId);
+            if (response) {
+              setUserInfo(
+                {
+                  ...userInfo,
+                  posts: userInfo.posts.map(post => {
+                    if (post.id === postId) {
+                      return {
+                        ...post,
+                        is_liked: response.is_liked,
+                        like_count: response.like_count
+                      };
+                    }
+                    return post;})
+                }
+              );
+            }
+          } catch (error) {
+            console.error('Failed to unlike post:', error);
+          }
+        }
+        else{
+          try {
+            const response = await likePost(postId);
+            if (response) {
+              setUserInfo(
+                {
+                ...userInfo,
+                posts: userInfo.posts.map(post => {
+                if (post.id === postId) {
+                  return {
+                    ...post,
+                    is_liked: response.is_liked,
+                    like_count: response.like_count
+                  };
+                }
+                return post; }
+              )});
+            }
+          } catch (error) {
+            console.error('Failed to like post:', error);
+          }
+        }
+
+      }
+    })
+    
+
+
+  };
+
+  const handleBookmarkPress = async (postId: number): Promise<void> => {
+    userInfo.posts.map(async post => {
+
+      if (post.id === postId) {
+        if(post.is_bookmarked){
+
+          try {
+            const response = await unbookmarkPost(postId);
+            if (response) {
+
+              setUserInfo(
+                {
+                ...userInfo,
+                posts: userInfo.posts.map(post => {
+                if (post.id === postId) {
+                  return {
+                    ...post,
+                    is_bookmarked: response.is_bookmarked,
+                  };
+                }
+                return post;
+              })}
+            );}
+          } catch (error) {
+            console.error('Failed to unbookmark post:', error);
+          }
+        }
+        else{
+          try {
+            const response = await bookmarkPost(postId);
+            if (response) {
+              setUserInfo(
+                {
+                ...userInfo,
+                posts: userInfo.posts.map(post => {
+                if (post.id === postId) {
+                  return {
+                    ...post,
+                    is_bookmarked: response.is_bookmarked,
+                  };
+                }
+                return post;
+              })});
+            }
+          } catch (error) {
+            console.error('Failed to bookmark post:', error);
+          }
+        }
+      }
+    })
+    
+  };
+
+
   return (
     <FlatList 
       data={tabData[tab-1]}
@@ -171,10 +292,24 @@ export default function Profile() {
         if (isQuizInfo(item)){
           return (
             <QuizCard id={item.id} author={item.author.username} title={item.title} level={item.level} 
-              description={item.description} liked={item.is_liked} likes={item.like_count}/>
+              description={item.description} liked={item.is_liked} likes={item.like_count} bookmarked={item.is_bookmarked}/>
+          );
+        }
+        else if(item.comments){
+          // Post
+          console.log("Post: ", item)
+          return (
+            <PostCard title={item.title} id={item.id} author={TokenManager.getUsername() || ''} likes={item.like_count} 
+              liked={item.is_liked} tags={item.tags} feedOrPost='feed' isBookmarked={item.is_bookmarked} 
+              onUpvote={() => handleLikePress(item.id)}
+              onBookmark={() => handleBookmarkPress(item.id)}
+              onPress={() => handlePostPress(item.id)}
+            />
           );
         }
         else{
+          // Comment
+          // console.log(item)
           return (
             <View style={{height: 100, borderWidth: 3, borderColor: 'black', borderRadius: 15, justifyContent: 'center', alignItems: 'center', marginHorizontal: 15, marginVertical: 5,}}>
               <Text>Placeholder Item {item.id}: {item.desc}</Text>
