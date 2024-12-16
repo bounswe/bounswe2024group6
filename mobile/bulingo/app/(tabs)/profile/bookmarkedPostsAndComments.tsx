@@ -181,7 +181,6 @@ export default function Followers() {
       renderItem={({item}) => {  // Placeholder, replace with post/comment card
         if(item.comments){
           // /// Post
-          console.log("Post", item)
           return (
             <PostCard title={item.title} id={item.id} author={TokenManager.getUsername() || ''} likes={item.like_count} 
               liked={item.is_liked} tags={item.tags} feedOrPost='feed' isBookmarked={item.is_bookmarked} 
@@ -193,7 +192,6 @@ export default function Followers() {
         }
         else{
           // Comment
-          console.log("Comment", item)
           return (
             <CommentCard
             id={item.id}
