@@ -7,7 +7,7 @@ import TokenManager from '@/app/TokenManager';
 
 export default function Followers() {
   const [isLoading, setIsLoading] = useState(true);
-  const [bookmarkedQuizzes, setBoormarkedQuizzes] = useState<QuizInfo[]>([])
+  const [bookmarkedQuizzes, setBookmarkedQuizzes] = useState<QuizInfo[]>([])
 
   useEffect(() => {
     const fetchFollowers = async () => {
@@ -22,6 +22,8 @@ export default function Followers() {
 
         if (response.ok){
           const result = await response.json()
+          console.log(result)
+          setBookmarkedQuizzes(result);
         } else {
           console.log(response.status)
         };
@@ -49,7 +51,7 @@ export default function Followers() {
       renderItem={({item}) => {  // Placeholder, replace with quiz card
         return (
           <QuizCard id={item.id} author={item.author.username} title={item.title} level={item.level} 
-              description={item.description} liked={item.is_liked} likes={item.like_count}/>
+              description={item.description} liked={item.is_liked} likes={item.like_count} bookmarked={item.is_bookmarked}/>
         );
       }}
       ListHeaderComponent={

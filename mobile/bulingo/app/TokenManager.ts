@@ -78,8 +78,6 @@ class TokenManager {
     options: RequestInit = {}
   ): Promise<Response> {
     let accessToken = await this.getAccessToken();
-    console.log("accessToken")
-    console.log(accessToken)
     if (!accessToken) {
       throw new Error("No access token found. User needs to log in again.");
     }
