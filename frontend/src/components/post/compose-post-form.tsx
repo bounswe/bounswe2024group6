@@ -225,7 +225,7 @@ export default function ComposePostForm() {
             data-testid="submit-post-button"
             color="primary"
             onPress={handleSubmit}
-            isDisabled={!title || !content || selectedTags.length === 0}
+            isDisabled={!title || !content}
           >
             Post
           </Button>
