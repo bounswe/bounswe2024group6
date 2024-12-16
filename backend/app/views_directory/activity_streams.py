@@ -20,6 +20,7 @@ def activities_for_user_as_object(request):
             "actor": activity.actor.username,
             "verb": activity.verb,
             "object_type": activity.object_type,
+            "object_name": activity.object_name,
             "object_id": activity.object_id,
             "timestamp": activity.timestamp,
             "affected_username": activity.affected_username,

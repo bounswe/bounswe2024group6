@@ -23,14 +23,15 @@ def like_post(request):
     post.like_count = post.liked_by.count()
     post.save()
 
-    ActivityStream.objects.create(
-        actor=request.user,
-        verb="liked",
-        object_type="Post",
-        object_id=post.id,
-        affected_username=post.author.username
-
-    )
+    if post.author != request.user:
+        ActivityStream.objects.create(
+            actor=request.user,
+            verb="liked",
+            object_type="Post",
+            object_id=post.id,
+            target=f"Post:{post.id}",
+            affected_username=post.author.username
+        )
 
     # Include like and bookmark status in the response
     is_liked = post.liked_by.filter(id=request.user.id).exists()
@@ -75,6 +76,36 @@ def unlike_post(request):
         status=status.HTTP_200_OK
     )
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_liked_posts(request):
+    """
+    Fetch all posts liked by the authenticated user.
+    """
+    user = request.user
+
+    # Fetch posts liked by the user
+    liked_posts = Post.objects.filter(liked_by=user).order_by('-created_at')
+
+    # Serialize the posts
+    liked_posts_data = [
+        {
+            "id": post.id,
+            "title": post.title,
+            "description": post.description,
+            "created_at": post.created_at,
+            "like_count": post.like_count,
+            "tags": post.tags,  # Assuming tags are stored as a list of strings
+            "author": post.author.username,
+            "is_liked": True,  # User liked these posts
+            "is_bookmarked": post.bookmarked_by.filter(id=user.id).exists(),  # Check bookmark status
+        }
+        for post in liked_posts
+    ]
+
+    return Response({"liked_posts": liked_posts_data}, status=status.HTTP_200_OK)
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_post(request):
@@ -96,12 +127,18 @@ def create_post(request):
         created_at=timezone.now()
     )
 
-    ActivityStream.objects.create(
-        actor=request.user,
-        verb="created",
-        object_type="Post",
-        object_id=post.id
-    )
+    user = request.user
+
+    for f in user.profile.followers.all():
+        ActivityStream.objects.create(
+            actor=request.user,
+            verb="created",
+            object_type="Post",
+            object_id=post.id,
+            object_name=title,
+            affected_username=f.user.username
+            )
+    
 
     return Response({"detail": "Post created successfully.", "post_id": post.id}, status=status.HTTP_201_CREATED)
 
@@ -114,17 +151,20 @@ def delete_post(request):
 
     post = get_object_or_404(Post, id=post_id)
 
-    if post.author != request.user.username:
+    if post.author != request.user.username and not request.user.is_staff:
         return Response({"detail": "You do not have permission to delete this post."}, status=status.HTTP_403_FORBIDDEN)
-
+    post_title = post.title
     post.delete()
-
-    ActivityStream.objects.create(
-        actor=request.user,
-        verb="deleted",
-        object_type="Post",
-        object_id=post_id
-    )
+    
+    if post.author != request.user: 
+        ActivityStream.objects.create(
+            actor=request.user,
+            verb="deleted",
+            object_type="Post",
+            object_id=post_id,
+            object_name=post_title,
+            affected_username=post.author.username
+        )
 
     return Response({"detail": "Post deleted successfully."}, status=status.HTTP_200_OK)
 
@@ -149,10 +189,48 @@ def get_posts_of_user(request):
     return Response({"posts": posts_data}, status=status.HTTP_200_OK)
 
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def update_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+
+    if post.author != request.user.username and not request.user.is_staff:
+        return Response({"detail": "You do not have permission to update this post."}, status=status.HTTP_403_FORBIDDEN)
+
+    tags = request.data.get("tags", [])
+    if not isinstance(tags, list):
+        return Response({"detail": "Tags must be a list of strings."}, status=status.HTTP_400_BAD_REQUEST)
+
+
+    title = request.data.get("title")
+    description = request.data.get("description")
+
+    if not (post.title == title and post.description == description and post.tags == tags) and post.author != request.user:
+        ActivityStream.objects.create(
+            actor=request.user,
+            verb="updated",
+            object_type="Post",
+            object_id=post.id,
+            object_name=title,
+            affected_username=post.author.username
+        )
+
+    if title:
+        post.title = title
+    
+    if description:
+        post.description = description
+
+    post.tags = tags
+    
+    post.save()
+
+    return Response({"detail": "Post updated successfully."}, status=status.HTTP_200_OK)
+
+
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
 def get_post_details(request):
     post_id = request.data.get("post_id")  
 
@@ -160,9 +238,11 @@ def get_post_details(request):
         return Response({"detail": "Post ID is required."}, status=status.HTTP_400_BAD_REQUEST)
 
     post = get_object_or_404(Post, id=post_id)
-
-    is_liked = post.liked_by.filter(id=request.user.id).exists()
-    is_bookmarked = Bookmark.objects.filter(user=request.user, post=post).exists() 
+    is_liked = False
+    is_bookmarked = False
+    if request.user.is_authenticated:
+        is_liked = post.liked_by.filter(id=request.user.id).exists()
+        is_bookmarked = Bookmark.objects.filter(user=request.user, post=post).exists() 
 
     comments = post.comments.all().order_by("-created_at")
     comments_data = CommentSerializer(comments, many=True, context={'request': request}).data

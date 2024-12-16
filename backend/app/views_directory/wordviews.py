@@ -17,9 +17,95 @@ from rest_framework import status
 from ..serializers import *
 from django.shortcuts import render
 from ..models import Tags
-from ..models import Quiz, Relationship, Word, Translation
+from ..models import Quiz, Relationship, Word, Translation, WordBookmark
 from ..word_service import lexvo_manager
 import requests
+from ..word_service.semantic_service import SemanticChoiceGenerator
+
+@api_view(['GET', 'POST'])
+def get_quiz_choices(request, word, quiz_type):
+    """
+    Get quiz choices for a word with specified quiz type and optional correct choice
+    """
+    try:
+        generator = SemanticChoiceGenerator()
+        correct_choice=None
+        if request.method == 'POST':
+            correct_choice = request.data.get('correct_choice')
+            if not correct_choice:
+                return Response(
+                    {"error": "correct_choice is required in POST body"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        result = generator.generate_quiz_question(word, quiz_type, correct_choice)
+
+        if not result:
+            return Response(
+                {"error": f"Could not generate choices for word '{word}'"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        return Response({
+            "correct_answer": result['correct_answer'],
+            "options": result['options']
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response(
+            {"error": f"An error occurred: {str(e)}"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def bookmark_word(request, word):
+    """
+    Bookmark a word for the user.
+    """
+    try:
+        user = request.user
+        bookmark, created = WordBookmark.objects.get_or_create(user=user, word=word)
+        if not created:
+            return Response({"error": "Word already bookmarked"}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({"message": "Word bookmarked successfully"}, status=status.HTTP_201_CREATED)
+
+    except Exception as e:
+        return Response({"error": f"An error occurred: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def unbookmark_word(request, word):
+    """
+    Unbookmark a word for the user.
+    """
+    try:
+        user = request.user
+        bookmark = WordBookmark.objects.filter(user=user, word=word).first()
+        if not bookmark:
+            return Response({"error": "Word not bookmarked"}, status=status.HTTP_400_BAD_REQUEST)
+
+        bookmark.delete()
+        return Response({"message": "Word unbookmarked successfully"}, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({"error": f"An error occurred: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_bookmarked_words(request):
+    """
+    Get all words bookmarked by the user.
+    """
+    try:
+        user = request.user
+        bookmarks = WordBookmark.objects.filter(user=user)
+        bookmarked_words = [bookmark.word for bookmark in bookmarks]
+        return Response({"bookmarked_words": bookmarked_words}, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({"error": f"An error occurred: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['GET'])
@@ -117,6 +203,7 @@ def get_turkish_translation(request, word):
             {"error": f"An unexpected error occurred: {str(e)}"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
+
 
 @api_view(['GET'])
 def get_word_meanings(request, word):

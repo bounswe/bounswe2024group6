@@ -9,7 +9,7 @@ from app.models import Profile
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+#@permission_classes([IsAuthenticated])
 def view_profile(request):
     user = request.user
     profile = get_object_or_404(Profile, user=user)
@@ -31,7 +31,6 @@ def update_profile(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
 def view_other_profile(request, username):
     """
     View a user's profile by their username.
