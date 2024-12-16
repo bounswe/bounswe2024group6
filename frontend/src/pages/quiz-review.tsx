@@ -33,14 +33,11 @@ export default function QuizReview() {
     if (quizResultID) {
       setIsLoading(true);
       axios
-        .get(
-          `${BASE_URL}/quiz/review/${quizResultID}/`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        )
+        .get(`${BASE_URL}/quiz/review/${quizResultID}/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
         .then((response) => {
           console.log(response.data);
           setQuizData(response.data);
@@ -48,10 +45,13 @@ export default function QuizReview() {
             (question: any) => Answer.None
           );
           setAnswers(initialAnswers);
-          const answersArray = Array.from({ length: response.data.question_count }, (_, index) => {
-            const question = response.data.questions[index];
-            return question.correct_choice === question.previous_answer;
-          });
+          const answersArray = Array.from(
+            { length: response.data.question_count },
+            (_, index) => {
+              const question = response.data.questions[index];
+              return question.correct_choice === question.previous_answer;
+            }
+          );
           setPreviousAnswers(answersArray);
         })
         .catch((error) => {
@@ -85,55 +85,69 @@ export default function QuizReview() {
         previous_answers={previousAnswers}
       >
         <div className="flex flex-col items-center overflow-hidden">
-          <h1 className="font-semibold text-4xl mt-3 mb-1 text-blue-900">
-            {quizData?.quiz_title}
-          </h1>
-          <div className="flex flex-col items-center py-4">
-            <QuestionCard
-              quiz_progress_id={quizData?.quiz_progress_id}
-              ques_count={quizData?.question_count}
-              answers={answers}
-              setAnswers={setAnswers}
-              cur_question={currentPage}
-              option_a={currentQuestion?.choices[0]}
-              option_b={currentQuestion?.choices[1]}
-              option_c={currentQuestion?.choices[2]}
-              option_d={currentQuestion?.choices[3]}
-              question={currentQuestion?.question}
-              correct={currentQuestion?.correct_choice}
-              previous_answer={currentQuestion?.previous_answer}
-              isReview={true}
-            />
-          </div>
-          <div className="flex justify-center items-center gap-24 my-1">
-            <Button
-              size="lg"
-              variant="flat"
-              color="primary"
-              {...(currentPage === 1 && { disabled: true })}
-              onPress={() =>
-                setCurrentPage((prev) => (prev > 1 ? prev - 1 : prev))
-              }
-              className="w-32"
-            >
-              Previous
-            </Button>
-            <Button
-              size="lg"
-              variant="flat"
-              color="primary"
-              {...(currentPage === quizData?.question_count && { disabled: true })}
-              onPress={() =>
-                setCurrentPage((prev) => (prev < quizData?.question_count ? prev + 1 : prev))
-              }
-              className="w-32"
-            >
-              Next
-            </Button>
+          <div className="flex flex-row items-start gap-8 w-full justify-center">
+            {currentQuestion?.question_image && (
+              <div className="w-[400px] h-[400px] flex mt-24 items-center justify-center rounded-lg overflow-hidden bg-gray-50 shadow-md">
+                <img
+                  src={currentQuestion.question_image}
+                  alt="Question"
+                  className="max-w-full max-h-full object-contain p-2"
+                />
+              </div>
+            )}
+            <div className="flex flex-col items-center py-4">
+              <h1 className="font-semibold text-4xl mt-3 mb-4 text-blue-900">
+                {quizData?.quiz_title}
+              </h1>
+              <QuestionCard
+                quiz_progress_id={quizData?.quiz_progress_id}
+                ques_count={quizData?.question_count}
+                answers={answers}
+                setAnswers={setAnswers}
+                cur_question={currentPage}
+                option_a={currentQuestion?.choices[0]}
+                option_b={currentQuestion?.choices[1]}
+                option_c={currentQuestion?.choices[2]}
+                option_d={currentQuestion?.choices[3]}
+                question={currentQuestion?.question}
+                correct={currentQuestion?.correct_choice}
+                previous_answer={currentQuestion?.previous_answer}
+                isReview={true}
+              />
+              <div className="flex justify-center items-center gap-24 mt-4 my-1">
+                <Button
+                  size="lg"
+                  variant="flat"
+                  color="primary"
+                  {...(currentPage === 1 && { disabled: true })}
+                  onPress={() =>
+                    setCurrentPage((prev) => (prev > 1 ? prev - 1 : prev))
+                  }
+                  className="w-32"
+                >
+                  Previous
+                </Button>
+                <Button
+                  size="lg"
+                  variant="flat"
+                  color="primary"
+                  {...(currentPage === quizData?.question_count && {
+                    disabled: true,
+                  })}
+                  onPress={() =>
+                    setCurrentPage((prev) =>
+                      prev < quizData?.question_count ? prev + 1 : prev
+                    )
+                  }
+                  className="w-32"
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </SidebarLayout>
     </div>
   );
 }
-
