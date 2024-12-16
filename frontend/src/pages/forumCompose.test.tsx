@@ -46,9 +46,9 @@ describe("ComposePostForm", () => {
   it("renders form elements", () => {
     expect(screen.getByTestId("post-title-input")).toBeInTheDocument();
     expect(screen.getByTestId("post-content-input")).toBeInTheDocument();
-    expect(screen.getByTestId("category-select")).toBeInTheDocument();
     expect(screen.getByTestId("difficulty-select")).toBeInTheDocument();
     expect(screen.getByTestId("submit-post-button")).toBeInTheDocument();
+    expect(screen.getByTestId("add-tag-button")).toBeInTheDocument();
   });
 
   it("handles input changes", () => {
@@ -76,12 +76,6 @@ describe("ComposePostForm", () => {
     const contentInput = screen.getByTestId("post-content-input");
     await user.type(contentInput, "Test Content");
 
-    const categorySelect = screen.getByTestId("category-select");
-    await user.click(categorySelect);
-
-    const grammarOption = await screen.findByTestId("category-option-Grammar");
-    await user.click(grammarOption);
-
     await waitFor(() => {
       const submitButton = screen.getByTestId("submit-post-button");
       expect(submitButton).not.toBeDisabled();
@@ -93,10 +87,6 @@ describe("ComposePostForm", () => {
 
     await user.type(screen.getByTestId("post-title-input"), "Test Title");
     await user.type(screen.getByTestId("post-content-input"), "Test Content");
-
-    await user.click(screen.getByTestId("category-select"));
-    const grammarOption = await screen.findByTestId("category-option-Grammar");
-    await user.click(grammarOption);
 
     const submitButton = screen.getByTestId("submit-post-button");
     await waitFor(() => {
@@ -110,10 +100,30 @@ describe("ComposePostForm", () => {
         expect.objectContaining({
           title: "Test Title",
           description: "Test Content",
-          tags: expect.arrayContaining(["#Grammar"]),
+          tags: [],
         }),
         expect.any(Object)
       );
+    });
+  });
+
+  it("opens and closes tag search modal", async () => {
+    const user = userEvent.setup();
+
+    const addTagButton = screen.getByTestId("add-tag-button");
+    await user.click(addTagButton);
+
+    await waitFor(() => {
+      const tagSearchModal = screen.getByRole("dialog");
+      expect(tagSearchModal).toBeInTheDocument();
+    });
+
+    // Close modal using Escape key since there's no explicit close button
+    await user.keyboard('{Escape}');
+
+    await waitFor(() => {
+      const tagSearchModal = screen.queryByRole("dialog");
+      expect(tagSearchModal).not.toBeInTheDocument();
     });
   });
 });
