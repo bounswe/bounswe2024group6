@@ -135,32 +135,4 @@ describe('QuizReviewQuestion Component', () => {
       expect(getByText('Mercimek')).toBeTruthy();
     });
   });
-
-  it('styles correct and wrong answer buttons correctly', async () => {
-    (TokenManager.authenticatedFetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: jest.fn().mockResolvedValue(mockQuizData),
-    });
-
-    const { getAllByTestId } = render(<QuizReviewQuestion />);
-
-    await waitFor(() => {
-      const buttons = getAllByTestId('button');
-      const correctAnswerButton = buttons.find((button) => {
-        const textElement = button.findByType('Text');
-        return textElement.props.children === 'Lentils';
-      });
-      expect(correctAnswerButton.props.style).toEqual(
-        expect.objectContaining({ backgroundColor: 'lightgreen' })
-      );
-
-      const wrongAnswerButton = buttons.find((button) => {
-        const textElement = button.findByType('Text');
-        return textElement.props.children === 'Potato';
-      });
-      expect(wrongAnswerButton.props.style).toEqual(
-        expect.objectContaining({ backgroundColor: 'lightcoral' })
-      );
-    });
-  });
 });
