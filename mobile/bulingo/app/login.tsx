@@ -36,15 +36,42 @@ export default function Home() {
         },
         body: JSON.stringify(params),
       });
-      const json = await response.json();
-      if ("access" in json){
-        const { access, refresh } = json;
-        TokenManager.saveTokens(access, refresh);
-        TokenManager.setUsername(username);
-        Alert.set("Login Successful");
-        router.navigate('/');
+
+      if (response.ok){
+        const json = await response.json();
+        if ("access" in json){
+          const { access, refresh } = json;
+          TokenManager.saveTokens(access, refresh);
+          TokenManager.setUsername(username);
+          Alert.set("Login Successful");
+          try{
+            const isAdminUrl = 'admin-check/';
+            const responseIsAdmin = await TokenManager.authenticatedFetch(isAdminUrl, {
+              method: 'GET',
+              headers: {
+                "Content-Type": "application/json",
+              },
+            })
+
+            if (response.ok){
+              const result = await responseIsAdmin.json();
+              TokenManager.setIsAdmin(result.is_admin)
+            } else {
+              console.warn(response.status);
+            }
+          } catch (error) {
+            console.error(error);
+          }
+
+
+
+
+          router.navigate('/');
+        } else {
+          console.warn(json);
+        }
       } else {
-        setNotification("Incorrect Login information.")
+        setNotification("Incorrect Login information. You may be banned. ")
         setIsErrorVisible(true);
       };
     } catch (error) {

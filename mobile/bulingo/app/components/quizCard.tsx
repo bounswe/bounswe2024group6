@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TouchableOpacity, Image, Text, View, StyleSheet, useColorScheme } from 'react-native';
-import GuestModal from './guestModal';
+import AdminOptions from './adminOptions';
+import TagEdit from './tagEdit';
 import TokenManager from '../TokenManager';
+import { router } from 'expo-router';
+import GuestModal from './guestModal';
 import { FontAwesome } from '@expo/vector-icons';
 import PressableText from '../pressableText';
 
@@ -23,6 +26,9 @@ type QuizCardProps = {
 export default function QuizCard(props: QuizCardProps){
   const [likes, setLikes] = useState(props.likes);
   const [liked, setLiked] = useState(props.liked);
+  const [isAdminOptionsVisible, setIsAdminOptionsVisible] = useState(false);
+  const [isTagEditVisible, setIsTagEditVisible] = useState(false);
+  const [tags, setTags] = useState<string[]>([]);
   const [guestModalVisible, setGuestModalVisible] = useState(false);
 
   const colorScheme = useColorScheme();
@@ -58,12 +64,82 @@ export default function QuizCard(props: QuizCardProps){
     props.onBookmarkPress && props.onBookmarkPress(id);
   };
 
+  const handleAdminDeleteQuiz = async () => {
+    const url = 'quiz/delete/';
+    const params = {
+      'quiz_id': props.id,
+    }
+    try{
+      const response = await TokenManager.authenticatedFetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(params),
+      })
+
+      if (response.ok){
+        console.log("Quiz Deletion successful")
+      } else {
+        console.log(response.status)
+      };
+      router.replace('/?notification=Quiz Deleted Successfully');
+    } catch(error) {
+      console.error(error)
+    }
+  }
+
+  useEffect(() => {
+    fetchQuizTags();
+  },[])
+
+  const fetchQuizTags = async () => {
+    const url = `quiz/${props.id}/`;
+    try {
+      const response = await TokenManager.authenticatedFetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if(response.ok){
+        const res = await response.json()
+        setTags(res.quiz.tags);
+        console.log(res);
+      } else{
+        console.warn(response.status)
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   return (
     <>
       {guestModalVisible && <GuestModal onClose={() => setGuestModalVisible(false)}/>}
+      { isTagEditVisible && 
+        <TagEdit type="Quiz" id='placeholder' onClose={() => setIsTagEditVisible(false)} tags={tags}/>
+      }
+      { isAdminOptionsVisible &&
+        <AdminOptions onClose={()=>setIsAdminOptionsVisible(false)} options={[
+          {
+            text: "Delete Quiz", 
+            onPress: handleAdminDeleteQuiz
+          }, 
+          {
+            text: "Change Quiz Tags", 
+            onPress: ()=>{
+              setIsTagEditVisible(true);
+              console.log("Change Quiz Tags Pressed"); /* Placeholder until endpoint is ready */ 
+            }
+          }, 
+        ]}
+        />
+      }
       <TouchableOpacity
         style={[styles.quizItem, styles.elevation]}
         onPress={() => handleQuizPress(props.id)}
+        onLongPress={() => TokenManager.getIsAdmin() && setIsAdminOptionsVisible(true)}
         testID='quiz'
       >
         <View style={styles.quizTop}>
@@ -75,7 +151,7 @@ export default function QuizCard(props: QuizCardProps){
         <View style={styles.quizBottom}>
           <View style={styles.quizBottomLeft}>
             <Text style={styles.quizAuthor}>by {props.author}</Text>
-            <Text style={styles.quizLevel}>{props.level}</Text>
+            {props.level && <Text style={styles.quizLevel}>{props.level}</Text>}
           </View>
           <TouchableOpacity style={styles.likeButton} onPress={() => handleLikePress(props.id)} testID='likeButton'>
             <Text style={styles.quizLikes}>
@@ -92,8 +168,8 @@ export default function QuizCard(props: QuizCardProps){
           />
         </TouchableOpacity>
       </View>
-      </TouchableOpacity>
-    </>
+    </TouchableOpacity>
+  </>
   );
 }
 

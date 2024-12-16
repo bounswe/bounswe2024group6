@@ -66,6 +66,7 @@ export default function Tab() {
               level: item.data.tags[0]
             }
           }));
+          console.log(transformed_data[0].data.tags)
         } else if (dataType == "user"){
           const username = TokenManager.getUsername();
           transformed_data = transformed_data.map((item:any) => ({
@@ -101,7 +102,6 @@ export default function Tab() {
             }
           }));
         }
-        console.log(transformed_data)
         setSearchResults(transformed_data);
       } else {
         console.error(response.status);

@@ -3,6 +3,7 @@ import { TouchableOpacity, View, Image, StyleSheet, Text } from 'react-native';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import { router } from 'expo-router';
 import TokenManager from '@/app/TokenManager';
+import AdminOptions from '@/app/components/adminOptions';
 import GuestModal from '@/app/components/guestModal';
 
 type UserCardProps = {
@@ -17,6 +18,8 @@ type UserCardProps = {
 };
 
 const UserCard = (props: UserCardProps) => {
+  const [isAdminOptionsVisible, setIsAdminOptionsVisible] = useState(false);
+
   const [guestModalVisible, setGuestModalVisible] = useState(false);
 
   const handleButtonPress = async () => {
@@ -80,45 +83,84 @@ const UserCard = (props: UserCardProps) => {
       console.log("Wrong 'buttonStyleNo' prop passed to UserCard component!")
       break;
   }
+
+  const handleAdminBanUser = async() => {
+    const url = 'admin-ban/';
+    const params = {
+      'username': props.username,
+    }
+    try{
+      const response = await TokenManager.authenticatedFetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(params),
+      })
+
+      if (response.ok){
+        console.log("User banned successful")
+      } else {
+        console.log(response.status)
+      };
+      setIsAdminOptionsVisible(false);
+    } catch(error) {
+      console.error(error)
+    }
+  }
   
 
   return (
     <>
       {guestModalVisible && <GuestModal onClose={() => setGuestModalVisible(false)}/>}
-      <TouchableOpacity style={styles.followerContainer} onPress={handleCardPress} testID='card'>
+      { isAdminOptionsVisible &&
+        <AdminOptions onClose={()=>setIsAdminOptionsVisible(false)} options={[
+          {
+            text: "Ban User", 
+            onPress: handleAdminBanUser
+          }, 
+        ]}
+        />
+      }
+      <TouchableOpacity 
+        style={styles.followerContainer} 
+        onPress={handleCardPress} 
+        onLongPress={() => TokenManager.getIsAdmin() && setIsAdminOptionsVisible(true)}
+        testID='card'
+      >
         <View style={styles.profilePictureContainer}>
-          {props.profilePictureUri 
-            ? (
-              <Image 
-                source={{
-                  uri: props.profilePictureUri,
-                }} 
-                style={styles.profilePicture}
-              />
-            )
-            : (
-              <Image 
-                source={require('@/assets/images/profile-icon.png')}
-                style={styles.profilePicture}
-              />
-            )}
+        {props.profilePictureUri 
+          ? (
+            <Image 
+              source={{
+                uri: props.profilePictureUri,
+              }} 
+              style={styles.profilePicture}
+            />
+          )
+          : (
+            <Image 
+              source={require('@/assets/images/profile-icon.png')}
+              style={styles.profilePicture}
+            />
+          )}
+      </View>
+      <View style={styles.usernameContainer}>
+        <Text style={styles.usernameText}>{props.username.length <= 12 ? props.username : `${props.username.slice(0, 10)}..`}</Text>
+      </View>
+      <View style={styles.followerContainerRightCompartment}>
+        <View style={styles.levelContainer}>
+          <Text style={styles.levelText}>{props.level}</Text>
         </View>
-        <View style={styles.usernameContainer}>
-          <Text style={styles.usernameText}>{props.username.length <= 12 ? props.username : `${props.username.slice(0, 10)}..`}</Text>
-        </View>
-        <View style={styles.followerContainerRightCompartment}>
-          <View style={styles.levelContainer}>
-            <Text style={styles.levelText}>{props.level}</Text>
+        { props.buttonStyleNo != 3 &&
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={[styles.buttonStyle, buttonStyleAddOn]} onPress={handleButtonPress} testID='button'>
+              <Text style={[styles.buttonText, {color: buttonTextColor}]}>{props.buttonText}</Text>
+            </TouchableOpacity>
           </View>
-          { props.buttonStyleNo != 3 &&
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity style={[styles.buttonStyle, buttonStyleAddOn]} onPress={handleButtonPress} testID='button'>
-                <Text style={[styles.buttonText, {color: buttonTextColor}]}>{props.buttonText}</Text>
-              </TouchableOpacity>
-            </View>
-          }
-        </View>
-      </TouchableOpacity>
+        }
+      </View>
+    </TouchableOpacity>
     </>
   );
 };

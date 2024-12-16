@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
-import GuestModal from './guestModal';
 import TokenManager from '../TokenManager';
+import AdminOptions from './adminOptions';
+import TagEdit from './tagEdit';
+import { router } from 'expo-router';
+import GuestModal from './guestModal';
 import PressableText from '../pressableText';
 
 interface PostCardProps {
@@ -33,7 +36,10 @@ const PostCard: React.FC<PostCardProps> = ({
   onBookmark,
   onPress,
 }) => {
+  const [isAdminOptionsVisible, setIsAdminOptionsVisible] = useState(false);
+  const [isTagEditVisible, setIsTagEditVisible] = useState(false);
   const [guestModalVisible, setGuestModalVisible] = useState(false);
+
 
   const handleLikePress = () => {
     if(!TokenManager.getUsername()){
@@ -51,13 +57,64 @@ const PostCard: React.FC<PostCardProps> = ({
     onBookmark();
   }
 
+  const handleAdminDeletePost = async () => {
+    const url = 'post/delete/';
+    const params = {
+      'post_id': id,
+    }
+    try{
+      const response = await TokenManager.authenticatedFetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(params),
+      })
+
+      if (response.ok){
+        console.log("Post Deletion successful")
+        router.replace('/?notification=Post Deleted Successfully');
+      } else {
+        console.log(response.status)
+      };
+    } catch(error) {
+      console.error(error)
+    }
+  }
+  
+
   return (
     <>
       {guestModalVisible && <GuestModal onClose={() => setGuestModalVisible(false)}/>}
-      <TouchableOpacity onPress={onPress} testID='card'>
+      { isTagEditVisible && 
+        <TagEdit type="Quiz" id={id} onClose={() => setIsTagEditVisible(false)} tags={tags}/>
+      }
+      { isAdminOptionsVisible &&
+        <AdminOptions onClose={()=>setIsAdminOptionsVisible(false)} options={[
+          {
+            text: "Delete Post",
+            onPress: handleAdminDeletePost
+          },
+          {
+            text: "Change Post Tags",
+            onPress: ()=>{
+              setIsTagEditVisible(true);
+              console.log("Change Post Tags Pressed") /* Placeholder until endpoint is ready */ 
+            }
+          },
+        ]}
+        />
+      }
+      <TouchableOpacity 
+        onPress={onPress} 
+        onLongPress={() => TokenManager.getIsAdmin() && setIsAdminOptionsVisible(true)}
+        testID='card'
+      >
         <View style={styles.cardContainer}>
           <View style={styles.header}>
-            <PressableText style={styles.title} text={title}/>
+            {/* <PressableText style={styles.title}</> */}
+          <PressableText style={styles.title} text={title}/>
+            {/* <Text style={styles.title}>{title}</Text> */}
             <Text style={styles.author}>by {author}</Text>
           </View>
           <View style={styles.tagsContainer}>
@@ -73,9 +130,9 @@ const PostCard: React.FC<PostCardProps> = ({
                 <FontAwesome name="arrow-up" size={20} color="green" />
                 <Text style={styles.upvoteCount}>{likes}</Text>
               </TouchableOpacity>
-              */}
+                */}
               <TouchableOpacity style={styles.likeButton} onPress={handleLikePress} testID={'likeButton'}>
-              <Text style={styles.quizLikes}>
+                <Text style={styles.quizLikes}>
               <Image source={liked ? require('../../assets/images/like-2.png') : require('../../assets/images/like-1.png')}style={styles.icon} /> 
               {likes}
               </Text>

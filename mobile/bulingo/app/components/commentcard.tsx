@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image, Pressable } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import GuestModal from './guestModal';
 import TokenManager from '../TokenManager';
+import AdminOptions from './adminOptions';
 import PressableText from '../pressableText';
 import {router} from 'expo-router';
 import { fetchCommentAuthorImage } from '../api/forum';
@@ -18,10 +19,13 @@ interface CommentCardProps {
     likes: number;
 }
 
+
+
 const CommentCard: React.FC<CommentCardProps> = ({ id, isBookmarked: initialBookmark, username, comment, onUpvote, liked, likes }) => {
   const [isBookmarked, setIsBookmarked] = useState(initialBookmark);
   const [imageLink, setImageLink] = useState<string | null>(null);
   const [guestModalVisible, setGuestModalVisible] = useState(false);
+  const [isAdminOptionsVisible, setIsAdminOptionsVisible] = useState(false);
 
 
     useEffect(() => {
@@ -79,11 +83,48 @@ const handleBookmarkPress = () => {
     toggleBookmark();
 }
 
-  return (
-    <>
-      {guestModalVisible && <GuestModal onClose={() => setGuestModalVisible(false)}/>}
-      <View style={styles.cardContainer}>
+const handleAdminDeleteComment = async () => {
+  const url = 'post/comment/delete/';
+  const params = {
+    'comment_id': id,
+    'user': TokenManager.getUsername(),
+  }
+  try{
+    const response = await TokenManager.authenticatedFetch(url, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(params),
+    })
 
+    if (response.ok){
+      console.log("Comment Deletion successful")
+    } else {
+      console.log(response.status)
+    };
+    router.replace('/?notification=Comment Deleted Successfully');
+  } catch(error) {
+    console.error(error)
+  }
+}
+
+    return (
+        <>
+        {guestModalVisible && <GuestModal onClose={() => setGuestModalVisible(false)}/>}
+        { isAdminOptionsVisible &&
+            <AdminOptions onClose={()=>setIsAdminOptionsVisible(false)} options={[
+            {
+                text: "Delete Comment",
+                onPress: handleAdminDeleteComment
+            },
+            ]}
+            />
+        }
+        <Pressable 
+            style={styles.cardContainer}
+            onLongPress={() => TokenManager.getIsAdmin() && setIsAdminOptionsVisible(true)}
+        >  
         <TouchableOpacity onPress={redirectToAuthorProfilePage}>
         <View style={styles.profileSection}>
           <View style={styles.profileIcon}>
@@ -97,10 +138,10 @@ const handleBookmarkPress = () => {
           <Text style={styles.userName}>{username}</Text>
         </View>
         </TouchableOpacity>
-
-        <View style={styles.commentSection}>
-          <PressableText style={styles.commentText} text={comment} />
-        </View>
+            
+            <View style={styles.commentSection}>
+              <PressableText style={styles.commentText} text={comment} />
+            </View>
 
         <View style={styles.actionsContainer}>
           <TouchableOpacity style={styles.likeButton} onPress={handleLikePress} testID='likeButton'>
@@ -113,14 +154,12 @@ const handleBookmarkPress = () => {
 
 
                 {/* Bookmark Button */}
-                <TouchableOpacity onPress={handleBookmarkPress} style={styles.bookmarkButton}>
+                <TouchableOpacity onPress={toggleBookmark} style={styles.bookmarkButton}>
                     <FontAwesome name={isBookmarked ? 'bookmark' : 'bookmark-o'} size={20} color="black" />
                 </TouchableOpacity>
             </View>
             
-        </View>
-
-        
+        </Pressable>
         </>
     );
 };

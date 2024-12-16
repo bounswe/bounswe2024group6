@@ -99,11 +99,11 @@ export default function Home() {
         />
       </View>
       <View style={styles.messageContainer}>
-        <PressableText style={styles.bigText} text="Welcome!"/>
-        <PressableText 
-          style={username? styles.username : styles.text}
-          text={username ? username :"You are not logged in. Register or Log In to access all features."}
-        />
+        <Text style={styles.bigText}>Welcome!</Text>
+        <Text 
+          style={username? styles.username : styles.text}>
+          {username ? username :"You are not logged in. Register or Log In to access all features."}
+        </Text>
       </View>
       {username ?
         <View style={styles.buttonsContainer}>

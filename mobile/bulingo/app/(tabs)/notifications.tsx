@@ -39,40 +39,179 @@ function timeDifferenceToString(isoTimestamp: string): string {
 
 const dbg_notifications: any[] = [];
 
+type Activity = {
+  actor: string,
+  affected_username: string,
+  object_id: number,
+  object_name: string,
+  object_type: string,
+  timestamp: string,
+  verb: string,
+};
+
 const NotificationItem = ( {activity} : any ) => {
-  const ActivityToComponent = (activity: any) => {
+  const ActivityToComponent = (activity: Activity) => {
     const username = TokenManager.getUsername();
-    const handlePress = (user: any) => {
-      if (user == username){
-        router.navigate("/(tabs)/profile")
-      } else {
-        router.navigate('/(tabs)/profile')
+
+    const handlePress = () => {
+      if(activity.verb == "deleted"){
+        return
+      }
+      else if(getLast() == "Quiz"){
+        goToQuiz();
+      }
+      else if(getLast() == "Post"){
+        goToPost();
+      }
+      else if(getLast() == "Comment"){
+        goToComment();
+      }
+      else {
+        console.error("Unhandled getLast: ", getLast());
+      }
+    };
+
+    const goToProfile = (_username: string) => {
+      router.navigate("/(tabs)/profile")
+      if(username != _username){
         setTimeout(() => {
-          router.push(`/(tabs)/profile/users/${user}`);
+          router.push(`/(tabs)/profile/users/${_username}`);
         }, 0);
       }
-      console.log("text Pressed");
-    };
+    }
+
+    const goToQuiz = () => {
+      router.push({
+        pathname: '/(tabs)/quizzes/quizDetails',
+        params: { id: activity.object_id },
+      });
+    }
+
+    const goToPost = () => {
+      router.push({pathname: '/(tabs)/forums/forumPostPage', params: {"id": activity.object_id }});
+    }
+
+    const goToComment = () => {
+      console.log("Comment pressed")
+    }
+
+    const getMiddle = () => {
+      if(activity.verb == 'solved'){
+        return 'solved your'
+      } 
+      else if(activity.verb == "followed") {
+        return "followed"
+      }
+      else if(activity.verb == 'unfollowed'){
+        return 'unfollowed'
+      }
+      else if(activity.verb == "deleted"){
+        return "deleted your"
+      }
+      else if(activity.verb == "liked"){
+        return "liked your"
+      }
+      else if(activity.verb == "created"){
+        return "created a"
+      }
+      else if(activity.verb == 'commented'){
+        return "commented under your"
+      }
+      else if(activity.verb == 'updated'){
+        return "updated your"
+      }
+      else if(activity.verb == "banned"){
+        return "was banned!"
+      }
+      else {
+        return "UNH: " + activity.verb
+      }
+    }
+
+    const getLast = () => {
+      if(activity.verb == 'solved'){
+        return 'Quiz'
+      } 
+      else if(activity.verb == "followed" || activity.verb == 'unfollowed') {
+        return activity.actor == username ? activity.actor : "You"
+      }
+      else if(activity.verb == "liked" || activity.verb == "created"){
+        if(activity.object_type == "Quiz"){
+          return "Quiz";
+        } 
+        else if(activity.object_type == "Post") {
+          return "Post"
+        }
+        else if (activity.object_type == "Comment"){
+          return "Comment"
+        } 
+        else {
+          return "UNH2 " + activity.object_type
+        }
+      }
+      else if(activity.verb == 'commented'){
+        return "Post"
+      }
+      else if(activity.verb == "updated"){
+        if(activity.object_type == "Quiz"){
+          return "Quiz";
+        } 
+        else if(activity.object_type == "Post") {
+          return "Post"
+        }
+        else {
+          return "UNH2 " + activity.object_type
+        }
+      }
+      else if(activity.verb == 'deleted'){
+        if(activity.object_type == "Quiz"){
+          return `Quiz (${activity.object_name})`;
+        } 
+        else if(activity.object_type == "Post") {
+          return `Post (${activity.object_name})`
+        }
+        else if (activity.object_type == "Comment"){
+          return `Comment (${activity.object_name})`
+        } 
+        else {
+          return "UNH2 " + activity.object_type
+        }
+      }
+      else if(activity.verb == "banned"){
+        return "";
+      }
+      else {
+        return "UNH: " + activity.verb
+      }
+    }
+
     return (
       <Text style={styles.notificationText}>
-        <Text style={styles.clickableText} onPress={() => handlePress(activity.actor)}>
+        <Text style={styles.clickableText} onPress={() => goToProfile(activity.actor)}>
           {activity.actor==username ? "You" : activity.actor}
-        </Text>{' '}
-        {activity.verb}{' '}
-        <Text style={styles.clickableText} onPress={() => handlePress(activity.affected_username)}>
-          {activity.affected_username==username ? "You" : activity.affected_username}
-        </Text>{' '}
+        </Text>
+        {' '}
+        {getMiddle()}
+        {' '}
+        <Text style={activity.verb == "deleted" ? null : styles.clickableText} onPress={() => handlePress()}>
+          {getLast()}
+        </Text>
+        {' '}
         {timeDifferenceToString(activity.timestamp)}
       </Text>
     );
   }
 
+  const act: Activity = activity;
+  console.log(act);
   return (
     <View style={styles.notificationContainer}>
       <View style={styles.profileInfoTopPictureContainer}>
         <Image source={require("@/assets/images/profile-icon.png")} style={styles.profileInfoTopPicture}/>
       </View>
-      {ActivityToComponent(activity)}
+      <View style={styles.textWrapper}>
+        {ActivityToComponent(act)}
+      </View>
     </View>
   );
 }
@@ -164,6 +303,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
   },
+  textWrapper: {
+    flexWrap: 'wrap',
+    alignItems: 'center',
+  },
   profileInfoTopPictureContainer: {
     marginRight: 12,
   },
@@ -173,7 +316,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   notificationText: {
-    fontSize: 16,
+    fontSize: 14,
     color: 'black',
   },
   title: {
@@ -187,7 +330,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   clickableText: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#1a73e8', // Blue for clickable text
   },
 });
