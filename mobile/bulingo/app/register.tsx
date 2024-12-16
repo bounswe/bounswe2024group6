@@ -12,7 +12,6 @@ const Register = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errors, setErrors] = useState({ email: '', password: '', confirmPassword: '', username: '' });
-  const [level, setLevel] = useState('A1');
   const [isFormValid, setIsFormValid] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
 
@@ -184,24 +183,6 @@ const Register = () => {
       />
       <View style={{ minHeight: 18 }}>
         {errors.confirmPassword ? <Text style={styles.error}>{errors.confirmPassword}</Text> : null}
-      </View>
-
-
-      
-      <Text style={styles.label}>Level:</Text>
-      <View style={{borderRadius: 10, overflow: 'hidden', marginBottom: 16}}>
-      <Picker
-        selectedValue={level}
-        style={styles.picker}
-        onValueChange={(itemValue) => setLevel(itemValue)}
-      >
-        <Picker.Item label="A1" value="A1" />
-        <Picker.Item label="A2" value="A2" />
-        <Picker.Item label="B1" value="B1" />
-        <Picker.Item label="B2" value="B2" />
-        <Picker.Item label="C1" value="C1" />
-        <Picker.Item label="C2" value="C2" />
-      </Picker>
       </View>
 
       <TouchableOpacity 

@@ -30,6 +30,7 @@ export default function QuizCard(props: QuizCardProps){
   const [isTagEditVisible, setIsTagEditVisible] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
   const [guestModalVisible, setGuestModalVisible] = useState(false);
+  const [level, setLevel] = useState(props.level);
 
   const colorScheme = useColorScheme();
   const styles = getStyles(colorScheme);
@@ -91,6 +92,7 @@ export default function QuizCard(props: QuizCardProps){
 
   useEffect(() => {
     fetchQuizTags();
+    console.log(props.level)
   },[])
 
   const fetchQuizTags = async () => {
@@ -105,6 +107,7 @@ export default function QuizCard(props: QuizCardProps){
       if(response.ok){
         const res = await response.json()
         setTags(res.quiz.tags);
+        setLevel(res.quiz.level);
         console.log(res);
       } else{
         console.warn(response.status)
@@ -151,7 +154,7 @@ export default function QuizCard(props: QuizCardProps){
         <View style={styles.quizBottom}>
           <View style={styles.quizBottomLeft}>
             <Text style={styles.quizAuthor}>by {props.author}</Text>
-            {props.level && <Text style={styles.quizLevel}>{props.level}</Text>}
+            {level && <Text style={styles.quizLevel}>{level}</Text>}
           </View>
           <TouchableOpacity style={styles.likeButton} onPress={() => handleLikePress(props.id)} testID='likeButton'>
             <Text style={styles.quizLikes}>

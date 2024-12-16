@@ -63,10 +63,9 @@ export default function Tab() {
             ...item,
             data: {
               ...item.data,
-              level: item.data.tags[0]
+              level: item.data.tags[0],
             }
           }));
-          console.log(transformed_data[0].data.tags)
         } else if (dataType == "user"){
           const username = TokenManager.getUsername();
           transformed_data = transformed_data.map((item:any) => ({
