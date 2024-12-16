@@ -184,6 +184,7 @@ export default function Followers() {
           return (
             <PostCard title={item.title} id={item.id} author={TokenManager.getUsername() || ''} likes={item.like_count} 
               liked={item.is_liked} tags={item.tags} feedOrPost='feed' isBookmarked={item.is_bookmarked} 
+              description={item.description}
               onUpvote={() => handleLikePress(item.id)}
               onBookmark={() => handleBookmarkPress(item.id)}
               onPress={() => handlePostPress(item.id)}

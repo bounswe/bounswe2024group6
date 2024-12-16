@@ -17,6 +17,7 @@ interface PostCardProps {
   liked: boolean;
   isBookmarked: boolean;
   feedOrPost: string;
+  description: string;
   onUpvote: (id:any) => void;
   onBookmark: () => void;
   onPress?: () => void;
@@ -32,6 +33,7 @@ const PostCard: React.FC<PostCardProps> = ({
   liked,
   isBookmarked,
   feedOrPost,
+  description,
   onUpvote,
   onBookmark,
   onPress,
@@ -114,6 +116,7 @@ const PostCard: React.FC<PostCardProps> = ({
           <View style={styles.header}>
             {/* <PressableText style={styles.title}</> */}
           <PressableText style={styles.title} text={title}/>
+          <PressableText style={styles.description} text={description}/>
             {/* <Text style={styles.title}>{title}</Text> */}
             <Text style={styles.author}>by {author}</Text>
           </View>
@@ -169,6 +172,10 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: 'bold',
+    color: '#333',
+  },
+  description: {
+    fontSize: 14,
     color: '#333',
   },
   author: {

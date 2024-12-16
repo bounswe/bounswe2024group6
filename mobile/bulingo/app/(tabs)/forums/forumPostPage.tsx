@@ -33,6 +33,7 @@ const ForumPostPage = () => {
     bookmarked: boolean;
     tags: string[];
     comments: Comment[];
+    description: string;
   }>({
     id: null,
     title: '',
@@ -41,7 +42,8 @@ const ForumPostPage = () => {
     liked: false,
     bookmarked: false,
     tags: [],
-    comments: []
+    comments: [],
+    description: "",
   });
 
   const [loading, setLoading] = useState(true);
@@ -70,7 +72,8 @@ const ForumPostPage = () => {
           liked: post.is_liked,
           bookmarked: post.is_bookmarked,
           tags: post.tags,
-          comments: post.comments
+          comments: post.comments,
+          description: post.description,
         });
       } catch (error) {
         console.error("Failed to fetch post:", error);
@@ -258,6 +261,7 @@ const ForumPostPage = () => {
           ListHeaderComponent={
             <>
               <PostCard
+                description={post.description}
                 id={String(post.id)}
                 title={post.title}
                 author={post.author}
