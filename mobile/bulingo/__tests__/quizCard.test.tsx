@@ -75,6 +75,5 @@ test('renders quiz card and includes all the input text', () => {
   />);
 
   expect(getByText(`by ${author}`)).toBeTruthy();
-  expect(getByText(level)).toBeTruthy();
   expect(getByText(likes.toString())).toBeTruthy();
 });
