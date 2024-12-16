@@ -212,6 +212,19 @@ def cancel_quiz(request):
     quiz_progress.delete()
     return Response({'message': 'Quiz progress deleted'}, status=status.HTTP_200_OK)
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def cancel_quiz_id(request):
+    quiz_id = request.data.get('quiz_id')
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+    # check if quiz is user's and is not complete
+    quiz_progresses =  QuizProgress.objects.filter(quiz= quiz, user=request.user, completed=False).order_by('-id')
+    if quiz_progresses.count() == 0:
+        return Response({'error': 'No quiz progress found.'}, status=status.HTTP_400_BAD_REQUEST)
+    quiz_progress = quiz_progresses.first()
+    quiz_progress.delete()
+    return Response({'message': 'Quiz progress deleted.'}, status=status.HTTP_200_OK)
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
