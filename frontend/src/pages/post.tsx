@@ -50,7 +50,9 @@ export default function Post() {
           console.log(response.data);
           const postData: PostResponse = response.data.post;
           setPost(convertPostResponseToPost(postData));
-          setComments(convertPostResponseToPost(postData).comments);
+          setComments(
+            convertPostResponseToPost(postData).comments.filter((comment) => comment.parent === Number(postID))
+          );          
         })
         .catch((error) => {
           console.log(error);
