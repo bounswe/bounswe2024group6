@@ -294,7 +294,7 @@ const QuizCreationInfo = () => {
         method: "GET"
       });
       const data = await response.json();
-      
+
       if (!response.ok) {
         console.log('Error generating image:', data);
         return;
@@ -824,6 +824,7 @@ const getStyles = (colorScheme: any) => {
       width: '100%',
       height: 200,
       borderRadius: 10,
+      marginTop:10,
       marginBottom: 10,
     },
     imageTypeText: {
